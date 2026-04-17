@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Info,
   TrendingUp,
-  ShieldCheck,
   CircleDot,
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
@@ -20,9 +19,15 @@ export default function VisaoGeralPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Mesa de decisão · hoje"
-        title="Bom dia, Rafael. A Gregorutt tá saudável."
-        description="Esta é a leitura do CFOup sobre a Gregorutt hoje. Três sinais merecem atenção, nenhum pede ação imediata. A decisão principal tá destacada ali embaixo."
+        eyebrow="Visão geral · hoje"
+        title={
+          <>
+            Bom dia, Roger.
+            <br />
+            Aqui está a visão geral da Gregorutt hoje.
+          </>
+        }
+        description="Veja os principais sinais de caixa, vendas, recebimentos e pagamentos em um só lugar."
         actions={
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span
@@ -40,39 +45,29 @@ export default function VisaoGeralPage() {
         <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
           <div className="grid gap-8 p-8 md:grid-cols-[1.3fr_1fr] md:p-10">
             <div>
-              <div className="mb-5 flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full"
-                  style={{ backgroundColor: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark)" }}
-                >
-                  <ShieldCheck className="h-4 w-4" strokeWidth={2} />
-                </span>
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.18em]"
-                  style={{ color: "var(--brand-green-dark)" }}
-                >
-                  Saúde financeira · Saudável
-                </span>
-              </div>
+              <p
+                className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "var(--brand-blue)" }}
+              >
+                Resumo do momento
+              </p>
 
               <h2
                 id="bloco-resumo"
                 className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
                 style={{ color: "var(--brand-navy)" }}
               >
-                A Gregorutt fechou os últimos 30 dias com caixa crescendo e margem dentro da meta.
+                Aqui estão os principais sinais financeiros da Gregorutt nos últimos 30 dias.
               </h2>
 
               <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
-                A geração de caixa cobriu todas as saídas do período. O CFOup identificou três pontos pra
-                você olhar e uma oportunidade de ganho de margem no próximo ciclo.
+                Use esta visão para acompanhar caixa, recebimentos, pagamentos e pontos que merecem atenção.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">
-                <SignalPill tone="positive" label="Caixa operacional positivo" />
-                <SignalPill tone="neutral" label="Margem dentro da meta" />
-                <SignalPill tone="warning" label="3 pontos pra observar" />
+                <SignalPill tone="neutral" label="Caixa" />
+                <SignalPill tone="neutral" label="Recebimentos" />
+                <SignalPill tone="neutral" label="Pagamentos" />
               </div>
             </div>
 
@@ -94,12 +89,16 @@ export default function VisaoGeralPage() {
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p
+                id="bloco-caixa"
+                className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "var(--brand-blue)" }}
+              >
                 Caixa e liquidez
               </p>
-              <h2 id="bloco-caixa" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
-                Fôlego confortável
-              </h2>
+              <p className="mt-1.5 max-w-md text-[15px] leading-relaxed text-[var(--slate-700)]">
+                Resumo do caixa atual e do ritmo recente da operação.
+              </p>
             </div>
             <Link
               href="/fluxo-de-caixa"
@@ -175,7 +174,7 @@ export default function VisaoGeralPage() {
                 Alertas e exceções
               </p>
               <h2 id="bloco-alertas" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
-                3 itens pra observar
+                3 pontos de atenção
               </h2>
             </div>
             <Link
@@ -191,17 +190,17 @@ export default function VisaoGeralPage() {
             <AlertRow
               severity="warning"
               title="Concentração de receita"
-              body="Um cliente representa 34% da receita dos últimos 90 dias."
+              body="Um cliente representa parte relevante da receita recente."
             />
             <AlertRow
               severity="info"
               title="Conciliação pendente"
-              body="7 lançamentos aguardam categorização no Banco PJ."
+              body="Há lançamentos que ainda precisam ser revisados."
             />
             <AlertRow
               severity="warning"
-              title="Prazo de recebimento aumentou"
-              body="PMR subiu de 28 para 34 dias no último ciclo."
+              title="Prazo de recebimento subiu"
+              body="O dinheiro está demorando mais para entrar."
             />
           </ul>
         </section>
@@ -281,15 +280,14 @@ export default function VisaoGeralPage() {
             Ação principal
           </div>
           <h2 id="bloco-acao" className="mt-3 text-balance text-[1.65rem] font-extrabold leading-tight">
-            Devo antecipar recebíveis este mês?
+            Vale antecipar recebíveis agora?
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-white/85">
-            Com PMR subindo e caixa confortável, o CFOup preparou a leitura em poucas linhas. Mostra o
-            impacto direto no resultado e no fôlego do caixa.
+            Simule o impacto dessa decisão no caixa e nos próximos vencimentos.
           </p>
 
           <Link
-            href={chatHref("Devo antecipar 40% dos recebíveis este mês? Explica o impacto no caixa, no resultado e no fôlego.")}
+            href={chatHref("Qual o impacto de antecipar parte dos recebíveis agora?")}
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
           >
             <Sparkles className="h-4 w-4" strokeWidth={2.2} />

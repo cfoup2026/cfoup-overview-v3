@@ -113,7 +113,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Roger</p>
-              <p className="truncate text-xs text-muted-foreground">Gregorutt</p>
+              <p className="truncate text-xs text-muted-foreground">Admin</p>
             </div>
           </div>
           <Link
