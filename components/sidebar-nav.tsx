@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
 
 export const navItems = [
-  { href: "/", label: "Visão Geral", icon: LayoutDashboard },
+  { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
   { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
   { href: "/cenarios", label: "Cenários", icon: GitBranch },
   { href: "/pendencias", label: "Pendências", icon: AlertCircle },
@@ -39,7 +39,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
     >
       <div className="flex items-center px-6 pt-7 pb-8">
-        <Link href="/" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
+        <Link href="/visao-geral" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
           <CfoupLogo size={34} />
         </Link>
       </div>

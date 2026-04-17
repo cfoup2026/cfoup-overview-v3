@@ -2,13 +2,16 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { cn } from "@/lib/utils"
 
 type Mode = "entrar" | "criar" | "recuperar"
 
 export default function EntrarPage() {
+  const router = useRouter()
   const [mode, setMode] = useState<Mode>("entrar")
+  const [sent, setSent] = useState(false)
 
   const copy = {
     entrar: {
@@ -33,7 +36,7 @@ export default function EntrarPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col px-5 py-8">
         {/* Topo — logo */}
         <div className="flex items-center">
-          <Link href="/" aria-label="CFOup" className="inline-flex">
+          <Link href="/entrar" aria-label="CFOup" className="inline-flex">
             <CfoupLogo size={32} />
           </Link>
         </div>
@@ -51,6 +54,11 @@ export default function EntrarPage() {
             className="flex flex-col gap-3"
             onSubmit={(e) => {
               e.preventDefault()
+              if (mode === "recuperar") {
+                setSent(true)
+                return
+              }
+              router.push("/visao-geral")
             }}
           >
             {mode === "criar" && (
@@ -81,7 +89,10 @@ export default function EntrarPage() {
                   mode === "entrar" ? (
                     <button
                       type="button"
-                      onClick={() => setMode("recuperar")}
+                      onClick={() => {
+                        setSent(false)
+                        setMode("recuperar")
+                      }}
                       className="text-xs font-medium text-[var(--brand-blue)] hover:underline"
                     >
                       Esqueci minha senha
@@ -105,6 +116,15 @@ export default function EntrarPage() {
             >
               {copy.primary}
             </button>
+
+            {mode === "recuperar" && sent && (
+              <p
+                role="status"
+                className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
+              >
+                Se existir uma conta com esse e-mail, você receberá o link em instantes.
+              </p>
+            )}
           </form>
 
           {/* Alternância de modo */}
