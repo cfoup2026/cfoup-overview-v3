@@ -11,6 +11,7 @@ import {
   Settings,
   Waves,
   PieChart,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
@@ -108,21 +109,19 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
               aria-hidden
               className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white"
             >
-              RG
+              R
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Rafael Gregorutt</p>
-              <p className="truncate text-xs text-muted-foreground">Gregorutt · dono</p>
+              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Roger</p>
+              <p className="truncate text-xs text-muted-foreground">Gregorutt</p>
             </div>
           </div>
-          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            CFOup observa suas conexões e traduz os números em decisões.
-          </p>
           <Link
             href="/entrar"
             onClick={onNavigate}
-            className="mt-3 inline-flex text-[11px] font-medium text-muted-foreground hover:text-[var(--brand-navy)]"
+            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:border-[var(--brand-navy)] hover:text-[var(--brand-navy)]"
           >
+            <LogOut className="h-3.5 w-3.5" />
             Sair
           </Link>
         </div>
