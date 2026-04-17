@@ -117,18 +117,25 @@ export default function VisaoGeralPage() {
         {/* Bloco 2 · Caixa / liquidez por período */}
         <LiquidezBlock />
 
-        {/* Bloco 4 · Alertas e exceções */}
+        {/* Bloco 4 · O que precisa de ação */}
         <section
           aria-labelledby="bloco-alertas"
-          className="lg:col-span-5 rounded-2xl border border-border bg-card p-4 md:p-5"
+          className="lg:col-span-5 rounded-2xl border p-4 md:p-5"
+          style={{
+            background: "rgba(234,179,8,0.08)",
+            borderColor: "rgba(234,179,8,0.35)",
+          }}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Alertas e exceções
+              <p
+                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "#92651b" }}
+              >
+                Alertas de execução
               </p>
               <h2 id="bloco-alertas" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-                3 pontos de atenção
+                O que precisa de ação
               </h2>
             </div>
             <Link
@@ -140,7 +147,7 @@ export default function VisaoGeralPage() {
             </Link>
           </div>
 
-          <ul className="mt-3 divide-y divide-border">
+          <ul className="mt-3 divide-y divide-border/60">
             <AlertRow
               severity="warning"
               title="Caixa e recebíveis podem estar misturados"
