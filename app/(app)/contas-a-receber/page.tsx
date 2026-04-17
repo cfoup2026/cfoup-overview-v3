@@ -1,3 +1,5 @@
+"use client"
+
 import { LedgerListView, type LedgerItem, type FilterChip } from "@/components/ledger-list-view"
 
 const items: LedgerItem[] = [
