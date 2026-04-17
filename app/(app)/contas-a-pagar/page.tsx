@@ -88,13 +88,12 @@ const items: LedgerItem[] = [
 
 const filters: FilterChip[] = [
   { id: "all", label: "Tudo" },
+  { id: "vencidos", label: "Vencidos", predicate: (i) => i.status === "vencido" },
   {
     id: "vencendo",
     label: "Vence em 7 dias",
     predicate: (i) => i.daysToDue >= 0 && i.daysToDue <= 7,
   },
-  { id: "vencidos", label: "Vencidos", predicate: (i) => i.status === "vencido" },
-  { id: "revisar", label: "A revisar", predicate: (i) => i.status === "sem-baixa" },
   { id: "em-dia", label: "Em dia", predicate: (i) => i.status === "em-dia" },
 ]
 
@@ -115,12 +114,12 @@ export default function ContasAPagarPage() {
         count: items.length,
         extra: [
           {
-            label: "Vence em 7 dias",
-            value: `${vencendo.length} · ${(vencendo.reduce((a, i) => a + i.amount, 0) / 1000).toFixed(1)}k`,
-          },
-          {
             label: "Vencidos",
             value: `${vencidos.length} · ${(vencidos.reduce((a, i) => a + i.amount, 0) / 1000).toFixed(1)}k`,
+          },
+          {
+            label: "Vence em 7 dias",
+            value: `${vencendo.length} · ${(vencendo.reduce((a, i) => a + i.amount, 0) / 1000).toFixed(1)}k`,
           },
         ],
       }}

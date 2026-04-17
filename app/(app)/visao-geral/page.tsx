@@ -254,7 +254,7 @@ export default function VisaoGeralPage() {
               </h2>
             </div>
             <Link
-              href="/contas-a-pagar"
+              href="/fornecedores"
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
             >
               Ver todos
@@ -283,7 +283,7 @@ export default function VisaoGeralPage() {
 
           {/* Fornecedor mais crítico · Plastibras Insumos */}
           <Link
-            href="/contas-a-pagar"
+            href="/fornecedores/atraso"
             className="group mt-4 flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
           >
             <span
@@ -485,7 +485,7 @@ function TopSupplierRow({ name, share }: { name: string; share: number }) {
   return (
     <li>
       <Link
-        href={`/contas-a-pagar?fornecedor=${encodeURIComponent(name)}`}
+        href={`/fornecedores?fornecedor=${encodeURIComponent(name)}`}
         className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
       >
         <p
