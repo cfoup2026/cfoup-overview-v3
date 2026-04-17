@@ -268,6 +268,87 @@ export default function VisaoGeralPage() {
             <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
           </div>
         </section>
+
+        {/* Bloco 6 · Análise de fornecedores */}
+        <section
+          aria-labelledby="bloco-fornecedores"
+          className="lg:col-span-12 rounded-2xl border border-border bg-card p-4 md:p-5"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Fornecedores
+              </p>
+              <h2
+                id="bloco-fornecedores"
+                className="mt-0.5 text-base font-bold"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                Análise
+              </h2>
+            </div>
+            <Link
+              href="/contas-a-pagar"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
+            >
+              Ver todos
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="mt-3 grid gap-5 md:grid-cols-2">
+            {/* Top 5 fornecedores */}
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Top 5 do período
+              </p>
+              <ul className="mt-2 space-y-1">
+                <TopSupplierRow name="Fornecedor em validação" share={28} />
+                <TopSupplierRow name="Fornecedor em validação" share={18} />
+                <TopSupplierRow name="Fornecedor em validação" share={14} />
+                <TopSupplierRow name="Fornecedor em validação" share={10} />
+                <TopSupplierRow name="Fornecedor em validação" share={8} />
+              </ul>
+            </div>
+
+            {/* Indicadores + Fornecedor mais crítico */}
+            <div className="flex flex-col gap-4 md:border-l md:border-border md:pl-5">
+              <div className="grid grid-cols-3 gap-3">
+                <PortfolioIndicator label="Prazo médio" value="30 dias" />
+                <PortfolioIndicator label="Impacto no custo" value="em validação" />
+                <PortfolioIndicator label="Atraso médio" value="em validação" />
+              </div>
+
+              <Link
+                href="/contas-a-pagar"
+                className="group flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
+              >
+                <span
+                  aria-hidden
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                  style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
+                >
+                  <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
+                    Fornecedor mais crítico
+                  </p>
+                  <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
+                    Fornecedor em validação
+                  </p>
+                  <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
+                    Peso no custo, prazo e impacto na margem em validação
+                  </p>
+                </div>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+                  strokeWidth={2.2}
+                />
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   )
@@ -363,6 +444,43 @@ function TopClientRow({ name, share }: { name: string; share: number }) {
     <li>
       <Link
         href={`/clientes?cliente=${encodeURIComponent(name)}`}
+        className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
+      >
+        <p
+          className="flex-1 truncate text-[13px] font-medium"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {name}
+        </p>
+        <div
+          aria-hidden
+          className="h-1 w-20 overflow-hidden rounded-full"
+          style={{ background: "rgba(21,103,200,0.10)" }}
+        >
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${Math.min(share * 3, 100)}%`,
+              background: "var(--brand-blue)",
+            }}
+          />
+        </div>
+        <p
+          className="w-9 shrink-0 text-right text-[13px] font-bold tabular-nums"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {share}%
+        </p>
+      </Link>
+    </li>
+  )
+}
+
+function TopSupplierRow({ name, share }: { name: string; share: number }) {
+  return (
+    <li>
+      <Link
+        href={`/contas-a-pagar?fornecedor=${encodeURIComponent(name)}`}
         className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
       >
         <p
