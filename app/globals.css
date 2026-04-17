@@ -14,6 +14,8 @@
   --brand-green: #36ba58;
   --brand-green-light: #7ed444;
   --brand-green-dark: #1e8a3a;
+  --brand-red: #c81e1e;
+  --brand-red-dark: #991b1b;
 
   /* Neutros */
   --slate-50: #f8fafc;
@@ -105,6 +107,8 @@
   --color-brand-green: var(--brand-green);
   --color-brand-green-light: var(--brand-green-light);
   --color-brand-green-dark: var(--brand-green-dark);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

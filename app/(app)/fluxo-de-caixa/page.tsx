@@ -73,7 +73,7 @@ export default function FluxoDeCaixaPage() {
             <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
               Saídas previstas
             </h2>
-            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--slate-800)" }}>
+            <span className="text-sm font-bold tabular-nums" style={{ color: "var(--brand-red)" }}>
               − R$ 558,1k
             </span>
           </div>
@@ -117,8 +117,8 @@ function FlowItem({
           aria-hidden
           className="flex h-8 w-8 items-center justify-center rounded-lg"
           style={{
-            background: positive ? "rgba(54,186,88,0.12)" : "rgba(15,23,42,0.06)",
-            color: positive ? "var(--brand-green-dark)" : "var(--slate-700)",
+            background: positive ? "rgba(54,186,88,0.12)" : "rgba(200,30,30,0.10)",
+            color: positive ? "var(--brand-green-dark)" : "var(--brand-red)",
           }}
         >
           {positive ? (
@@ -136,7 +136,7 @@ function FlowItem({
       </div>
       <span
         className="text-sm font-bold tabular-nums"
-        style={{ color: positive ? "var(--brand-green-dark)" : "var(--slate-800)" }}
+        style={{ color: positive ? "var(--brand-green-dark)" : "var(--brand-red)" }}
       >
         {amount}
       </span>

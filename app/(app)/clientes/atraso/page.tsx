@@ -77,7 +77,7 @@ export default function AtrasoPage() {
           <p className="mt-1 text-[1.25rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-navy)" }}>
             {avgDelay} dias
           </p>
-          <p className="mt-1 text-[11px] font-medium" style={{ color: "#b45309" }}>
+          <p className="mt-1 text-[11px] font-medium" style={{ color: "var(--brand-red)" }}>
             +4 vs mês anterior
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function AtrasoPage() {
           {BUCKETS.map((b) => {
             const width = Math.max((b.amount / maxBucketAmount) * 100, 4)
             const color =
-              b.tone === "danger" ? "#b45309" : b.tone === "warning" ? "#eab308" : "var(--brand-blue)"
+              b.tone === "danger" ? "var(--brand-red)" : b.tone === "warning" ? "#eab308" : "var(--brand-blue)"
             return (
               <li key={b.label}>
                 <div className="flex items-baseline justify-between gap-3">
@@ -180,7 +180,7 @@ export default function AtrasoPage() {
                   <td className="px-4 py-3 text-right">
                     <span
                       className="inline-flex items-center gap-1 text-[13px] font-semibold tabular-nums"
-                      style={{ color: r.avgDelayDays >= 30 ? "#b45309" : "var(--brand-navy)" }}
+                      style={{ color: r.avgDelayDays >= 30 ? "var(--brand-red)" : "var(--brand-navy)" }}
                     >
                       {r.avgDelayDays >= 30 && <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.2} />}
                       {r.avgDelayDays} dias

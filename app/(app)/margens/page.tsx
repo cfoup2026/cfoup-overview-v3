@@ -84,7 +84,12 @@ function MarginKpi({
   positive?: boolean
 }) {
   const TrendIcon = positive ? TrendingUp : TrendingDown
-  const color = positive ? "var(--brand-green-dark)" : "var(--slate-700)"
+  const isNegative = /^[−-]/.test(delta.trim())
+  const color = positive
+    ? "var(--brand-green-dark)"
+    : isNegative
+      ? "var(--brand-red)"
+      : "var(--slate-700)"
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
@@ -134,7 +139,13 @@ function MarginRow({
       </p>
       <p
         className="text-sm font-semibold tabular-nums md:text-right"
-        style={{ color: positive ? "var(--brand-green-dark)" : "var(--slate-600)" }}
+        style={{
+          color: positive
+            ? "var(--brand-green-dark)"
+            : /^[−-]/.test(delta.trim())
+              ? "var(--brand-red)"
+              : "var(--slate-600)",
+        }}
       >
         {delta}
       </p>

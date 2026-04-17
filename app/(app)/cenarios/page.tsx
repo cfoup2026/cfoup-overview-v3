@@ -103,7 +103,7 @@ function ImpactTile({
     tone === "positive"
       ? "var(--brand-green-dark)"
       : tone === "negative"
-        ? "var(--slate-700)"
+        ? "var(--brand-red)"
         : "var(--brand-navy)"
   const Icon = tone === "positive" ? TrendingUp : tone === "negative" ? TrendingDown : GitBranch
   return (

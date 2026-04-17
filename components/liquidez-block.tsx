@@ -106,7 +106,7 @@ export function LiquidezBlock() {
         <p
           className="mt-1 text-[1.625rem] font-extrabold leading-none tabular-nums"
           style={{
-            color: current.positive ? "var(--brand-green-dark)" : "var(--slate-800)",
+            color: current.positive ? "var(--brand-green-dark)" : "var(--brand-red)",
           }}
         >
           {current.variation}

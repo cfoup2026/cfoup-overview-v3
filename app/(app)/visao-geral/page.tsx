@@ -165,9 +165,18 @@ export default function VisaoGeralPage() {
           className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
-            <h2 id="bloco-clientes" className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-              Análise de clientes
-            </h2>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Clientes
+              </p>
+              <h2
+                id="bloco-clientes"
+                className="mt-0.5 text-base font-bold"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                Análise
+              </h2>
+            </div>
             <Link
               href="/clientes"
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"

@@ -248,7 +248,7 @@ function ClientesContent() {
                   <td className="px-4 py-3 text-right tabular-nums">{formatMoney(c.openAmount)}</td>
                   <td
                     className="px-4 py-3 text-right tabular-nums font-semibold"
-                    style={{ color: c.overdueAmount > 0 ? "#b45309" : "var(--slate-600)" }}
+                    style={{ color: c.overdueAmount > 0 ? "var(--brand-red)" : "var(--slate-600)" }}
                   >
                     {formatMoney(c.overdueAmount)}
                   </td>
@@ -285,7 +285,7 @@ function StatCard({
   hint?: string
   tone?: "neutral" | "warning"
 }) {
-  const hintColor = tone === "warning" ? "#b45309" : "var(--slate-600)"
+  const hintColor = tone === "warning" ? "var(--brand-red)" : "var(--slate-600)"
   return (
     <div className="rounded-2xl border border-border bg-card px-4 py-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>

@@ -130,7 +130,7 @@ function PendingRow({
 }) {
   const priColor =
     priority === "Crítica"
-      ? { bg: "rgba(225,29,72,0.10)", color: "#b91c4b" }
+      ? { bg: "rgba(200,30,30,0.10)", color: "var(--brand-red)" }
       : priority === "Atenção"
         ? { bg: "rgba(234,179,8,0.12)", color: "#92610b" }
         : { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }

@@ -243,7 +243,7 @@ function LedgerRow({ item, kind }: { item: LedgerItem; kind: "receber" | "pagar"
             style={{
               color:
                 item.daysToDue < 0
-                  ? "#b91c4b"
+                  ? "var(--brand-red)"
                   : item.daysToDue <= 7
                     ? "#92610b"
                     : "var(--slate-500)",
@@ -266,7 +266,7 @@ function LedgerRow({ item, kind }: { item: LedgerItem; kind: "receber" | "pagar"
 function getStatusBadge(s: LedgerItem["status"]) {
   switch (s) {
     case "vencido":
-      return { label: "Vencido", bg: "rgba(225,29,72,0.10)", color: "#b91c4b" }
+      return { label: "Vencido", bg: "rgba(200,30,30,0.10)", color: "var(--brand-red)" }
     case "vencendo":
       return { label: "Vencendo", bg: "rgba(234,179,8,0.14)", color: "#92610b" }
     case "sem-baixa":
