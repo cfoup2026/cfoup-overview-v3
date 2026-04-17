@@ -52,27 +52,27 @@ export function LiquidezBlock() {
   return (
     <section
       aria-labelledby="bloco-caixa"
-      className="lg:col-span-7 rounded-2xl border border-border bg-card p-7 md:p-8"
+      className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p
             id="bloco-caixa"
-            className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+            className="text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             Caixa e liquidez
           </p>
-          <h3 className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
+          <h3 className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
             Variação por período
           </h3>
         </div>
         <Link
           href="/fluxo-de-caixa"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-blue)] hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
         >
           Fluxo de caixa
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
@@ -80,7 +80,7 @@ export function LiquidezBlock() {
       <div
         role="tablist"
         aria-label="Período"
-        className="mt-5 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/50 p-1"
+        className="mt-3 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/50 p-1"
       >
         {PERIODS.map((p) => {
           const isActive = p.key === active
@@ -91,7 +91,7 @@ export function LiquidezBlock() {
               aria-selected={isActive}
               onClick={() => setActive(p.key)}
               className={
-                "rounded-lg px-3.5 py-1.5 text-xs font-semibold transition " +
+                "rounded-lg px-3 py-1 text-[11px] font-semibold transition " +
                 (isActive
                   ? "bg-white text-[var(--brand-navy)] shadow-sm"
                   : "text-muted-foreground hover:text-[var(--brand-navy)]")
@@ -104,31 +104,31 @@ export function LiquidezBlock() {
       </div>
 
       {/* Métrica */}
-      <div className="mt-7">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+      <div className="mt-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           Variação
         </p>
         <p
-          className="mt-2 text-[2.5rem] font-extrabold leading-none tabular-nums"
+          className="mt-1 text-[1.875rem] font-extrabold leading-none tabular-nums"
           style={{
             color: current.positive ? "var(--brand-green-dark)" : "var(--slate-800)",
           }}
         >
           {current.variation}
         </p>
-        <p className="mt-3 max-w-lg text-[14px] leading-relaxed text-[var(--slate-700)]">
+        <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-[var(--slate-700)]">
           {current.sentence}
         </p>
       </div>
 
       {/* Ação secundária para aprofundar */}
-      <div className="mt-7">
+      <div className="mt-4">
         <Link
           href="/fluxo-de-caixa"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:brightness-110"
         >
           Fluxo de caixa
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </section>

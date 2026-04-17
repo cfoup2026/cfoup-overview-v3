@@ -11,7 +11,6 @@ import {
   History,
   ChevronRight,
 } from "lucide-react"
-import { PageHeader } from "@/components/page-header"
 import { LiquidezBlock } from "@/components/liquidez-block"
 
 /* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
@@ -22,35 +21,41 @@ function chatHref(q: string) {
 export default function VisaoGeralPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Visão geral · hoje"
-        title={
-          <>
+      {/* Header compacto (inline, apenas nesta página) */}
+      <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="max-w-2xl">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
+            Visão geral · hoje
+          </p>
+          <h1
+            className="text-balance text-xl font-extrabold leading-tight tracking-tight md:text-[1.5rem]"
+            style={{ color: "var(--brand-navy)" }}
+          >
             Bom dia, Roger.
             <br />
             A operação está rodando, mas os números ainda precisam ser separados.
-          </>
-        }
-        description="O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. Antes de tirar conclusão, o primeiro passo é separar banco, receber, pagar e pendências antigas."
-        actions={
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span
-              aria-hidden
-              className="inline-flex h-2 w-2 rounded-full"
-              style={{ backgroundColor: "var(--brand-green)" }}
-            />
-            Atualizado há 12 minutos
-          </div>
-        }
-      />
+          </h1>
+          <p className="mt-2 max-w-xl text-pretty text-[13px] leading-relaxed text-muted-foreground">
+            O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. Antes de tirar conclusão, o primeiro passo é separar banco, receber, pagar e pendências antigas.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span
+            aria-hidden
+            className="inline-flex h-2 w-2 rounded-full"
+            style={{ backgroundColor: "var(--brand-green)" }}
+          />
+          Atualizado há 12 minutos
+        </div>
+      </header>
 
       {/* ───────────────────────── Bloco 1 · Resumo executivo ───────────────────────── */}
-      <section aria-labelledby="bloco-resumo" className="mb-8">
+      <section aria-labelledby="bloco-resumo" className="mb-4">
         <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
-          <div className="grid gap-8 p-8 md:grid-cols-[1.3fr_1fr] md:p-10">
+          <div className="grid gap-4 p-5 md:grid-cols-[1.3fr_1fr] md:gap-6 md:p-6">
             <div>
               <p
-                className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
               >
                 Resumo do momento
@@ -58,30 +63,29 @@ export default function VisaoGeralPage() {
 
               <h2
                 id="bloco-resumo"
-                className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
+                className="text-balance text-lg font-extrabold leading-snug md:text-xl"
                 style={{ color: "var(--brand-navy)" }}
               >
                 O primeiro passo aqui é separar o que está no banco do que ainda está no sistema.
               </h2>
 
-              <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
+              <p className="mt-2 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
                 Com isso limpo, fica mais fácil entender o que realmente falta receber, o que precisa ser
                 pago e o que ainda pede revisão.
               </p>
-
             </div>
 
-            <div className="flex flex-col justify-center rounded-2xl border border-[var(--brand-blue)]/25 bg-white p-6 md:p-7">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <div className="flex flex-col justify-center rounded-xl border border-[var(--brand-blue)]/25 bg-white p-4 md:p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Saldo atual
               </p>
               <p
-                className="mt-3 text-[2.75rem] font-extrabold leading-none tabular-nums"
+                className="mt-1.5 text-[2rem] font-extrabold leading-none tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
                 R$ 43.677
               </p>
-              <p className="mt-3 text-xs text-muted-foreground">
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
                 CEF · extrato mais recente
               </p>
             </div>
@@ -91,11 +95,11 @@ export default function VisaoGeralPage() {
 
       {/* ───────────────────────── Blocos investigáveis ─────────────────────────
           Resumo primeiro; clique abre a lista detalhada com filtros. */}
-      <section aria-labelledby="bloco-investigar" className="mb-8">
+      <section aria-labelledby="bloco-investigar" className="mb-4">
         <h2 id="bloco-investigar" className="sr-only">
           Onde investigar a fundo
         </h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <DrillInCard
             href="/contas-a-receber"
             eyebrow="Contas a receber"
@@ -124,34 +128,34 @@ export default function VisaoGeralPage() {
       </section>
 
       {/* ───────────────────────── Grid de decisão ───────────────────────── */}
-      <div className="grid gap-6 lg:grid-cols-12">
+      <div className="grid gap-4 lg:grid-cols-12">
         {/* Bloco 2 · Caixa / liquidez por período */}
         <LiquidezBlock />
 
         {/* Bloco 4 · Alertas e exceções */}
         <section
           aria-labelledby="bloco-alertas"
-          className="lg:col-span-5 rounded-2xl border border-border bg-card p-7 md:p-8"
+          className="lg:col-span-5 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Alertas e exceções
               </p>
-              <h2 id="bloco-alertas" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
+              <h2 id="bloco-alertas" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
                 3 pontos de atenção
               </h2>
             </div>
             <Link
               href="/pendencias"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-blue)] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
             >
               Ver todas
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
-          <ul className="mt-6 divide-y divide-border">
+          <ul className="mt-3 divide-y divide-border">
             <AlertRow
               severity="warning"
               title="Caixa e recebíveis podem estar misturados"
@@ -173,30 +177,30 @@ export default function VisaoGeralPage() {
         {/* Bloco 3 · Entradas e saídas recentes */}
         <section
           aria-labelledby="bloco-movimentos"
-          className="lg:col-span-7 rounded-2xl border border-border bg-card p-7 md:p-8"
+          className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Movimentações recentes
               </p>
-              <h2 id="bloco-movimentos" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
+              <h2 id="bloco-movimentos" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
                 Últimos 7 dias
               </h2>
             </div>
-            <div className="flex items-center gap-4 text-sm">
-              <span className="inline-flex items-center gap-1.5 text-[var(--brand-green-dark)]">
-                <ArrowUpRight className="h-4 w-4" strokeWidth={2.2} />
+            <div className="flex items-center gap-3 text-xs">
+              <span className="inline-flex items-center gap-1 text-[var(--brand-green-dark)]">
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} />
                 <span className="font-semibold tabular-nums">+R$ 142,3k</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[var(--slate-600)]">
-                <ArrowDownRight className="h-4 w-4" strokeWidth={2.2} />
+              <span className="inline-flex items-center gap-1 text-[var(--slate-600)]">
+                <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={2.2} />
                 <span className="font-semibold tabular-nums">−R$ 88,9k</span>
               </span>
             </div>
           </div>
 
-          <ul className="mt-6 divide-y divide-border">
+          <ul className="mt-3 divide-y divide-border">
             <MovementRow
               kind="in"
               when="Hoje · 09:42"
@@ -238,16 +242,16 @@ export default function VisaoGeralPage() {
         {/* Bloco 5 · Ação principal / Chat CFOup */}
         <section
           aria-labelledby="bloco-acao"
-          className="lg:col-span-5 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-7 text-white md:p-8"
+          className="lg:col-span-5 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-4 text-white md:p-5"
         >
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
             <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
             Ação principal
           </div>
-          <h2 id="bloco-acao" className="mt-3 text-balance text-[1.65rem] font-extrabold leading-tight">
+          <h2 id="bloco-acao" className="mt-1.5 text-balance text-lg font-extrabold leading-tight md:text-[1.25rem]">
             Quero separar banco, receber e pendências.
           </h2>
-          <p className="mt-3 text-[15px] leading-relaxed text-white/85">
+          <p className="mt-1.5 text-[13px] leading-relaxed text-white/85">
             Abra o Chat CFOup para revisar o que é saldo real, o que ainda falta entrar e o que precisa de
             auditoria no sistema.
           </p>
@@ -256,13 +260,13 @@ export default function VisaoGeralPage() {
             href={chatHref(
               "Separe para mim o que é saldo real no banco, o que está em contas a receber e o que pode estar vencido ou sem baixa.",
             )}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
           >
-            <Sparkles className="h-4 w-4" strokeWidth={2.2} />
+            <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
             Abrir Chat CFOup
           </Link>
 
-          <div className="mt-7 grid gap-2 text-sm">
+          <div className="mt-4 grid gap-1.5 text-sm">
             <SuggestedPrompt text="Qual o impacto se eu antecipar 40% dos recebíveis?" />
             <SuggestedPrompt text="Como tá a saúde financeira comparada ao trimestre passado?" />
             <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
@@ -293,18 +297,18 @@ function DrillInCard({
   return (
     <Link
       href={href}
-      className="group relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)]"
+      className="group relative flex flex-col gap-2.5 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)]"
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <span
             aria-hidden
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg"
             style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
           >
-            <Icon className="h-4 w-4" strokeWidth={2} />
+            <Icon className="h-3.5 w-3.5" strokeWidth={2} />
           </span>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {eyebrow}
           </p>
         </div>
@@ -316,13 +320,13 @@ function DrillInCard({
 
       <div>
         <p
-          className="text-[2rem] font-extrabold leading-none tabular-nums"
+          className="text-[1.5rem] font-extrabold leading-none tabular-nums"
           style={{ color: "var(--brand-navy)" }}
         >
           {total}
         </p>
-        <p className="mt-2 text-sm font-medium text-[var(--slate-700)]">{count}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+        <p className="mt-1.5 text-[13px] font-medium text-[var(--slate-700)]">{count}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
       </div>
     </Link>
   )
@@ -341,19 +345,19 @@ function AlertRow({
   const color = severity === "warning" ? "#b45309" : "var(--brand-blue)"
   const bg = severity === "warning" ? "rgba(234,179,8,0.12)" : "rgba(21,103,200,0.10)"
   return (
-    <li className="flex items-start gap-3 py-4 first:pt-0 last:pb-0">
+    <li className="flex items-start gap-2.5 py-2.5 first:pt-0 last:pb-0">
       <span
         aria-hidden
-        className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+        className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
         style={{ background: bg, color }}
       >
-        <Icon className="h-4 w-4" strokeWidth={2} />
+        <Icon className="h-3.5 w-3.5" strokeWidth={2} />
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-semibold leading-tight" style={{ color: "var(--brand-navy)" }}>
+        <p className="text-[13px] font-semibold leading-tight" style={{ color: "var(--brand-navy)" }}>
           {title}
         </p>
-        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
+        <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{body}</p>
       </div>
     </li>
   )
@@ -374,33 +378,33 @@ function MovementRow({
 }) {
   const positive = kind === "in"
   return (
-    <li className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
-      <div className="flex items-center gap-3 min-w-0">
+    <li className="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <span
           aria-hidden
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
           style={{
             background: positive ? "rgba(54,186,88,0.12)" : "rgba(15,23,42,0.06)",
             color: positive ? "var(--brand-green-dark)" : "var(--slate-700)",
           }}
         >
           {positive ? (
-            <ArrowUpRight className="h-4 w-4" strokeWidth={2.2} />
+            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} />
           ) : (
-            <ArrowDownRight className="h-4 w-4" strokeWidth={2.2} />
+            <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={2.2} />
           )}
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold" style={{ color: "var(--brand-navy)" }}>
+          <p className="truncate text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
             {label}
           </p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate text-[11px] text-muted-foreground">
             {when} · {meta}
           </p>
         </div>
       </div>
       <span
-        className="shrink-0 text-sm font-bold tabular-nums"
+        className="shrink-0 text-[13px] font-bold tabular-nums"
         style={{ color: positive ? "var(--brand-green-dark)" : "var(--slate-800)" }}
       >
         {amount}
@@ -413,12 +417,10 @@ function SuggestedPrompt({ text }: { text: string }) {
   return (
     <Link
       href={chatHref(text)}
-      className="flex items-center justify-between gap-3 rounded-lg border border-white/15 bg-white/5 px-3.5 py-2.5 text-[13px] leading-snug text-white/90 transition hover:bg-white/10"
+      className="flex items-center justify-between gap-2.5 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-[12px] leading-snug text-white/90 transition hover:bg-white/10"
     >
       <span className="line-clamp-1">{text}</span>
-      <TrendingUp className="h-4 w-4 shrink-0 text-white/70" />
+      <TrendingUp className="h-3.5 w-3.5 shrink-0 text-white/70" />
     </Link>
   )
 }
-
-
