@@ -68,15 +68,28 @@ export default function VisaoGeralPage() {
                 pago e o que ainda pede revisão.
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <span>Banco</span>
-                <span aria-hidden className="text-border">·</span>
-                <span>A receber</span>
-                <span aria-hidden className="text-border">·</span>
-                <span>A pagar</span>
-                <span aria-hidden className="text-border">·</span>
-                <span>Itens antigos</span>
-              </div>
+              <dl className="mt-7 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border/70 pt-6">
+                <SummaryStat
+                  label="Saldo no banco"
+                  value="R$ 43.677"
+                  helper="Extrato mais recente · CEF"
+                />
+                <SummaryStat
+                  label="Contas a receber"
+                  value="R$ 342,8k"
+                  helper="10 títulos em aberto"
+                />
+                <SummaryStat
+                  label="Contas a pagar"
+                  value="R$ 280,2k"
+                  helper="9 títulos em aberto"
+                />
+                <SummaryStat
+                  label="Itens antigos para revisar"
+                  value="R$ 112,5k"
+                  helper="8 itens · 4 acima de 90 dias"
+                />
+              </dl>
             </div>
 
             <div className="grid gap-3 self-center">
@@ -398,6 +411,31 @@ function DrillInCard({
         <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
       </div>
     </Link>
+  )
+}
+
+function SummaryStat({
+  label,
+  value,
+  helper,
+}: {
+  label: string
+  value: string
+  helper: string
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+      </dt>
+      <dd
+        className="text-xl font-extrabold leading-none tabular-nums md:text-[1.4rem]"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        {value}
+      </dd>
+      <p className="text-xs leading-relaxed text-muted-foreground">{helper}</p>
+    </div>
   )
 }
 
