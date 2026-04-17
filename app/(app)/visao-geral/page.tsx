@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { LiquidezBlock } from "@/components/liquidez-block"
 
 /* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
 function chatHref(q: string) {
@@ -70,14 +71,19 @@ export default function VisaoGeralPage() {
 
             </div>
 
-            <div className="grid gap-3 self-center">
-              <BankBalanceTile label="Saldo no banco · 31/03/2026" value="R$ 34.494,27" helper="CEF · posição de fechamento" />
-              <BankBalanceTile
-                label="Saldo no extrato mais recente"
-                value="R$ 43.677,46"
-                helper="CEF · abril de 2026"
-                highlight
-              />
+            <div className="flex flex-col justify-center rounded-2xl border border-[var(--brand-blue)]/25 bg-white p-6 md:p-7">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Saldo atual
+              </p>
+              <p
+                className="mt-3 text-[2.75rem] font-extrabold leading-none tabular-nums"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                R$ 43.677
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                CEF · extrato mais recente
+              </p>
             </div>
           </div>
         </div>
@@ -119,78 +125,8 @@ export default function VisaoGeralPage() {
 
       {/* ───────────────────────── Grid de decisão ───────────────────────── */}
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* Bloco 2 · Caixa / runway / liquidez */}
-        <section
-          aria-labelledby="bloco-caixa"
-          className="lg:col-span-7 rounded-2xl border border-border bg-card p-7 md:p-8"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p
-                id="bloco-caixa"
-                className="text-[11px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: "var(--brand-blue)" }}
-              >
-                Caixa e liquidez
-              </p>
-              <p className="mt-1.5 max-w-md text-[15px] leading-relaxed text-[var(--slate-700)]">
-                Separe saldo real do banco de valores ainda em aberto no sistema.
-              </p>
-            </div>
-            <Link
-              href="/fluxo-de-caixa"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--brand-blue)] hover:underline"
-            >
-              Fluxo de caixa
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Saldo em 31/03/2026
-              </p>
-              <p
-                className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                R$ 34.494
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">CEF · fechamento de março</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Saldo no extrato mais recente
-              </p>
-              <p
-                className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                R$ 43.677
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">CEF · abril de 2026</p>
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Variação no período
-              </p>
-              <p
-                className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-green-dark)" }}
-              >
-                +R$ 9.183
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">entre 31/03 e o extrato mais recente</p>
-            </div>
-          </div>
-
-          <p className="mt-7 rounded-xl border border-border bg-muted/40 p-4 text-[13px] leading-relaxed text-[var(--slate-700)]">
-            Este é o saldo real do banco, lido direto dos extratos da CEF. Não é receita projetada, nem
-            contas a receber. Para entender o fôlego de caixa de verdade, compare este número com o que
-            ainda falta entrar e o que já está para sair nos próximos dias.
-          </p>
-        </section>
+        {/* Bloco 2 · Caixa / liquidez por período */}
+        <LiquidezBlock />
 
         {/* Bloco 4 · Alertas e exceções */}
         <section
@@ -389,40 +325,6 @@ function DrillInCard({
         <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
       </div>
     </Link>
-  )
-}
-
-function BankBalanceTile({
-  label,
-  value,
-  helper,
-  highlight = false,
-}: {
-  label: string
-  value: string
-  helper: string
-  highlight?: boolean
-}) {
-  return (
-    <div
-      className={
-        "rounded-xl border p-4 " +
-        (highlight
-          ? "border-[var(--brand-blue)]/30 bg-white"
-          : "border-border/70 bg-white/80")
-      }
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </p>
-      <p
-        className="mt-2 text-xl font-extrabold tabular-nums leading-none"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        {value}
-      </p>
-      <p className="mt-1.5 text-[11px] text-muted-foreground">{helper}</p>
-    </div>
   )
 }
 
