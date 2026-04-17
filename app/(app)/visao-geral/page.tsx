@@ -7,6 +7,10 @@ import {
   Info,
   TrendingUp,
   CircleDot,
+  ArrowDownToLine,
+  ArrowUpToLine,
+  History,
+  ChevronRight,
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 
@@ -78,6 +82,40 @@ export default function VisaoGeralPage() {
               <MetricTile label="Margem líq." value="14,9%" trend="−0,3 p.p." />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ───────────────────────── Blocos investigáveis ─────────────────────────
+          Resumo primeiro; clique abre a lista detalhada com filtros. */}
+      <section aria-labelledby="bloco-investigar" className="mb-8">
+        <h2 id="bloco-investigar" className="sr-only">
+          Onde investigar a fundo
+        </h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <DrillInCard
+            href="/contas-a-receber"
+            eyebrow="Contas a receber"
+            icon={ArrowDownToLine}
+            total="R$ 342,8k"
+            count="10 títulos em aberto"
+            hint="2 vencidos · 3 vencem em 7 dias"
+          />
+          <DrillInCard
+            href="/contas-a-pagar"
+            eyebrow="Contas a pagar"
+            icon={ArrowUpToLine}
+            total="R$ 280,2k"
+            count="9 títulos em aberto"
+            hint="1 vencido · 3 vencem em 7 dias"
+          />
+          <DrillInCard
+            href="/itens-antigos"
+            eyebrow="Itens antigos para revisar"
+            icon={History}
+            total="R$ 112,5k"
+            count="8 itens para revisar"
+            hint="4 acima de 90 dias"
+          />
         </div>
       </section>
 
@@ -332,6 +370,59 @@ function SignalPill({
       <CircleDot className="h-3 w-3" strokeWidth={2.4} />
       {label}
     </span>
+  )
+}
+
+function DrillInCard({
+  href,
+  eyebrow,
+  icon: Icon,
+  total,
+  count,
+  hint,
+}: {
+  href: string
+  eyebrow: string
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  total: string
+  count: string
+  hint: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="group relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)]"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span
+            aria-hidden
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl"
+            style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
+          >
+            <Icon className="h-4 w-4" strokeWidth={2} />
+          </span>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {eyebrow}
+          </p>
+        </div>
+        <ChevronRight
+          className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+          strokeWidth={2.2}
+        />
+      </div>
+
+      <div>
+        <p
+          className="text-[2rem] font-extrabold leading-none tabular-nums"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {total}
+        </p>
+        <p className="mt-2 text-sm font-medium text-[var(--slate-700)]">{count}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      </div>
+    </Link>
   )
 }
 
