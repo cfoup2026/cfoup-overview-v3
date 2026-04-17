@@ -165,14 +165,9 @@ export default function VisaoGeralPage() {
           className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Análise de clientes
-              </p>
-              <h2 id="bloco-clientes" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-                Top 5 no período
-              </h2>
-            </div>
+            <h2 id="bloco-clientes" className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+              Análise de clientes
+            </h2>
             <Link
               href="/clientes"
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
@@ -183,63 +178,51 @@ export default function VisaoGeralPage() {
           </div>
 
           {/* Top 5 clientes */}
-          <ul className="mt-3 space-y-2">
-            <TopClientRow rank={1} name="Construtora Andrade" value="R$ 82.400" share={24} />
-            <TopClientRow rank={2} name="Metalúrgica Vitória" value="R$ 54.100" share={16} />
-            <TopClientRow rank={3} name="Grupo Sertanejo" value="R$ 41.800" share={12} />
-            <TopClientRow rank={4} name="Laticínios Bela Vista" value="R$ 32.600" share={9} />
-            <TopClientRow rank={5} name="Transportadora Linha Azul" value="R$ 24.200" share={7} />
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Top 5 do período
+          </p>
+          <ul className="mt-2 space-y-1">
+            <TopClientRow name="Construtora Andrade" share={24} />
+            <TopClientRow name="Metalúrgica Vitória" share={16} />
+            <TopClientRow name="Grupo Sertanejo" share={12} />
+            <TopClientRow name="Laticínios Bela Vista" share={9} />
+            <TopClientRow name="Transportadora Linha Azul" share={7} />
           </ul>
 
-          {/* KPIs clicáveis */}
-          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <ClientKpi
-              href="/contas-a-receber"
-              label="Em aberto"
-              value="R$ 342,8k"
-              hint="32% vencido"
-              tone="warning"
-            />
-            <ClientKpi
-              href="/clientes/atraso"
-              label="Atraso médio"
-              value="18 dias"
-              hint="4 dias acima do mês anterior"
-              tone="warning"
-            />
-            <ClientKpi
-              href="/clientes?status=ativos"
-              label="Clientes pagantes"
-              value="47"
-              hint="5 clientes a mais que no mês anterior"
-              tone="neutral"
-            />
+          {/* Indicadores da carteira */}
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
+            <PortfolioIndicator label="Prazo médio" value="42 dias" />
+            <PortfolioIndicator label="Margem média" value="18%" />
+            <PortfolioIndicator label="Atraso médio" value="18 dias" />
           </div>
 
-          {/* Risco principal */}
+          {/* Cliente mais crítico */}
           <Link
             href="/clientes/concentracao"
-            className="group mt-3 flex items-start gap-2.5 rounded-xl border border-[rgba(234,179,8,0.35)] bg-[rgba(234,179,8,0.08)] px-3 py-2.5 transition hover:border-[rgba(234,179,8,0.55)]"
+            className="group mt-4 flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
           >
             <span
               aria-hidden
-              className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
-              style={{ background: "rgba(234,179,8,0.18)", color: "#b45309" }}
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
             >
-              <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.2} />
+              <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
-                Risco principal
+                Cliente mais crítico
               </p>
-              <p className="mt-0.5 text-[13px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
-                Top 5 concentram 68% da receita.
+              <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
+                Construtora Andrade
+              </p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
+                24% da receita · 68 dias para pagar · margem de 5%
               </p>
             </div>
-            <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] transition group-hover:underline">
-              Ver detalhes
-              <ArrowUpRight className="h-3 w-3" />
-            </span>
+            <ChevronRight
+              className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+              strokeWidth={2.2}
+            />
           </Link>
         </section>
 
@@ -366,92 +349,56 @@ function AlertRow({
   )
 }
 
-function TopClientRow({
-  rank,
-  name,
-  value,
-  share,
-}: {
-  rank: number
-  name: string
-  value: string
-  share: number
-}) {
+function TopClientRow({ name, share }: { name: string; share: number }) {
   return (
-    <li className="flex items-center gap-3">
-      <span
-        aria-hidden
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-bold tabular-nums"
-        style={{ color: "var(--brand-navy)" }}
+    <li>
+      <Link
+        href={`/clientes?cliente=${encodeURIComponent(name)}`}
+        className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
       >
-        {rank}
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="truncate text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
-            {name}
-          </p>
-          <p className="shrink-0 text-[13px] font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>
-            {value}
-          </p>
-        </div>
-        <div className="mt-1 flex items-center gap-2">
+        <p
+          className="flex-1 truncate text-[13px] font-medium"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {name}
+        </p>
+        <div
+          aria-hidden
+          className="h-1 w-20 overflow-hidden rounded-full"
+          style={{ background: "rgba(21,103,200,0.10)" }}
+        >
           <div
-            className="h-1 flex-1 overflow-hidden rounded-full"
-            style={{ background: "rgba(21,103,200,0.10)" }}
-          >
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${Math.min(share * 3, 100)}%`,
-                background: "var(--brand-blue)",
-              }}
-            />
-          </div>
-          <p className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
-            {share}%
-          </p>
+            className="h-full rounded-full"
+            style={{
+              width: `${Math.min(share * 3, 100)}%`,
+              background: "var(--brand-blue)",
+            }}
+          />
         </div>
-      </div>
+        <p
+          className="w-9 shrink-0 text-right text-[13px] font-bold tabular-nums"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {share}%
+        </p>
+      </Link>
     </li>
   )
 }
 
-function ClientKpi({
-  href,
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  href: string
-  label: string
-  value: string
-  hint: string
-  tone: "warning" | "neutral"
-}) {
-  const hintColor = tone === "warning" ? "#b45309" : "var(--slate-600)"
+function PortfolioIndicator({ label, value }: { label: string; value: string }) {
   return (
-    <Link
-      href={href}
-      className="group flex flex-col gap-1 rounded-xl border border-border bg-card px-3 py-2.5 transition hover:border-[var(--brand-blue)]/40 hover:bg-muted/40"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {label}
-        </p>
-        <ChevronRight
-          className="h-3.5 w-3.5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
-          strokeWidth={2.2}
-        />
-      </div>
-      <p className="text-[1.125rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-navy)" }}>
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+      </p>
+      <p
+        className="mt-1 text-[1rem] font-extrabold leading-none tabular-nums"
+        style={{ color: "var(--brand-navy)" }}
+      >
         {value}
       </p>
-      <p className="text-[11px] font-medium" style={{ color: hintColor }}>
-        {hint}
-      </p>
-    </Link>
+    </div>
   )
 }
 
