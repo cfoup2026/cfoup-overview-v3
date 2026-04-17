@@ -213,10 +213,10 @@ export default function VisaoGeralPage() {
                 Cliente mais crítico
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                Construtora Andrade
+                Cliente em validação
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                24% da receita · 68 dias para pagar · margem de 5%
+                Participação na receita, prazo e margem em validação
               </p>
             </div>
             <ChevronRight
