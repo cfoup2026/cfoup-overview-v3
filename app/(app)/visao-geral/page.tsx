@@ -162,7 +162,7 @@ export default function VisaoGeralPage() {
         {/* Bloco 3 · Análise de clientes */}
         <section
           aria-labelledby="bloco-clientes"
-          className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
+          className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -235,44 +235,10 @@ export default function VisaoGeralPage() {
           </Link>
         </section>
 
-        {/* Bloco 5 · Ação principal / Chat CFOup */}
-        <section
-          aria-labelledby="bloco-acao"
-          className="lg:col-span-5 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-4 text-white md:p-5"
-        >
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
-            <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-            Ação principal
-          </div>
-          <h2 id="bloco-acao" className="mt-1.5 text-balance text-lg font-extrabold leading-tight md:text-[1.25rem]">
-            Quero separar banco, receber e pendências.
-          </h2>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-white/85">
-            Abra o Chat CFOup para revisar o que é saldo real, o que ainda falta entrar e o que precisa de
-            auditoria no sistema.
-          </p>
-
-          <Link
-            href={chatHref(
-              "Separe para mim o que é saldo real no banco, o que está em contas a receber e o que pode estar vencido ou sem baixa.",
-            )}
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
-          >
-            <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Abrir Chat CFOup
-          </Link>
-
-          <div className="mt-4 grid gap-1.5 text-sm">
-            <SuggestedPrompt text="Qual o impacto se eu antecipar 40% dos recebíveis?" />
-            <SuggestedPrompt text="Como tá a saúde financeira comparada ao trimestre passado?" />
-            <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
-          </div>
-        </section>
-
-        {/* Bloco 6 · Análise de fornecedores */}
+        {/* Bloco 4 · Análise de fornecedores (parallel ao de clientes) */}
         <section
           aria-labelledby="bloco-fornecedores"
-          className="lg:col-span-12 rounded-2xl border border-border bg-card p-4 md:p-5"
+          className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -296,56 +262,95 @@ export default function VisaoGeralPage() {
             </Link>
           </div>
 
-          <div className="mt-3 grid gap-5 md:grid-cols-2">
-            {/* Top 5 fornecedores */}
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Top 5 do período
-              </p>
-              <ul className="mt-2 space-y-1">
-                <TopSupplierRow name="Fornecedor em validação" share={28} />
-                <TopSupplierRow name="Fornecedor em validação" share={18} />
-                <TopSupplierRow name="Fornecedor em validação" share={14} />
-                <TopSupplierRow name="Fornecedor em validação" share={10} />
-                <TopSupplierRow name="Fornecedor em validação" share={8} />
-              </ul>
-            </div>
+          {/* Top 5 fornecedores · share calculado sobre o total a pagar do período (R$ 280,2k) */}
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Top 5 do período
+          </p>
+          <ul className="mt-2 space-y-1">
+            <TopSupplierRow name="Plastibras Insumos" share={16} />
+            <TopSupplierRow name="Aços São Paulo" share={14} />
+            <TopSupplierRow name="Metalfix Ferramentas" share={6} />
+            <TopSupplierRow name="Transportadora Linha Sul" share={5} />
+            <TopSupplierRow name="Energia SP" share={4} />
+          </ul>
 
-            {/* Indicadores + Fornecedor mais crítico */}
-            <div className="flex flex-col gap-4 md:border-l md:border-border md:pl-5">
-              <div className="grid grid-cols-3 gap-3">
-                <PortfolioIndicator label="Prazo médio" value="30 dias" />
-                <PortfolioIndicator label="Impacto no custo" value="em validação" />
-                <PortfolioIndicator label="Atraso médio" value="em validação" />
+          {/* Indicadores da base de fornecedores */}
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
+            <PortfolioIndicator label="Prazo médio" value="14 dias" />
+            <PortfolioIndicator label="Top 5 no custo" value="43%" />
+            <PortfolioIndicator label="Atraso médio" value="7 dias" />
+          </div>
+
+          {/* Fornecedor mais crítico · Plastibras Insumos */}
+          <Link
+            href="/contas-a-pagar"
+            className="group mt-4 flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
+            >
+              <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
+                Fornecedor mais crítico
+              </p>
+              <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
+                Plastibras Insumos
+              </p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
+                R$ 44,2k · 1 título vencido há 7 dias e outro com suspeita de duplicidade
+              </p>
+            </div>
+            <ChevronRight
+              className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+              strokeWidth={2.2}
+            />
+          </Link>
+        </section>
+
+        {/* Bloco 5 · Ação principal / Chat CFOup — movido para baixo dos blocos de análise */}
+        <section
+          aria-labelledby="bloco-acao"
+          className="lg:col-span-12 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-4 text-white md:p-5"
+        >
+          <div className="grid gap-4 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                Ação principal
               </div>
+              <h2
+                id="bloco-acao"
+                className="mt-1.5 text-balance text-lg font-extrabold leading-tight md:text-[1.25rem]"
+              >
+                Quero separar banco, receber e pendências.
+              </h2>
+              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-white/85">
+                Abra o Chat CFOup para revisar o que é saldo real, o que ainda falta entrar e o que precisa de
+                auditoria no sistema.
+              </p>
 
               <Link
-                href="/contas-a-pagar"
-                className="group flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
+                href={chatHref(
+                  "Separe para mim o que é saldo real no banco, o que está em contas a receber e o que pode estar vencido ou sem baixa.",
+                )}
+                className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
               >
-                <span
-                  aria-hidden
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                  style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
-                >
-                  <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
-                    Fornecedor mais crítico
-                  </p>
-                  <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                    Fornecedor em validação
-                  </p>
-                  <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                    Peso no custo, prazo e impacto na margem em validação
-                  </p>
-                </div>
-                <ChevronRight
-                  className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
-                  strokeWidth={2.2}
-                />
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
+                Abrir Chat CFOup
               </Link>
+            </div>
+
+            <div className="grid gap-1.5 text-sm md:border-l md:border-white/20 md:pl-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+                Perguntas sugeridas
+              </p>
+              <SuggestedPrompt text="Qual o impacto se eu antecipar 40% dos recebíveis?" />
+              <SuggestedPrompt text="Como tá a saúde financeira comparada ao trimestre passado?" />
+              <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
             </div>
           </div>
         </section>
