@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   Info,
   TrendingUp,
-  CircleDot,
   ArrowDownToLine,
   ArrowUpToLine,
   History,
@@ -61,22 +60,22 @@ export default function VisaoGeralPage() {
                 className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
                 style={{ color: "var(--brand-navy)" }}
               >
-                Hoje, o mais importante é entender o que é saldo real no banco e o que ainda está só no sistema.
+                O primeiro passo aqui é separar o que está no banco do que ainda está no sistema.
               </h2>
 
               <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
-                Saldo no banco em 31/03:{" "}
-                <strong className="font-semibold text-[var(--brand-navy)]">R$ 34.494</strong>. Saldo no
-                extrato mais recente:{" "}
-                <strong className="font-semibold text-[var(--brand-navy)]">R$ 43.677</strong>. Agora vamos
-                comparar isso com contas a receber, contas a pagar e itens antigos para revisar.
+                Com isso limpo, fica mais fácil entender o que realmente falta receber, o que precisa ser
+                pago e o que ainda pede revisão.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                <SignalPill tone="neutral" label="Banco" />
-                <SignalPill tone="neutral" label="A receber" />
-                <SignalPill tone="neutral" label="A pagar" />
-                <SignalPill tone="neutral" label="Itens antigos" />
+              <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <span>Banco</span>
+                <span aria-hidden className="text-border">·</span>
+                <span>A receber</span>
+                <span aria-hidden className="text-border">·</span>
+                <span>A pagar</span>
+                <span aria-hidden className="text-border">·</span>
+                <span>Itens antigos</span>
               </div>
             </div>
 
@@ -348,30 +347,6 @@ export default function VisaoGeralPage() {
 }
 
 /* ───────────────────────── helpers ───────────────────────── */
-
-function SignalPill({
-  tone,
-  label,
-}: {
-  tone: "positive" | "warning" | "neutral"
-  label: string
-}) {
-  const styles =
-    tone === "positive"
-      ? { background: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark)" }
-      : tone === "warning"
-        ? { background: "rgba(234,179,8,0.14)", color: "#92610b" }
-        : { background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
-      style={styles}
-    >
-      <CircleDot className="h-3 w-3" strokeWidth={2.4} />
-      {label}
-    </span>
-  )
-}
 
 function DrillInCard({
   href,
