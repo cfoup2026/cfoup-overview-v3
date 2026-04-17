@@ -326,17 +326,14 @@ export default function VisaoGeralPage() {
                 id="bloco-acao"
                 className="mt-1.5 text-balance text-lg font-extrabold leading-tight md:text-[1.25rem]"
               >
-                Quero separar banco, receber e pendências.
+                Ficou com alguma dúvida?
               </h2>
               <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-white/85">
-                Abra o Chat CFOup para revisar o que é saldo real, o que ainda falta entrar e o que precisa de
-                auditoria no sistema.
+                Se algo aqui não ficou claro, pergunte ao Chat CFOup.
               </p>
 
               <Link
-                href={chatHref(
-                  "Separe para mim o que é saldo real no banco, o que está em contas a receber e o que pode estar vencido ou sem baixa.",
-                )}
+                href="/chat"
                 className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
               >
                 <Sparkles className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -348,9 +345,10 @@ export default function VisaoGeralPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
                 Perguntas sugeridas
               </p>
-              <SuggestedPrompt text="Qual o impacto se eu antecipar 40% dos recebíveis?" />
-              <SuggestedPrompt text="Como tá a saúde financeira comparada ao trimestre passado?" />
-              <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
+              <SuggestedPrompt text="Qual cliente mais pesa no meu risco hoje?" />
+              <SuggestedPrompt text="Qual fornecedor mais pressiona meu caixa?" />
+              <SuggestedPrompt text="O que merece atenção primeiro: receber, pagar ou margem?" />
+              <SuggestedPrompt text="Onde está meu principal risco neste momento?" />
             </div>
           </div>
         </section>
