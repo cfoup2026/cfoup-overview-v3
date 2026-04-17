@@ -8,7 +8,7 @@ export default function CenariosPage() {
       <PageHeader
         eyebrow="Planejamento"
         title="Cenários"
-        description="Compare decisões antes de tomar. O CFOup projeta impacto em caixa, margem e runway usando as fontes conectadas de Sua empresa."
+        description="Compare decisões antes de tomar. O CFOup projeta impacto em caixa, margem e fôlego usando as fontes conectadas da Gregorutt."
         actions={
           <button className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110">
             <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -35,7 +35,9 @@ export default function CenariosPage() {
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
-            href="/chat"
+            href={`/chat?q=${encodeURIComponent(
+              "Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale pra Gregorutt agora?",
+            )}&auto=1`}
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white hover:brightness-110"
           >
             Discutir com o CFOup

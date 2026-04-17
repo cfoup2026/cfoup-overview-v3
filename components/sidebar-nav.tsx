@@ -49,8 +49,8 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Empresa
           </p>
-          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">Sua empresa</p>
-          <p className="text-xs text-muted-foreground">Dados do mês corrente</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">Gregorutt</p>
+          <p className="text-xs text-muted-foreground">Indústria e Comércio · mês corrente</p>
         </div>
       </div>
 
@@ -108,11 +108,11 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
               aria-hidden
               className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white"
             >
-              SU
+              RG
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Usuário</p>
-              <p className="truncate text-xs text-muted-foreground">Empresa Piloto</p>
+              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Rafael Gregorutt</p>
+              <p className="truncate text-xs text-muted-foreground">Gregorutt · dono</p>
             </div>
           </div>
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">

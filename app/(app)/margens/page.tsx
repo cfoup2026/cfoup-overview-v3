@@ -7,7 +7,7 @@ export default function MargensPage() {
       <PageHeader
         eyebrow="Resultado"
         title="Margens e Rentabilidade"
-        description="Onde Sua empresa está ganhando e onde está perdendo margem. Quebrado por linha de receita, com a leitura do CFOup sobre o que mudar."
+        description="Onde a Gregorutt tá ganhando e onde tá perdendo margem. Quebrado por linha de receita, com a leitura do CFOup sobre o que mudar."
       />
 
       {/* Três indicadores principais */}

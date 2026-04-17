@@ -7,7 +7,7 @@ export default function FluxoDeCaixaPage() {
       <PageHeader
         eyebrow="Caixa"
         title="Fluxo de Caixa"
-        description="O que entrou, o que saiu e o que ainda está no horizonte de 90 dias em Sua empresa. Sem reprocessamentos, sem planilhas paralelas."
+        description="O que entrou, o que saiu e o que ainda tá no horizonte de 90 dias na Gregorutt. Sem reprocessamento, sem planilha paralela."
         actions={
           <div className="flex items-center gap-2">
             <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] hover:border-[var(--brand-blue)]/40">

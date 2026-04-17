@@ -7,7 +7,7 @@ export default function ConexoesPage() {
       <PageHeader
         eyebrow="Fontes de dados"
         title="Conexões"
-        description="Quanto mais fontes conectadas, mais precisa é a leitura do CFOup sobre Sua empresa. Gerencie bancos, ERPs, gateways e serviços contábeis aqui."
+        description="Quanto mais fontes conectadas, mais afiada fica a leitura do CFOup sobre a Gregorutt. Gerencie bancos, ERPs, gateways e serviços contábeis aqui."
         actions={
           <button className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110">
             <Plus className="h-4 w-4" strokeWidth={2.2} />

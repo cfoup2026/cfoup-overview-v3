@@ -11,13 +11,18 @@ import {
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 
+/* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
+function chatHref(q: string) {
+  return `/chat?q=${encodeURIComponent(q)}&auto=1`
+}
+
 export default function VisaoGeralPage() {
   return (
     <>
       <PageHeader
         eyebrow="Mesa de decisão · hoje"
-        title="Bom dia, Usuário. Sua empresa está saudável."
-        description="Esta é a leitura do CFOup sobre Sua empresa. Três sinais merecem atenção, nenhum pede ação imediata. A decisão principal de hoje está destacada abaixo."
+        title="Bom dia, Rafael. A Gregorutt tá saudável."
+        description="Esta é a leitura do CFOup sobre a Gregorutt hoje. Três sinais merecem atenção, nenhum pede ação imediata. A decisão principal tá destacada ali embaixo."
         actions={
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span
@@ -30,7 +35,7 @@ export default function VisaoGeralPage() {
         }
       />
 
-      {/* ───────────────────────── Bloco 1 · Resumo executivo / saúde financeira ───────────────────────── */}
+      {/* ───────────────────────── Bloco 1 · Resumo executivo ───────────────────────── */}
       <section aria-labelledby="bloco-resumo" className="mb-8">
         <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
           <div className="grid gap-8 p-8 md:grid-cols-[1.3fr_1fr] md:p-10">
@@ -56,20 +61,18 @@ export default function VisaoGeralPage() {
                 className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
                 style={{ color: "var(--brand-navy)" }}
               >
-                Sua empresa fechou os últimos 30 dias com caixa estável e margem operacional
-                dentro da meta.
+                A Gregorutt fechou os últimos 30 dias com caixa crescendo e margem dentro da meta.
               </h2>
 
               <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
-                A geração de caixa operacional cobriu todas as saídas do período. O CFOup
-                identificou três exceções pontuais e uma oportunidade de ganho de margem no
-                próximo ciclo.
+                A geração de caixa cobriu todas as saídas do período. O CFOup identificou três pontos pra
+                você olhar e uma oportunidade de ganho de margem no próximo ciclo.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <SignalPill tone="positive" label="Caixa operacional positivo" />
                 <SignalPill tone="neutral" label="Margem dentro da meta" />
-                <SignalPill tone="warning" label="3 exceções mapeadas" />
+                <SignalPill tone="warning" label="3 pontos pra observar" />
               </div>
             </div>
 
@@ -95,7 +98,7 @@ export default function VisaoGeralPage() {
                 Caixa e liquidez
               </p>
               <h2 id="bloco-caixa" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
-                Runway confortável
+                Fôlego confortável
               </h2>
             </div>
             <Link
@@ -122,7 +125,7 @@ export default function VisaoGeralPage() {
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Runway
+                Fôlego
               </p>
               <p
                 className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
@@ -142,7 +145,7 @@ export default function VisaoGeralPage() {
               >
                 R$ 156k
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">média móvel 3 meses</p>
+              <p className="mt-1 text-xs text-muted-foreground">média 3 meses</p>
             </div>
           </div>
 
@@ -172,7 +175,7 @@ export default function VisaoGeralPage() {
                 Alertas e exceções
               </p>
               <h2 id="bloco-alertas" className="mt-1 text-xl font-bold" style={{ color: "var(--brand-navy)" }}>
-                3 itens para observar
+                3 itens pra observar
               </h2>
             </div>
             <Link
@@ -193,12 +196,12 @@ export default function VisaoGeralPage() {
             <AlertRow
               severity="info"
               title="Conciliação pendente"
-              body="7 lançamentos aguardam classificação no Banco PJ."
+              body="7 lançamentos aguardam categorização no Banco PJ."
             />
             <AlertRow
               severity="warning"
-              title="Prazo médio de recebimento subiu"
-              body="PMR foi de 28 para 34 dias no último ciclo."
+              title="Prazo de recebimento aumentou"
+              body="PMR subiu de 28 para 34 dias no último ciclo."
             />
           </ul>
         </section>
@@ -281,12 +284,12 @@ export default function VisaoGeralPage() {
             Devo antecipar recebíveis este mês?
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-white/85">
-            Com PMR subindo e caixa confortável, o CFOup preparou um diagnóstico em 3
-            passos. Inclui impacto no resultado e no runway.
+            Com PMR subindo e caixa confortável, o CFOup preparou a leitura em poucas linhas. Mostra o
+            impacto direto no resultado e no fôlego do caixa.
           </p>
 
           <Link
-            href="/chat"
+            href={chatHref("Devo antecipar 40% dos recebíveis este mês? Explica o impacto no caixa, no resultado e no fôlego.")}
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
           >
             <Sparkles className="h-4 w-4" strokeWidth={2.2} />
@@ -295,8 +298,8 @@ export default function VisaoGeralPage() {
 
           <div className="mt-7 grid gap-2 text-sm">
             <SuggestedPrompt text="Qual o impacto se eu antecipar 40% dos recebíveis?" />
-            <SuggestedPrompt text="Como está a saúde financeira comparada ao trimestre passado?" />
-            <SuggestedPrompt text="Onde estou perdendo margem nos últimos 60 dias?" />
+            <SuggestedPrompt text="Como tá a saúde financeira comparada ao trimestre passado?" />
+            <SuggestedPrompt text="Onde tô perdendo margem nos últimos 60 dias?" />
           </div>
         </section>
       </div>
@@ -441,7 +444,7 @@ function MovementRow({
 function SuggestedPrompt({ text }: { text: string }) {
   return (
     <Link
-      href="/chat"
+      href={chatHref(text)}
       className="flex items-center justify-between gap-3 rounded-lg border border-white/15 bg-white/5 px-3.5 py-2.5 text-[13px] leading-snug text-white/90 transition hover:bg-white/10"
     >
       <span className="line-clamp-1">{text}</span>

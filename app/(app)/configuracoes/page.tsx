@@ -7,7 +7,7 @@ export default function ConfiguracoesPage() {
       <PageHeader
         eyebrow="Preferências"
         title="Configurações"
-        description="Ajuste como o CFOup trabalha para Sua empresa: ciclos de fechamento, metas, tolerâncias e quem recebe os alertas."
+        description="Ajuste como o CFOup trabalha pra Gregorutt: ciclos de fechamento, metas, tolerâncias e quem recebe os alertas."
       />
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
@@ -27,9 +27,9 @@ export default function ConfiguracoesPage() {
             <p className="mt-1 text-sm text-muted-foreground">Essas informações servem de contexto para o CFOup.</p>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
-              <Field label="Razão social" value="Sua empresa" />
-              <Field label="Apelido no CFOup" value="Empresa Piloto" />
-              <Field label="Setor de atuação" value="Serviços B2B" />
+              <Field label="Razão social" value="Gregorutt Indústria e Comércio LTDA" />
+              <Field label="Apelido no CFOup" value="Gregorutt" />
+              <Field label="Setor de atuação" value="Indústria · Comércio B2B" />
               <Field label="Moeda padrão" value="BRL · Real brasileiro" />
               <Field label="Regime tributário" value="Lucro Presumido" />
               <Field label="Início do exercício fiscal" value="Janeiro" />

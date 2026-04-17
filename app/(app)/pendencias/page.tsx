@@ -1,5 +1,10 @@
+import Link from "next/link"
 import { AlertTriangle, Clock, FileText, CheckCircle2 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+
+function chatHref(q: string) {
+  return `/chat?q=${encodeURIComponent(q)}&auto=1`
+}
 
 export default function PendenciasPage() {
   return (
@@ -7,7 +12,7 @@ export default function PendenciasPage() {
       <PageHeader
         eyebrow="Controle"
         title="Pendências"
-        description="Exceções, conciliações e decisões que esperam seu olhar. Tudo priorizado pelo impacto financeiro em Sua empresa."
+        description="Exceções, conciliações e decisões que esperam seu olhar. Tudo em ordem pelo impacto financeiro na Gregorutt."
       />
 
       <section className="mb-8 grid gap-4 md:grid-cols-3">
@@ -32,20 +37,23 @@ export default function PendenciasPage() {
             body="Um cliente representa 34% da receita dos últimos 90 dias. Avalie diversificação antes da renovação do contrato."
             tag="Receita"
             due="Decisão esta semana"
+            question="Um cliente só tá representando 34% da receita. Se ele sair, quanto tempo eu aguento? O que faço antes da próxima renovação?"
           />
           <PendingRow
             priority="Crítica"
             title="PMR subiu 6 dias no último ciclo"
-            body="Prazo médio de recebimento foi de 28 para 34 dias. Impacto estimado em capital de giro: R$ 48k."
+            body="Prazo de recebimento foi de 28 para 34 dias. Impacto estimado em capital de giro: R$ 48k."
             tag="Caixa"
             due="Rever com time comercial"
+            question="O PMR subiu de 28 pra 34 dias. Quanto isso tá custando em caixa e como volto a receber mais rápido?"
           />
           <PendingRow
             priority="Atenção"
             title="7 lançamentos sem classificação"
-            body="Movimentações no Banco PJ aguardam categorização. Sem isso, margens da Linha B ficam subestimadas."
+            body="Movimentações no Banco PJ aguardam categorização. Sem isso, as margens da Linha B ficam subestimadas."
             tag="Conciliação"
             due="Hoje"
+            question="Tem 7 lançamentos do Banco PJ sem categoria. O que isso esconde nas margens da Linha B?"
           />
           <PendingRow
             priority="Atenção"
@@ -53,6 +61,7 @@ export default function PendenciasPage() {
             body="O CFOup detectou duas entradas idênticas em 12/08. Valide antes do próximo pagamento."
             tag="Contas a pagar"
             due="Amanhã"
+            question="Você achou um pagamento duplicado em 12/08. Quanto é, e como evito isso no próximo ciclo?"
           />
           <PendingRow
             priority="Informativa"
@@ -60,6 +69,7 @@ export default function PendenciasPage() {
             body="Fechamento consolidado do mês anterior disponível para aprovação."
             tag="Relatórios"
             due="Quando possível"
+            question="Me dá o resumo executivo do mês fechado em 3 frases?"
           />
         </ul>
       </section>
@@ -109,12 +119,14 @@ function PendingRow({
   body,
   tag,
   due,
+  question,
 }: {
   priority: "Crítica" | "Atenção" | "Informativa"
   title: string
   body: string
   tag: string
   due: string
+  question: string
 }) {
   const priColor =
     priority === "Crítica"
@@ -153,12 +165,12 @@ function PendingRow({
       </div>
       <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-2 md:pl-4">
         <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{due}</span>
-        <button
-          type="button"
+        <Link
+          href={chatHref(question)}
           className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-bold text-[var(--brand-navy)] hover:border-[var(--brand-blue)]/40"
         >
           Resolver
-        </button>
+        </Link>
       </div>
     </li>
   )
