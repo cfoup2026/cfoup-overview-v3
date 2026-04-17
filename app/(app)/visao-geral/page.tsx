@@ -195,7 +195,7 @@ export default function VisaoGeralPage() {
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             <ClientKpi
               href="/contas-a-receber"
-              label="A receber em aberto"
+              label="Em aberto"
               value="R$ 342,8k"
               hint="32% vencido"
               tone="warning"
@@ -204,14 +204,14 @@ export default function VisaoGeralPage() {
               href="/clientes/atraso"
               label="Atraso médio"
               value="18 dias"
-              hint="+4 vs mês anterior"
+              hint="4 dias acima do mês anterior"
               tone="warning"
             />
             <ClientKpi
               href="/clientes?status=ativos"
               label="Clientes pagantes"
               value="47"
-              hint="+5 vs mês anterior"
+              hint="5 clientes a mais que no mês anterior"
               tone="neutral"
             />
           </div>
@@ -233,7 +233,7 @@ export default function VisaoGeralPage() {
                 Risco principal
               </p>
               <p className="mt-0.5 text-[13px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
-                Top 5 clientes concentram 68% da receita do período.
+                Top 5 concentram 68% da receita.
               </p>
             </div>
             <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] transition group-hover:underline">
@@ -409,7 +409,7 @@ function TopClientRow({
             />
           </div>
           <p className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
-            {share}% da receita
+            {share}%
           </p>
         </div>
       </div>
