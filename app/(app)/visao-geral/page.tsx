@@ -150,18 +150,18 @@ export default function VisaoGeralPage() {
           <ul className="mt-3 divide-y divide-border/60">
             <AlertRow
               severity="warning"
-              title="Caixa e recebíveis podem estar misturados"
-              body="O valor exibido pode incluir títulos ainda em aberto no sistema."
-            />
-            <AlertRow
-              severity="info"
-              title="Conciliação pendente"
-              body="Há sinais de que recebimentos e baixas ainda não estão fechando bem."
+              title="Recebimentos vencidos pedem cobrança"
+              body="Há títulos vencidos que pedem cobrança ou regularização no sistema."
             />
             <AlertRow
               severity="warning"
-              title="Receber vencido precisa ser revisado"
-              body="Parte do saldo a receber pode já ter sido liquidada ou precisa de cobrança."
+              title="Itens antigos pedem revisão"
+              body="Há itens antigos em aberto que podem precisar de baixa, correção ou limpeza."
+            />
+            <AlertRow
+              severity="info"
+              title="Lançamentos pedem conferência"
+              body="Há registros que podem estar sem classificação correta, duplicados ou pendentes de revisão."
             />
           </ul>
         </section>
