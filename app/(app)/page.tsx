@@ -268,7 +268,7 @@ export default function VisaoGeralPage() {
           </ul>
         </section>
 
-        {/* Bloco 5 · Ação principal / Pergunte ao CFOup */}
+        {/* Bloco 5 · Ação principal / Chat CFOup */}
         <section
           aria-labelledby="bloco-acao"
           className="lg:col-span-5 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-7 text-white md:p-8"
@@ -286,11 +286,11 @@ export default function VisaoGeralPage() {
           </p>
 
           <Link
-            href="/pergunte"
+            href="/chat"
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
           >
             <Sparkles className="h-4 w-4" strokeWidth={2.2} />
-            Pergunte ao CFOup
+            Abrir Chat CFOup
           </Link>
 
           <div className="mt-7 grid gap-2 text-sm">
@@ -441,7 +441,7 @@ function MovementRow({
 function SuggestedPrompt({ text }: { text: string }) {
   return (
     <Link
-      href="/pergunte"
+      href="/chat"
       className="flex items-center justify-between gap-3 rounded-lg border border-white/15 bg-white/5 px-3.5 py-2.5 text-[13px] leading-snug text-white/90 transition hover:bg-white/10"
     >
       <span className="line-clamp-1">{text}</span>

@@ -78,7 +78,7 @@ export default function PerguntePage() {
         >
           <div className="px-6 pb-4 pt-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Pergunte ao CFOup
+              Chat CFOup
             </p>
             <h1 className="mt-2 text-xl font-extrabold tracking-tight" style={{ color: "var(--brand-navy)" }}>
               Suas conversas
@@ -142,7 +142,7 @@ export default function PerguntePage() {
                 </span>
                 <div>
                   <h1 className="text-[1.35rem] font-extrabold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                    Pergunte ao CFOup
+                    Chat CFOup
                   </h1>
                   <p className="text-[13px] text-muted-foreground">
                     Conversa sobre Sua empresa · contexto conectado em tempo real

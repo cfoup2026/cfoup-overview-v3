@@ -35,7 +35,7 @@ export default function CenariosPage() {
 
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
-            href="/pergunte"
+            href="/chat"
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white hover:brightness-110"
           >
             Discutir com o CFOup

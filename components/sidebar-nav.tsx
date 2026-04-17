@@ -17,7 +17,7 @@ import { CfoupLogo } from "@/components/cfoup-logo"
 
 export const navItems = [
   { href: "/", label: "Visão Geral", icon: LayoutDashboard },
-  { href: "/pergunte", label: "Pergunte ao CFOup", icon: MessageSquareText },
+  { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
   { href: "/cenarios", label: "Cenários", icon: GitBranch },
   { href: "/pendencias", label: "Pendências", icon: AlertCircle },
   { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
@@ -118,6 +118,13 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
             CFOup observa suas conexões e traduz os números em decisões.
           </p>
+          <Link
+            href="/entrar"
+            onClick={onNavigate}
+            className="mt-3 inline-flex text-[11px] font-medium text-muted-foreground hover:text-[var(--brand-navy)]"
+          >
+            Sair
+          </Link>
         </div>
       </div>
     </nav>
