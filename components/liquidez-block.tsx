@@ -52,7 +52,7 @@ export function LiquidezBlock() {
   return (
     <section
       aria-labelledby="bloco-caixa"
-      className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
+      className="lg:col-span-7 rounded-2xl border border-border bg-card p-4"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -66,14 +66,17 @@ export function LiquidezBlock() {
             Variação por período
           </h3>
         </div>
+        <Link
+          href="/fluxo-de-caixa"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
+        >
+          Fluxo de caixa
+          <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
-      {/* Seletor de período — mais visível */}
-      <div
-        role="tablist"
-        aria-label="Período"
-        className="mt-3 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--brand-navy)]/10 bg-muted p-1"
-      >
+      {/* Seletor de período — mais leve */}
+      <div role="tablist" aria-label="Período" className="mt-3 flex flex-wrap gap-1">
         {PERIODS.map((p) => {
           const isActive = p.key === active
           return (
@@ -83,10 +86,10 @@ export function LiquidezBlock() {
               aria-selected={isActive}
               onClick={() => setActive(p.key)}
               className={
-                "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition " +
+                "rounded-md px-2.5 py-1 text-[12px] font-medium transition " +
                 (isActive
-                  ? "bg-[var(--brand-navy)] text-white shadow-sm"
-                  : "text-[var(--slate-700)] hover:text-[var(--brand-navy)]")
+                  ? "bg-[var(--brand-navy)] text-white"
+                  : "text-muted-foreground hover:bg-muted hover:text-[var(--brand-navy)]")
               }
             >
               {p.label}
@@ -96,29 +99,21 @@ export function LiquidezBlock() {
       </div>
 
       {/* Métrica */}
-      <div className="mt-4">
+      <div className="mt-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Variação
+        </p>
         <p
-          className="text-[1.875rem] font-extrabold leading-none tabular-nums"
+          className="mt-1 text-[1.625rem] font-extrabold leading-none tabular-nums"
           style={{
             color: current.positive ? "var(--brand-green-dark)" : "var(--slate-800)",
           }}
         >
           {current.variation}
         </p>
-        <p className="mt-2 max-w-lg text-[13px] leading-relaxed text-[var(--slate-700)]">
+        <p className="mt-1.5 max-w-lg text-[13px] leading-relaxed text-[var(--slate-700)]">
           {current.sentence}
         </p>
-      </div>
-
-      {/* Ação única para aprofundar */}
-      <div className="mt-4">
-        <Link
-          href="/fluxo-de-caixa"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:brightness-110"
-        >
-          Ver fluxo de caixa
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
       </div>
     </section>
   )
