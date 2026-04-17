@@ -22,7 +22,7 @@ export default function EntrarPage() {
       primary: "Criar conta",
     },
     recuperar: {
-      title: "Recuperar senha",
+      title: "Esqueci minha senha",
       subtitle: "Enviaremos um link para o seu e-mail.",
       primary: "Enviar link",
     },
@@ -149,11 +149,8 @@ export default function EntrarPage() {
         </div>
 
         {/* Rodapé */}
-        <footer className="flex items-center justify-between pt-6 text-xs text-muted-foreground">
+        <footer className="pt-6 text-xs text-muted-foreground">
           <span>CFOup</span>
-          <Link href="/" className="hover:text-foreground">
-            Voltar ao produto
-          </Link>
         </footer>
       </div>
     </main>
