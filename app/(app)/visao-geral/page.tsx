@@ -215,17 +215,17 @@ export default function VisaoGeralPage() {
           {/* Cliente mais crítico */}
           <Link
             href="/clientes/concentracao"
-            className="group mt-4 flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
+            className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
           >
             <span
               aria-hidden
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-              style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
+              style={{ background: "rgba(54,186,88,0.18)", color: "var(--brand-green-dark)" }}
             >
               <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 Cliente mais crítico
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
@@ -291,17 +291,17 @@ export default function VisaoGeralPage() {
           {/* Fornecedor mais crítico · Plastibras Insumos */}
           <Link
             href="/fornecedores/atraso"
-            className="group mt-4 flex items-center gap-3 rounded-xl border border-[rgba(234,179,8,0.4)] bg-[rgba(234,179,8,0.08)] px-3.5 py-3 transition hover:border-[rgba(234,179,8,0.6)]"
+            className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
           >
             <span
               aria-hidden
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-              style={{ background: "rgba(234,179,8,0.2)", color: "#b45309" }}
+              style={{ background: "rgba(54,186,88,0.18)", color: "var(--brand-green-dark)" }}
             >
               <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 Fornecedor mais crítico
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
