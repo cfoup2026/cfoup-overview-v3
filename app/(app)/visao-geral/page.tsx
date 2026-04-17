@@ -1,7 +1,6 @@
 import Link from "next/link"
 import {
   ArrowUpRight,
-  ArrowDownRight,
   Sparkles,
   AlertTriangle,
   Info,
@@ -160,69 +159,88 @@ export default function VisaoGeralPage() {
           </ul>
         </section>
 
-        {/* Bloco 3 · Entradas e saídas recentes */}
+        {/* Bloco 3 · Análise de clientes */}
         <section
-          aria-labelledby="bloco-movimentos"
+          aria-labelledby="bloco-clientes"
           className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Movimentações recentes
+                Análise de clientes
               </p>
-              <h2 id="bloco-movimentos" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-                Últimos 7 dias
+              <h2 id="bloco-clientes" className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+                Top 5 no período
               </h2>
             </div>
-            <div className="flex items-center gap-3 text-xs">
-              <span className="inline-flex items-center gap-1 text-[var(--brand-green-dark)]">
-                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-                <span className="font-semibold tabular-nums">+R$ 142,3k</span>
-              </span>
-              <span className="inline-flex items-center gap-1 text-[var(--slate-600)]">
-                <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-                <span className="font-semibold tabular-nums">−R$ 88,9k</span>
-              </span>
-            </div>
+            <Link
+              href="/clientes"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
+            >
+              Ver todos
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
 
-          <ul className="mt-3 divide-y divide-border">
-            <MovementRow
-              kind="in"
-              when="Hoje · 09:42"
-              label="Recebimento de cliente"
-              meta="Contrato recorrente · Banco PJ"
-              amount="+ R$ 24.800,00"
-            />
-            <MovementRow
-              kind="out"
-              when="Hoje · 08:10"
-              label="Folha de pagamento"
-              meta="Parcela mensal · Banco PJ"
-              amount="− R$ 62.140,00"
-            />
-            <MovementRow
-              kind="in"
-              when="Ontem"
-              label="Repasse de gateway"
-              meta="Vendas online · D+1"
-              amount="+ R$ 17.320,55"
-            />
-            <MovementRow
-              kind="out"
-              when="Ontem"
-              label="Pagamento a fornecedor"
-              meta="Insumos · 30 dias"
-              amount="− R$ 9.480,00"
-            />
-            <MovementRow
-              kind="in"
-              when="3 dias"
-              label="Recebimento em boleto"
-              meta="Cliente corporativo"
-              amount="+ R$ 41.000,00"
-            />
+          {/* Top 5 clientes */}
+          <ul className="mt-3 space-y-2">
+            <TopClientRow rank={1} name="Construtora Andrade" value="R$ 82.400" share={24} />
+            <TopClientRow rank={2} name="Metalúrgica Vitória" value="R$ 54.100" share={16} />
+            <TopClientRow rank={3} name="Grupo Sertanejo" value="R$ 41.800" share={12} />
+            <TopClientRow rank={4} name="Laticínios Bela Vista" value="R$ 32.600" share={9} />
+            <TopClientRow rank={5} name="Transportadora Linha Azul" value="R$ 24.200" share={7} />
           </ul>
+
+          {/* KPIs clicáveis */}
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <ClientKpi
+              href="/contas-a-receber"
+              label="A receber em aberto"
+              value="R$ 342,8k"
+              hint="32% vencido"
+              tone="warning"
+            />
+            <ClientKpi
+              href="/clientes/atraso"
+              label="Atraso médio"
+              value="18 dias"
+              hint="+4 vs mês anterior"
+              tone="warning"
+            />
+            <ClientKpi
+              href="/clientes?status=ativos"
+              label="Clientes pagantes"
+              value="47"
+              hint="+5 vs mês anterior"
+              tone="neutral"
+            />
+          </div>
+
+          {/* Risco principal */}
+          <Link
+            href="/clientes/concentracao"
+            className="group mt-3 flex items-start gap-2.5 rounded-xl border border-[rgba(234,179,8,0.35)] bg-[rgba(234,179,8,0.08)] px-3 py-2.5 transition hover:border-[rgba(234,179,8,0.55)]"
+          >
+            <span
+              aria-hidden
+              className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+              style={{ background: "rgba(234,179,8,0.18)", color: "#b45309" }}
+            >
+              <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#92400e]">
+                Risco principal
+              </p>
+              <p className="mt-0.5 text-[13px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
+                Top 5 clientes concentram 68% da receita do período.
+              </p>
+            </div>
+            <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] transition group-hover:underline">
+              Ver detalhes
+              <ArrowUpRight className="h-3 w-3" />
+            </span>
+          </Link>
         </section>
 
         {/* Bloco 5 · Ação principal / Chat CFOup */}
@@ -348,53 +366,92 @@ function AlertRow({
   )
 }
 
-function MovementRow({
-  kind,
-  when,
-  label,
-  meta,
-  amount,
+function TopClientRow({
+  rank,
+  name,
+  value,
+  share,
 }: {
-  kind: "in" | "out"
-  when: string
-  label: string
-  meta: string
-  amount: string
+  rank: number
+  name: string
+  value: string
+  share: number
 }) {
-  const positive = kind === "in"
   return (
-    <li className="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0">
-      <div className="flex items-center gap-2.5 min-w-0">
-        <span
-          aria-hidden
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{
-            background: positive ? "rgba(54,186,88,0.12)" : "rgba(15,23,42,0.06)",
-            color: positive ? "var(--brand-green-dark)" : "var(--slate-700)",
-          }}
-        >
-          {positive ? (
-            <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-          ) : (
-            <ArrowDownRight className="h-3.5 w-3.5" strokeWidth={2.2} />
-          )}
-        </span>
-        <div className="min-w-0">
+    <li className="flex items-center gap-3">
+      <span
+        aria-hidden
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-bold tabular-nums"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        {rank}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3">
           <p className="truncate text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
-            {label}
+            {name}
           </p>
-          <p className="truncate text-[11px] text-muted-foreground">
-            {when} · {meta}
+          <p className="shrink-0 text-[13px] font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+            {value}
+          </p>
+        </div>
+        <div className="mt-1 flex items-center gap-2">
+          <div
+            className="h-1 flex-1 overflow-hidden rounded-full"
+            style={{ background: "rgba(21,103,200,0.10)" }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.min(share * 3, 100)}%`,
+                background: "var(--brand-blue)",
+              }}
+            />
+          </div>
+          <p className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
+            {share}% da receita
           </p>
         </div>
       </div>
-      <span
-        className="shrink-0 text-[13px] font-bold tabular-nums"
-        style={{ color: positive ? "var(--brand-green-dark)" : "var(--slate-800)" }}
-      >
-        {amount}
-      </span>
     </li>
+  )
+}
+
+function ClientKpi({
+  href,
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  href: string
+  label: string
+  value: string
+  hint: string
+  tone: "warning" | "neutral"
+}) {
+  const hintColor = tone === "warning" ? "#b45309" : "var(--slate-600)"
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col gap-1 rounded-xl border border-border bg-card px-3 py-2.5 transition hover:border-[var(--brand-blue)]/40 hover:bg-muted/40"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {label}
+        </p>
+        <ChevronRight
+          className="h-3.5 w-3.5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+          strokeWidth={2.2}
+        />
+      </div>
+      <p className="text-[1.125rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-navy)" }}>
+        {value}
+      </p>
+      <p className="text-[11px] font-medium" style={{ color: hintColor }}>
+        {hint}
+      </p>
+    </Link>
   )
 }
 
