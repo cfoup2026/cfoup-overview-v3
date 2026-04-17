@@ -28,10 +28,10 @@ export default function VisaoGeralPage() {
           <>
             Bom dia, Roger.
             <br />
-            A operação está girando, mas os números ainda precisam de conciliação.
+            A operação está rodando, mas os números ainda precisam ser separados.
           </>
         }
-        description="Há venda, recebimento e pagamento acontecendo. O problema é que a leitura de caixa e contas a receber ainda pode estar misturada com títulos em aberto no sistema. Antes de decidir, o primeiro passo é separar o que já entrou no banco do que ainda está só no contas a receber."
+        description="O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. Antes de tirar conclusão, o primeiro passo é separar banco, receber, pagar e pendências antigas."
         actions={
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span
@@ -61,25 +61,33 @@ export default function VisaoGeralPage() {
                 className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
                 style={{ color: "var(--brand-navy)" }}
               >
-                O negócio está ativo, mas a base ainda não está limpa o suficiente para confiar no número sozinho.
+                Hoje, o mais importante é entender o que é saldo real no banco e o que ainda está só no sistema.
               </h2>
 
               <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
-                Hoje, o mais importante não é olhar só faturamento ou um saldo isolado de caixa. É entender três
-                coisas: o que realmente está no banco, o que ainda falta receber e o que já deveria ter sido baixado.
+                Saldo no banco em 31/03:{" "}
+                <strong className="font-semibold text-[var(--brand-navy)]">R$ 34.494</strong>. Saldo no
+                extrato mais recente:{" "}
+                <strong className="font-semibold text-[var(--brand-navy)]">R$ 43.677</strong>. Agora vamos
+                comparar isso com contas a receber, contas a pagar e itens antigos para revisar.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">
                 <SignalPill tone="neutral" label="Banco" />
                 <SignalPill tone="neutral" label="A receber" />
-                <SignalPill tone="neutral" label="Conciliação" />
+                <SignalPill tone="neutral" label="A pagar" />
+                <SignalPill tone="neutral" label="Itens antigos" />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 self-center">
-              <MetricTile label="Receita 30d" value="R$ 482,1k" trend="+6,4%" positive />
-              <MetricTile label="Resultado" value="R$ 71,8k" trend="+2,1%" positive />
-              <MetricTile label="Margem líq." value="14,9%" trend="−0,3 p.p." />
+            <div className="grid gap-3 self-center">
+              <BankBalanceTile label="Saldo no banco · 31/03/2026" value="R$ 34.494,27" helper="CEF · posição de fechamento" />
+              <BankBalanceTile
+                label="Saldo no extrato mais recente"
+                value="R$ 43.677,46"
+                helper="CEF · abril de 2026"
+                highlight
+              />
             </div>
           </div>
         </div>
@@ -151,55 +159,47 @@ export default function VisaoGeralPage() {
           <div className="mt-6 grid gap-5 md:grid-cols-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Caixa disponível
+                Saldo em 31/03/2026
               </p>
               <p
                 className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
-                R$ 1,284M
+                R$ 34.494
               </p>
-              <p className="mt-1 text-xs text-[var(--brand-green-dark)]">+R$ 48,7k vs. mês anterior</p>
+              <p className="mt-1 text-xs text-muted-foreground">CEF · fechamento de março</p>
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Fôlego
+                Saldo no extrato mais recente
               </p>
               <p
                 className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
-                8,2<span className="ml-1 text-lg font-bold text-muted-foreground">meses</span>
+                R$ 43.677
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">ao ritmo de queima atual</p>
+              <p className="mt-1 text-xs text-muted-foreground">CEF · abril de 2026</p>
             </div>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Queima / mês
+                Variação no período
               </p>
               <p
                 className="mt-2 text-[2.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
+                style={{ color: "var(--brand-green-dark)" }}
               >
-                R$ 156k
+                +R$ 9.183
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">média 3 meses</p>
+              <p className="mt-1 text-xs text-muted-foreground">entre 31/03 e o extrato mais recente</p>
             </div>
           </div>
 
-          <div className="mt-7">
-            <CashflowSpark />
-            <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Jan</span>
-              <span>Fev</span>
-              <span>Mar</span>
-              <span>Abr</span>
-              <span>Mai</span>
-              <span>Jun</span>
-              <span>Jul</span>
-              <span className="font-semibold text-[var(--brand-navy)]">Ago</span>
-            </div>
-          </div>
+          <p className="mt-7 rounded-xl border border-border bg-muted/40 p-4 text-[13px] leading-relaxed text-[var(--slate-700)]">
+            Este é o saldo real do banco, lido direto dos extratos da CEF. Não é receita projetada, nem
+            contas a receber. Para entender o fôlego de caixa de verdade, compare este número com o que
+            ainda falta entrar e o que já está para sair nos próximos dias.
+          </p>
         </section>
 
         {/* Bloco 4 · Alertas e exceções */}
@@ -426,29 +426,36 @@ function DrillInCard({
   )
 }
 
-function MetricTile({
+function BankBalanceTile({
   label,
   value,
-  trend,
-  positive = false,
+  helper,
+  highlight = false,
 }: {
   label: string
   value: string
-  trend: string
-  positive?: boolean
+  helper: string
+  highlight?: boolean
 }) {
   return (
-    <div className="rounded-xl border border-border/70 bg-white/80 p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
-      <p className="mt-2 text-lg font-extrabold tabular-nums leading-none" style={{ color: "var(--brand-navy)" }}>
-        {value}
+    <div
+      className={
+        "rounded-xl border p-4 " +
+        (highlight
+          ? "border-[var(--brand-blue)]/30 bg-white"
+          : "border-border/70 bg-white/80")
+      }
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
       </p>
       <p
-        className="mt-1.5 text-[11px] font-semibold"
-        style={{ color: positive ? "var(--brand-green-dark)" : "var(--slate-500)" }}
+        className="mt-2 text-xl font-extrabold tabular-nums leading-none"
+        style={{ color: "var(--brand-navy)" }}
       >
-        {trend}
+        {value}
       </p>
+      <p className="mt-1.5 text-[11px] text-muted-foreground">{helper}</p>
     </div>
   )
 }
@@ -546,34 +553,4 @@ function SuggestedPrompt({ text }: { text: string }) {
   )
 }
 
-/** Sparkline discreto do caixa — SVG inline, sem libs. */
-function CashflowSpark() {
-  const pts = [30, 36, 42, 38, 52, 58, 62, 74]
-  const w = 560
-  const h = 96
-  const stepX = w / (pts.length - 1)
-  const max = Math.max(...pts)
-  const min = Math.min(...pts)
-  const range = max - min || 1
-  const path = pts
-    .map((v, i) => {
-      const x = i * stepX
-      const y = h - ((v - min) / range) * (h - 12) - 6
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(" ")
-  const area = `${path} L${w},${h} L0,${h} Z`
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="96" aria-hidden="true" className="block">
-      <defs>
-        <linearGradient id="ca" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1567C8" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#1567C8" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#ca)" />
-      <path d={path} fill="none" stroke="#1567C8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={w} cy={h - ((pts[pts.length - 1] - min) / range) * (h - 12) - 6} r="4" fill="#36BA58" />
-    </svg>
-  )
-}
+
