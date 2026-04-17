@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { LiquidezBlock } from "@/components/liquidez-block"
+import { LiveStatus } from "@/components/live-status"
 
 /* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
 function chatHref(q: string) {
@@ -22,40 +23,28 @@ export default function VisaoGeralPage() {
   return (
     <>
       {/* Header compacto (inline, apenas nesta página) */}
-      <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-2xl">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-            Visão geral · hoje
-          </p>
+      <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div className="max-w-3xl">
           <h1
-            className="text-balance text-xl font-extrabold leading-tight tracking-tight md:text-[1.5rem]"
+            className="text-balance text-lg font-extrabold leading-tight tracking-tight md:text-[1.3rem]"
             style={{ color: "var(--brand-navy)" }}
           >
-            Bom dia, Roger.
-            <br />
-            A operação está rodando, mas os números ainda precisam ser separados.
+            Bom dia, Roger. A operação está rodando, mas os números ainda precisam ser separados.
           </h1>
-          <p className="mt-2 max-w-xl text-pretty text-[13px] leading-relaxed text-muted-foreground">
-            O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. Antes de tirar conclusão, o primeiro passo é separar banco, receber, pagar e pendências antigas.
+          <p className="mt-1.5 max-w-2xl text-pretty text-[13px] leading-relaxed text-muted-foreground">
+            O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. O primeiro passo é separar banco, receber, pagar e pendências antigas.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span
-            aria-hidden
-            className="inline-flex h-2 w-2 rounded-full"
-            style={{ backgroundColor: "var(--brand-green)" }}
-          />
-          Atualizado há 12 minutos
-        </div>
+        <LiveStatus />
       </header>
 
       {/* ───────────────────────── Bloco 1 · Resumo executivo ───────────────────────── */}
-      <section aria-labelledby="bloco-resumo" className="mb-4">
+      <section aria-labelledby="bloco-resumo" className="mb-3">
         <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
-          <div className="grid gap-4 p-5 md:grid-cols-[1.3fr_1fr] md:gap-6 md:p-6">
+          <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-6 md:p-5">
             <div>
               <p
-                className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
               >
                 Resumo do momento
@@ -63,30 +52,27 @@ export default function VisaoGeralPage() {
 
               <h2
                 id="bloco-resumo"
-                className="text-balance text-lg font-extrabold leading-snug md:text-xl"
+                className="text-balance text-[15px] font-bold leading-snug md:text-base"
                 style={{ color: "var(--brand-navy)" }}
               >
                 O primeiro passo aqui é separar o que está no banco do que ainda está no sistema.
               </h2>
 
-              <p className="mt-2 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
+              <p className="mt-1.5 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
                 Com isso limpo, fica mais fácil entender o que realmente falta receber, o que precisa ser
                 pago e o que ainda pede revisão.
               </p>
             </div>
 
-            <div className="flex flex-col justify-center rounded-xl border border-[var(--brand-blue)]/25 bg-white p-4 md:p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <div className="flex items-baseline justify-between gap-4 rounded-xl border border-[var(--brand-blue)]/20 bg-white px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Saldo atual
               </p>
               <p
-                className="mt-1.5 text-[2rem] font-extrabold leading-none tabular-nums"
+                className="text-[1.5rem] font-extrabold leading-none tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
                 R$ 43.677
-              </p>
-              <p className="mt-1.5 text-[11px] text-muted-foreground">
-                CEF · extrato mais recente
               </p>
             </div>
           </div>
@@ -95,7 +81,7 @@ export default function VisaoGeralPage() {
 
       {/* ───────────────────────── Blocos investigáveis ─────────────────────────
           Resumo primeiro; clique abre a lista detalhada com filtros. */}
-      <section aria-labelledby="bloco-investigar" className="mb-4">
+      <section aria-labelledby="bloco-investigar" className="mb-3">
         <h2 id="bloco-investigar" className="sr-only">
           Onde investigar a fundo
         </h2>
@@ -105,7 +91,7 @@ export default function VisaoGeralPage() {
             eyebrow="Contas a receber"
             icon={ArrowDownToLine}
             total="R$ 342,8k"
-            count="10 títulos em aberto"
+            count="10 títulos"
             hint="2 vencidos · 3 vencem em 7 dias"
           />
           <DrillInCard
@@ -113,15 +99,15 @@ export default function VisaoGeralPage() {
             eyebrow="Contas a pagar"
             icon={ArrowUpToLine}
             total="R$ 280,2k"
-            count="9 títulos em aberto"
+            count="9 títulos"
             hint="1 vencido · 3 vencem em 7 dias"
           />
           <DrillInCard
             href="/itens-antigos"
-            eyebrow="Itens antigos para revisar"
+            eyebrow="Itens antigos"
             icon={History}
             total="R$ 112,5k"
-            count="8 itens para revisar"
+            count="8 itens"
             hint="4 acima de 90 dias"
           />
         </div>
@@ -297,37 +283,36 @@ function DrillInCard({
   return (
     <Link
       href={href}
-      className="group relative flex flex-col gap-2.5 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)]"
+      className="group relative flex items-center gap-3 rounded-2xl border border-border bg-card p-3 transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)]"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg"
-            style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
-          >
-            <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-          </span>
+      <span
+        aria-hidden
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
+      >
+        <Icon className="h-4 w-4" strokeWidth={2} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {eyebrow}
           </p>
+          <p className="text-[11px] text-muted-foreground">{count}</p>
         </div>
-        <ChevronRight
-          className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
-          strokeWidth={2.2}
-        />
+        <div className="mt-0.5 flex items-baseline justify-between gap-2">
+          <p
+            className="text-[1.25rem] font-extrabold leading-none tabular-nums"
+            style={{ color: "var(--brand-navy)" }}
+          >
+            {total}
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">{hint}</p>
+        </div>
       </div>
-
-      <div>
-        <p
-          className="text-[1.5rem] font-extrabold leading-none tabular-nums"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          {total}
-        </p>
-        <p className="mt-1.5 text-[13px] font-medium text-[var(--slate-700)]">{count}</p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
-      </div>
+      <ChevronRight
+        className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+        strokeWidth={2.2}
+      />
     </Link>
   )
 }

@@ -51,7 +51,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
             Empresa
           </p>
           <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">Gregorutt</p>
-          <p className="text-xs text-muted-foreground">Indústria e Comércio · mês corrente</p>
+          <p className="text-xs text-muted-foreground">Indústria e Comércio</p>
         </div>
       </div>
 

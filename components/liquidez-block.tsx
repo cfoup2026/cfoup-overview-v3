@@ -58,8 +58,7 @@ export function LiquidezBlock() {
         <div>
           <p
             id="bloco-caixa"
-            className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
+            className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
           >
             Caixa e liquidez
           </p>
@@ -67,20 +66,13 @@ export function LiquidezBlock() {
             Variação por período
           </h3>
         </div>
-        <Link
-          href="/fluxo-de-caixa"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
-        >
-          Fluxo de caixa
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
       </div>
 
-      {/* Seletor de período */}
+      {/* Seletor de período — mais visível */}
       <div
         role="tablist"
         aria-label="Período"
-        className="mt-3 inline-flex flex-wrap gap-1 rounded-xl border border-border bg-muted/50 p-1"
+        className="mt-3 inline-flex flex-wrap gap-1 rounded-xl border border-[var(--brand-navy)]/10 bg-muted p-1"
       >
         {PERIODS.map((p) => {
           const isActive = p.key === active
@@ -91,10 +83,10 @@ export function LiquidezBlock() {
               aria-selected={isActive}
               onClick={() => setActive(p.key)}
               className={
-                "rounded-lg px-3 py-1 text-[11px] font-semibold transition " +
+                "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition " +
                 (isActive
-                  ? "bg-white text-[var(--brand-navy)] shadow-sm"
-                  : "text-muted-foreground hover:text-[var(--brand-navy)]")
+                  ? "bg-[var(--brand-navy)] text-white shadow-sm"
+                  : "text-[var(--slate-700)] hover:text-[var(--brand-navy)]")
               }
             >
               {p.label}
@@ -105,11 +97,8 @@ export function LiquidezBlock() {
 
       {/* Métrica */}
       <div className="mt-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Variação
-        </p>
         <p
-          className="mt-1 text-[1.875rem] font-extrabold leading-none tabular-nums"
+          className="text-[1.875rem] font-extrabold leading-none tabular-nums"
           style={{
             color: current.positive ? "var(--brand-green-dark)" : "var(--slate-800)",
           }}
@@ -121,13 +110,13 @@ export function LiquidezBlock() {
         </p>
       </div>
 
-      {/* Ação secundária para aprofundar */}
+      {/* Ação única para aprofundar */}
       <div className="mt-4">
         <Link
           href="/fluxo-de-caixa"
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:brightness-110"
         >
-          Fluxo de caixa
+          Ver fluxo de caixa
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
