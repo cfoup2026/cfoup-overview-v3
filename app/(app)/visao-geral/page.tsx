@@ -24,10 +24,10 @@ export default function VisaoGeralPage() {
           <>
             Bom dia, Roger.
             <br />
-            Aqui está a visão geral da Gregorutt hoje.
+            A operação está girando, mas os números ainda precisam de conciliação.
           </>
         }
-        description="Veja os principais sinais de caixa, vendas, recebimentos e pagamentos em um só lugar."
+        description="Há venda, recebimento e pagamento acontecendo. O problema é que a leitura de caixa e contas a receber ainda pode estar misturada com títulos em aberto no sistema. Antes de decidir, o primeiro passo é separar o que já entrou no banco do que ainda está só no contas a receber."
         actions={
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span
@@ -57,17 +57,18 @@ export default function VisaoGeralPage() {
                 className="text-balance text-2xl font-extrabold leading-tight md:text-3xl"
                 style={{ color: "var(--brand-navy)" }}
               >
-                Aqui estão os principais sinais financeiros da Gregorutt nos últimos 30 dias.
+                O negócio está ativo, mas a base ainda não está limpa o suficiente para confiar no número sozinho.
               </h2>
 
               <p className="mt-4 max-w-xl text-pretty text-[15px] leading-relaxed text-[var(--slate-700)]">
-                Use esta visão para acompanhar caixa, recebimentos, pagamentos e pontos que merecem atenção.
+                Hoje, o mais importante não é olhar só faturamento ou um saldo isolado de caixa. É entender três
+                coisas: o que realmente está no banco, o que ainda falta receber e o que já deveria ter sido baixado.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">
-                <SignalPill tone="neutral" label="Caixa" />
-                <SignalPill tone="neutral" label="Recebimentos" />
-                <SignalPill tone="neutral" label="Pagamentos" />
+                <SignalPill tone="neutral" label="Banco" />
+                <SignalPill tone="neutral" label="A receber" />
+                <SignalPill tone="neutral" label="Conciliação" />
               </div>
             </div>
 
@@ -97,7 +98,7 @@ export default function VisaoGeralPage() {
                 Caixa e liquidez
               </p>
               <p className="mt-1.5 max-w-md text-[15px] leading-relaxed text-[var(--slate-700)]">
-                Resumo do caixa atual e do ritmo recente da operação.
+                Separe saldo real do banco de valores ainda em aberto no sistema.
               </p>
             </div>
             <Link
@@ -189,18 +190,18 @@ export default function VisaoGeralPage() {
           <ul className="mt-6 divide-y divide-border">
             <AlertRow
               severity="warning"
-              title="Concentração de receita"
-              body="Um cliente representa parte relevante da receita recente."
+              title="Caixa e recebíveis podem estar misturados"
+              body="O valor exibido pode incluir títulos ainda em aberto no sistema."
             />
             <AlertRow
               severity="info"
               title="Conciliação pendente"
-              body="Há lançamentos que ainda precisam ser revisados."
+              body="Há sinais de que recebimentos e baixas ainda não estão fechando bem."
             />
             <AlertRow
               severity="warning"
-              title="Prazo de recebimento subiu"
-              body="O dinheiro está demorando mais para entrar."
+              title="Receber vencido precisa ser revisado"
+              body="Parte do saldo a receber pode já ter sido liquidada ou precisa de cobrança."
             />
           </ul>
         </section>
@@ -280,14 +281,17 @@ export default function VisaoGeralPage() {
             Ação principal
           </div>
           <h2 id="bloco-acao" className="mt-3 text-balance text-[1.65rem] font-extrabold leading-tight">
-            Vale antecipar recebíveis agora?
+            Quero separar banco, receber e pendências.
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-white/85">
-            Simule o impacto dessa decisão no caixa e nos próximos vencimentos.
+            Abra o Chat CFOup para revisar o que é saldo real, o que ainda falta entrar e o que precisa de
+            auditoria no sistema.
           </p>
 
           <Link
-            href={chatHref("Qual o impacto de antecipar parte dos recebíveis agora?")}
+            href={chatHref(
+              "Separe para mim o que é saldo real no banco, o que está em contas a receber e o que pode estar vencido ou sem baixa.",
+            )}
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-navy)] shadow-sm transition hover:bg-white/95"
           >
             <Sparkles className="h-4 w-4" strokeWidth={2.2} />
