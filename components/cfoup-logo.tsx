@@ -10,9 +10,9 @@ type CfoupLogoProps = {
 /**
  * Logo oficial do CFOup — PNG com fundo transparente.
  * Arquivo em public/cfoup-logo.png. O PNG já contém símbolo + wordmark;
- * o prop `showWordmark` controla a largura do recorte.
+ * `size` controla a altura em pixels.
  */
-export function CfoupLogo({ showWordmark = true, className, size = 38 }: CfoupLogoProps) {
+export function CfoupLogo({ showWordmark = true, className, size = 64 }: CfoupLogoProps) {
   const width = showWordmark ? Math.round(size * 3.2) : size
   const height = size
 
