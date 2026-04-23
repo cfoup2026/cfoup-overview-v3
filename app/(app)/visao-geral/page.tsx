@@ -10,7 +10,6 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   History,
-  Users,
   ChevronRight,
 } from "lucide-react"
 import { LiquidezBlock } from "@/components/liquidez-block"
@@ -22,7 +21,7 @@ function chatHref(q: string) {
   return `/chat?q=${encodeURIComponent(q)}&auto=1`
 }
 
-/* Mapa de ícones para os cards de drilldown — mantém o JSX desacoplado dos dados. */
+/* Mapa de ícones dos cards de drilldown — o hook devolve o nome, aqui resolvemos o componente. */
 const DRILLDOWN_ICON: Record<
   DrilldownIcon,
   React.ComponentType<{ className?: string; strokeWidth?: number }>
@@ -30,7 +29,7 @@ const DRILLDOWN_ICON: Record<
   receber: ArrowDownToLine,
   pagar: ArrowUpToLine,
   antigos: History,
-  concentracao: Users,
+  concentracao: TrendingUp,
 }
 
 export default function VisaoGeralPage() {
@@ -47,9 +46,6 @@ export default function VisaoGeralPage() {
           >
             {data.greeting}, {data.userName}. {data.headline}
           </h1>
-          <p className="mt-1.5 max-w-2xl text-pretty text-[13px] leading-relaxed text-muted-foreground">
-            O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. O primeiro passo é separar banco, receber, pagar e pendências antigas.
-          </p>
         </div>
         <LiveStatus />
       </header>
@@ -83,19 +79,24 @@ export default function VisaoGeralPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Saldo atual
               </p>
-              <p
-                className="text-[1.5rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {data.saldoAtual.status === "ok" && data.saldoAtual.value ? data.saldoAtual.value : "—"}
-              </p>
+              {data.saldoAtual.status === "ok" && data.saldoAtual.value ? (
+                <p
+                  className="text-[1.5rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {data.saldoAtual.value}
+                </p>
+              ) : (
+                <p className="text-right text-[11px] font-medium leading-snug text-muted-foreground">
+                  Aguardando conexão bancária
+                </p>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ───────────────────────── Blocos investigáveis ─────────────────────────
-          Resumo primeiro; clique abre a lista detalhada com filtros. */}
+      {/* ───────────────────────── Blocos investigáveis ───────────────────────── */}
       <section aria-labelledby="bloco-investigar" className="mb-3">
         <h2 id="bloco-investigar" className="sr-only">
           Onde investigar a fundo
@@ -151,13 +152,8 @@ export default function VisaoGeralPage() {
           </div>
 
           <ul className="mt-3 divide-y divide-border/60">
-            {data.alertas.map((alerta, i) => (
-              <AlertRow
-                key={`${alerta.title}-${i}`}
-                severity={alerta.severity}
-                title={alerta.title}
-                body={alerta.body}
-              />
+            {data.alertas.map((a, i) => (
+              <AlertRow key={i} severity={a.severity} title={a.title} body={a.body} />
             ))}
           </ul>
         </section>
@@ -189,24 +185,21 @@ export default function VisaoGeralPage() {
             </Link>
           </div>
 
-          {/* Top 5 clientes */}
           <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Top 5 do período
           </p>
           <ul className="mt-2 space-y-1">
-            {data.topClientes.map((c) => (
-              <TopClientRow key={c.name} name={c.name} share={c.share} />
+            {data.topClientes.map((c, i) => (
+              <TopClientRow key={i} name={c.name} share={c.share} />
             ))}
           </ul>
 
-          {/* Indicadores da carteira */}
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
             <PortfolioIndicator label="Prazo médio" value={data.indicadoresClientes.prazoMedio} />
             <PortfolioIndicator label="Margem média" value={data.indicadoresClientes.margemMedia} />
             <PortfolioIndicator label="Atraso médio" value={data.indicadoresClientes.atrasoMedio} />
           </div>
 
-          {/* Cliente mais crítico */}
           <Link
             href={data.clienteCritico.href}
             className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
@@ -236,7 +229,7 @@ export default function VisaoGeralPage() {
           </Link>
         </section>
 
-        {/* Bloco 4 · Análise de fornecedores (parallel ao de clientes) */}
+        {/* Bloco 4 · Análise de fornecedores */}
         <section
           aria-labelledby="bloco-fornecedores"
           className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
@@ -263,24 +256,21 @@ export default function VisaoGeralPage() {
             </Link>
           </div>
 
-          {/* Top 5 fornecedores · share calculado sobre o total a pagar do período */}
           <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Top 5 do período
           </p>
           <ul className="mt-2 space-y-1">
-            {data.topFornecedores.map((f) => (
-              <TopSupplierRow key={f.name} name={f.name} share={f.share} />
+            {data.topFornecedores.map((f, i) => (
+              <TopSupplierRow key={i} name={f.name} share={f.share} />
             ))}
           </ul>
 
-          {/* Indicadores da base de fornecedores */}
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
             <PortfolioIndicator label="Prazo médio" value={data.indicadoresFornecedores.prazoMedio} />
             <PortfolioIndicator label="Top 5 no custo" value={data.indicadoresFornecedores.topShareCusto} />
             <PortfolioIndicator label="Atraso médio" value={data.indicadoresFornecedores.atrasoMedio} />
           </div>
 
-          {/* Fornecedor mais crítico */}
           <Link
             href={data.fornecedorCritico.href}
             className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
@@ -310,7 +300,7 @@ export default function VisaoGeralPage() {
           </Link>
         </section>
 
-        {/* Bloco 5 · Ação principal / Chat CFOup — movido para baixo dos blocos de análise */}
+        {/* Bloco 5 · Ação principal / Chat CFOup */}
         <section
           aria-labelledby="bloco-acao"
           className="lg:col-span-12 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-4 text-white md:p-5"
@@ -344,8 +334,8 @@ export default function VisaoGeralPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
                 Perguntas sugeridas
               </p>
-              {data.promptsSugeridos.map((prompt) => (
-                <SuggestedPrompt key={prompt} text={prompt} />
+              {data.promptsSugeridos.map((p) => (
+                <SuggestedPrompt key={p} text={p} />
               ))}
             </div>
           </div>
