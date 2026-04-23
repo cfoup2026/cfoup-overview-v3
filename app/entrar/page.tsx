@@ -64,7 +64,7 @@ export default function EntrarPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col px-5 py-8">
         <div className="flex items-center">
           <Link href="/entrar" aria-label="CFOup" className="inline-flex">
-            <CfoupLogo size={32} />
+            <CfoupLogo size={144} />
           </Link>
         </div>
 
