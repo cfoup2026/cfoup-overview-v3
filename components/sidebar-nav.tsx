@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   MessageSquareText,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
+import { useCurrentUser } from "@/lib/hooks/use-current-user"
 
 export const navItems = [
   { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
@@ -33,6 +34,16 @@ type SidebarNavProps = {
 
 export function SidebarNav({ onNavigate }: SidebarNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const user = useCurrentUser()
+
+  function handleLogout() {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("cfoup.currentUser")
+    }
+    onNavigate?.()
+    router.push("/entrar")
+  }
 
   return (
     <nav
@@ -109,21 +120,21 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
               aria-hidden
               className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white"
             >
-              R
+              {user.initial}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">Roger</p>
-              <p className="truncate text-xs text-muted-foreground">Admin</p>
+              <p className="truncate text-sm font-semibold text-[var(--brand-navy)]">{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground">{user.role}</p>
             </div>
           </div>
-          <Link
-            href="/entrar"
-            onClick={onNavigate}
+          <button
+            type="button"
+            onClick={handleLogout}
             className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:border-[var(--brand-navy)] hover:text-[var(--brand-navy)]"
           >
             <LogOut className="h-3.5 w-3.5" />
             Sair
-          </Link>
+          </button>
         </div>
       </div>
     </nav>
