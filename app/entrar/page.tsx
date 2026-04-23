@@ -8,9 +8,18 @@ import { cn } from "@/lib/utils"
 
 type Mode = "entrar" | "criar" | "recuperar"
 
+function deriveName(email: string): string {
+  const local = email.split("@")[0] || ""
+  const first = local.split(/[._-]/)[0] || local
+  if (!first) return "Usuário"
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase()
+}
+
 export default function EntrarPage() {
   const router = useRouter()
   const [mode, setMode] = useState<Mode>("entrar")
+  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
   const [sent, setSent] = useState(false)
 
   const copy = {
@@ -31,17 +40,34 @@ export default function EntrarPage() {
     },
   }[mode]
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (mode === "recuperar") {
+      setSent(true)
+      return
+    }
+    // Grava identidade do usuário logado (MVP — até plugar Supabase Auth).
+    try {
+      const finalName = (mode === "criar" ? name.trim() : "") || deriveName(email)
+      window.localStorage.setItem(
+        "cfoup.currentUser",
+        JSON.stringify({ email: email.trim(), name: finalName, role: "Admin" }),
+      )
+    } catch {
+      // segue mesmo se localStorage falhar
+    }
+    router.push("/visao-geral")
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col px-5 py-8">
-        {/* Topo — logo */}
         <div className="flex items-center">
           <Link href="/entrar" aria-label="CFOup" className="inline-flex">
             <CfoupLogo size={32} />
           </Link>
         </div>
 
-        {/* Conteúdo */}
         <div className="flex flex-1 flex-col justify-center py-10">
           <header className="mb-6">
             <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground">
@@ -50,22 +76,14 @@ export default function EntrarPage() {
             <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
           </header>
 
-          <form
-            className="flex flex-col gap-3"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (mode === "recuperar") {
-                setSent(true)
-                return
-              }
-              router.push("/visao-geral")
-            }}
-          >
+          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
             {mode === "criar" && (
               <Field label="Nome">
                 <input
                   type="text"
                   required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Como devemos te chamar?"
                   className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
                 />
@@ -76,6 +94,8 @@ export default function EntrarPage() {
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="voce@empresa.com"
                 autoComplete="email"
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
@@ -127,7 +147,6 @@ export default function EntrarPage() {
             )}
           </form>
 
-          {/* Alternância de modo */}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             {mode === "entrar" && (
               <>
@@ -168,7 +187,6 @@ export default function EntrarPage() {
           </div>
         </div>
 
-        {/* Rodapé */}
         <footer className="pt-6 text-xs text-muted-foreground">
           <span>CFOup</span>
         </footer>
