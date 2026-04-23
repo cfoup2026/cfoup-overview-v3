@@ -11,17 +11,24 @@ import {
   ArrowUpToLine,
   History,
   ChevronRight,
+  Plug,
 } from "lucide-react"
 import { LiquidezBlock } from "@/components/liquidez-block"
 import { LiveStatus } from "@/components/live-status"
 import { useVisaoGeralData, type DrilldownIcon } from "@/lib/hooks/use-visao-geral-data"
+import { useCurrentUser } from "@/lib/hooks/use-current-user"
 
-/* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
 function chatHref(q: string) {
   return `/chat?q=${encodeURIComponent(q)}&auto=1`
 }
 
-/* Mapa de ícones dos cards de drilldown — o hook devolve o nome, aqui resolvemos o componente. */
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return "Bom dia"
+  if (hour < 18) return "Boa tarde"
+  return "Boa noite"
+}
+
 const DRILLDOWN_ICON: Record<
   DrilldownIcon,
   React.ComponentType<{ className?: string; strokeWidth?: number }>
@@ -34,23 +41,25 @@ const DRILLDOWN_ICON: Record<
 
 export default function VisaoGeralPage() {
   const data = useVisaoGeralData()
+  const user = useCurrentUser()
+  const greeting = getGreeting()
 
   return (
     <>
-      {/* Header compacto (inline, apenas nesta página) */}
+      {/* Header */}
       <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div className="max-w-3xl">
           <h1
             className="text-balance text-lg font-extrabold leading-tight tracking-tight md:text-[1.3rem]"
             style={{ color: "var(--brand-navy)" }}
           >
-            {data.greeting}, {data.userName}. {data.headline}
+            {greeting}, {user.name}. {data.headline}
           </h1>
         </div>
         <LiveStatus />
       </header>
 
-      {/* ───────────────────────── Bloco 1 · Resumo executivo ───────────────────────── */}
+      {/* Resumo executivo */}
       <section aria-labelledby="bloco-resumo" className="mb-3">
         <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
           <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-6 md:p-5">
@@ -61,7 +70,6 @@ export default function VisaoGeralPage() {
               >
                 {data.resumoEyebrow}
               </p>
-
               <h2
                 id="bloco-resumo"
                 className="text-balance text-[15px] font-bold leading-snug md:text-base"
@@ -69,10 +77,18 @@ export default function VisaoGeralPage() {
               >
                 {data.resumoTitulo}
               </h2>
-
               <p className="mt-1.5 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
                 {data.resumoTexto}
               </p>
+              {!data.hasConnections && (
+                <Link
+                  href="/conexoes"
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[var(--brand-blue)]"
+                >
+                  <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Ir para Conexões
+                </Link>
+              )}
             </div>
 
             <div className="flex items-baseline justify-between gap-4 rounded-xl border border-[var(--brand-blue)]/20 bg-white px-4 py-3">
@@ -88,7 +104,7 @@ export default function VisaoGeralPage() {
                 </p>
               ) : (
                 <p className="text-right text-[11px] font-medium leading-snug text-muted-foreground">
-                  Aguardando conexão bancária
+                  Aguardando conexão
                 </p>
               )}
             </div>
@@ -96,7 +112,7 @@ export default function VisaoGeralPage() {
         </div>
       </section>
 
-      {/* ───────────────────────── Blocos investigáveis ───────────────────────── */}
+      {/* Cards de drilldown */}
       <section aria-labelledby="bloco-investigar" className="mb-3">
         <h2 id="bloco-investigar" className="sr-only">
           Onde investigar a fundo
@@ -104,24 +120,29 @@ export default function VisaoGeralPage() {
         <div className="grid gap-3 md:grid-cols-3">
           {data.cardsDrilldown.map((card) => (
             <DrillInCard
-              key={card.href}
+              key={card.eyebrow}
               href={card.href}
               eyebrow={card.eyebrow}
               icon={DRILLDOWN_ICON[card.icon]}
               total={card.total}
               count={card.count}
               hint={card.hint}
+              empty={!data.hasConnections}
             />
           ))}
         </div>
       </section>
 
-      {/* ───────────────────────── Grid de decisão ───────────────────────── */}
+      {/* Grid */}
       <div className="grid gap-4 lg:grid-cols-12">
-        {/* Bloco 2 · Caixa / liquidez por período */}
-        <LiquidezBlock />
+        {/* Caixa / liquidez */}
+        {data.hasConnections ? (
+          <LiquidezBlock />
+        ) : (
+          <EmptyLiquidezBlock />
+        )}
 
-        {/* Bloco 4 · O que precisa de ação */}
+        {/* Alertas */}
         <section
           aria-labelledby="bloco-alertas"
           className="lg:col-span-5 rounded-2xl border p-4 md:p-5"
@@ -142,165 +163,66 @@ export default function VisaoGeralPage() {
                 O que precisa de ação
               </h2>
             </div>
-            <Link
-              href="/pendencias"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
-            >
-              Ver todas
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          <ul className="mt-3 divide-y divide-border/60">
-            {data.alertas.map((a, i) => (
-              <AlertRow key={i} severity={a.severity} title={a.title} body={a.body} />
-            ))}
-          </ul>
-        </section>
-
-        {/* Bloco 3 · Análise de clientes */}
-        <section
-          aria-labelledby="bloco-clientes"
-          className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Clientes
-              </p>
-              <h2
-                id="bloco-clientes"
-                className="mt-0.5 text-base font-bold"
-                style={{ color: "var(--brand-navy)" }}
+            {data.alertas.length > 0 && (
+              <Link
+                href="/pendencias"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
               >
-                Análise
-              </h2>
-            </div>
-            <Link
-              href="/clientes"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
-            >
-              Ver todos
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
+                Ver todas
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            )}
           </div>
 
-          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Top 5 do período
-          </p>
-          <ul className="mt-2 space-y-1">
-            {data.topClientes.map((c, i) => (
-              <TopClientRow key={i} name={c.name} share={c.share} />
-            ))}
-          </ul>
-
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <PortfolioIndicator label="Prazo médio" value={data.indicadoresClientes.prazoMedio} />
-            <PortfolioIndicator label="Margem média" value={data.indicadoresClientes.margemMedia} />
-            <PortfolioIndicator label="Atraso médio" value={data.indicadoresClientes.atrasoMedio} />
-          </div>
-
-          <Link
-            href={data.clienteCritico.href}
-            className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
-          >
-            <span
-              aria-hidden
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-              style={{ background: "rgba(54,186,88,0.18)", color: "var(--brand-green-dark)" }}
-            >
-              <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Cliente mais crítico
-              </p>
-              <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                {data.clienteCritico.name}
-              </p>
-              <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                {data.clienteCritico.description}
-              </p>
-            </div>
-            <ChevronRight
-              className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
-              strokeWidth={2.2}
-            />
-          </Link>
+          {data.alertas.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border/60">
+              {data.alertas.map((a, i) => (
+                <AlertRow key={i} severity={a.severity} title={a.title} body={a.body} />
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-[13px] leading-relaxed text-[var(--slate-700)]">
+              Os alertas aparecem aqui quando a operação começar a gerar sinais — receber vencido, variação incomum,
+              concentração crítica. Depende dos dados conectados.
+            </p>
+          )}
         </section>
 
-        {/* Bloco 4 · Análise de fornecedores */}
-        <section
-          aria-labelledby="bloco-fornecedores"
-          className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Fornecedores
-              </p>
-              <h2
-                id="bloco-fornecedores"
-                className="mt-0.5 text-base font-bold"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                Análise
-              </h2>
-            </div>
-            <Link
-              href="/fornecedores"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
-            >
-              Ver todos
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
+        {/* Clientes */}
+        <PortfolioSection
+          ariaId="bloco-clientes"
+          eyebrow="Clientes"
+          verTodosHref="/clientes"
+          top={data.topClientes}
+          topKind="client"
+          indicadores={[
+            { label: "Prazo médio", value: data.indicadoresClientes.prazoMedio },
+            { label: "Margem média", value: data.indicadoresClientes.margemMedia },
+            { label: "Atraso médio", value: data.indicadoresClientes.atrasoMedio },
+          ]}
+          criticoLabel="Cliente mais crítico"
+          critico={data.clienteCritico}
+          empty={!data.hasConnections}
+        />
 
-          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Top 5 do período
-          </p>
-          <ul className="mt-2 space-y-1">
-            {data.topFornecedores.map((f, i) => (
-              <TopSupplierRow key={i} name={f.name} share={f.share} />
-            ))}
-          </ul>
+        {/* Fornecedores */}
+        <PortfolioSection
+          ariaId="bloco-fornecedores"
+          eyebrow="Fornecedores"
+          verTodosHref="/fornecedores"
+          top={data.topFornecedores}
+          topKind="supplier"
+          indicadores={[
+            { label: "Prazo médio", value: data.indicadoresFornecedores.prazoMedio },
+            { label: "Top 5 no custo", value: data.indicadoresFornecedores.topShareCusto },
+            { label: "Atraso médio", value: data.indicadoresFornecedores.atrasoMedio },
+          ]}
+          criticoLabel="Fornecedor mais crítico"
+          critico={data.fornecedorCritico}
+          empty={!data.hasConnections}
+        />
 
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <PortfolioIndicator label="Prazo médio" value={data.indicadoresFornecedores.prazoMedio} />
-            <PortfolioIndicator label="Top 5 no custo" value={data.indicadoresFornecedores.topShareCusto} />
-            <PortfolioIndicator label="Atraso médio" value={data.indicadoresFornecedores.atrasoMedio} />
-          </div>
-
-          <Link
-            href={data.fornecedorCritico.href}
-            className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
-          >
-            <span
-              aria-hidden
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-              style={{ background: "rgba(54,186,88,0.18)", color: "var(--brand-green-dark)" }}
-            >
-              <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Fornecedor mais crítico
-              </p>
-              <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                {data.fornecedorCritico.name}
-              </p>
-              <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                {data.fornecedorCritico.description}
-              </p>
-            </div>
-            <ChevronRight
-              className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
-              strokeWidth={2.2}
-            />
-          </Link>
-        </section>
-
-        {/* Bloco 5 · Ação principal / Chat CFOup */}
+        {/* Ação principal / Chat */}
         <section
           aria-labelledby="bloco-acao"
           className="lg:col-span-12 overflow-hidden rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-4 text-white md:p-5"
@@ -354,13 +276,15 @@ function DrillInCard({
   total,
   count,
   hint,
+  empty,
 }: {
   href: string
   eyebrow: string
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
-  total: string
-  count: string
-  hint: string
+  total: string | null
+  count: string | null
+  hint: string | null
+  empty: boolean
 }) {
   return (
     <Link
@@ -379,16 +303,22 @@ function DrillInCard({
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             {eyebrow}
           </p>
-          <p className="text-[11px] text-muted-foreground">{count}</p>
+          {count && <p className="text-[11px] text-muted-foreground">{count}</p>}
         </div>
         <div className="mt-0.5 flex items-baseline justify-between gap-2">
-          <p
-            className="text-[1.25rem] font-extrabold leading-none tabular-nums"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            {total}
-          </p>
-          <p className="truncate text-[11px] text-muted-foreground">{hint}</p>
+          {empty ? (
+            <p className="text-[11px] text-muted-foreground">Conectar para ver</p>
+          ) : (
+            <>
+              <p
+                className="text-[1.25rem] font-extrabold leading-none tabular-nums"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {total}
+              </p>
+              {hint && <p className="truncate text-[11px] text-muted-foreground">{hint}</p>}
+            </>
+          )}
         </div>
       </div>
       <ChevronRight
@@ -396,6 +326,33 @@ function DrillInCard({
         strokeWidth={2.2}
       />
     </Link>
+  )
+}
+
+function EmptyLiquidezBlock() {
+  return (
+    <section
+      aria-label="Caixa e liquidez"
+      className="lg:col-span-7 rounded-2xl border border-border bg-card p-4 md:p-5"
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Caixa e liquidez
+      </p>
+      <h2 className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        Variação por período
+      </h2>
+      <p className="mt-3 text-[13px] leading-relaxed text-[var(--slate-700)]">
+        A variação de caixa aparece aqui quando o banco estiver conectado. Receitas vs. saídas, mês a mês, com
+        comparação contra o período anterior.
+      </p>
+      <Link
+        href="/conexoes"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)]/40"
+      >
+        <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+        Conectar banco
+      </Link>
+    </section>
   )
 }
 
@@ -430,6 +387,109 @@ function AlertRow({
   )
 }
 
+function PortfolioSection({
+  ariaId,
+  eyebrow,
+  verTodosHref,
+  top,
+  topKind,
+  indicadores,
+  criticoLabel,
+  critico,
+  empty,
+}: {
+  ariaId: string
+  eyebrow: string
+  verTodosHref: string
+  top: Array<{ name: string; share: number }>
+  topKind: "client" | "supplier"
+  indicadores: Array<{ label: string; value: string }>
+  criticoLabel: string
+  critico: { name: string; description: string; href: string }
+  empty: boolean
+}) {
+  return (
+    <section
+      aria-labelledby={ariaId}
+      className="lg:col-span-6 rounded-2xl border border-border bg-card p-4 md:p-5"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {eyebrow}
+          </p>
+          <h2 id={ariaId} className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+            Análise
+          </h2>
+        </div>
+        {!empty && (
+          <Link
+            href={verTodosHref}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand-blue)] hover:underline"
+          >
+            Ver todos
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        )}
+      </div>
+
+      {empty ? (
+        <p className="mt-3 text-[13px] leading-relaxed text-[var(--slate-700)]">
+          Os {eyebrow.toLowerCase()} que mais pesam no seu resultado aparecem aqui quando os dados estiverem
+          conectados.
+        </p>
+      ) : (
+        <>
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Top 5 do período
+          </p>
+          <ul className="mt-2 space-y-1">
+            {top.map((item, i) =>
+              topKind === "client" ? (
+                <TopClientRow key={i} name={item.name} share={item.share} />
+              ) : (
+                <TopSupplierRow key={i} name={item.name} share={item.share} />
+              ),
+            )}
+          </ul>
+
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
+            {indicadores.map((ind) => (
+              <PortfolioIndicator key={ind.label} label={ind.label} value={ind.value} />
+            ))}
+          </div>
+
+          <Link
+            href={critico.href}
+            className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: "rgba(54,186,88,0.18)", color: "var(--brand-green-dark)" }}
+            >
+              <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {criticoLabel}
+              </p>
+              <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
+                {critico.name}
+              </p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">{critico.description}</p>
+            </div>
+            <ChevronRight
+              className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-[var(--brand-navy)]"
+              strokeWidth={2.2}
+            />
+          </Link>
+        </>
+      )}
+    </section>
+  )
+}
+
 function TopClientRow({ name, share }: { name: string; share: number }) {
   return (
     <li>
@@ -437,10 +497,7 @@ function TopClientRow({ name, share }: { name: string; share: number }) {
         href={`/clientes?cliente=${encodeURIComponent(name)}`}
         className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
       >
-        <p
-          className="flex-1 truncate text-[13px] font-medium"
-          style={{ color: "var(--brand-navy)" }}
-        >
+        <p className="flex-1 truncate text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
           {name}
         </p>
         <div
@@ -474,10 +531,7 @@ function TopSupplierRow({ name, share }: { name: string; share: number }) {
         href={`/fornecedores?fornecedor=${encodeURIComponent(name)}`}
         className="group flex items-center gap-3 rounded-lg px-1.5 py-1 transition hover:bg-muted/60"
       >
-        <p
-          className="flex-1 truncate text-[13px] font-medium"
-          style={{ color: "var(--brand-navy)" }}
-        >
+        <p className="flex-1 truncate text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
           {name}
         </p>
         <div
@@ -507,9 +561,7 @@ function TopSupplierRow({ name, share }: { name: string; share: number }) {
 function PortfolioIndicator({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
       <p
         className="mt-1 text-[1rem] font-extrabold leading-none tabular-nums"
         style={{ color: "var(--brand-navy)" }}
