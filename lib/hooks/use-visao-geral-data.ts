@@ -3,26 +3,21 @@
  *
  * ARQUITETURA
  * -----------
- * Esta página é genérica — serve para qualquer empresa cliente do CFOup.
- * Os dados vêm dinamicamente: números da empresa (AR/AP/Vendas/Banco) e
- * textos narrativos (headline, resumo, alertas, descrição do crítico)
- * gerados pela camada de análise + LLM a cada visita.
+ * Esta página é genérica. Serve para qualquer empresa cliente do CFOup.
+ * Os números vêm da camada de dados (após o dono conectar banco/NF-e/ERP
+ * na tela /conexoes). Os textos narrativos (headline, resumo, alertas,
+ * descrição do cliente crítico) são gerados pela camada de análise +
+ * respostas CFOup, calculados em cima dos dados reais.
  *
- * HOJE (mock)
- * -----------
- * Retorna valores fictícios para manter a UI funcionando enquanto a camada
- * de dados + LLM não está conectada. Todos os campos existem e têm o shape
- * final — a única coisa que muda na próxima iteração é de onde eles vêm.
+ * HOJE: a empresa ainda não tem conexões ativas.
+ * `hasConnections: false` → a UI mostra estado vazio em todos os blocos.
  *
- * PRÓXIMOS PASSOS
- * ---------------
- * 1. Trocar os retornos mock por fetch a /api/visao-geral?companyId=...
- * 2. Essa rota vai:
- *    a. Buscar dados da empresa no Supabase (AR/AP/Vendas/Banco).
- *    b. Rodar a camada de análise (findings estruturados).
- *    c. Chamar LLM para gerar os textos narrativos em cima dos findings.
- *    d. Retornar o objeto VisaoGeralData completo.
- * 3. A UI não muda — continua consumindo este hook.
+ * AMANHÃ: depois que o dono conectar os dados:
+ * - hasConnections vira true
+ * - o hook busca /api/visao-geral?companyId=...
+ * - a mesma UI renderiza os números e textos retornados
+ *
+ * Nada na UI muda. Só a fonte.
  */
 
 "use client"
@@ -30,8 +25,7 @@
 export type DrilldownIcon = "receber" | "pagar" | "antigos" | "concentracao"
 
 export type VisaoGeralData = {
-  greeting: string
-  userName: string
+  hasConnections: boolean
   headline: string
   resumoEyebrow: string
   resumoTitulo: string
@@ -40,13 +34,17 @@ export type VisaoGeralData = {
     value: string | null
     status: "ok" | "pending"
   }
+  variacao: {
+    value: string | null
+    texto: string | null
+  }
   cardsDrilldown: Array<{
     href: string
     eyebrow: string
     icon: DrilldownIcon
-    total: string
-    count: string
-    hint: string
+    total: string | null
+    count: string | null
+    hint: string | null
   }>
   alertas: Array<{
     severity: "warning" | "info"
@@ -78,85 +76,53 @@ export type VisaoGeralData = {
   promptsSugeridos: Array<string>
 }
 
-// TODO: substituir por fetch real via rota /api/visao-geral
-// A resposta real virá: dados da empresa + findings + textos gerados por LLM.
-function getGreeting(): string {
-  const hour = new Date().getHours()
-  if (hour < 12) return "Bom dia"
-  if (hour < 18) return "Boa tarde"
-  return "Boa noite"
-}
-
+// TODO: substituir pelo fetch real a /api/visao-geral?companyId=...
 export function useVisaoGeralData(): VisaoGeralData {
   return {
-    greeting: getGreeting(),
-    userName: "Roger",
-    headline: "a operação está rodando, mas os números ainda precisam ser separados.",
-    resumoEyebrow: "Resumo do momento",
-    resumoTitulo: "O primeiro passo aqui é separar o que está no banco do que ainda está no sistema.",
+    hasConnections: false,
+    headline:
+      "conecte seus dados para começar. A mesa de decisão só faz sentido com os números da operação em tempo real.",
+    resumoEyebrow: "Antes de começar",
+    resumoTitulo: "Nenhuma conexão ativa ainda.",
     resumoTexto:
-      "Com isso limpo, fica mais fácil entender o que realmente falta receber, o que precisa ser pago e o que ainda pede revisão.",
+      "Conecte seu banco, sistema de NF-e e ERP em Conexões. Assim que os dados entrarem, esta tela passa a responder as perguntas que importam.",
     saldoAtual: {
       value: null,
       status: "pending",
     },
+    variacao: {
+      value: null,
+      texto: null,
+    },
     cardsDrilldown: [
       {
-        href: "/contas-a-receber",
+        href: "/conexoes",
         eyebrow: "Contas a receber",
         icon: "receber",
-        total: "R$ 342,8k",
-        count: "10 títulos",
-        hint: "2 vencidos · 3 vencem em 7 dias",
+        total: null,
+        count: null,
+        hint: null,
       },
       {
-        href: "/contas-a-pagar",
+        href: "/conexoes",
         eyebrow: "Contas a pagar",
         icon: "pagar",
-        total: "R$ 280,2k",
-        count: "9 títulos",
-        hint: "1 vencido · 3 vencem em 7 dias",
+        total: null,
+        count: null,
+        hint: null,
       },
       {
-        href: "/itens-antigos",
+        href: "/conexoes",
         eyebrow: "Itens antigos",
         icon: "antigos",
-        total: "R$ 112,5k",
-        count: "8 itens",
-        hint: "4 acima de 90 dias",
+        total: null,
+        count: null,
+        hint: null,
       },
     ],
-    alertas: [
-      {
-        severity: "warning",
-        title: "Recebimentos vencidos pedem cobrança",
-        body: "Há títulos vencidos que pedem cobrança ou regularização no sistema.",
-      },
-      {
-        severity: "warning",
-        title: "Itens antigos pedem revisão",
-        body: "Há itens antigos em aberto que podem precisar de baixa, correção ou limpeza.",
-      },
-      {
-        severity: "info",
-        title: "Lançamentos pedem conferência",
-        body: "Há registros que podem estar sem classificação correta, duplicados ou pendentes de revisão.",
-      },
-    ],
-    topClientes: [
-      { name: "Cliente em validação", share: 0 },
-      { name: "Cliente em validação", share: 0 },
-      { name: "Cliente em validação", share: 0 },
-      { name: "Cliente em validação", share: 0 },
-      { name: "Cliente em validação", share: 0 },
-    ],
-    topFornecedores: [
-      { name: "Fornecedor em validação", share: 0 },
-      { name: "Fornecedor em validação", share: 0 },
-      { name: "Fornecedor em validação", share: 0 },
-      { name: "Fornecedor em validação", share: 0 },
-      { name: "Fornecedor em validação", share: 0 },
-    ],
+    alertas: [],
+    topClientes: [],
+    topFornecedores: [],
     indicadoresClientes: {
       prazoMedio: "—",
       margemMedia: "—",
@@ -168,14 +134,14 @@ export function useVisaoGeralData(): VisaoGeralData {
       atrasoMedio: "—",
     },
     clienteCritico: {
-      name: "Cliente em validação",
-      description: "Participação na receita, prazo e margem em validação",
-      href: "/clientes/concentracao",
+      name: "—",
+      description: "Aguardando dados",
+      href: "/conexoes",
     },
     fornecedorCritico: {
-      name: "Fornecedor em validação",
-      description: "Concentração e atraso em validação",
-      href: "/fornecedores/atraso",
+      name: "—",
+      description: "Aguardando dados",
+      href: "/conexoes",
     },
     promptsSugeridos: [
       "Qual cliente mais pesa no meu risco hoje?",
