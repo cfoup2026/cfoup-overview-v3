@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import {
   ArrowUpRight,
@@ -8,17 +10,32 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   History,
+  Users,
   ChevronRight,
 } from "lucide-react"
 import { LiquidezBlock } from "@/components/liquidez-block"
 import { LiveStatus } from "@/components/live-status"
+import { useVisaoGeralData, type DrilldownIcon } from "@/lib/hooks/use-visao-geral-data"
 
 /* Helper: cria link pro Chat CFOup com pergunta pré-preenchida e auto-submit. */
 function chatHref(q: string) {
   return `/chat?q=${encodeURIComponent(q)}&auto=1`
 }
 
+/* Mapa de ícones para os cards de drilldown — mantém o JSX desacoplado dos dados. */
+const DRILLDOWN_ICON: Record<
+  DrilldownIcon,
+  React.ComponentType<{ className?: string; strokeWidth?: number }>
+> = {
+  receber: ArrowDownToLine,
+  pagar: ArrowUpToLine,
+  antigos: History,
+  concentracao: Users,
+}
+
 export default function VisaoGeralPage() {
+  const data = useVisaoGeralData()
+
   return (
     <>
       {/* Header compacto (inline, apenas nesta página) */}
@@ -28,7 +45,7 @@ export default function VisaoGeralPage() {
             className="text-balance text-lg font-extrabold leading-tight tracking-tight md:text-[1.3rem]"
             style={{ color: "var(--brand-navy)" }}
           >
-            Bom dia, Roger. A operação está rodando, mas os números ainda precisam ser separados.
+            {data.greeting}, {data.userName}. {data.headline}
           </h1>
           <p className="mt-1.5 max-w-2xl text-pretty text-[13px] leading-relaxed text-muted-foreground">
             O banco mostra uma posição real de caixa, mas o sistema ainda pode estar misturando valores a receber e itens antigos em aberto. O primeiro passo é separar banco, receber, pagar e pendências antigas.
@@ -46,7 +63,7 @@ export default function VisaoGeralPage() {
                 className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
               >
-                Resumo do momento
+                {data.resumoEyebrow}
               </p>
 
               <h2
@@ -54,12 +71,11 @@ export default function VisaoGeralPage() {
                 className="text-balance text-[15px] font-bold leading-snug md:text-base"
                 style={{ color: "var(--brand-navy)" }}
               >
-                O primeiro passo aqui é separar o que está no banco do que ainda está no sistema.
+                {data.resumoTitulo}
               </h2>
 
               <p className="mt-1.5 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-                Com isso limpo, fica mais fácil entender o que realmente falta receber, o que precisa ser
-                pago e o que ainda pede revisão.
+                {data.resumoTexto}
               </p>
             </div>
 
@@ -71,7 +87,7 @@ export default function VisaoGeralPage() {
                 className="text-[1.5rem] font-extrabold leading-none tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
-                R$ 43.677
+                {data.saldoAtual.status === "ok" && data.saldoAtual.value ? data.saldoAtual.value : "—"}
               </p>
             </div>
           </div>
@@ -85,30 +101,17 @@ export default function VisaoGeralPage() {
           Onde investigar a fundo
         </h2>
         <div className="grid gap-3 md:grid-cols-3">
-          <DrillInCard
-            href="/contas-a-receber"
-            eyebrow="Contas a receber"
-            icon={ArrowDownToLine}
-            total="R$ 342,8k"
-            count="10 títulos"
-            hint="2 vencidos · 3 vencem em 7 dias"
-          />
-          <DrillInCard
-            href="/contas-a-pagar"
-            eyebrow="Contas a pagar"
-            icon={ArrowUpToLine}
-            total="R$ 280,2k"
-            count="9 títulos"
-            hint="1 vencido · 3 vencem em 7 dias"
-          />
-          <DrillInCard
-            href="/itens-antigos"
-            eyebrow="Itens antigos"
-            icon={History}
-            total="R$ 112,5k"
-            count="8 itens"
-            hint="4 acima de 90 dias"
-          />
+          {data.cardsDrilldown.map((card) => (
+            <DrillInCard
+              key={card.href}
+              href={card.href}
+              eyebrow={card.eyebrow}
+              icon={DRILLDOWN_ICON[card.icon]}
+              total={card.total}
+              count={card.count}
+              hint={card.hint}
+            />
+          ))}
         </div>
       </section>
 
@@ -148,21 +151,14 @@ export default function VisaoGeralPage() {
           </div>
 
           <ul className="mt-3 divide-y divide-border/60">
-            <AlertRow
-              severity="warning"
-              title="Recebimentos vencidos pedem cobrança"
-              body="Há títulos vencidos que pedem cobrança ou regularização no sistema."
-            />
-            <AlertRow
-              severity="warning"
-              title="Itens antigos pedem revisão"
-              body="Há itens antigos em aberto que podem precisar de baixa, correção ou limpeza."
-            />
-            <AlertRow
-              severity="info"
-              title="Lançamentos pedem conferência"
-              body="Há registros que podem estar sem classificação correta, duplicados ou pendentes de revisão."
-            />
+            {data.alertas.map((alerta, i) => (
+              <AlertRow
+                key={`${alerta.title}-${i}`}
+                severity={alerta.severity}
+                title={alerta.title}
+                body={alerta.body}
+              />
+            ))}
           </ul>
         </section>
 
@@ -198,23 +194,21 @@ export default function VisaoGeralPage() {
             Top 5 do período
           </p>
           <ul className="mt-2 space-y-1">
-            <TopClientRow name="Construtora Andrade" share={24} />
-            <TopClientRow name="Metalúrgica Vitória" share={16} />
-            <TopClientRow name="Grupo Sertanejo" share={12} />
-            <TopClientRow name="Laticínios Bela Vista" share={9} />
-            <TopClientRow name="Transportadora Linha Azul" share={7} />
+            {data.topClientes.map((c) => (
+              <TopClientRow key={c.name} name={c.name} share={c.share} />
+            ))}
           </ul>
 
           {/* Indicadores da carteira */}
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <PortfolioIndicator label="Prazo médio" value="42 dias" />
-            <PortfolioIndicator label="Margem média" value="18%" />
-            <PortfolioIndicator label="Atraso médio" value="18 dias" />
+            <PortfolioIndicator label="Prazo médio" value={data.indicadoresClientes.prazoMedio} />
+            <PortfolioIndicator label="Margem média" value={data.indicadoresClientes.margemMedia} />
+            <PortfolioIndicator label="Atraso médio" value={data.indicadoresClientes.atrasoMedio} />
           </div>
 
           {/* Cliente mais crítico */}
           <Link
-            href="/clientes/concentracao"
+            href={data.clienteCritico.href}
             className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
           >
             <span
@@ -229,10 +223,10 @@ export default function VisaoGeralPage() {
                 Cliente mais crítico
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                Cliente em validação
+                {data.clienteCritico.name}
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                Participação na receita, prazo e margem em validação
+                {data.clienteCritico.description}
               </p>
             </div>
             <ChevronRight
@@ -269,28 +263,26 @@ export default function VisaoGeralPage() {
             </Link>
           </div>
 
-          {/* Top 5 fornecedores · share calculado sobre o total a pagar do período (R$ 280,2k) */}
+          {/* Top 5 fornecedores · share calculado sobre o total a pagar do período */}
           <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Top 5 do período
           </p>
           <ul className="mt-2 space-y-1">
-            <TopSupplierRow name="Plastibras Insumos" share={16} />
-            <TopSupplierRow name="Aços São Paulo" share={14} />
-            <TopSupplierRow name="Metalfix Ferramentas" share={6} />
-            <TopSupplierRow name="Transportadora Linha Sul" share={5} />
-            <TopSupplierRow name="Energia SP" share={4} />
+            {data.topFornecedores.map((f) => (
+              <TopSupplierRow key={f.name} name={f.name} share={f.share} />
+            ))}
           </ul>
 
           {/* Indicadores da base de fornecedores */}
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <PortfolioIndicator label="Prazo médio" value="14 dias" />
-            <PortfolioIndicator label="Top 5 no custo" value="43%" />
-            <PortfolioIndicator label="Atraso médio" value="7 dias" />
+            <PortfolioIndicator label="Prazo médio" value={data.indicadoresFornecedores.prazoMedio} />
+            <PortfolioIndicator label="Top 5 no custo" value={data.indicadoresFornecedores.topShareCusto} />
+            <PortfolioIndicator label="Atraso médio" value={data.indicadoresFornecedores.atrasoMedio} />
           </div>
 
-          {/* Fornecedor mais crítico · Plastibras Insumos */}
+          {/* Fornecedor mais crítico */}
           <Link
-            href="/fornecedores/atraso"
+            href={data.fornecedorCritico.href}
             className="group mt-4 flex items-center gap-3 rounded-xl border border-border bg-hero-gradient px-3.5 py-3 transition hover:border-[var(--brand-blue)]/30"
           >
             <span
@@ -305,10 +297,10 @@ export default function VisaoGeralPage() {
                 Fornecedor mais crítico
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                Plastibras Insumos
+                {data.fornecedorCritico.name}
               </p>
               <p className="mt-0.5 text-[12px] leading-snug text-[var(--slate-700)]">
-                R$ 44,2k · 1 título vencido há 7 dias e outro com suspeita de duplicidade
+                {data.fornecedorCritico.description}
               </p>
             </div>
             <ChevronRight
@@ -352,10 +344,9 @@ export default function VisaoGeralPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
                 Perguntas sugeridas
               </p>
-              <SuggestedPrompt text="Qual cliente mais pesa no meu risco hoje?" />
-              <SuggestedPrompt text="Qual fornecedor mais pressiona meu caixa?" />
-              <SuggestedPrompt text="O que merece atenção primeiro: receber, pagar ou margem?" />
-              <SuggestedPrompt text="Onde está meu principal risco neste momento?" />
+              {data.promptsSugeridos.map((prompt) => (
+                <SuggestedPrompt key={prompt} text={prompt} />
+              ))}
             </div>
           </div>
         </section>
