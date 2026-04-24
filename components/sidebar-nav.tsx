@@ -50,14 +50,14 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       aria-label="Navegação principal"
       className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
     >
-      <div className="flex items-center px-6 pt-7 pb-8">
+      <div className="flex items-center px-6 pt-5 pb-5">
         <Link href="/visao-geral" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
           <CfoupLogo size={56} />
         </Link>
       </div>
 
       <div className="px-4">
-        <div className="rounded-xl border border-sidebar-border bg-muted/60 px-3.5 py-3">
+        <div className="rounded-xl border border-sidebar-border bg-muted/60 px-3.5 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Empresa
           </p>
@@ -81,7 +81,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
@@ -113,8 +113,8 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         </ul>
       </div>
 
-      <div className="mt-auto px-4 pb-6">
-        <div className="rounded-xl border border-sidebar-border bg-white p-4">
+      <div className="mt-auto px-4 pb-4">
+        <div className="rounded-xl border border-sidebar-border bg-white p-3">
           <div className="flex items-center gap-3">
             <div
               aria-hidden
