@@ -14,7 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar — desktop */}
       <aside
         aria-label="Barra lateral"
-        className="fixed inset-y-0 left-0 z-30 hidden w-[220px] border-r border-sidebar-border bg-sidebar lg:block"
+        className="fixed inset-y-0 left-0 z-30 hidden w-[240px] border-r border-sidebar-border bg-sidebar lg:block"
       >
         <SidebarNav />
       </aside>
@@ -60,8 +60,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Conteúdo */}
-      <main className="lg:pl-[220px]">
-        <div className="mx-auto w-full max-w-[1280px] px-4 py-3 md:px-5 lg:px-6 lg:py-4">{children}</div>
+      <main className="lg:pl-[240px]">
+        <div className="mx-auto w-full max-w-[1280px] px-3 py-3 md:px-4 lg:px-5 lg:py-4">{children}</div>
       </main>
     </div>
   )

@@ -50,9 +50,9 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       aria-label="Navegação principal"
       className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
     >
-      <div className="flex items-center px-6 pt-5 pb-5">
+      <div className="flex items-center px-6 pt-6 pb-6">
         <Link href="/visao-geral" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
-          <CfoupLogo size={56} />
+          <CfoupLogo size={72} />
         </Link>
       </div>
 
