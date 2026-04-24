@@ -70,7 +70,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           Mesa de decisão
         </p>
-        <ul className="space-y-1">
+        <ul className="space-y-0">
           {navItems.map((item) => {
             const active = pathname === item.href
             const Icon = item.icon
@@ -81,7 +81,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
                     active
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
