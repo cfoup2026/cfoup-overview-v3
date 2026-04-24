@@ -62,21 +62,20 @@ export default function EntrarPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col px-5 py-8">
-        <div className="flex items-center">
-          <Link href="/entrar" aria-label="CFOup" className="inline-flex">
-            <CfoupLogo size={144} />
+      <div className="flex flex-1 flex-col items-center justify-center py-6">
+          <Link href="/entrar" aria-label="CFOup" className="mb-8 inline-flex">
+            <CfoupLogo size={120} />
           </Link>
-        </div>
 
-        <div className="flex flex-1 flex-col justify-center py-10">
-          <header className="mb-6">
-            <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground">
-              {copy.title}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
-          </header>
+          <div className="w-full">
+            <header className="mb-6 text-center">
+              <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground">
+                {copy.title}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
+            </header>
 
-          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
             {mode === "criar" && (
               <Field label="Nome">
                 <input
