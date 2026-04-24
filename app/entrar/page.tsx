@@ -48,10 +48,12 @@ export default function EntrarPage() {
     }
     // Grava identidade do usuário logado (MVP — até plugar Supabase Auth).
     try {
-      const finalName = (mode === "criar" ? name.trim() : "") || deriveName(email)
+      const trimmedEmail = email.trim()
+      const trimmedName = name.trim()
+      const finalName = (mode === "criar" && trimmedName) ? trimmedName : deriveName(trimmedEmail)
       window.localStorage.setItem(
         "cfoup.currentUser",
-        JSON.stringify({ email: email.trim(), name: finalName, role: "Admin" }),
+        JSON.stringify({ email: trimmedEmail, name: finalName, role: "Admin" }),
       )
     } catch {
       // segue mesmo se localStorage falhar
@@ -62,9 +64,9 @@ export default function EntrarPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col px-5 py-8">
-      <div className="flex flex-1 flex-col items-center justify-center py-6">
+        <div className="flex flex-1 flex-col items-center justify-center py-6">
           <Link href="/entrar" aria-label="CFOup" className="mb-8 inline-flex">
-            <CfoupLogo size={120} />
+            <CfoupLogo size={144} />
           </Link>
 
           <div className="w-full">
@@ -76,117 +78,118 @@ export default function EntrarPage() {
             </header>
 
             <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            {mode === "criar" && (
-              <Field label="Nome">
+              {mode === "criar" && (
+                <Field label="Nome">
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Como devemos te chamar?"
+                    className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
+                  />
+                </Field>
+              )}
+
+              <Field label="E-mail">
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Como devemos te chamar?"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="voce@empresa.com"
+                  autoComplete="email"
                   className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
                 />
               </Field>
-            )}
 
-            <Field label="E-mail">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="voce@empresa.com"
-                autoComplete="email"
-                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
-              />
-            </Field>
+              {mode !== "recuperar" && (
+                <Field
+                  label="Senha"
+                  action={
+                    mode === "entrar" ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSent(false)
+                          setMode("recuperar")
+                        }}
+                        className="text-xs font-medium text-[var(--brand-blue)] hover:underline"
+                      >
+                        Esqueci minha senha
+                      </button>
+                    ) : null
+                  }
+                >
+                  <input
+                    type="password"
+                    required
+                    placeholder={mode === "criar" ? "Crie uma senha" : "Sua senha"}
+                    autoComplete={mode === "criar" ? "new-password" : "current-password"}
+                    className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
+                  />
+                </Field>
+              )}
 
-            {mode !== "recuperar" && (
-              <Field
-                label="Senha"
-                action={
-                  mode === "entrar" ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSent(false)
-                        setMode("recuperar")
-                      }}
-                      className="text-xs font-medium text-[var(--brand-blue)] hover:underline"
-                    >
-                      Esqueci minha senha
-                    </button>
-                  ) : null
-                }
+              <button
+                type="submit"
+                className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)]"
               >
-                <input
-                  type="password"
-                  required
-                  placeholder={mode === "criar" ? "Crie uma senha" : "Sua senha"}
-                  autoComplete={mode === "criar" ? "new-password" : "current-password"}
-                  className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
-                />
-              </Field>
-            )}
+                {copy.primary}
+              </button>
 
-            <button
-              type="submit"
-              className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)]"
-            >
-              {copy.primary}
-            </button>
+              {mode === "recuperar" && sent && (
+                <p
+                  role="status"
+                  className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
+                >
+                  Se existir uma conta com esse e-mail, você receberá o link em instantes.
+                </p>
+              )}
+            </form>
 
-            {mode === "recuperar" && sent && (
-              <p
-                role="status"
-                className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
-              >
-                Se existir uma conta com esse e-mail, você receberá o link em instantes.
-              </p>
-            )}
-          </form>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "entrar" && (
-              <>
-                Ainda não tem conta?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("criar")}
-                  className="font-medium text-[var(--brand-blue)] hover:underline"
-                >
-                  Criar conta
-                </button>
-              </>
-            )}
-            {mode === "criar" && (
-              <>
-                Já tem conta?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("entrar")}
-                  className="font-medium text-[var(--brand-blue)] hover:underline"
-                >
-                  Entrar
-                </button>
-              </>
-            )}
-            {mode === "recuperar" && (
-              <>
-                Lembrou a senha?{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("entrar")}
-                  className="font-medium text-[var(--brand-blue)] hover:underline"
-                >
-                  Voltar para entrar
-                </button>
-              </>
-            )}
+            <div className="mt-6 text-center text-sm text-muted-foreground">
+              {mode === "entrar" && (
+                <>
+                  Ainda não tem conta?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("criar")}
+                    className="font-medium text-[var(--brand-blue)] hover:underline"
+                  >
+                    Criar conta
+                  </button>
+                </>
+              )}
+              {mode === "criar" && (
+                <>
+                  Já tem conta?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("entrar")}
+                    className="font-medium text-[var(--brand-blue)] hover:underline"
+                  >
+                    Entrar
+                  </button>
+                </>
+              )}
+              {mode === "recuperar" && (
+                <>
+                  Lembrou a senha?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("entrar")}
+                    className="font-medium text-[var(--brand-blue)] hover:underline"
+                  >
+                    Voltar para entrar
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        <footer className="pt-6 text-xs text-muted-foreground">
+        <footer className="pt-6 text-center text-xs text-muted-foreground">
           <span>CFOup</span>
         </footer>
       </div>
