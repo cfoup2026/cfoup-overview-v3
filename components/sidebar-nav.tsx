@@ -48,7 +48,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
   return (
     <nav
       aria-label="Navegação principal"
-      className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground"
+      className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground overflow-y-auto"
     >
       <div className="flex items-center px-5 pt-6 pb-5">
         <Link href="/visao-geral" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
