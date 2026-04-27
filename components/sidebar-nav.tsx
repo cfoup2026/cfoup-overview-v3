@@ -17,15 +17,25 @@ import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
 
-export const navItems = [
-  { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
-  { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
-  { href: "/cenarios", label: "Cenários", icon: GitBranch },
-  { href: "/pendencias", label: "Pendências", icon: AlertCircle },
-  { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
-  { href: "/margens", label: "Margens e Rentabilidade", icon: PieChart },
-  { href: "/conexoes", label: "Conexões", icon: Plug },
-  { href: "/configuracoes", label: "Configurações", icon: Settings },
+export const navSections = [
+  {
+    label: "Mesa de decisão",
+    items: [
+      { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
+      { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
+      { href: "/cenarios", label: "Cenários", icon: GitBranch },
+      { href: "/pendencias", label: "Pendências", icon: AlertCircle },
+      { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
+      { href: "/margens", label: "Margens e Rentabilidade", icon: PieChart },
+    ],
+  },
+  {
+    label: "Implantação",
+    items: [
+      { href: "/conexoes", label: "Conexões", icon: Plug },
+      { href: "/configuracoes", label: "Configurações", icon: Settings },
+    ],
+  },
 ] as const
 
 type SidebarNavProps = {
@@ -66,51 +76,55 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         </div>
       </div>
 
-      <div className="mt-6 px-3 pb-6">
-        <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Mesa de decisão
-        </p>
-        <ul className="space-y-0">
-          {navItems.map((item) => {
-            const active = pathname === item.href
-            const Icon = item.icon
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={onNavigate}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
-                  )}
-                >
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
-                      active
-                        ? "bg-white text-[var(--brand-blue)] shadow-sm ring-1 ring-sidebar-border"
-                        : "text-muted-foreground group-hover:text-[var(--brand-blue)]",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={1.8} />
-                  </span>
-                  <span className="truncate">{item.label}</span>
-                  {active && (
-                    <span
-                      aria-hidden
-                      className="ml-auto h-1.5 w-1.5 rounded-full"
-                      style={{ backgroundColor: "var(--brand-green)" }}
-                    />
-                  )}
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+      <div className="mt-6 flex flex-col gap-5 px-3 pb-6">
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+              {section.label}
+            </p>
+            <ul className="space-y-0">
+              {section.items.map((item) => {
+                const active = pathname === item.href
+                const Icon = item.icon
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={onNavigate}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                        active
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+                          active
+                            ? "bg-white text-[var(--brand-blue)] shadow-sm ring-1 ring-sidebar-border"
+                            : "text-muted-foreground group-hover:text-[var(--brand-blue)]",
+                        )}
+                      >
+                        <Icon className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="truncate">{item.label}</span>
+                      {active && (
+                        <span
+                          aria-hidden
+                          className="ml-auto h-1.5 w-1.5 rounded-full"
+                          style={{ backgroundColor: "var(--brand-green)" }}
+                        />
+                      )}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
       </div>
 
       <div className="mt-auto px-4 pb-4">
