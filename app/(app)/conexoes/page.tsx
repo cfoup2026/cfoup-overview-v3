@@ -44,11 +44,12 @@ const SOURCES: Source[] = [
   },
   {
     id: "upload",
-    title: "Upload de arquivo",
-    description: "OFX, CSV, XLSX",
+    title: "Importar arquivo",
+    description:
+      "Importe extratos bancários, planilhas de ERP, notas fiscais e arquivos contábeis. Aceita XLSX, CSV, OFX, PDF.",
     icon: FileUp,
     status: "available",
-    cta: "Enviar arquivo",
+    cta: "Importar arquivos",
   },
   {
     id: "enotas",
