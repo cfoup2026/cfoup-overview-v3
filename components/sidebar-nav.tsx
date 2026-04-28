@@ -12,6 +12,7 @@ import {
   Waves,
   PieChart,
   LogOut,
+  ListChecks,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
@@ -32,8 +33,9 @@ export const navSections = [
   {
     label: "Implantação",
     items: [
-      { href: "/conexoes", label: "Conexões", icon: Plug },
       { href: "/configuracoes", label: "Configurações", icon: Settings },
+      { href: "/conexoes", label: "Conexões", icon: Plug },
+      { href: "/pendencias-setup", label: "Pendências de Setup", icon: ListChecks },
     ],
   },
 ] as const
