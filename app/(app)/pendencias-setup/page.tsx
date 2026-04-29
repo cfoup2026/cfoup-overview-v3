@@ -551,11 +551,19 @@ function RowActions({ actions }: { actions: Action[] }) {
 // (`getCategoryByCode`) vêm direto do cfoup-core — não há cópia local de
 // regra, tipo ou função.
 //
-// O dataset de entrada ainda é mock (`mockDerivedFromGregoruttDiagnostic`),
-// porque este app não tem pipeline de ingestão+classificação plugado. Os
-// números de cobertura batem com o snapshot do diagnóstico real do core
-// (`scripts/classify-gregorutt.ts`) rodado contra fixtures Gregorutt:
-// 28.394 transações, 21.806 classificadas (76,8%), 6.588 pendentes.
+// Dataset de entrada: mock derivado do diagnóstico real Gregorutt
+// (`scripts/classify-gregorutt.ts` no cfoup-core, rodado sobre os fixtures
+// Gregorutt). Os contraparte, count e totalAmount de cada grupo refletem
+// os top-12 grupos pendentes daquele diagnóstico — não são exemplos
+// genéricos. Snapshot do diagnóstico:
+//   total analisado: 28.394
+//   classificados:   21.802 (76,8%)
+//   pendentes:        6.269 (22,1%)
+//   grupos pendentes:   217
+//
+// Todos os grupos visíveis aqui usam `exceptionReason = "low_confidence"`
+// e `sourceSystem = "accounts_payable"`, espelhando como o diagnóstico
+// reclassificou esses pagamentos.
 //
 // PERSISTÊNCIA: nenhuma. As 5 ações da UI (Confirmar / Trocar categoria /
 // Aplicar a todos parecidos / Ignorar / Manter pendente) só atualizam
@@ -586,86 +594,120 @@ interface MockGregoruttDiagnostic {
     totalAnalyzed: number
     classifiedCount: number
     pendingCount: number
+    /** Total de grupos pendentes no diagnóstico (visíveis aqui são só os top). */
+    totalGroups: number
   }
+}
+
+/**
+ * Counterparties cujo valor monetário não é informado pelo diagnóstico
+ * Gregorutt — a UI mostra "valor não informado" no lugar de R$ 0,00.
+ */
+const VALOR_NAO_INFORMADO = new Set<string>([
+  "DESPESAS",
+  "MANUTENCAO GREGORUTT",
+])
+
+/**
+ * Override de label de sugestão. Usado quando o `ownerFriendlyLabel` da
+ * categoria standard do core não bate exatamente com o que o diagnóstico
+ * Gregorutt anotou — ou quando não há código standard que cubra (precisa
+ * abrir / abrir composição). A `standardCategoryCode` enviada para o core
+ * continua sendo a oficial; este override só afeta o texto exibido.
+ */
+const SUGGESTION_OVERRIDE: Record<string, string> = {
+  DESPESAS: "Precisa abrir",
+  "MANUTENCAO GREGORUTT": "Manutenção e reparos",
+  "2RC IND. DE EMBALAGENS": "Fornecedor direto / embalagem",
+  DIARIA: "Folha — abrir composição",
+  "SIMPLES NACIONAL (DAS)": "Impostos",
+  "ACF FABRICANTE EMBALAGENS": "Fornecedor direto / embalagem",
+  "PAGAMENTO VALE": "Folha — abrir composição",
 }
 
 /**
  * Mock derivado do diagnóstico Gregorutt do cfoup-core.
  *
- * A forma de cada `SourceTransaction` e `ClassificationResult` é a mesma
- * que `scripts/classify-gregorutt.ts` produz — apenas os volumes foram
- * estilizados para representar a distribuição empírica das exceções top-7
- * observadas naquele diagnóstico (motivo, contraparte/conta-chave, count).
+ * Os 12 grupos abaixo são os top-12 grupos pendentes que o diagnóstico
+ * (`scripts/classify-gregorutt.ts`) cospe rodando contra os fixtures
+ * Gregorutt. counterparte, count e totalAmount são reproduzidos do
+ * relatório — não são exemplos sintetizados.
+ *
+ * Todos os grupos têm `exceptionReason = "low_confidence"` e
+ * `sourceSystem = "accounts_payable"`, espelhando o que o motor faz com
+ * pagamentos de fornecedor sem regra cadastrada.
  *
  * Quando este app receber pipeline real, esta função some e o card passa
  * a ler `{ transactions, results, snapshot }` de um hook real.
  */
 function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
+  const reason: ExceptionReason = "low_confidence"
   const now = new Date("2026-04-20T00:00:00Z")
+
   const seedGroups: Array<{
-    reason: ExceptionReason
     counterparty: string
-    originalAccount?: string
-    originalCategory?: string
-    description?: string
     count: number
-    avgAmount: number
+    /** 0 sinaliza "valor não informado" (vide `VALOR_NAO_INFORMADO`). */
+    totalAmount: number
     suggestedCategoryCode?: string
   }> = [
     {
-      reason: "card_payment_without_detail",
-      counterparty: "AMERICAN EXPRESS",
-      description: "PAGTO CARTAO AMEX",
-      count: 1850,
-      avgAmount: 134.21,
+      counterparty: "AVANZI QUIMICA LTDA",
+      count: 422,
+      totalAmount: 670671.33,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
+    },
+    { counterparty: "DESPESAS", count: 315, totalAmount: 0 },
+    {
+      counterparty: "MANUTENCAO GREGORUTT",
+      count: 228,
+      totalAmount: 0,
+      suggestedCategoryCode: "OUT_REPAIR_MAINTENANCE",
     },
     {
-      reason: "accounting_generic_account",
-      counterparty: "(diversos)",
-      originalAccount: "Despesas Diversas",
-      description: "Lcto contábil agregado",
-      count: 1240,
-      avgAmount: 148.48,
-    },
-    {
-      reason: "generic_original_category",
-      counterparty: "(vários)",
-      originalCategory: "Outros Pagamentos",
-      description: "Pagamento avulso",
-      count: 920,
-      avgAmount: 158.55,
-    },
-    {
-      reason: "bank_only_weak_description",
-      counterparty: "(banco)",
-      description: "TED RECEBIDA",
-      count: 760,
-      avgAmount: 516.5,
-    },
-    {
-      reason: "unknown_counterparty",
-      counterparty: "FORNECEDOR XPTO LTDA",
-      description: "NF servico mensal",
-      count: 540,
-      avgAmount: 161.93,
+      counterparty: "2RC IND. DE EMBALAGENS",
+      count: 202,
+      totalAmount: 1233993.40,
       suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
     },
     {
-      reason: "large_other_category",
-      counterparty: "(outros)",
-      originalCategory: "Outros",
-      description: "Lcto rotulado Outros",
-      count: 420,
-      avgAmount: 133.81,
+      counterparty: "NOVAPLASTICS COM DE ...",
+      count: 199,
+      totalAmount: 1219702.34,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
+    },
+    { counterparty: "DIARIA", count: 175, totalAmount: 305835.28 },
+    {
+      counterparty: "CHEMIX PROD. QUIMICO...",
+      count: 162,
+      totalAmount: 668829.56,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
     },
     {
-      reason: "low_confidence",
-      counterparty: "MERCADO LIVRE",
-      description: "MELI repasse adquirente",
-      count: 380,
-      avgAmount: 194.47,
-      suggestedCategoryCode: "IN_MARKETPLACE",
+      counterparty: "OCC QUIMICA LTDA",
+      count: 125,
+      totalAmount: 377195.07,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
     },
+    {
+      counterparty: "LW COMERCIO DE PRODU...",
+      count: 106,
+      totalAmount: 303071.57,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
+    },
+    {
+      counterparty: "SIMPLES NACIONAL (DAS)",
+      count: 87,
+      totalAmount: 856313.95,
+      suggestedCategoryCode: "OUT_TAXES_SALES",
+    },
+    {
+      counterparty: "ACF FABRICANTE EMBALAGENS",
+      count: 68,
+      totalAmount: 677705.0,
+      suggestedCategoryCode: "OUT_SUPPLIER_DIRECT",
+    },
+    { counterparty: "PAGAMENTO VALE", count: 42, totalAmount: 332785.27 },
   ]
 
   const transactions: SourceTransaction[] = []
@@ -677,46 +719,37 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
         ? getCategoryByCode(seed.suggestedCategoryCode)
         : undefined
     const direction = cat?.direction ?? "outflow"
+    // Distribui o totalAmount uniformemente. A soma dentro do core
+    // (`groupClassificationExceptions`) reproduz o totalAmount original
+    // (a menos de centavos por arredondamento de ponto flutuante).
+    const perTxAmount = seed.count > 0 ? seed.totalAmount / seed.count : 0
 
     for (let i = 0; i < seed.count; i += 1) {
-      const id = `mock-${seed.reason}-${i}`
-      const amount = Math.round((seed.avgAmount + (i % 7) * 3.71) * 100) / 100
+      const id = `mock-${seed.counterparty}-${i}`
 
       const tx: SourceTransaction = {
         id,
         companyId: "gregorutt",
-        sourceSystem:
-          seed.reason === "bank_only_weak_description"
-            ? "bank"
-            : "accounts_payable",
+        sourceSystem: "accounts_payable",
         transactionDate: now,
         direction,
-        amount,
+        amount: perTxAmount,
         currency: "BRL",
         counterpartyName: seed.counterparty,
       }
-      if (seed.originalAccount !== undefined)
-        tx.originalAccountName = seed.originalAccount
-      if (seed.originalCategory !== undefined)
-        tx.originalCategory = seed.originalCategory
-      if (seed.description !== undefined) tx.description = seed.description
       transactions.push(tx)
 
       const r: ClassificationResult = {
         sourceTransactionId: id,
         companyId: "gregorutt",
         bucket: cat?.bucket ?? null,
-        confidenceScore: seed.suggestedCategoryCode !== undefined ? 0.55 : 0.2,
-        confidenceLevel:
-          seed.suggestedCategoryCode !== undefined ? "medium" : "low",
+        confidenceScore: 0.35,
+        confidenceLevel: "low",
         classificationMethod: "fallback",
         originalLabelPreserved: false,
         requiresOwnerConfirmation: true,
-        exceptionReason: seed.reason,
-        status:
-          seed.suggestedCategoryCode !== undefined
-            ? "needs_confirmation"
-            : "pending",
+        exceptionReason: reason,
+        status: "needs_confirmation",
       }
       if (seed.suggestedCategoryCode !== undefined)
         r.standardCategoryCode = seed.suggestedCategoryCode
@@ -727,14 +760,18 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
   }
 
   // Snapshot agregado batendo com o diagnóstico Gregorutt do core.
-  const totalAnalyzed = 28394
-  const pendingCount = transactions.length // 6110 — ≈ pendentes do diagnóstico
-  const classifiedCount = totalAnalyzed - pendingCount
-
+  // Os pendingCount/totalGroups são do diagnóstico inteiro (217 grupos);
+  // a UI exibe só os top-12 acima, mas o número de pendentes e o nº total
+  // de grupos refletem o diagnóstico completo.
   return {
     transactions,
     results,
-    snapshot: { totalAnalyzed, classifiedCount, pendingCount },
+    snapshot: {
+      totalAnalyzed: 28394,
+      classifiedCount: 21802,
+      pendingCount: 6269,
+      totalGroups: 217,
+    },
   }
 }
 
@@ -786,7 +823,11 @@ function CardLancamentosSemClassificacao() {
             value={`${pctFmt.format(pctPending)}%`}
             hint={`${intFmt.format(snapshot.pendingCount)} transações`}
           />
-          <SetupStat label="Grupos" value={intFmt.format(groups.length)} />
+          <SetupStat
+            label="Grupos pendentes"
+            value={intFmt.format(snapshot.totalGroups)}
+            hint={`mostrando top ${groups.length}`}
+          />
           <SetupStat
             label="Total analisado"
             value={intFmt.format(snapshot.totalAnalyzed)}
@@ -811,9 +852,8 @@ function CardLancamentosSemClassificacao() {
           className="mt-4 text-[12px] italic"
           style={{ color: MUTED }}
         >
-          Ordenado por quantidade. Confirmar os grupos do topo é o caminho
-          mais curto para ganhar cobertura — princípio do diagnóstico
-          Gregorutt no cfoup-core.
+          Mock derivado do diagnóstico Gregorutt. Ações locais sem
+          persistência nesta versão.
         </p>
       </div>
     </CardShell>
@@ -849,6 +889,16 @@ function SetupStat({
   )
 }
 
+/**
+ * Extrai a contraparte de dentro das aspas no `groupLabel` produzido pelo
+ * core (ex: `Classificação com baixa confiança — "AVANZI QUIMICA LTDA"`
+ * → `AVANZI QUIMICA LTDA`). Cai no label inteiro se o formato não bater.
+ */
+function extractCounterparty(groupLabel: string): string {
+  const m = groupLabel.match(/"([^"]+)"$/)
+  return m?.[1] ?? groupLabel
+}
+
 function GroupRow({
   group,
   action,
@@ -859,12 +909,16 @@ function GroupRow({
   onAction: (a: GroupActionId) => void
 }) {
   const intFmt = new Intl.NumberFormat("pt-BR")
+  const counterparty = extractCounterparty(group.groupLabel)
+  const valorNaoInformado = VALOR_NAO_INFORMADO.has(counterparty)
+  const suggestion =
+    SUGGESTION_OVERRIDE[counterparty] ?? group.suggestedOwnerLabel
   return (
     <li className="py-3 first:pt-0">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
         <div className="min-w-0">
           <p className="text-[14px] font-semibold" style={{ color: NAVY }}>
-            {group.groupLabel}
+            {counterparty}
           </p>
           <p className="mt-0.5 text-[12px] tabular-nums" style={{ color: MUTED }}>
             <span className="font-medium" style={{ color: NAVY }}>
@@ -872,13 +926,17 @@ function GroupRow({
             </span>{" "}
             transações
             <span className="mx-1.5 opacity-60">·</span>
-            <span style={{ color: MUTED }}>total {brl.format(group.totalAmount)}</span>
-            {group.suggestedOwnerLabel !== undefined && (
+            {valorNaoInformado ? (
+              <span style={{ color: MUTED }}>valor não informado</span>
+            ) : (
+              <span style={{ color: MUTED }}>total {brl.format(group.totalAmount)}</span>
+            )}
+            {suggestion !== undefined && (
               <>
                 <span className="mx-1.5 opacity-60">·</span>
                 sugestão:{" "}
                 <span className="font-medium" style={{ color: NAVY }}>
-                  {group.suggestedOwnerLabel}
+                  {suggestion}
                 </span>
               </>
             )}
