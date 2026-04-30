@@ -1,15 +1,25 @@
 import { parseCef, type ParseCefResult } from "../parsers/cef-parser"
+import { reconcileCef } from "./reconcile-cef"
 import type {
+  APRecord,
+  ARRecord,
   BankHistBucket,
   BankIngestOutput,
+  BankReconciliationStats,
   BankTransaction,
   ISODate,
+  ReconciliationTolerances,
 } from "../parsers/types"
 
 export interface IngestCefInput {
   files: Array<{ name: string; content: string }>
   account?: string
   openingBalance?: { date: ISODate; balance: number }
+  /** Quando presente (ou junto com `arRecords`), o pipeline reconcilia
+   *  AP/AR contra as transações bancárias antes de retornar. */
+  apRecords?: APRecord[]
+  arRecords?: ARRecord[]
+  reconcileTolerances?: ReconciliationTolerances
 }
 
 const ALL_BUCKETS: readonly BankHistBucket[] = [
@@ -82,7 +92,7 @@ export async function ingestCef(
   let running: number | null = null
   let started = false
 
-  const transactions: BankTransaction[] = filtered.map((x) => {
+  let transactions: BankTransaction[] = filtered.map((x) => {
     const rec = x.rec
     let runningBalance: number | null = null
 
@@ -130,7 +140,21 @@ export async function ingestCef(
 
   const account = input.account ?? transactions[0]?.account ?? ""
 
-  return {
+  // Fase B: reconciliação opcional contra AP/AR.
+  // Comportamento sem ap/arRecords: idêntico à Fase A (sem `reconciliation`).
+  let reconciliation: BankReconciliationStats | undefined
+  if (input.apRecords !== undefined || input.arRecords !== undefined) {
+    const result = reconcileCef(
+      transactions,
+      input.apRecords ?? [],
+      input.arRecords ?? [],
+      input.reconcileTolerances,
+    )
+    transactions = result.transactions
+    reconciliation = result.stats
+  }
+
+  const output: BankIngestOutput = {
     account,
     openingBalance: ob?.balance ?? null,
     closingBalance,
@@ -140,4 +164,6 @@ export async function ingestCef(
     bucketCoverage,
     warnings,
   }
+  if (reconciliation !== undefined) output.reconciliation = reconciliation
+  return output
 }

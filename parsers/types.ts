@@ -183,4 +183,33 @@ export interface BankIngestOutput {
   transactions: BankTransaction[]
   bucketCoverage: Record<BankHistBucket, number>
   warnings: string[]
+  /** Presente apenas quando o pipeline reconciliou contra AP/AR (Fase B). */
+  reconciliation?: BankReconciliationStats
+}
+
+/** Tolerâncias de data por canal, usadas no reconciler. */
+export interface ReconciliationTolerances {
+  /** Dias corridos. PIX é instantâneo; default 0. */
+  pix: number
+  /** Dias corridos. TED pode levar até 1 dia útil; default 1. */
+  ted: number
+  /** Dias úteis (seg-sex, sem feriados). Boleto liquida em 1–2 d.u.; default 2. */
+  boleto: number
+  /** Dias úteis. Cheque pode demorar dias para compensar; default 5. */
+  check: number
+}
+
+/** Métricas agregadas da reconciliação CEF ↔ FKN AP/AR. */
+export interface BankReconciliationStats {
+  cpPaidTotal: number
+  cpMatched: number
+  cpUnmatched: number
+  arPaidTotal: number
+  arMatched: number
+  arUnmatched: number
+  cefReconcilable: number
+  cefMatched: number
+  cefAmbiguous: number
+  cefUnmatched: number
+  cefBypass: number
 }
