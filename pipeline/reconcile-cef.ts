@@ -143,6 +143,62 @@ interface ToleranceResolved {
   biz: boolean
 }
 
+// =====================================================================
+// Índice por mês (perf O(N+M) em vez de O(N*M))
+// =====================================================================
+
+type MonthKey = string // 'YYYY-MM'
+
+interface IndexedRec<R> {
+  record: R
+  /** Posição no array original (apPaid/arPaid). Garante que o reducedPool
+   *  preserve a ordem da varredura linear — anti-double-match continua
+   *  first-come-first-served idêntico ao algoritmo antigo. */
+  originalIndex: number
+}
+
+function monthKey(d: ISODate): MonthKey {
+  return d.slice(0, 7)
+}
+
+/**
+ * Retorna ['YYYY-MM' do mês anterior, atual, próximo]. Cobre todas as
+ * tolerâncias atuais (max biz=5 → ≤7 dias calendário ≤ borda de mês).
+ */
+function adjacentMonths(centerDate: ISODate): MonthKey[] {
+  const center = new Date(`${centerDate}T00:00:00Z`)
+  const result: MonthKey[] = []
+  for (const offset of [-1, 0, 1]) {
+    const d = new Date(
+      Date.UTC(center.getUTCFullYear(), center.getUTCMonth() + offset, 1),
+    )
+    result.push(d.toISOString().slice(0, 7))
+  }
+  return result
+}
+
+function reducePoolFromIndex<R extends APPaid | ARPaid>(
+  index: Map<MonthKey, IndexedRec<R>[]>,
+  centerDate: ISODate,
+): R[] {
+  const months = adjacentMonths(centerDate)
+  const seen = new Set<number>()
+  const items: IndexedRec<R>[] = []
+  for (const m of months) {
+    const bucket = index.get(m)
+    if (bucket === undefined) continue
+    for (const item of bucket) {
+      if (seen.has(item.originalIndex)) continue
+      seen.add(item.originalIndex)
+      items.push(item)
+    }
+  }
+  // Mantém a ordem da varredura linear original — pivotal para que o
+  // anti-double-match dê os mesmos matches do algoritmo O(N*M).
+  items.sort((a, b) => a.originalIndex - b.originalIndex)
+  return items.map((it) => it.record)
+}
+
 function findCandidates(
   pool: APPaid[] | ARPaid[],
   kind: Kind,
@@ -152,11 +208,24 @@ function findCandidates(
   mode: "exact" | "heuristic",
 ): Array<APPaid | ARPaid> {
   const out: Array<APPaid | ARPaid> = []
+  const txMs = isoToMs(tx.postingDate)
   for (const r of pool) {
     const key = recordKey(r, kind)
     if (consumed.has(key)) continue
+
+    // Pre-filtro calendar-day (cheap). Para biz tolerances, business days
+    // ≤ calendar days, e o máximo de fins-de-semana em uma janela ≤5 biz é
+    // 1 (calendar = biz + 2). Usar `tol.days + 2` como upper bound — qualquer
+    // par com calendar diff acima disso não pode match dentro de tol.days
+    // biz, então pulamos antes do loop dia-a-dia caro.
+    const calendarDelta = Math.abs(
+      Math.round((txMs - isoToMs(r.paymentDate)) / 86_400_000),
+    )
+    if (calendarDelta > tol.days + 2) continue
+
     const dateDelta = diffDays(tx.postingDate, r.paymentDate, tol.biz)
     if (dateDelta > tol.days) continue
+
     const amountDiff = Math.abs(tx.rawValue - r.paidValue)
     if (mode === "exact") {
       if (amountDiff < 0.01) out.push(r)
@@ -189,6 +258,29 @@ export function reconcileCef(
     (r): r is ARPaid => r.paymentDate !== null,
   )
 
+  // Indexação por mês de paymentDate. Cada record entra exatamente em 1
+  // bucket. Construído uma vez antes do loop principal.
+  const apIndex = new Map<MonthKey, IndexedRec<APPaid>[]>()
+  apPaid.forEach((r, i) => {
+    const k = monthKey(r.paymentDate)
+    let bucket = apIndex.get(k)
+    if (bucket === undefined) {
+      bucket = []
+      apIndex.set(k, bucket)
+    }
+    bucket.push({ record: r, originalIndex: i })
+  })
+  const arIndex = new Map<MonthKey, IndexedRec<ARPaid>[]>()
+  arPaid.forEach((r, i) => {
+    const k = monthKey(r.paymentDate)
+    let bucket = arIndex.get(k)
+    if (bucket === undefined) {
+      bucket = []
+      arIndex.set(k, bucket)
+    }
+    bucket.push({ record: r, originalIndex: i })
+  })
+
   const consumedAp = new Set<string>()
   const consumedAr = new Set<string>()
 
@@ -198,11 +290,11 @@ export function reconcileCef(
     let consumed: Set<string>
     if (isReconcilableOut(tx)) {
       kind = "cp"
-      pool = apPaid
+      pool = reducePoolFromIndex(apIndex, tx.postingDate)
       consumed = consumedAp
     } else if (isReconcilableIn(tx)) {
       kind = "cr"
-      pool = arPaid
+      pool = reducePoolFromIndex(arIndex, tx.postingDate)
       consumed = consumedAr
     } else {
       continue
