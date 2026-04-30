@@ -124,3 +124,63 @@ export interface GroupMap {
   customers: CustomerGroup[]
   suppliers: SupplierGroup[]
 }
+
+// =====================================================================
+// Bank — schema genérico (CEF é o primeiro adapter)
+// =====================================================================
+
+export type BankHistBucket =
+  | "PIX_OUT"
+  | "PIX_IN"
+  | "TED_OUT"
+  | "TED_IN"
+  | "BOLETO_OUT"
+  | "BANK_COLLECTION_IN"
+  | "CARD_ACQUIRER_IN"
+  | "CHECK_OUT"
+  | "CHECK_IN"
+  | "PAYROLL_OUT"
+  | "WITHDRAW"
+  | "FEE"
+  | "PURCHASE"
+  | "GOV_OUT"
+  | "UTILITY_OUT"
+  | "INSURANCE_OUT"
+  | "LOAN_OUT"
+  | "INVESTMENT"
+  | "OTHER"
+
+export interface ReconciliationLink {
+  source: "fkn-cp" | "fkn-cr"
+  recordKey: string
+  matchedOn: { dateDelta: number; amountDelta: number }
+}
+
+export interface BankTransaction {
+  source: "cef"
+  account: string
+  postingDate: ISODate
+  bankRefNumber: string
+  histCode: string
+  histBucket: BankHistBucket
+  rawValue: number
+  direction: "C" | "D"
+  amount: number
+  runningBalance: number | null
+  // Reconciliação — Fase A não popula. Schema declarado para Fase B.
+  reconciled: boolean
+  reconciledTo: ReconciliationLink | null
+  reconciliationConfidence: "exact" | "heuristic" | "ambiguous" | null
+  reconciliationCandidates: ReconciliationLink[]
+}
+
+export interface BankIngestOutput {
+  account: string
+  openingBalance: number | null
+  closingBalance: number | null
+  periodStart: ISODate
+  periodEnd: ISODate
+  transactions: BankTransaction[]
+  bucketCoverage: Record<BankHistBucket, number>
+  warnings: string[]
+}

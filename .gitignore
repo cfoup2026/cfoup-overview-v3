@@ -19,10 +19,14 @@ node_modules
 .claude/
 tsconfig.tsbuildinfo
 
-# Pilot client data (CSVs and ingest outputs are never committed)
+# Pilot client data (CSVs, bank statements, and ingest outputs are never committed)
 data/gregorutt/csv/*.csv
 data/gregorutt/output/*.json
+data/gregorutt/cef/*.txt
+data/gregorutt/cef/*.pdf
 data/*/csv/*.csv
 data/*/output/*.json
+data/*/cef/*.txt
+data/*/cef/*.pdf
 mappings/*-groups.json
 !mappings/_template-groups.json
