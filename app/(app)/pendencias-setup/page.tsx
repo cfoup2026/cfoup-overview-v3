@@ -616,10 +616,15 @@ const VALOR_NAO_INFORMADO = new Set<string>([
  * continua sendo a oficial; este override só afeta o texto exibido.
  */
 const SUGGESTION_OVERRIDE: Record<string, string> = {
+  "AVANZI QUIMICA LTDA": "Fornecedor direto / insumo",
   DESPESAS: "Precisa abrir",
   "MANUTENCAO GREGORUTT": "Manutenção e reparos",
   "2RC IND. DE EMBALAGENS": "Fornecedor direto / embalagem",
+  "NOVAPLASTICS COM DE ...": "Fornecedor direto / insumo",
   DIARIA: "Folha — abrir composição",
+  "CHEMIX PROD. QUIMICO...": "Fornecedor direto / insumo",
+  "OCC QUIMICA LTDA": "Fornecedor direto / insumo",
+  "LW COMERCIO DE PRODU...": "Fornecedor direto / insumo",
   "SIMPLES NACIONAL (DAS)": "Impostos",
   "ACF FABRICANTE EMBALAGENS": "Fornecedor direto / embalagem",
   "PAGAMENTO VALE": "Folha — abrir composição",
