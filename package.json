@@ -39,7 +39,7 @@
     "@radix-ui/react-toggle-group": "1.1.11",
     "@radix-ui/react-tooltip": "1.2.8",
     "autoprefixer": "^10.4.20",
-    "cfoup-core": "github:cfoup2026/cfoup-core#3ebf4ff",
+    "cfoup-core": "github:cfoup2026/cfoup-core#acf4c97",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
