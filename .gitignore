@@ -18,3 +18,11 @@ node_modules
 # Build / tooling artifacts
 .claude/
 tsconfig.tsbuildinfo
+
+# Pilot client data (CSVs and ingest outputs are never committed)
+data/gregorutt/csv/*.csv
+data/gregorutt/output/*.json
+data/*/csv/*.csv
+data/*/output/*.json
+mappings/*-groups.json
+!mappings/_template-groups.json
