@@ -1,13 +1,20 @@
 /**
  * Smoke do piloto Gregorutt (FKN).
  *
- * Uso: `pnpm tsx scripts/smoke-gregorutt.ts`
+ * Uso: `pnpm tsx scripts/smoke-gregorutt.mts`
  *
  * Lê os 3 CSVs em `data/gregorutt/csv/` (cp1252) e roda o pipeline FKN
  * completo, imprimindo um relatório de cobertura e qualidade no stdout.
  * Salva o `IngestOutput` em `data/gregorutt/output/run-{ISO}.json`.
  *
  * Nada commita: CSVs e output ficam ignorados pelo .gitignore.
+ *
+ * Nota sobre extensão `.mts`: o package.json deste repo NÃO declara
+ * `"type": "module"` (manter assim evita efeitos colaterais em Next/PostCSS).
+ * O smoke importa cfoup-core, que só expõe condição ESM (`import`) no
+ * `exports`. Sem `.mts`, o tsx carrega o arquivo como CJS e a resolução
+ * de `cfoup-core` falha com `ERR_PACKAGE_PATH_NOT_EXPORTED`. A extensão
+ * `.mts` força ESM no entrypoint sem impactar o resto do repo.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
