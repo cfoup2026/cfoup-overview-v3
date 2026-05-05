@@ -1,58 +1,41 @@
 /**
- * CF13 — wire-up v0 (Passo 5 do CF13 UI Contract).
+ * CF13 — tela `/fluxo-de-caixa`.
  *
- * Server Component que chama `getCF13` e renderiza `CF13Output` cru
- * estruturado em 5 blocos. Sem layout. Sem componentes visuais
- * elaborados — só validação fim-a-fim de que o pipeline atravessa
- * `cfoup-core` → adapter de contrato → fixture → tela.
+ * Server Component. Carrega `CF13Output` via `getCF13`, monta as 5
+ * estruturas de apresentação (`veredito`, `cards`, `grade`,
+ * `pendencias`, `semanasRotulos`) e delega o render pra
+ * `FluxoDeCaixaScreen`.
  *
- * Layout v0 (Passo 7) substitui o JSON cru por componentes que
- * consomem `montarVereditoUI`/`montarGradeCF13`/`montarCardsCF13`/
- * `montarPainelPendencias` (atualmente stubs com `throw`).
+ * Sem JSON cru. Sem lógica de cálculo aqui — toda apresentação é
+ * derivação direta dos campos do contrato.
  *
  * V0: cliente fixo `'gregorutt'` + baseDate fixa `'2026-04-20'`.
- * Suficiente pro smoke fim-a-fim. Server Action de recálculo manual
- * + URL params entram no Passo 7.
+ * URL params + Server Action de recálculo entram em passo posterior.
  */
+import { FluxoDeCaixaScreen } from "@/components/FluxoDeCaixaScreen"
 import { getCF13 } from "@/lib/cf13/getCF13"
+import { montarCardsCF13 } from "@/lib/cf13/montarCardsCF13"
+import { montarGradeCF13 } from "@/lib/cf13/montarGradeCF13"
+import { montarPainelPendencias } from "@/lib/cf13/montarPainelPendencias"
+import { montarSemanasRotulos } from "@/lib/cf13/montarSemanasRotulos"
+import { montarVereditoUI } from "@/lib/cf13/montarVereditoUI"
 
 export default async function FluxoDeCaixaRoute() {
   const cf13 = await getCF13("gregorutt", "2026-04-20")
 
+  const veredito = montarVereditoUI(cf13)
+  const cards = montarCardsCF13(cf13)
+  const grade = montarGradeCF13(cf13)
+  const pendencias = montarPainelPendencias(cf13)
+  const semanasRotulos = montarSemanasRotulos(cf13)
+
   return (
-    <main style={{ padding: 24, fontFamily: "monospace", fontSize: 12 }}>
-      <h1
-        style={{ fontFamily: "sans-serif", fontSize: 18, marginBottom: 16 }}
-      >
-        CF13 — JSON cru (v0 wire-up)
-      </h1>
-
-      <section style={{ marginBottom: 16 }}>
-        <strong>meta:</strong>
-        <pre>{JSON.stringify(cf13.meta, null, 2)}</pre>
-      </section>
-
-      <section style={{ marginBottom: 16 }}>
-        <strong>veredito (consolidado):</strong>
-        <pre>{JSON.stringify(cf13.veredito.consolidado, null, 2)}</pre>
-      </section>
-
-      <section style={{ marginBottom: 16 }}>
-        <strong>cobertura:</strong>
-        <pre>{JSON.stringify(cf13.cobertura, null, 2)}</pre>
-      </section>
-
-      <section style={{ marginBottom: 16 }}>
-        <strong>projecao.consolidado.semanas (13):</strong>
-        <pre>
-          {JSON.stringify(cf13.projecao.consolidado.semanas, null, 2)}
-        </pre>
-      </section>
-
-      <section style={{ marginBottom: 16 }}>
-        <strong>pendencias ({cf13.pendencias.length}):</strong>
-        <pre>{JSON.stringify(cf13.pendencias, null, 2)}</pre>
-      </section>
-    </main>
+    <FluxoDeCaixaScreen
+      veredito={veredito}
+      cards={cards}
+      grade={grade}
+      pendencias={pendencias}
+      semanasRotulos={semanasRotulos}
+    />
   )
 }
