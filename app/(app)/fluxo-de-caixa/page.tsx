@@ -21,7 +21,12 @@ import { montarSemanasRotulos } from "@/lib/cf13/montarSemanasRotulos"
 import { montarVereditoUI } from "@/lib/cf13/montarVereditoUI"
 
 export default async function FluxoDeCaixaRoute() {
-  const cf13 = await getCF13("gregorutt", "2026-04-20")
+  /* `dataReferencia` resolvida internamente em `getCF13`
+   *  (regra única em `lib/cf13/resolverDataReferencia.ts`).
+   *  Sem hardcode de data nessa camada.
+   *  UI exibe `cf13.meta.baseDate` quando renderizar
+   *  "Dados atualizados até …" no header (Passo posterior). */
+  const cf13 = await getCF13("gregorutt")
 
   const veredito = montarVereditoUI(cf13)
   const cards = montarCardsCF13(cf13)
