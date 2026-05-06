@@ -8,8 +8,10 @@ import { RefreshCw } from "lucide-react"
  * /fluxo-de-caixa
  *
  * Hub central da Mesa de Decisão: caixa em janela rolante de 13 semanas.
- * Espelha a aba CF_13_Semanas do modelo Pipeline Capital, traduzida para PMME
- * brasileira (CR, CP, DAS, ICMS, IOF, Folha quinzenal, etc).
+ * Estrutura: DFC pelo método direto (Cash Flow Statement adaptado a 13 semanas),
+ * com 4 atividades — Operação, Financiamento, Investimento e Entre Companhias —
+ * cada qual fechando em uma linha "Caixa Líquido". As linhas de fechamento
+ * agregam Variação Líquida, Caixa de Início e Caixa de Final do período.
  *
  * Esta tela é DEMO visual. Quando o Núcleo de Dados for plugado, os arrays
  * MOCK_* abaixo são substituídos por um hook do tipo useCashflow13w(activeUnit)
@@ -30,10 +32,10 @@ const INK = "#0F1B2D"
 const MUTED = "#5B6B82"
 const LINE = "#E5EBF2"
 const BG = "#F7F9FC"
-const ROW_BG_TOTAL = "#F7F9FC"
-const ROW_BG_FLUXO = "#E8F4FB"
-const ROW_BG_SALDO = "#FFF7E5"
-const CELL_NEG_BG = "#FFF1F1"
+const ROW_BG_CAIXA_LIQUIDO = "#F7F9FC" // Caixa Líquido por atividade
+const ROW_BG_VARIACAO = "#E8F4FB"      // Variação Líquida de Caixa
+const ROW_BG_SALDO = "#FFF7E5"         // Caixa Início / Final do Período
+const CELL_NEG_BG = "#FFF1F1"          // célula negativa (Caixa Final)
 
 // =====================================================================
 // Janela de 13 semanas (segunda-domingo, abrindo em 05/05)
@@ -56,51 +58,65 @@ const WEEKS: WeekHeader[] = [
 ]
 
 // =====================================================================
-// Mocks engenheirados para fechar com:
-//   Saldo Inicial S1 = 34.494
+// Mocks Gregorutt — engenheirados para fechar com:
+//   Caixa Atual (S1 início) = 34.494
 //   Caixa Mínimo da Janela = -251.633 em S13 (mínimo monotônico)
 //   Caixa Médio Projetado ≈ -121.566
 //
-// Cadência: Folha quinzenal (dia 5 e 20) cai em S1, S3, S5, S7, S9, S11.
-// Impostos DAS+ICMS no dia 20 caem em S3, S7, S11.
-// Empréstimo (mensal, dia 10) cai em S1, S6, S10.
-//
-// TODO: substituir os 9 arrays abaixo pelo hook useCashflow13w(activeUnit).
+// TODO: substituir os arrays abaixo pelo hook useCashflow13w(activeUnit).
 // =====================================================================
-const SALDO_INICIAL_S1 = 34_494
 const CAIXA_MINIMO_OPERACIONAL = 25_000
 
-const CR_RECEBER     = [70_000, 78_000, 68_000, 82_000, 65_000, 88_000, 72_000, 80_000, 68_000, 76_000, 84_000, 78_000, 92_000]
-const CR_RECUPERACAO = [ 5_000,  4_000,  6_000,  3_000,  8_000,  4_000,  5_000,  3_000,  6_000,  4_000,  5_000,  3_000,  7_000]
+// Saldo encadeado, vindo do extrato bancário em S1 e herdando da semana anterior em S2..S13.
+const CAIXA_INICIO = [34_494, 27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232]
+const CAIXA_FINAL  = [27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232, -251_633]
 
-const CP_A_PAGAR     = [45_000, 84_000, 32_000, 92_000, 66_000, 90_000, 33_000, 94_000, 56_000, 77_000, 45_000, 86_000, 100_000]
-const CP_VENCIDOS    = [ 5_144,  9_650,  3_650, 10_650,  6_650,  9_650,  3_650,  9_650,  6_650,  8_650,  4_650,  8_650,  11_283]
-const FOLHA          = [30_000,      0, 30_000,      0, 30_000,      0, 30_000,      0, 30_000,      0, 30_000,      0,       0]
-const IMPOSTOS       = [     0,      0, 20_000,      0,      0,      0, 22_000,      0,      0,      0, 24_000,      0,       0]
-const DIARIAS        = [ 5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,  5_000,   5_000]
-const TARIFAS        = [   350,    350,    350,    350,    350,    350,    350,    350,    350,    350,    350,    350,     350]
-const EMPRESTIMO     = [12_000,      0,      0,      0,      0, 12_000,      0,      0,      0, 12_000,      0,      0,       0]
+// --- OPERAÇÃO · Receitas (positivos) ---
+const CR_RECEBER       = [44_675, 48_543, 27_337, 18_034, 1_460, 0, 17_457, 0, 0, 0, 0, 0, 0]
+const CR_RECUPERACAO   = [22_488, 22_488, 22_488, 22_488, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+const OUTRAS_RECEITAS  = Array(13).fill(0)
 
-// Derivados
-const TOTAL_ENTRADAS = CR_RECEBER.map((v, i) => v + CR_RECUPERACAO[i])
-const TOTAL_SAIDAS = CP_A_PAGAR.map(
-  (v, i) => v + CP_VENCIDOS[i] + FOLHA[i] + IMPOSTOS[i] + DIARIAS[i] + TARIFAS[i] + EMPRESTIMO[i],
+// --- OPERAÇÃO · Saídas (negativos) ---
+const CP_A_PAGAR       = [-27_721, -25_507, -20_002, -24_169, -15_037, -14_427, -375, -591, 0, -840, -375, -591, 0]
+const CP_VENCIDOS      = [-29_829, -29_829, -29_829, -29_829, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+// Folha quinzenal: -10.864 nas semanas 1, 3, 5, 7, 9, 11 (idx 0, 2, 4, 6, 8, 10)
+const FOLHA            = Array.from({ length: 13 }, (_, i) => ([0, 2, 4, 6, 8, 10].includes(i) ? -10_864 : 0))
+// Tributos sobre Vendas: -42.353 nas semanas 3, 7, 11 (idx 2, 6, 10)
+const TRIBUTOS_VENDAS  = Array.from({ length: 13 }, (_, i) => ([2, 6, 10].includes(i) ? -42_353 : 0))
+const ENCARGOS_TRAB    = Array(13).fill(0)
+const DESPESAS_OPER    = Array(13).fill(-4_260)
+
+// --- FINANCIAMENTO ---
+const EMPRESTIMOS_NOVOS = Array(13).fill(0)
+const APORTE_SOCIOS    = Array(13).fill(0)
+// Empréstimo / Financiamento: -7.390 nas semanas 2, 6, 11 (idx 1, 5, 10)
+const EMPRESTIMO_FIN   = Array.from({ length: 13 }, (_, i) => ([1, 5, 10].includes(i) ? -7_390 : 0))
+const TARIFAS_IOF      = Array(13).fill(-1_142)
+const RETIRADA_SOCIOS  = Array(13).fill(0)
+
+// --- INVESTIMENTO ---
+const VENDA_EQUIP      = Array(13).fill(0)
+const COMPRA_EQUIP     = Array(13).fill(0)
+
+// --- ENTRE COMPANHIAS ---
+const RECEB_INTERCO    = Array(13).fill(0)
+const PAGTO_INTERCO    = Array(13).fill(0)
+
+// --- Derivados: Caixa Líquido por atividade ---
+const CL_OPERACAO = CR_RECEBER.map((_, i) =>
+  CR_RECEBER[i] + CR_RECUPERACAO[i] + OUTRAS_RECEITAS[i]
+  + CP_A_PAGAR[i] + CP_VENCIDOS[i] + FOLHA[i] + TRIBUTOS_VENDAS[i] + ENCARGOS_TRAB[i] + DESPESAS_OPER[i],
 )
-const FLUXO_LIQUIDO = TOTAL_ENTRADAS.map((v, i) => v - TOTAL_SAIDAS[i])
+const CL_FINANCIAMENTO = EMPRESTIMOS_NOVOS.map((_, i) =>
+  EMPRESTIMOS_NOVOS[i] + APORTE_SOCIOS[i] + EMPRESTIMO_FIN[i] + TARIFAS_IOF[i] + RETIRADA_SOCIOS[i],
+)
+const CL_INVESTIMENTO = VENDA_EQUIP.map((_, i) => VENDA_EQUIP[i] + COMPRA_EQUIP[i])
+const CL_INTERCO = RECEB_INTERCO.map((_, i) => RECEB_INTERCO[i] + PAGTO_INTERCO[i])
 
-// Saldo inicial por semana (S1 = extrato; S2..S13 herdam saldo final da semana anterior).
-// Saldo final por semana (encadeado).
-const SALDO_INICIAL_WEEK: number[] = []
-const SALDO_FINAL: number[] = []
-;(() => {
-  let prev = SALDO_INICIAL_S1
-  for (let i = 0; i < 13; i++) {
-    SALDO_INICIAL_WEEK.push(prev)
-    const next = prev + FLUXO_LIQUIDO[i]
-    SALDO_FINAL.push(next)
-    prev = next
-  }
-})()
+// Variação Líquida = soma dos 4 caixas líquidos.
+const VARIACAO_LIQUIDA = CL_OPERACAO.map(
+  (_, i) => CL_OPERACAO[i] + CL_FINANCIAMENTO[i] + CL_INVESTIMENTO[i] + CL_INTERCO[i],
+)
 
 const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0)
 
@@ -215,7 +231,7 @@ export default function FluxoDeCaixa13Semanas() {
         {/* ZONA 2 — KPIs */}
         <Zone2Kpis />
 
-        {/* ZONA 3 — Grid 13 semanas (reescrita) */}
+        {/* ZONA 3 — Grid 13 semanas (DFC pelo método direto) */}
         <Zone3Grid />
 
         {/* Footer pendências */}
@@ -297,7 +313,7 @@ function Zone1Header({
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs (valores atualizados)
+// Zona 2 — KPIs (preservado)
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
@@ -367,7 +383,7 @@ function KpiCard({
 }
 
 // ---------------------------------------------------------------------
-// Zona 3 — Grid 13 semanas (REESCRITA)
+// Zona 3 — Grid 13 semanas (DFC pelo método direto)
 // ---------------------------------------------------------------------
 const FIRST_COL_WIDTH = 280
 const WEEK_COL_WIDTH = 100
@@ -467,21 +483,12 @@ function Zone3Grid() {
         </thead>
 
         <tbody>
-          {/* 1. SALDO INICIAL */}
-          <DataRow
-            label={<span style={{ fontWeight: 600 }}>Saldo Inicial</span>}
-            values={SALDO_INICIAL_WEEK}
-            total={null}
-            cellBg={ROW_BG_TOTAL}
-            labelBg={ROW_BG_TOTAL}
-            labelBold
-            colorOverride={NAVY}
-          />
+          {/* ===================== 1. OPERAÇÃO ===================== */}
+          <SectionHeader label="OPERAÇÃO" />
 
-          {/* 2. ENTRADAS PROJETADAS — section header */}
-          <SectionHeader label="ENTRADAS PROJETADAS" />
+          {/* Sub-header italic muted: receitas */}
+          <SubLabelRow label="Receitas Operacionais" />
 
-          {/* 3. (+) CR a receber */}
           <DataRow
             label={
               <>
@@ -492,8 +499,6 @@ function Zone3Grid() {
             values={CR_RECEBER}
             total={sum(CR_RECEBER)}
           />
-
-          {/* 4. (+) CR vencidos - recuperação */}
           <DataRow
             label={
               <>
@@ -504,23 +509,11 @@ function Zone3Grid() {
             values={CR_RECUPERACAO}
             total={sum(CR_RECUPERACAO)}
           />
+          <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} />
 
-          {/* 5. → TOTAL ENTRADAS */}
-          <DataRow
-            label={<span style={{ fontWeight: 700 }}>→ Total Entradas</span>}
-            values={TOTAL_ENTRADAS}
-            total={sum(TOTAL_ENTRADAS)}
-            cellBg={ROW_BG_TOTAL}
-            labelBg={ROW_BG_TOTAL}
-            labelBold
-            valueBold
-            colorOverride={NAVY}
-          />
+          {/* Sub-header italic muted: saídas */}
+          <SubLabelRow label="Saídas Operacionais" />
 
-          {/* 6. SAÍDAS PROJETADAS — section header */}
-          <SectionHeader label="SAÍDAS PROJETADAS" />
-
-          {/* 7. (−) CP a pagar */}
           <DataRow
             label={
               <>
@@ -531,8 +524,6 @@ function Zone3Grid() {
             values={CP_A_PAGAR}
             total={sum(CP_A_PAGAR)}
           />
-
-          {/* 8. (−) CP vencidos - renegociação */}
           <DataRow
             label={
               <>
@@ -543,93 +534,114 @@ function Zone3Grid() {
             values={CP_VENCIDOS}
             total={sum(CP_VENCIDOS)}
           />
+          <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} />
+          <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} />
+          <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} />
+          <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} />
 
-          {/* 9. (−) Folha (quinzenal) */}
+          {/* Caixa Líquido da Operação */}
           <DataRow
-            label={
-              <>
-                (−) Folha <span style={{ color: MUTED }}>(quinzenal, dia 5 e 20)</span>
-              </>
-            }
-            values={FOLHA}
-            total={sum(FOLHA)}
-          />
-
-          {/* 10. (−) Impostos DAS+ICMS */}
-          <DataRow
-            label={
-              <>
-                (−) Impostos <GlossaryTerm term="DAS">DAS</GlossaryTerm>+
-                <GlossaryTerm term="ICMS">ICMS</GlossaryTerm>{" "}
-                <span style={{ color: MUTED }}>(dia 20)</span>
-              </>
-            }
-            values={IMPOSTOS}
-            total={sum(IMPOSTOS)}
-          />
-
-          {/* 11. (−) Diárias / Terceiros */}
-          <DataRow
-            label={
-              <>
-                (−) Diárias / Terceiros <span style={{ color: MUTED }}>(semanal)</span>
-              </>
-            }
-            values={DIARIAS}
-            total={sum(DIARIAS)}
-          />
-
-          {/* 12. (−) Tarifas Bancárias / IOF */}
-          <DataRow
-            label={
-              <>
-                (−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm>{" "}
-                <span style={{ color: MUTED }}>(semanal)</span>
-              </>
-            }
-            values={TARIFAS}
-            total={sum(TARIFAS)}
-          />
-
-          {/* 13. (−) Empréstimo / Parcela */}
-          <DataRow
-            label={
-              <>
-                (−) Empréstimo / Parcela <span style={{ color: MUTED }}>(mensal)</span>
-              </>
-            }
-            values={EMPRESTIMO}
-            total={sum(EMPRESTIMO)}
-          />
-
-          {/* 14. → TOTAL SAÍDAS */}
-          <DataRow
-            label={<span style={{ fontWeight: 700 }}>→ Total Saídas</span>}
-            values={TOTAL_SAIDAS}
-            total={sum(TOTAL_SAIDAS)}
-            cellBg={ROW_BG_TOTAL}
-            labelBg={ROW_BG_TOTAL}
-            labelBold
-            valueBold
-            colorOverride={NEG}
-          />
-
-          {/* 15. → FLUXO LÍQUIDO DA SEMANA */}
-          <DataRow
-            label={<span style={{ fontWeight: 700 }}>→ Fluxo Líquido da Semana</span>}
-            values={FLUXO_LIQUIDO}
-            total={sum(FLUXO_LIQUIDO)}
-            cellBg={ROW_BG_FLUXO}
-            labelBg={ROW_BG_FLUXO}
+            label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido da Operação</span>}
+            values={CL_OPERACAO}
+            total={sum(CL_OPERACAO)}
+            cellBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBg={ROW_BG_CAIXA_LIQUIDO}
             labelBold
             valueBold
             colorRule="signed"
           />
 
-          {/* 16. SALDO FINAL DA SEMANA */}
+          {/* ===================== 2. FINANCIAMENTO ===================== */}
+          <SectionHeader label="FINANCIAMENTO" />
+
+          <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} />
+          <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} />
+          <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} />
           <DataRow
-            label={<span style={{ fontWeight: 700 }}>Saldo Final da Semana</span>}
-            values={SALDO_FINAL}
+            label={
+              <>
+                (−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm>
+              </>
+            }
+            values={TARIFAS_IOF}
+            total={sum(TARIFAS_IOF)}
+          />
+          <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} />
+
+          <DataRow
+            label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Financiamento</span>}
+            values={CL_FINANCIAMENTO}
+            total={sum(CL_FINANCIAMENTO)}
+            cellBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBold
+            valueBold
+            colorRule="signed"
+          />
+
+          {/* ===================== 3. INVESTIMENTO ===================== */}
+          <SectionHeader label="INVESTIMENTO" />
+
+          <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} />
+          <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} />
+
+          <DataRow
+            label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Investimento</span>}
+            values={CL_INVESTIMENTO}
+            total={sum(CL_INVESTIMENTO)}
+            cellBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBold
+            valueBold
+            colorRule="signed"
+          />
+
+          {/* ===================== 4. ENTRE COMPANHIAS ===================== */}
+          <SectionHeader label="ENTRE COMPANHIAS" />
+
+          <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} />
+          <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} />
+
+          <DataRow
+            label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido Entre Companhias</span>}
+            values={CL_INTERCO}
+            total={sum(CL_INTERCO)}
+            cellBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBg={ROW_BG_CAIXA_LIQUIDO}
+            labelBold
+            valueBold
+            colorRule="signed"
+          />
+
+          {/* ===================== Fechamento ===================== */}
+          {/* Variação Líquida de Caixa — soma dos 4 caixas líquidos */}
+          <DataRow
+            label={<span style={{ fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Variação Líquida de Caixa</span>}
+            values={VARIACAO_LIQUIDA}
+            total={sum(VARIACAO_LIQUIDA)}
+            cellBg={ROW_BG_VARIACAO}
+            labelBg={ROW_BG_VARIACAO}
+            labelBold
+            valueBold
+            colorRule="signed"
+          />
+
+          {/* Caixa - Início do Período (S1 vem do extrato bancário) */}
+          <DataRow
+            label={<span style={{ fontWeight: 700 }}>Caixa - Início do Período</span>}
+            values={CAIXA_INICIO}
+            total={null}
+            cellBg={ROW_BG_SALDO}
+            labelBg={ROW_BG_SALDO}
+            labelBold
+            valueBold
+            colorOverride={NAVY}
+          />
+
+          {/* Caixa - Final do Período (Início + Variação). Negativo: texto vermelho + cell bg #FFF1F1 */}
+          <DataRow
+            label={<span style={{ fontWeight: 700 }}>Caixa - Final do Período</span>}
+            values={CAIXA_FINAL}
             total={null}
             cellBg={ROW_BG_SALDO}
             labelBg={ROW_BG_SALDO}
@@ -639,11 +651,9 @@ function Zone3Grid() {
             negativeCellBg={CELL_NEG_BG}
           />
 
-          {/* 17. Caixa Mínimo Operacional */}
+          {/* Caixa Mínimo Operacional — referência CFOup (R$ 25.000) */}
           <DataRow
-            label={
-              <span style={{ fontStyle: "italic", color: MUTED }}>Caixa Mínimo Operacional</span>
-            }
+            label={<span style={{ fontStyle: "italic", color: MUTED }}>Caixa Mínimo Operacional</span>}
             values={Array.from({ length: 13 }, () => CAIXA_MINIMO_OPERACIONAL)}
             total={null}
             italic
@@ -695,6 +705,49 @@ function SectionHeader({ label }: { label: string }) {
           background: TOTAL_HEADER_BG,
           borderBottom: `1px solid ${LINE}`,
           height: 30,
+        }}
+      />
+    </tr>
+  )
+}
+
+// Sub-header italic muted, sem números (apenas o label aparece, células vazias).
+function SubLabelRow({ label }: { label: string }) {
+  return (
+    <tr>
+      <th
+        scope="row"
+        className="px-4 py-1.5 text-left"
+        style={{
+          position: "sticky",
+          left: 0,
+          zIndex: 1,
+          background: "#FFFFFF",
+          color: MUTED,
+          fontSize: 12,
+          fontWeight: 500,
+          fontStyle: "italic",
+          borderBottom: `1px solid ${LINE}`,
+        }}
+      >
+        {label}
+      </th>
+      {Array.from({ length: 13 }).map((_, i) => (
+        <td
+          key={i}
+          style={{
+            background: "#FFFFFF",
+            borderBottom: `1px solid ${LINE}`,
+            height: 26,
+          }}
+        />
+      ))}
+      <td
+        style={{
+          background: "#FFFFFF",
+          borderBottom: `1px solid ${LINE}`,
+          borderLeft: `1px solid ${LINE}`,
+          height: 26,
         }}
       />
     </tr>
@@ -805,8 +858,8 @@ function NumericCell({
   const isNegative = !isEmpty && (value as number) < 0
 
   // Cor por célula:
-  //  - colorRule "signed": navy quando >=0, vermelho quando <0 (Saldo Final, Fluxo Líquido).
-  //  - colorOverride: sobrepõe (ex: Total Saídas sempre em vermelho, Caixa Mínimo Operacional em muted).
+  //  - colorRule "signed": navy quando >=0, vermelho quando <0 (Caixa Líquido, Variação, Caixa Final).
+  //  - colorOverride: sobrepõe (Caixa Início sempre navy, Caixa Mínimo Operacional sempre muted).
   //  - default: vermelho automático para negativos, INK para positivos.
   let color: string
   if (isEmpty) {
