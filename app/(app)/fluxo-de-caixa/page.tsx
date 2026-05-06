@@ -3,6 +3,13 @@
 import type { ReactNode } from "react"
 import { useState } from "react"
 import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 /**
  * /fluxo-de-caixa
@@ -220,18 +227,24 @@ export default function FluxoDeCaixa13Semanas() {
 }
 
 // ---------------------------------------------------------------------
-// Zona 1 — Header (selector pill segmentado de 3 unidades)
+// Zona 1 — Header (dropdown de unidades)
 // ---------------------------------------------------------------------
-// PLACEHOLDER MOCK — em produção, as N filiais virão do source system do
-// cliente (array dinâmico). "Consolidado" é fixo no final e representa a
-// soma das filiais com transferências internas neutralizadas.
+// PLACEHOLDER MOCK — em produção, as N filiais virão dinamicamente do
+// source system do cliente (ERP, contábil, Open Finance). "Consolidado"
+// é sempre o PRIMEIRO item e representa a soma das filiais com
+// transferências internas neutralizadas; é também o default selecionado.
+// Os labels "Filial 1" / "Filial 2" abaixo são placeholders genéricos:
+// CFOup é multi-tenant para 70k+ clientes com qualquer número de
+// unidades (1, 10, 100). Pill segmentado não escala — dropdown sim.
+// Para tenants com listas longas (50+ unidades) adicionar filter/search
+// no dropdown numa iteração futura. Para o MVP, dropdown simples basta.
 // Estrutura esperada em prod:
 //   const filiais = await fetchFiliais(tenantId)            // [{id, label}]
-//   const UNIDADES = [...filiais, { id: "consolidado", label: "Consolidado" }]
+//   const UNIDADES = [{ id: "consolidado", label: "Consolidado" }, ...filiais]
 const UNIDADES: { id: UnidadeId; label: string }[] = [
+  { id: "consolidado", label: "Consolidado" },
   { id: "filial-1", label: "Filial 1" },
   { id: "filial-2", label: "Filial 2" },
-  { id: "consolidado", label: "Consolidado" },
 ]
 
 function Zone1Header({
@@ -255,8 +268,9 @@ function Zone1Header({
         </p>
       </div>
 
-      {/* Selector de unidade. Label "Unidade:" fica fora do pill, à esquerda.
-          Mock: clique apenas troca estado visual; valores da grid não mudam. */}
+      {/* Selector de unidade. Label "Unidade:" fica fora do controle, à esquerda.
+          Dropdown único — escala para qualquer nº de unidades do tenant.
+          Mock: selecionar muda apenas o estado visual; valores da grid não mudam. */}
       <div className="inline-flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
         <span
           className="text-[11px] font-semibold uppercase"
@@ -264,31 +278,30 @@ function Zone1Header({
         >
           Unidade:
         </span>
-        <div
-          className="inline-flex items-center gap-1"
-          role="tablist"
-          aria-label="Unidade"
-        >
-          {UNIDADES.map((u) => {
-            const active = unidade === u.id
-            return (
-              <button
+        <Select value={unidade} onValueChange={setUnidade}>
+          <SelectTrigger
+            aria-label="Unidade"
+            className="h-auto min-w-[180px] gap-2 rounded-md border bg-white px-3 py-2 text-[13px] font-semibold focus:ring-0 focus:ring-offset-0"
+            style={{ borderColor: LINE, color: NAVY }}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            className="border bg-white"
+            style={{ borderColor: LINE, color: NAVY, fontFamily: "var(--font-sans)" }}
+          >
+            {UNIDADES.map((u) => (
+              <SelectItem
                 key={u.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setUnidade(u.id)}
-                className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-                style={{
-                  background: active ? NAVY : "#FFFFFF",
-                  color: active ? "#FFFFFF" : NAVY,
-                  border: `1px solid ${active ? NAVY : LINE}`,
-                }}
+                value={u.id}
+                className="text-[13px] font-semibold"
+                style={{ color: NAVY }}
               >
                 {u.label}
-              </button>
-            )
-          })}
-        </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <button
