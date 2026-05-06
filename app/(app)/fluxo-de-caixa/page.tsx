@@ -2,15 +2,15 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react"
+import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw } from "lucide-react"
 
 /**
  * /fluxo-de-caixa
  *
  * DFC pelo método direto em janela rolante de 13 semanas, com 4 atividades
  * — Operação, Financiamento, Investimento e Entre Companhias — cada qual
- * fechando em uma linha "Caixa Líquido". Linhas de fechamento agregam
- * Variação Líquida, Caixa de Início e Caixa de Final do período.
+ * fechando em uma linha "Líquido". Linhas de fechamento agregam Variação
+ * Líquida e os saldos de Início/Final do período.
  *
  * DEMO visual. Quando o Núcleo de Dados for plugado, os arrays MOCK_*
  * abaixo são substituídos por um hook do tipo useCashflow13w(activeUnit)
@@ -18,23 +18,23 @@ import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react"
  */
 
 // =====================================================================
-// Tokens — paleta minimalista. Totais perdem fundo navy: distinção só por
-// peso/cor e, para Total/Depois, um separador esquerdo cinza (#E5EBF2 4px).
+// Tokens
 // =====================================================================
 const NAVY = "#071D3B"
 const BLUE = "#1567C8"
 const CYAN = "#38B8E8"
 const GREEN = "#36BA58"
-const NEG = "#D14343"      // negativo, sempre #D14343 (fundo claro, único agora)
+const NEG = "#D14343"
 const WARN = "#E08B00"
 const INK = "#0F1B2D"
 const MUTED = "#5B6B82"
 const LINE = "#E5EBF2"
 const BG = "#F7F9FC"
+// (1) Cor única dos subtotais e linhas de saldo: azul claro #DCE7F5 com texto navy bold.
+const SUBTOTAL_BG = "#DCE7F5"
 
 // =====================================================================
 // Janela de 13 semanas (sempre segunda → domingo)
-// Hoje (05/05/26) cai na S1; S13 cobre 27/07-02/08, com mínimo em 28/07.
 // =====================================================================
 type WeekHeader = { label: string; mondayLabel: string }
 const WEEKS: WeekHeader[] = [
@@ -54,7 +54,7 @@ const WEEKS: WeekHeader[] = [
 ]
 
 // =====================================================================
-// Mocks Gregorutt (inalterados — engenharia mínima em S13 = -251.633)
+// Mocks Gregorutt (engenharia mínima em S13 = -251.633)
 // =====================================================================
 const CAIXA_MINIMO_OPERACIONAL = 25_000
 
@@ -98,13 +98,13 @@ const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0)
 const sumByWeek = (arrs: number[][]) =>
   Array.from({ length: 13 }, (_, i) => arrs.reduce((acc, a) => acc + a[i], 0))
 
-// --- Subtotais por sub-grupo (mostrados quando o sub-grupo está colapsado) ---
+// --- Subtotais por sub-grupo (sempre visíveis, mesmo com sub-rows expandidas) ---
 const REC_OP_SUB_BY_WEEK = sumByWeek([CR_RECEBER, CR_RECUPERACAO, OUTRAS_RECEITAS])
 const SAI_OP_SUB_BY_WEEK = sumByWeek([CP_A_PAGAR, CP_VENCIDOS, FOLHA, TRIBUTOS_VENDAS, ENCARGOS_TRAB, DESPESAS_OPER])
 const REC_OP_BEYOND = BEYOND_CR_RECEBER + 0 + 0
 const SAI_OP_BEYOND = BEYOND_CP_A_PAGAR + 0 + 0 + 0 + 0 + 0
 
-// --- Caixa Líquido por atividade ---
+// --- Líquidos por atividade ---
 const CL_OPERACAO = REC_OP_SUB_BY_WEEK.map((v, i) => v + SAI_OP_SUB_BY_WEEK[i])
 const CL_FINANCIAMENTO = sumByWeek([EMPRESTIMOS_NOVOS, APORTE_SOCIOS, EMPRESTIMO_FIN, TARIFAS_IOF, RETIRADA_SOCIOS])
 const CL_INVESTIMENTO = sumByWeek([VENDA_EQUIP, COMPRA_EQUIP])
@@ -119,8 +119,7 @@ const VARIACAO_LIQUIDA = CL_OPERACAO.map((_, i) => CL_OPERACAO[i] + CL_FINANCIAM
 const VARIACAO_BEYOND = CL_OPERACAO_BEYOND + CL_FIN_BEYOND + CL_INV_BEYOND + CL_IC_BEYOND
 
 // =====================================================================
-// Formatador compacto: sem "R$", parênteses contábeis para negativos,
-// "—" para 0/null. "Valores em R$" entra como rótulo único no header.
+// Formatador compacto
 // =====================================================================
 function fmtCompact(v: number | null | undefined): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "—"
@@ -184,8 +183,13 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 // =====================================================================
 // Página
 // =====================================================================
+// NOTA: "Gregorutt" é nome do cliente, não de unidade. As 2 unidades reais
+// são as filiais (Gregorutt Indústria e LR Dias Transportes). "Consolidado"
+// = soma das duas com transferências internas neutralizadas.
+type UnidadeId = "gregorutt" | "lrdias" | "consolidado"
+
 export default function FluxoDeCaixa13Semanas() {
-  const [escopo, setEscopo] = useState<"unidade" | "consolidado">("unidade")
+  const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
 
   return (
     <div
@@ -193,7 +197,7 @@ export default function FluxoDeCaixa13Semanas() {
       style={{ background: BG, color: INK, fontFamily: "var(--font-sans)" }}
     >
       <div className="mx-auto w-full max-w-[1340px]">
-        <Zone1Header escopo={escopo} setEscopo={setEscopo} />
+        <Zone1Header unidade={unidade} setUnidade={setUnidade} />
         <Zone2Kpis />
         <Zone3Grid />
         <FooterPendencias />
@@ -203,19 +207,24 @@ export default function FluxoDeCaixa13Semanas() {
 }
 
 // ---------------------------------------------------------------------
-// Zona 1 — Header
+// Zona 1 — Header (selector pill segmentado de 3 unidades)
 // ---------------------------------------------------------------------
+const UNIDADES: { id: UnidadeId; label: string }[] = [
+  { id: "gregorutt", label: "Gregorutt Indústria" },
+  { id: "lrdias", label: "LR Dias Transportes" },
+  { id: "consolidado", label: "Consolidado" },
+]
+
 function Zone1Header({
-  escopo,
-  setEscopo,
+  unidade,
+  setUnidade,
 }: {
-  escopo: "unidade" | "consolidado"
-  setEscopo: (v: "unidade" | "consolidado") => void
+  unidade: UnidadeId
+  setUnidade: (v: UnidadeId) => void
 }) {
   return (
     <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        {/* (7) Título: "Fluxo de Caixa" sem "13 semanas" */}
         <h1
           className="text-[28px] font-semibold leading-tight tracking-tight"
           style={{ color: NAVY, fontFamily: "var(--font-serif)" }}
@@ -227,40 +236,35 @@ function Zone1Header({
         </p>
       </div>
 
-      {/* (6) Toggle Unidade — Montserrat 13px, pill clean. */}
+      {/* Pill segmentado — 3 unidades. Mock: clique apenas troca estado visual. */}
       <div
         className="inline-flex items-center gap-1 rounded-full border p-1"
         role="tablist"
-        aria-label="Escopo de visualização"
+        aria-label="Unidade"
         style={{ borderColor: LINE, background: "#FFFFFF", fontFamily: "var(--font-sans)" }}
       >
         <span className="px-2.5 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>
           Unidade
         </span>
-        <button
-          role="tab"
-          aria-selected={escopo === "unidade"}
-          onClick={() => setEscopo("unidade")}
-          className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-          style={{
-            background: escopo === "unidade" ? NAVY : "transparent",
-            color: escopo === "unidade" ? "#FFFFFF" : MUTED,
-          }}
-        >
-          Gregorutt
-        </button>
-        <button
-          role="tab"
-          aria-selected={escopo === "consolidado"}
-          onClick={() => setEscopo("consolidado")}
-          className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-          style={{
-            background: escopo === "consolidado" ? NAVY : "transparent",
-            color: escopo === "consolidado" ? "#FFFFFF" : MUTED,
-          }}
-        >
-          Consolidado
-        </button>
+        {UNIDADES.map((u) => {
+          const active = unidade === u.id
+          return (
+            <button
+              key={u.id}
+              role="tab"
+              aria-selected={active}
+              onClick={() => setUnidade(u.id)}
+              className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+              style={{
+                background: active ? NAVY : "transparent",
+                color: active ? "#FFFFFF" : MUTED,
+                border: active ? "none" : `1px solid transparent`,
+              }}
+            >
+              {u.label}
+            </button>
+          )
+        })}
       </div>
 
       <button
@@ -276,7 +280,7 @@ function Zone1Header({
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs (Montserrat, valor 18px navy semi-bold, mais compactos)
+// Zona 2 — KPIs
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
@@ -309,7 +313,6 @@ function KpiCard({ label, value, sub, valueColor }: { label: string; value: stri
       <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>
         {label}
       </p>
-      {/* (4) Valor: Montserrat 18px navy semi-bold (sem Fraunces) */}
       <p
         className="mt-1.5 text-[18px] font-semibold leading-tight tabular-nums"
         style={{ color: valueColor ?? NAVY, fontVariantNumeric: "tabular-nums" }}
@@ -324,21 +327,19 @@ function KpiCard({ label, value, sub, valueColor }: { label: string; value: stri
 }
 
 // ---------------------------------------------------------------------
-// Zona 3 — Grid 13 semanas (DFC pelo método direto, expand/collapse 2 níveis)
+// Zona 3 — Grid 13 semanas
 // ---------------------------------------------------------------------
 const FIRST_COL_WIDTH = 220
 const WEEK_COL_WIDTH = 65
 const TOTAL_COL_WIDTH = 95
 const BEYOND_COL_WIDTH = 95
-// (3) Separador discreto antes das colunas Total / Depois da S13.
 const TOTAL_BORDER_LEFT = `4px solid ${LINE}`
 const HEADER_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
+const ALL_KEYS: (keyof OpenState)[] = ["op", "op_rec", "op_sai", "fin", "inv", "ic"]
 
 function Zone3Grid() {
-  // DEFAULT: Operação aberta como container, mas com sub-grupos colapsados
-  // (mostra subtotais Receitas/Saídas Op por semana). Demais atividades fechadas.
   const [open, setOpen] = useState<OpenState>({
     op: true,
     op_rec: false,
@@ -348,10 +349,13 @@ function Zone3Grid() {
     ic: false,
   })
   const toggle = (k: keyof OpenState) => setOpen((p) => ({ ...p, [k]: !p[k] }))
+  // (4) Recolher / Expandir tudo — mexe nos 6 chevrons de uma vez.
+  const expandAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: true }), {} as OpenState))
+  const collapseAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: false }), {} as OpenState))
 
   return (
     <section className="rounded-lg border bg-white" style={{ borderColor: LINE }} aria-label="Grade de fluxo de caixa em 13 semanas">
-      {/* Sub-header da tabela: rótulo único de unidade monetária */}
+      {/* Sub-header da tabela: rótulo + botões expandir/recolher tudo */}
       <div
         className="flex items-center justify-between gap-2 border-b px-4 py-2"
         style={{ borderColor: LINE }}
@@ -359,9 +363,26 @@ function Zone3Grid() {
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>
           Valores em R$
         </span>
-        <span className="text-[11px]" style={{ color: MUTED }}>
-          Negativos exibidos entre parênteses
-        </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={collapseAll}
+            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
+            style={{ borderColor: LINE, color: NAVY }}
+          >
+            <ChevronsUp className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
+            Recolher tudo
+          </button>
+          <button
+            type="button"
+            onClick={expandAll}
+            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
+            style={{ borderColor: LINE, color: NAVY }}
+          >
+            <ChevronsDown className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
+            Expandir tudo
+          </button>
+        </div>
       </div>
 
       {/* Wrapper com scrollbars sempre visíveis. */}
@@ -404,7 +425,6 @@ function Zone3Grid() {
               >
                 Categoria
               </th>
-              {/* (5) Header semana: 65px, "S1" + "04/Mai/26" */}
               {WEEKS.map((w, i) => (
                 <th
                   key={i}
@@ -451,7 +471,6 @@ function Zone3Grid() {
                   <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">13 sem</span>
                 </div>
               </th>
-              {/* (1) "Beyond" → "Depois da S13" */}
               <th
                 scope="col"
                 className="px-1.5 py-2 text-right"
@@ -476,12 +495,21 @@ function Zone3Grid() {
           </thead>
 
           <tbody>
+            {/* (2) Caixa Início do Período — agora ABRE a tabela */}
+            <DataRow
+              label="Caixa Início do Período"
+              values={CAIXA_INICIO}
+              total={null}
+              beyond={null}
+              variant="subtotal"
+            />
+
             {/* ===================== 1. OPERAÇÃO ===================== */}
             <SectionHeader label="OPERAÇÃO" expanded={open.op} onToggle={() => toggle("op")} />
 
             {open.op && (
               <>
-                {/* (8) Sub-grupo nível 0: Receitas Operacionais — fontWeight 600 */}
+                {/* (1) Receitas Operacionais — subtotal AZUL CLARO bold; valor sempre visível */}
                 <SubGroupHeader
                   label="Receitas Operacionais"
                   expanded={open.op_rec}
@@ -508,7 +536,7 @@ function Zone3Grid() {
                   </>
                 )}
 
-                {/* (8) Sub-grupo nível 0: Saídas Operacionais — fontWeight 600 */}
+                {/* (1) Saídas Operacionais — subtotal AZUL CLARO bold; valor sempre visível */}
                 <SubGroupHeader
                   label="Saídas Operacionais"
                   expanded={open.op_sai}
@@ -540,13 +568,13 @@ function Zone3Grid() {
               </>
             )}
 
-            {/* (8) Caixa Líquido da atividade — fontWeight 700 navy, fundo branco */}
+            {/* (3) "Caixa Líquido X" → "Líquido X". Variant subtotal (azul claro bold). */}
             <DataRow
-              label="→ Caixa Líquido da Operação"
+              label="→ Líquido da Operação"
               values={CL_OPERACAO}
               total={sum(CL_OPERACAO)}
               beyond={CL_OPERACAO_BEYOND}
-              variant="caixaLiquido"
+              variant="subtotal"
             />
 
             {/* ===================== 2. FINANCIAMENTO ===================== */}
@@ -566,11 +594,11 @@ function Zone3Grid() {
               </>
             )}
             <DataRow
-              label="→ Caixa Líquido do Financiamento"
+              label="→ Líquido do Financiamento"
               values={CL_FINANCIAMENTO}
               total={sum(CL_FINANCIAMENTO)}
               beyond={CL_FIN_BEYOND}
-              variant="caixaLiquido"
+              variant="subtotal"
             />
 
             {/* ===================== 3. INVESTIMENTO ===================== */}
@@ -582,11 +610,11 @@ function Zone3Grid() {
               </>
             )}
             <DataRow
-              label="→ Caixa Líquido do Investimento"
+              label="→ Líquido do Investimento"
               values={CL_INVESTIMENTO}
               total={sum(CL_INVESTIMENTO)}
               beyond={CL_INV_BEYOND}
-              variant="caixaLiquido"
+              variant="subtotal"
             />
 
             {/* ===================== 4. ENTRE COMPANHIAS ===================== */}
@@ -598,34 +626,28 @@ function Zone3Grid() {
               </>
             )}
             <DataRow
-              label="→ Caixa Líquido Entre Companhias"
+              label="→ Líquido Entre Companhias"
               values={CL_INTERCO}
               total={sum(CL_INTERCO)}
               beyond={CL_IC_BEYOND}
-              variant="caixaLiquido"
+              variant="subtotal"
             />
 
-            {/* ===================== Fechamento (todos fundo branco, navy 700) ===================== */}
+            {/* ===================== Fechamento ===================== */}
             <DataRow
-              label="VARIAÇÃO LÍQUIDA DE CAIXA"
+              label="VARIAÇÃO LÍQUIDA DO CAIXA"
               values={VARIACAO_LIQUIDA}
               total={sum(VARIACAO_LIQUIDA)}
               beyond={VARIACAO_BEYOND}
-              variant="variacao"
+              variant="subtotal"
+              upperLabel
             />
             <DataRow
-              label="Caixa - Início do Período"
-              values={CAIXA_INICIO}
-              total={null}
-              beyond={null}
-              variant="saldo"
-            />
-            <DataRow
-              label="Caixa - Final do Período"
+              label="Caixa Final do Período"
               values={CAIXA_FINAL}
               total={null}
               beyond={null}
-              variant="saldo"
+              variant="subtotal"
             />
             <DataRow
               label="Caixa Mínimo Operacional"
@@ -643,8 +665,7 @@ function Zone3Grid() {
 }
 
 // =====================================================================
-// SectionHeader (nível 1) — (2) BRANCO, navy bold uppercase 11px,
-// 8px de espaçamento vertical antes da seção. Sem fill navy.
+// SectionHeader (nível 1) — fundo branco, navy bold uppercase 11px, com chevron.
 // =====================================================================
 function SectionHeader({
   label,
@@ -683,7 +704,7 @@ function SectionHeader({
           fontWeight: 700,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
-          paddingTop: 8, // espaçamento de 8px antes da seção
+          paddingTop: 8,
           paddingBottom: 6,
           borderBottom: `1px solid ${LINE}`,
         }}
@@ -714,8 +735,8 @@ function SectionHeader({
 
 // =====================================================================
 // SubGroupHeader (nível 2) — Receitas/Saídas Operacionais.
-// Quando colapsado: subtotal por semana/total/depois. Quando expandido: cells vazias.
-// (8) fontWeight 600 navy.
+// (1) Fundo #DCE7F5 + navy bold. CRÍTICO: subtotal SEMPRE visível, mesmo
+// quando expandido — sub-rows aparecem ABAIXO desta linha.
 // =====================================================================
 function SubGroupHeader({
   label,
@@ -733,8 +754,6 @@ function SubGroupHeader({
   subtotalBeyond: number
 }) {
   const Icon = expanded ? ChevronDown : ChevronRight
-  const labelBg = "#FAFBFD"
-
   return (
     <tr
       onClick={onToggle}
@@ -756,44 +775,40 @@ function SubGroupHeader({
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: labelBg,
+          background: SUBTOTAL_BG,
           color: NAVY,
           fontSize: 11,
-          fontWeight: 600,
+          fontWeight: 700,
           borderBottom: `1px solid ${LINE}`,
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: MUTED }} />
+          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
           {label}
         </span>
       </th>
-      {expanded
-        ? Array.from({ length: 13 }).map((_, i) => (
-            <td key={i} style={{ background: labelBg, borderBottom: `1px solid ${LINE}`, height: 24 }} />
-          ))
-        : subtotalValues.map((v, i) => (
-            <NumericCell
-              key={i}
-              value={v}
-              baseBg={labelBg}
-              fontWeight={600}
-              colorRule="signed"
-              borderBottom={`1px solid ${LINE}`}
-            />
-          ))}
+      {subtotalValues.map((v, i) => (
+        <NumericCell
+          key={i}
+          value={v}
+          baseBg={SUBTOTAL_BG}
+          fontWeight={700}
+          colorRule="signed"
+          borderBottom={`1px solid ${LINE}`}
+        />
+      ))}
       <NumericCell
-        value={expanded ? null : subtotalTotal}
-        baseBg={labelBg}
-        fontWeight={600}
+        value={subtotalTotal}
+        baseBg={SUBTOTAL_BG}
+        fontWeight={700}
         colorRule="signed"
         borderBottom={`1px solid ${LINE}`}
         isTotalCol
       />
       <NumericCell
-        value={expanded ? null : subtotalBeyond}
-        baseBg={labelBg}
-        fontWeight={600}
+        value={subtotalBeyond}
+        baseBg={SUBTOTAL_BG}
+        fontWeight={700}
         colorRule="signed"
         borderBottom={`1px solid ${LINE}`}
         isTotalCol
@@ -804,13 +819,11 @@ function SubGroupHeader({
 
 // =====================================================================
 // DataRow — variantes:
-//   default     : peso 500 INK, label NAVY 500
-//   caixaLiquido: peso 700 NAVY, label NAVY 700
-//   variacao    : peso 700 NAVY uppercase
-//   saldo       : peso 700 NAVY (Caixa Início/Final)
-//   muted       : muted italic (Caixa Mínimo Operacional)
+//   default  : peso 500 INK/NAVY (linhas analíticas)
+//   subtotal : (1) fundo #DCE7F5 + texto navy bold 700 (Líquidos, Variação, Caixa Início/Final)
+//   muted    : muted italic (Caixa Mínimo Operacional)
 // =====================================================================
-type RowVariant = "default" | "caixaLiquido" | "variacao" | "saldo" | "muted"
+type RowVariant = "default" | "subtotal" | "muted"
 
 function DataRow({
   label,
@@ -818,6 +831,7 @@ function DataRow({
   total,
   beyond = null,
   variant = "default",
+  upperLabel = false,
   isLast = false,
 }: {
   label: ReactNode
@@ -825,34 +839,24 @@ function DataRow({
   total: number | null
   beyond?: number | null
   variant?: RowVariant
+  upperLabel?: boolean
   isLast?: boolean
 }) {
   const borderBottom = isLast ? "none" : `1px solid ${LINE}`
 
-  // Resolve estilos por variant.
   let labelColor = NAVY
   let valueWeight: 400 | 500 | 600 | 700 = 500
   let labelWeight: 400 | 500 | 600 | 700 = 500
   let italic = false
-  let upperLabel = false
   let colorRule: "default" | "signed" = "default"
+  let rowBg = "#FFFFFF"
 
   switch (variant) {
-    case "caixaLiquido":
+    case "subtotal":
       labelWeight = 700
       valueWeight = 700
       colorRule = "signed"
-      break
-    case "variacao":
-      labelWeight = 700
-      valueWeight = 700
-      upperLabel = true
-      colorRule = "signed"
-      break
-    case "saldo":
-      labelWeight = 700
-      valueWeight = 700
-      colorRule = "signed"
+      rowBg = SUBTOTAL_BG
       break
     case "muted":
       labelColor = MUTED
@@ -875,7 +879,7 @@ function DataRow({
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: "#FFFFFF",
+          background: rowBg,
           color: labelColor,
           fontSize: 11,
           fontWeight: labelWeight,
@@ -891,7 +895,7 @@ function DataRow({
         <NumericCell
           key={i}
           value={v}
-          baseBg="#FFFFFF"
+          baseBg={rowBg}
           fontWeight={valueWeight}
           italic={italic}
           colorOverride={variant === "muted" ? MUTED : undefined}
@@ -901,7 +905,7 @@ function DataRow({
       ))}
       <NumericCell
         value={total}
-        baseBg="#FFFFFF"
+        baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
         colorOverride={variant === "muted" ? MUTED : undefined}
@@ -911,7 +915,7 @@ function DataRow({
       />
       <NumericCell
         value={beyond}
-        baseBg="#FFFFFF"
+        baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
         colorOverride={variant === "muted" ? MUTED : undefined}
@@ -924,8 +928,7 @@ function DataRow({
 }
 
 // =====================================================================
-// NumericCell — coluna Total/Depois ganha border-left 4px #E5EBF2
-// e font-weight mínimo 600 (regra (3)).
+// NumericCell
 // =====================================================================
 function NumericCell({
   value,
@@ -955,7 +958,6 @@ function NumericCell({
   } else if (colorOverride) {
     color = colorOverride
   } else if (colorRule === "signed") {
-    // (9) Negativos: #D14343 + parênteses (parens vêm do fmtCompact)
     color = isNegative ? NEG : NAVY
   } else {
     color = isNegative ? NEG : INK
