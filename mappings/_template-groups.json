@@ -1,0 +1,20 @@
+{
+  "customers": [
+    {
+      "groupId": "grp_example",
+      "groupName": "Grupo Exemplo",
+      "members": [
+        { "customerCode": "000123", "customerNameNormalized": "EMPRESA EXEMPLO LTDA" }
+      ]
+    }
+  ],
+  "suppliers": [
+    {
+      "groupId": "grp_example_supplier",
+      "groupName": "Grupo Fornecedor Exemplo",
+      "members": [
+        { "supplierNameNormalized": "FORNECEDOR EXEMPLO" }
+      ]
+    }
+  ]
+}
