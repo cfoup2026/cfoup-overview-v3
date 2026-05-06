@@ -388,8 +388,10 @@ function KpiCard({
 const FIRST_COL_WIDTH = 280
 const WEEK_COL_WIDTH = 100
 const TOTAL_COL_WIDTH = 110
+const BEYOND_COL_WIDTH = 110
 const HEADER_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
 const TOTAL_HEADER_BG = NAVY_DARK
+const BEYOND_HEADER_BG = NAVY_DARK
 
 function Zone3Grid() {
   return (
@@ -402,7 +404,7 @@ function Zone3Grid() {
         className="w-full border-separate text-[13px]"
         style={{
           borderSpacing: 0,
-          minWidth: FIRST_COL_WIDTH + 13 * WEEK_COL_WIDTH + TOTAL_COL_WIDTH,
+          minWidth: FIRST_COL_WIDTH + 13 * WEEK_COL_WIDTH + TOTAL_COL_WIDTH + BEYOND_COL_WIDTH,
           fontFamily: "var(--font-sans)",
         }}
       >
@@ -412,6 +414,7 @@ function Zone3Grid() {
             <col key={i} style={{ width: WEEK_COL_WIDTH }} />
           ))}
           <col style={{ width: TOTAL_COL_WIDTH }} />
+          <col style={{ width: BEYOND_COL_WIDTH }} />
         </colgroup>
 
         <thead>
@@ -479,6 +482,26 @@ function Zone3Grid() {
                 <span className="text-[10px] font-semibold opacity-80 tracking-normal normal-case">13 sem</span>
               </div>
             </th>
+            <th
+              scope="col"
+              className="px-2 py-2 text-right"
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 3,
+                background: BEYOND_HEADER_BG,
+                color: "#FFFFFF",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+              }}
+            >
+              <div className="flex flex-col items-end leading-tight">
+                <span>Beyond</span>
+                <span className="text-[10px] font-semibold opacity-80 tracking-normal normal-case">após S13</span>
+              </div>
+            </th>
           </tr>
         </thead>
 
@@ -498,6 +521,7 @@ function Zone3Grid() {
             }
             values={CR_RECEBER}
             total={sum(CR_RECEBER)}
+            beyond={18_520}
           />
           <DataRow
             label={
@@ -508,8 +532,9 @@ function Zone3Grid() {
             }
             values={CR_RECUPERACAO}
             total={sum(CR_RECUPERACAO)}
+            beyond={0}
           />
-          <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} />
+          <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} />
 
           {/* Sub-header italic muted: saídas */}
           <SubLabelRow label="Saídas Operacionais" />
@@ -523,6 +548,7 @@ function Zone3Grid() {
             }
             values={CP_A_PAGAR}
             total={sum(CP_A_PAGAR)}
+            beyond={-12_430}
           />
           <DataRow
             label={
@@ -533,11 +559,12 @@ function Zone3Grid() {
             }
             values={CP_VENCIDOS}
             total={sum(CP_VENCIDOS)}
+            beyond={0}
           />
-          <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} />
-          <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} />
-          <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} />
-          <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} />
+          <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} />
+          <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} />
+          <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} />
+          <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} />
 
           {/* Caixa Líquido da Operação */}
           <DataRow
@@ -554,9 +581,9 @@ function Zone3Grid() {
           {/* ===================== 2. FINANCIAMENTO ===================== */}
           <SectionHeader label="FINANCIAMENTO" />
 
-          <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} />
-          <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} />
-          <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} />
+          <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} />
+          <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} />
+          <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={-22_170} />
           <DataRow
             label={
               <>
@@ -565,8 +592,9 @@ function Zone3Grid() {
             }
             values={TARIFAS_IOF}
             total={sum(TARIFAS_IOF)}
+            beyond={0}
           />
-          <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} />
+          <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} />
 
           <DataRow
             label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Financiamento</span>}
@@ -582,8 +610,8 @@ function Zone3Grid() {
           {/* ===================== 3. INVESTIMENTO ===================== */}
           <SectionHeader label="INVESTIMENTO" />
 
-          <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} />
-          <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} />
+          <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} />
+          <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} />
 
           <DataRow
             label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Investimento</span>}
@@ -599,8 +627,8 @@ function Zone3Grid() {
           {/* ===================== 4. ENTRE COMPANHIAS ===================== */}
           <SectionHeader label="ENTRE COMPANHIAS" />
 
-          <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} />
-          <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} />
+          <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} />
+          <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} />
 
           <DataRow
             label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido Entre Companhias</span>}
@@ -707,6 +735,13 @@ function SectionHeader({ label }: { label: string }) {
           height: 30,
         }}
       />
+      <td
+        style={{
+          background: BEYOND_HEADER_BG,
+          borderBottom: `1px solid ${LINE}`,
+          height: 30,
+        }}
+      />
     </tr>
   )
 }
@@ -750,6 +785,14 @@ function SubLabelRow({ label }: { label: string }) {
           height: 26,
         }}
       />
+      <td
+        style={{
+          background: "#FFFFFF",
+          borderBottom: `1px solid ${LINE}`,
+          borderLeft: `1px solid ${LINE}`,
+          height: 26,
+        }}
+      />
     </tr>
   )
 }
@@ -760,6 +803,7 @@ function DataRow({
   label,
   values,
   total,
+  beyond = null,
   cellBg = "#FFFFFF",
   labelBg,
   labelBold = false,
@@ -773,6 +817,7 @@ function DataRow({
   label: ReactNode
   values: number[]
   total: number | null
+  beyond?: number | null
   cellBg?: string
   labelBg?: string
   labelBold?: boolean
@@ -820,6 +865,18 @@ function DataRow({
       {/* Coluna Total 13 sem */}
       <NumericCell
         value={total}
+        baseBg={cellBg}
+        bold={valueBold}
+        italic={italic}
+        colorOverride={colorOverride}
+        colorRule={colorRule}
+        negativeCellBg={negativeCellBg}
+        borderBottom={borderBottom}
+        isTotal
+      />
+      {/* Coluna Beyond — valores que ocorrem após as 13 semanas (reconciliação contra AR/AP/empréstimo) */}
+      <NumericCell
+        value={beyond}
         baseBg={cellBg}
         bold={valueBold}
         italic={italic}
