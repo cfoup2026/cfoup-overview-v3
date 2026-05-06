@@ -7,11 +7,10 @@ import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react"
 /**
  * /fluxo-de-caixa
  *
- * Hub central da Mesa de Decisão: caixa em janela rolante de 13 semanas.
- * DFC pelo método direto (Cash Flow Statement adaptado a 13 semanas), com
- * 4 atividades — Operação, Financiamento, Investimento e Entre Companhias —
- * cada qual fechando em uma linha "Caixa Líquido". Linhas de fechamento
- * agregam Variação Líquida, Caixa de Início e Caixa de Final do período.
+ * DFC pelo método direto em janela rolante de 13 semanas, com 4 atividades
+ * — Operação, Financiamento, Investimento e Entre Companhias — cada qual
+ * fechando em uma linha "Caixa Líquido". Linhas de fechamento agregam
+ * Variação Líquida, Caixa de Início e Caixa de Final do período.
  *
  * DEMO visual. Quando o Núcleo de Dados for plugado, os arrays MOCK_*
  * abaixo são substituídos por um hook do tipo useCashflow13w(activeUnit)
@@ -19,50 +18,43 @@ import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react"
  */
 
 // =====================================================================
-// Tokens
+// Tokens — paleta minimalista. Totais perdem fundo navy: distinção só por
+// peso/cor e, para Total/Depois, um separador esquerdo cinza (#E5EBF2 4px).
 // =====================================================================
 const NAVY = "#071D3B"
-const NAVY_MID = "#0A2647"   // subtotais "Caixa Líquido" e Variação Líquida
-const NAVY_DARK = "#051634"  // Caixa Início/Final, header e cells da col Total/Beyond
 const BLUE = "#1567C8"
 const CYAN = "#38B8E8"
 const GREEN = "#36BA58"
-const NEG = "#D14343"        // negativo em fundo claro (parênteses contábeis)
-const NEG_DARK = "#FF8B8B"   // negativo em fundo escuro (Caixa Líquido / Variação / Saldos / col Total)
+const NEG = "#D14343"      // negativo, sempre #D14343 (fundo claro, único agora)
 const WARN = "#E08B00"
 const INK = "#0F1B2D"
 const MUTED = "#5B6B82"
 const LINE = "#E5EBF2"
 const BG = "#F7F9FC"
 
-// Linhas de subtotal/fechamento — todas dark navy.
-const ROW_BG_CAIXA_LIQUIDO = NAVY_MID
-const ROW_BG_VARIACAO = NAVY_MID
-const ROW_BG_SALDO = NAVY_DARK
-const TOTAL_COL_BG = NAVY_DARK // background fixo das células das colunas Total/Beyond
-
 // =====================================================================
-// Janela de 13 semanas (segunda-domingo, abrindo em 05/05)
+// Janela de 13 semanas (sempre segunda → domingo)
+// Hoje (05/05/26) cai na S1; S13 cobre 27/07-02/08, com mínimo em 28/07.
 // =====================================================================
-type WeekHeader = { label: string; range: string }
+type WeekHeader = { label: string; mondayLabel: string }
 const WEEKS: WeekHeader[] = [
-  { label: "S1", range: "05/05-11/05" },
-  { label: "S2", range: "12/05-18/05" },
-  { label: "S3", range: "19/05-25/05" },
-  { label: "S4", range: "26/05-01/06" },
-  { label: "S5", range: "02/06-08/06" },
-  { label: "S6", range: "09/06-15/06" },
-  { label: "S7", range: "16/06-22/06" },
-  { label: "S8", range: "23/06-29/06" },
-  { label: "S9", range: "30/06-06/07" },
-  { label: "S10", range: "07/07-13/07" },
-  { label: "S11", range: "14/07-20/07" },
-  { label: "S12", range: "21/07-27/07" },
-  { label: "S13", range: "28/07-03/08" },
+  { label: "S1",  mondayLabel: "04/Mai/26" },
+  { label: "S2",  mondayLabel: "11/Mai/26" },
+  { label: "S3",  mondayLabel: "18/Mai/26" },
+  { label: "S4",  mondayLabel: "25/Mai/26" },
+  { label: "S5",  mondayLabel: "01/Jun/26" },
+  { label: "S6",  mondayLabel: "08/Jun/26" },
+  { label: "S7",  mondayLabel: "15/Jun/26" },
+  { label: "S8",  mondayLabel: "22/Jun/26" },
+  { label: "S9",  mondayLabel: "29/Jun/26" },
+  { label: "S10", mondayLabel: "06/Jul/26" },
+  { label: "S11", mondayLabel: "13/Jul/26" },
+  { label: "S12", mondayLabel: "20/Jul/26" },
+  { label: "S13", mondayLabel: "27/Jul/26" },
 ]
 
 // =====================================================================
-// Mocks Gregorutt
+// Mocks Gregorutt (inalterados — engenharia mínima em S13 = -251.633)
 // =====================================================================
 const CAIXA_MINIMO_OPERACIONAL = 25_000
 
@@ -97,7 +89,7 @@ const COMPRA_EQUIP     = Array(13).fill(0)
 const RECEB_INTERCO    = Array(13).fill(0)
 const PAGTO_INTERCO    = Array(13).fill(0)
 
-// --- Beyond (após S13) ---
+// --- "Depois da S13" (após S13) ---
 const BEYOND_CR_RECEBER = 18_520
 const BEYOND_CP_A_PAGAR = -12_430
 const BEYOND_EMPRESTIMO = -22_170
@@ -223,24 +215,37 @@ function Zone1Header({
   return (
     <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <h1 className="text-[28px] font-semibold leading-tight tracking-tight" style={{ color: NAVY, fontFamily: "var(--font-serif)" }}>
-          Fluxo de Caixa <span style={{ color: MUTED }}>·</span> 13 semanas
+        {/* (7) Título: "Fluxo de Caixa" sem "13 semanas" */}
+        <h1
+          className="text-[28px] font-semibold leading-tight tracking-tight"
+          style={{ color: NAVY, fontFamily: "var(--font-serif)" }}
+        >
+          Fluxo de Caixa
         </h1>
         <p className="mt-1.5 text-[13px]" style={{ color: MUTED }}>
           Atualizado em 06/05 às 14:23
         </p>
       </div>
 
-      <div className="inline-flex items-center gap-1 rounded-full border p-1" role="tablist" aria-label="Escopo de visualização" style={{ borderColor: LINE, background: "#FFFFFF" }}>
-        <span className="px-2 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>
-          Unidade:
+      {/* (6) Toggle Unidade — Montserrat 13px, pill clean. */}
+      <div
+        className="inline-flex items-center gap-1 rounded-full border p-1"
+        role="tablist"
+        aria-label="Escopo de visualização"
+        style={{ borderColor: LINE, background: "#FFFFFF", fontFamily: "var(--font-sans)" }}
+      >
+        <span className="px-2.5 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>
+          Unidade
         </span>
         <button
           role="tab"
           aria-selected={escopo === "unidade"}
           onClick={() => setEscopo("unidade")}
-          className="rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors"
-          style={{ background: escopo === "unidade" ? NAVY : "transparent", color: escopo === "unidade" ? "#FFFFFF" : MUTED }}
+          className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+          style={{
+            background: escopo === "unidade" ? NAVY : "transparent",
+            color: escopo === "unidade" ? "#FFFFFF" : MUTED,
+          }}
         >
           Gregorutt
         </button>
@@ -248,14 +253,21 @@ function Zone1Header({
           role="tab"
           aria-selected={escopo === "consolidado"}
           onClick={() => setEscopo("consolidado")}
-          className="rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors"
-          style={{ background: escopo === "consolidado" ? NAVY : "transparent", color: escopo === "consolidado" ? "#FFFFFF" : MUTED }}
+          className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+          style={{
+            background: escopo === "consolidado" ? NAVY : "transparent",
+            color: escopo === "consolidado" ? "#FFFFFF" : MUTED,
+          }}
         >
           Consolidado
         </button>
       </div>
 
-      <button type="button" className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[13px] font-semibold transition-colors hover:opacity-90" style={{ borderColor: NAVY, color: NAVY }}>
+      <button
+        type="button"
+        className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[13px] font-semibold transition-colors hover:opacity-90"
+        style={{ borderColor: NAVY, color: NAVY }}
+      >
         <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
         Atualizar
       </button>
@@ -264,24 +276,27 @@ function Zone1Header({
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs
+// Zona 2 — KPIs (Montserrat, valor 18px navy semi-bold, mais compactos)
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
   return (
-    <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="Hoje · 05/05" />
       <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor={NEG} sub="em 28/07 (S13)" />
       <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor={NEG} sub="Média das 13 semanas" />
-      <article className="relative overflow-hidden rounded-lg border bg-white p-4" style={{ borderColor: LINE }}>
+      <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
         <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
         <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>Veredito</p>
-        <div className="mt-3 flex items-center">
-          <span className="inline-flex items-center rounded-full px-3 py-1.5 text-[12px] font-bold tracking-wide" style={{ background: veredito.bg, color: veredito.fg }}>
+        <div className="mt-2 flex items-center">
+          <span
+            className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide"
+            style={{ background: veredito.bg, color: veredito.fg }}
+          >
             {veredito.label}
           </span>
         </div>
-        <p className="mt-2 text-[12px]" style={{ color: MUTED }}>Aguardando ingestão completa</p>
+        <p className="mt-1.5 text-[11px]" style={{ color: MUTED }}>Aguardando ingestão completa</p>
       </article>
     </section>
   )
@@ -289,13 +304,21 @@ function Zone2Kpis() {
 
 function KpiCard({ label, value, sub, valueColor }: { label: string; value: string; sub: string; valueColor?: string }) {
   return (
-    <article className="relative overflow-hidden rounded-lg border bg-white p-4" style={{ borderColor: LINE }}>
+    <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
       <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
-      <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>{label}</p>
-      <p className="mt-2 text-[26px] font-semibold leading-tight tabular-nums" style={{ color: valueColor ?? NAVY, fontFamily: "var(--font-serif)", fontVariantNumeric: "tabular-nums" }}>
+      <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>
+        {label}
+      </p>
+      {/* (4) Valor: Montserrat 18px navy semi-bold (sem Fraunces) */}
+      <p
+        className="mt-1.5 text-[18px] font-semibold leading-tight tabular-nums"
+        style={{ color: valueColor ?? NAVY, fontVariantNumeric: "tabular-nums" }}
+      >
         {value}
       </p>
-      <p className="mt-1 text-[12px]" style={{ color: MUTED }}>{sub}</p>
+      <p className="mt-1 text-[11px]" style={{ color: MUTED }}>
+        {sub}
+      </p>
     </article>
   )
 }
@@ -305,16 +328,17 @@ function KpiCard({ label, value, sub, valueColor }: { label: string; value: stri
 // ---------------------------------------------------------------------
 const FIRST_COL_WIDTH = 220
 const WEEK_COL_WIDTH = 65
-const TOTAL_COL_WIDTH = 85
-const BEYOND_COL_WIDTH = 85
+const TOTAL_COL_WIDTH = 95
+const BEYOND_COL_WIDTH = 95
+// (3) Separador discreto antes das colunas Total / Depois da S13.
+const TOTAL_BORDER_LEFT = `4px solid ${LINE}`
 const HEADER_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
 
 function Zone3Grid() {
-  // DEFAULT: tudo "colapsado" — Operação aberta como container (mostra os 2 sub-headers Receitas/Saídas Op),
-  // mas cada sub-grupo está fechado mostrando apenas seu subtotal. Demais atividades fechadas, mostrando
-  // apenas a linha "Caixa Líquido da [atividade]".
+  // DEFAULT: Operação aberta como container, mas com sub-grupos colapsados
+  // (mostra subtotais Receitas/Saídas Op por semana). Demais atividades fechadas.
   const [open, setOpen] = useState<OpenState>({
     op: true,
     op_rec: false,
@@ -328,7 +352,10 @@ function Zone3Grid() {
   return (
     <section className="rounded-lg border bg-white" style={{ borderColor: LINE }} aria-label="Grade de fluxo de caixa em 13 semanas">
       {/* Sub-header da tabela: rótulo único de unidade monetária */}
-      <div className="flex items-center justify-between gap-2 border-b px-4 py-2" style={{ borderColor: LINE }}>
+      <div
+        className="flex items-center justify-between gap-2 border-b px-4 py-2"
+        style={{ borderColor: LINE }}
+      >
         <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>
           Valores em R$
         </span>
@@ -337,14 +364,8 @@ function Zone3Grid() {
         </span>
       </div>
 
-      {/* Wrapper com scrollbars sempre visíveis (overflow:scroll, não auto) */}
-      <div
-        style={{
-          overflowX: "scroll",
-          overflowY: "scroll",
-          maxHeight: "70vh",
-        }}
-      >
+      {/* Wrapper com scrollbars sempre visíveis. */}
+      <div style={{ overflowX: "scroll", overflowY: "scroll", maxHeight: "70vh" }}>
         <table
           className="w-full border-separate"
           style={{
@@ -383,6 +404,7 @@ function Zone3Grid() {
               >
                 Categoria
               </th>
+              {/* (5) Header semana: 65px, "S1" + "04/Mai/26" */}
               {WEEKS.map((w, i) => (
                 <th
                   key={i}
@@ -402,7 +424,9 @@ function Zone3Grid() {
                 >
                   <div className="flex flex-col items-end leading-tight">
                     <span>{w.label}</span>
-                    <span className="text-[9px] font-semibold opacity-75 tracking-normal normal-case">{w.range}</span>
+                    <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">
+                      {w.mondayLabel}
+                    </span>
                   </div>
                 </th>
               ))}
@@ -413,19 +437,21 @@ function Zone3Grid() {
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
-                  background: NAVY_DARK,
+                  background: HEADER_GRADIENT,
                   color: "#FFFFFF",
                   fontSize: 10,
                   fontWeight: 700,
                   letterSpacing: "0.04em",
                   textTransform: "uppercase",
+                  borderLeft: TOTAL_BORDER_LEFT,
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
                   <span>Total</span>
-                  <span className="text-[9px] font-semibold opacity-75 tracking-normal normal-case">13 sem</span>
+                  <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">13 sem</span>
                 </div>
               </th>
+              {/* (1) "Beyond" → "Depois da S13" */}
               <th
                 scope="col"
                 className="px-1.5 py-2 text-right"
@@ -433,7 +459,7 @@ function Zone3Grid() {
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
-                  background: NAVY_DARK,
+                  background: HEADER_GRADIENT,
                   color: "#FFFFFF",
                   fontSize: 10,
                   fontWeight: 700,
@@ -442,8 +468,8 @@ function Zone3Grid() {
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
-                  <span>Beyond</span>
-                  <span className="text-[9px] font-semibold opacity-75 tracking-normal normal-case">após S13</span>
+                  <span>Depois</span>
+                  <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">da S13</span>
                 </div>
               </th>
             </tr>
@@ -455,7 +481,7 @@ function Zone3Grid() {
 
             {open.op && (
               <>
-                {/* Sub-grupo nível 2: Receitas Operacionais */}
+                {/* (8) Sub-grupo nível 0: Receitas Operacionais — fontWeight 600 */}
                 <SubGroupHeader
                   label="Receitas Operacionais"
                   expanded={open.op_rec}
@@ -482,7 +508,7 @@ function Zone3Grid() {
                   </>
                 )}
 
-                {/* Sub-grupo nível 2: Saídas Operacionais */}
+                {/* (8) Sub-grupo nível 0: Saídas Operacionais — fontWeight 600 */}
                 <SubGroupHeader
                   label="Saídas Operacionais"
                   expanded={open.op_sai}
@@ -514,22 +540,17 @@ function Zone3Grid() {
               </>
             )}
 
-            {/* Caixa Líquido da Operação — sempre visível (mesmo com Operação colapsada) */}
+            {/* (8) Caixa Líquido da atividade — fontWeight 700 navy, fundo branco */}
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido da Operação</span>}
+              label="→ Caixa Líquido da Operação"
               values={CL_OPERACAO}
               total={sum(CL_OPERACAO)}
               beyond={CL_OPERACAO_BEYOND}
-              cellBg={ROW_BG_CAIXA_LIQUIDO}
-              labelBg={ROW_BG_CAIXA_LIQUIDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="caixaLiquido"
             />
 
             {/* ===================== 2. FINANCIAMENTO ===================== */}
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
-
             {open.fin && (
               <>
                 <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} />
@@ -544,107 +565,74 @@ function Zone3Grid() {
                 <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} />
               </>
             )}
-
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Financiamento</span>}
+              label="→ Caixa Líquido do Financiamento"
               values={CL_FINANCIAMENTO}
               total={sum(CL_FINANCIAMENTO)}
               beyond={CL_FIN_BEYOND}
-              cellBg={ROW_BG_CAIXA_LIQUIDO}
-              labelBg={ROW_BG_CAIXA_LIQUIDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="caixaLiquido"
             />
 
             {/* ===================== 3. INVESTIMENTO ===================== */}
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
-
             {open.inv && (
               <>
                 <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} />
                 <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} />
               </>
             )}
-
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido do Investimento</span>}
+              label="→ Caixa Líquido do Investimento"
               values={CL_INVESTIMENTO}
               total={sum(CL_INVESTIMENTO)}
               beyond={CL_INV_BEYOND}
-              cellBg={ROW_BG_CAIXA_LIQUIDO}
-              labelBg={ROW_BG_CAIXA_LIQUIDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="caixaLiquido"
             />
 
             {/* ===================== 4. ENTRE COMPANHIAS ===================== */}
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
-
             {open.ic && (
               <>
                 <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} />
                 <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} />
               </>
             )}
-
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>→ Caixa Líquido Entre Companhias</span>}
+              label="→ Caixa Líquido Entre Companhias"
               values={CL_INTERCO}
               total={sum(CL_INTERCO)}
               beyond={CL_IC_BEYOND}
-              cellBg={ROW_BG_CAIXA_LIQUIDO}
-              labelBg={ROW_BG_CAIXA_LIQUIDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="caixaLiquido"
             />
 
-            {/* ===================== Fechamento ===================== */}
+            {/* ===================== Fechamento (todos fundo branco, navy 700) ===================== */}
             <DataRow
-              label={<span style={{ fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Variação Líquida de Caixa</span>}
+              label="VARIAÇÃO LÍQUIDA DE CAIXA"
               values={VARIACAO_LIQUIDA}
               total={sum(VARIACAO_LIQUIDA)}
               beyond={VARIACAO_BEYOND}
-              cellBg={ROW_BG_VARIACAO}
-              labelBg={ROW_BG_VARIACAO}
-              darkRow
-              labelBold
-              valueBold
+              variant="variacao"
             />
-
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>Caixa - Início do Período</span>}
+              label="Caixa - Início do Período"
               values={CAIXA_INICIO}
               total={null}
               beyond={null}
-              cellBg={ROW_BG_SALDO}
-              labelBg={ROW_BG_SALDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="saldo"
             />
-
             <DataRow
-              label={<span style={{ fontWeight: 700 }}>Caixa - Final do Período</span>}
+              label="Caixa - Final do Período"
               values={CAIXA_FINAL}
               total={null}
               beyond={null}
-              cellBg={ROW_BG_SALDO}
-              labelBg={ROW_BG_SALDO}
-              darkRow
-              labelBold
-              valueBold
+              variant="saldo"
             />
-
             <DataRow
-              label={<span style={{ fontStyle: "italic", color: MUTED }}>Caixa Mínimo Operacional</span>}
+              label="Caixa Mínimo Operacional"
               values={Array.from({ length: 13 }, () => CAIXA_MINIMO_OPERACIONAL)}
               total={null}
               beyond={null}
-              italic
-              colorOverride={MUTED}
+              variant="muted"
               isLast
             />
           </tbody>
@@ -655,10 +643,9 @@ function Zone3Grid() {
 }
 
 // =====================================================================
-// Helpers de linha
+// SectionHeader (nível 1) — (2) BRANCO, navy bold uppercase 11px,
+// 8px de espaçamento vertical antes da seção. Sem fill navy.
 // =====================================================================
-
-// Section header (nível 1) — clicável, com chevron, fundo navy
 function SectionHeader({
   label,
   expanded,
@@ -685,36 +672,51 @@ function SectionHeader({
     >
       <th
         scope="row"
-        className="px-3 py-1.5 text-left"
+        className="px-3 text-left"
         style={{
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: HEADER_GRADIENT,
-          color: "#FFFFFF",
+          background: "#FFFFFF",
+          color: NAVY,
           fontSize: 11,
           fontWeight: 700,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
+          paddingTop: 8, // espaçamento de 8px antes da seção
+          paddingBottom: 6,
           borderBottom: `1px solid ${LINE}`,
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden />
+          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
           {label}
         </span>
       </th>
       {Array.from({ length: 13 }).map((_, i) => (
-        <td key={i} style={{ background: HEADER_GRADIENT, borderBottom: `1px solid ${LINE}`, height: 26 }} />
+        <td
+          key={i}
+          style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }}
+        />
       ))}
-      <td style={{ background: NAVY_DARK, borderBottom: `1px solid ${LINE}`, height: 26 }} />
-      <td style={{ background: NAVY_DARK, borderBottom: `1px solid ${LINE}`, height: 26 }} />
+      <td
+        style={{
+          background: "#FFFFFF",
+          borderBottom: `1px solid ${LINE}`,
+          borderLeft: TOTAL_BORDER_LEFT,
+          height: 26,
+        }}
+      />
+      <td style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }} />
     </tr>
   )
 }
 
-// Sub-group header (nível 2) — Receitas/Saídas Operacionais.
-// Quando colapsado: mostra subtotal por semana/total/beyond. Quando expandido: cells vazias.
+// =====================================================================
+// SubGroupHeader (nível 2) — Receitas/Saídas Operacionais.
+// Quando colapsado: subtotal por semana/total/depois. Quando expandido: cells vazias.
+// (8) fontWeight 600 navy.
+// =====================================================================
 function SubGroupHeader({
   label,
   expanded,
@@ -731,7 +733,7 @@ function SubGroupHeader({
   subtotalBeyond: number
 }) {
   const Icon = expanded ? ChevronDown : ChevronRight
-  const labelBg = "#F2F5F9"
+  const labelBg = "#FAFBFD"
 
   return (
     <tr
@@ -758,7 +760,6 @@ function SubGroupHeader({
           color: NAVY,
           fontSize: 11,
           fontWeight: 600,
-          fontStyle: "italic",
           borderBottom: `1px solid ${LINE}`,
         }}
       >
@@ -776,8 +777,7 @@ function SubGroupHeader({
               key={i}
               value={v}
               baseBg={labelBg}
-              bold
-              italic
+              fontWeight={600}
               colorRule="signed"
               borderBottom={`1px solid ${LINE}`}
             />
@@ -785,8 +785,7 @@ function SubGroupHeader({
       <NumericCell
         value={expanded ? null : subtotalTotal}
         baseBg={labelBg}
-        bold
-        italic
+        fontWeight={600}
         colorRule="signed"
         borderBottom={`1px solid ${LINE}`}
         isTotalCol
@@ -794,8 +793,7 @@ function SubGroupHeader({
       <NumericCell
         value={expanded ? null : subtotalBeyond}
         baseBg={labelBg}
-        bold
-        italic
+        fontWeight={600}
         colorRule="signed"
         borderBottom={`1px solid ${LINE}`}
         isTotalCol
@@ -804,39 +802,69 @@ function SubGroupHeader({
   )
 }
 
-type ColorRule = "default" | "signed"
+// =====================================================================
+// DataRow — variantes:
+//   default     : peso 500 INK, label NAVY 500
+//   caixaLiquido: peso 700 NAVY, label NAVY 700
+//   variacao    : peso 700 NAVY uppercase
+//   saldo       : peso 700 NAVY (Caixa Início/Final)
+//   muted       : muted italic (Caixa Mínimo Operacional)
+// =====================================================================
+type RowVariant = "default" | "caixaLiquido" | "variacao" | "saldo" | "muted"
 
 function DataRow({
   label,
   values,
   total,
   beyond = null,
-  cellBg = "#FFFFFF",
-  labelBg,
-  labelBold = false,
-  valueBold = false,
-  italic = false,
-  colorOverride,
-  colorRule = "default",
-  darkRow = false,
+  variant = "default",
   isLast = false,
 }: {
   label: ReactNode
   values: number[]
   total: number | null
   beyond?: number | null
-  cellBg?: string
-  labelBg?: string
-  labelBold?: boolean
-  valueBold?: boolean
-  italic?: boolean
-  colorOverride?: string
-  colorRule?: ColorRule
-  darkRow?: boolean
+  variant?: RowVariant
   isLast?: boolean
 }) {
   const borderBottom = isLast ? "none" : `1px solid ${LINE}`
-  const labelColor = darkRow ? "#FFFFFF" : NAVY
+
+  // Resolve estilos por variant.
+  let labelColor = NAVY
+  let valueWeight: 400 | 500 | 600 | 700 = 500
+  let labelWeight: 400 | 500 | 600 | 700 = 500
+  let italic = false
+  let upperLabel = false
+  let colorRule: "default" | "signed" = "default"
+
+  switch (variant) {
+    case "caixaLiquido":
+      labelWeight = 700
+      valueWeight = 700
+      colorRule = "signed"
+      break
+    case "variacao":
+      labelWeight = 700
+      valueWeight = 700
+      upperLabel = true
+      colorRule = "signed"
+      break
+    case "saldo":
+      labelWeight = 700
+      valueWeight = 700
+      colorRule = "signed"
+      break
+    case "muted":
+      labelColor = MUTED
+      labelWeight = 400
+      valueWeight = 400
+      italic = true
+      break
+    default:
+      labelWeight = 500
+      valueWeight = 500
+      colorRule = "default"
+  }
 
   return (
     <tr>
@@ -847,11 +875,13 @@ function DataRow({
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: labelBg ?? cellBg,
+          background: "#FFFFFF",
           color: labelColor,
           fontSize: 11,
-          fontWeight: labelBold ? 700 : 500,
+          fontWeight: labelWeight,
           fontStyle: italic ? "italic" : "normal",
+          textTransform: upperLabel ? "uppercase" : "none",
+          letterSpacing: upperLabel ? "0.04em" : "normal",
           borderBottom,
         }}
       >
@@ -861,34 +891,31 @@ function DataRow({
         <NumericCell
           key={i}
           value={v}
-          baseBg={cellBg}
-          bold={valueBold}
+          baseBg="#FFFFFF"
+          fontWeight={valueWeight}
           italic={italic}
-          colorOverride={colorOverride}
+          colorOverride={variant === "muted" ? MUTED : undefined}
           colorRule={colorRule}
-          darkRow={darkRow}
           borderBottom={borderBottom}
         />
       ))}
       <NumericCell
         value={total}
-        baseBg={cellBg}
-        bold={valueBold}
+        baseBg="#FFFFFF"
+        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={colorOverride}
+        colorOverride={variant === "muted" ? MUTED : undefined}
         colorRule={colorRule}
-        darkRow={darkRow}
         borderBottom={borderBottom}
         isTotalCol
       />
       <NumericCell
         value={beyond}
-        baseBg={cellBg}
-        bold={valueBold}
+        baseBg="#FFFFFF"
+        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={colorOverride}
+        colorOverride={variant === "muted" ? MUTED : undefined}
         colorRule={colorRule}
-        darkRow={darkRow}
         borderBottom={borderBottom}
         isTotalCol
       />
@@ -896,61 +923,56 @@ function DataRow({
   )
 }
 
+// =====================================================================
+// NumericCell — coluna Total/Depois ganha border-left 4px #E5EBF2
+// e font-weight mínimo 600 (regra (3)).
+// =====================================================================
 function NumericCell({
   value,
   baseBg,
-  bold,
-  italic,
+  fontWeight = 500,
+  italic = false,
   colorOverride,
   colorRule = "default",
-  darkRow = false,
   borderBottom,
   isTotalCol = false,
 }: {
   value: number | null
   baseBg: string
-  bold: boolean
-  italic: boolean
+  fontWeight?: 400 | 500 | 600 | 700
+  italic?: boolean
   colorOverride?: string
-  colorRule?: ColorRule
-  darkRow?: boolean
+  colorRule?: "default" | "signed"
   borderBottom: string
   isTotalCol?: boolean
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
-  // Coluna Total/Beyond: força fundo dark navy + paleta de texto invertida.
-  const isDark = darkRow || isTotalCol
-  const bg = isTotalCol ? TOTAL_COL_BG : baseBg
 
   let color: string
   if (isEmpty) {
-    color = isDark ? "rgba(255,255,255,0.45)" : MUTED
-  } else if (colorRule === "signed") {
-    if (isDark) color = isNegative ? NEG_DARK : "#FFFFFF"
-    else color = isNegative ? NEG : NAVY
+    color = MUTED
   } else if (colorOverride) {
     color = colorOverride
-  } else if (isDark) {
-    color = isNegative ? NEG_DARK : "#FFFFFF"
+  } else if (colorRule === "signed") {
+    // (9) Negativos: #D14343 + parênteses (parens vêm do fmtCompact)
+    color = isNegative ? NEG : NAVY
   } else {
     color = isNegative ? NEG : INK
   }
-
-  const borderLeft = isTotalCol ? `1px solid rgba(255,255,255,0.08)` : undefined
 
   return (
     <td
       className="px-1.5 py-1.5 text-right"
       style={{
-        background: bg,
+        background: baseBg,
         color,
         fontSize: 11,
-        fontWeight: bold ? 700 : 500,
+        fontWeight,
         fontStyle: italic ? "italic" : "normal",
         fontVariantNumeric: "tabular-nums",
         borderBottom,
-        borderLeft,
+        borderLeft: isTotalCol ? TOTAL_BORDER_LEFT : undefined,
         whiteSpace: "nowrap",
       }}
     >
