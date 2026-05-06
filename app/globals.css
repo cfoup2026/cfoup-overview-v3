@@ -72,6 +72,7 @@
 
 @theme inline {
   --font-sans: var(--font-montserrat), 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-fraunces), 'Fraunces', ui-serif, Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-background: var(--background);

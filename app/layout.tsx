@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Montserrat } from "next/font/google"
+import { Montserrat, Fraunces } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
@@ -7,6 +7,13 @@ const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-montserrat",
+  display: "swap",
+})
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-fraunces",
   display: "swap",
 })
 
@@ -29,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${montserrat.variable} bg-background`}>
+    <html lang="pt-BR" className={`${montserrat.variable} ${fraunces.variable} bg-background`}>
       <body className="font-sans antialiased text-foreground">
         {children}
         {process.env.NODE_ENV === "production" && <Analytics />}
