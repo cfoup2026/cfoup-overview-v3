@@ -58,6 +58,14 @@ const WEEKS: WeekHeader[] = [
 // =====================================================================
 const CAIXA_MINIMO_OPERACIONAL = 25_000
 
+// REGRA CONTÁBIL — saldos não somam, fluxos somam.
+// Caixa Início e Caixa Final são SALDOS (snapshots no tempo), não fluxos:
+//   - Total das 13s   = snapshot da S1 (Início) ou S13 (Final), NÃO soma do array.
+//   - Depois da S13   = não aplicável → exibido como "—".
+// Já as linhas de fluxo (Receitas/Saídas, Líquidos por atividade,
+// Variação Líquida) somam matematicamente as 13 colunas no Total.
+// Invariante por semana: Caixa Final[i] = Caixa Início[i] + Variação Líquida[i].
+// Invariante de horizonte: Caixa Final[12] = Caixa Início[0] + Σ Variação Líquida.
 const CAIXA_INICIO = [34_494, 27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232]
 const CAIXA_FINAL  = [27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232, -251_633]
 
@@ -511,11 +519,12 @@ function Zone3Grid() {
           </thead>
 
           <tbody>
-            {/* (2) Caixa Início do Período — agora ABRE a tabela */}
+            {/* (2) Caixa Início do Período — abre a tabela.
+                SALDO: Total = snapshot da S1, Depois da S13 = "—" (null). */}
             <DataRow
               label="Caixa Início do Período"
               values={CAIXA_INICIO}
-              total={null}
+              total={CAIXA_INICIO[0]}
               beyond={null}
               variant="subtotal"
             />
@@ -658,10 +667,11 @@ function Zone3Grid() {
               variant="subtotal"
               upperLabel
             />
+            {/* SALDO: Total = snapshot da S13, Depois da S13 = "—" (null). */}
             <DataRow
               label="Caixa Final do Período"
               values={CAIXA_FINAL}
-              total={null}
+              total={CAIXA_FINAL[12]}
               beyond={null}
               variant="subtotal"
             />
