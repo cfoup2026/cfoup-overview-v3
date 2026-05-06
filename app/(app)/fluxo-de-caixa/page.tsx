@@ -203,9 +203,9 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 // system (ERP, contábil, Open Finance). O nome do cliente (tenant) NÃO
 // aparece nesta tela — vem do sidebar/header global do app.
 // Esta tela é cliente-agnostic: o header recebe um array dinâmico de unidades
-// e adiciona a opção "Consolidado" fixa no final. Os labels "Filial 1" /
-// "Filial 2" abaixo são placeholders genéricos para mock visual desta
-// iteração — em produção virão do payload do tenant.
+// e adiciona a opção "Consolidado" como PRIMEIRO item da lista (também o
+// default selecionado). Ver bloco de comentário acima de UNIDADES para o
+// shape esperado em produção.
 type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
