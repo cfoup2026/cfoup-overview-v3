@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { RefreshCw } from "lucide-react"
+import { useMemo, useState } from "react"
+import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react"
 
 /**
  * /fluxo-de-caixa
@@ -133,8 +133,18 @@ const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string 
 // =====================================================================
 // Página
 // =====================================================================
+type GroupKey = "ENTRADAS" | "SAIDAS"
+
 export default function FluxoDeCaixa13Semanas() {
   const [escopo, setEscopo] = useState<"unidade" | "consolidado">("unidade")
+  // Default: ambos os grupos expandidos. Estado local controla apenas a visibilidade
+  // das sub-linhas; os totais permanecem visíveis nos dois estados.
+  const [groupOpen, setGroupOpen] = useState<Record<GroupKey, boolean>>({
+    ENTRADAS: true,
+    SAIDAS: true,
+  })
+  const toggleGroup = (k: GroupKey) =>
+    setGroupOpen((prev) => ({ ...prev, [k]: !prev[k] }))
 
   return (
     // Pinta o fundo #F7F9FC neutralizando o padding do AppShell para cobrir a viewport.
@@ -156,7 +166,7 @@ export default function FluxoDeCaixa13Semanas() {
         {/* ============================================================ */}
         {/* ZONA 3 — Grid 13 semanas                                      */}
         {/* ============================================================ */}
-        <Zone3Grid />
+        <Zone3Grid groupOpen={groupOpen} onToggleGroup={toggleGroup} />
 
         {/* Footer abaixo da grid */}
         <FooterPendencias />
@@ -345,31 +355,47 @@ type BodyRow =
   | { kind: "caixaFinal" }
   | { kind: "caixaMin" }
 
-const ROWS: BodyRow[] = [
-  { kind: "saldoInicial" },
-  { kind: "groupHeader", label: "ENTRADAS" },
-  { kind: "subRow", label: "Recebimento de Clientes (AR realizado)", values: ENTRADAS_BREAKDOWN.map((b) => b[0]) },
-  { kind: "subRow", label: "AR Confirmado", values: ENTRADAS_BREAKDOWN.map((b) => b[1]) },
-  { kind: "subRow", label: "AR Estimado", values: ENTRADAS_BREAKDOWN.map((b) => b[2]) },
-  { kind: "totalEntradas" },
-  { kind: "groupHeader", label: "SAÍDAS" },
-  { kind: "subRow", label: "Folha", values: SAIDAS_BREAKDOWN.map((b) => b[0]) },
-  { kind: "subRow", label: "Fornecedor Direto", values: SAIDAS_BREAKDOWN.map((b) => b[1]) },
-  { kind: "subRow", label: "Despesas Operacionais", values: SAIDAS_BREAKDOWN.map((b) => b[2]) },
-  { kind: "subRow", label: "Comissão", values: SAIDAS_BREAKDOWN.map((b) => b[3]) },
-  { kind: "subRow", label: "Logística", values: SAIDAS_BREAKDOWN.map((b) => b[4]) },
-  { kind: "subRow", label: "Tributos", values: SAIDAS_BREAKDOWN.map((b) => b[5]) },
-  { kind: "subRow", label: "Outros", values: SAIDAS_BREAKDOWN.map((b) => b[6]) },
-  { kind: "totalSaidas" },
-  { kind: "caixaFinal" },
-  { kind: "caixaMin" },
-]
-
 const FIRST_COL_WIDTH = 280
 const WEEK_COL_WIDTH = 90
 const GROUP_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
 
-function Zone3Grid() {
+function Zone3Grid({
+  groupOpen,
+  onToggleGroup,
+}: {
+  groupOpen: Record<GroupKey, boolean>
+  onToggleGroup: (k: GroupKey) => void
+}) {
+  // Constrói as linhas dinamicamente: sub-linhas só entram se o grupo estiver aberto.
+  // Total Entradas / Total Saídas continuam visíveis nos dois estados.
+  const rows = useMemo<BodyRow[]>(() => {
+    const r: BodyRow[] = [
+      { kind: "saldoInicial" },
+      { kind: "groupHeader", label: "ENTRADAS" },
+    ]
+    if (groupOpen.ENTRADAS) {
+      r.push(
+        { kind: "subRow", label: "Recebimento de Clientes (AR realizado)", values: ENTRADAS_BREAKDOWN.map((b) => b[0]) },
+        { kind: "subRow", label: "AR Confirmado", values: ENTRADAS_BREAKDOWN.map((b) => b[1]) },
+        { kind: "subRow", label: "AR Estimado", values: ENTRADAS_BREAKDOWN.map((b) => b[2]) },
+      )
+    }
+    r.push({ kind: "totalEntradas" }, { kind: "groupHeader", label: "SAÍDAS" })
+    if (groupOpen.SAIDAS) {
+      r.push(
+        { kind: "subRow", label: "Folha", values: SAIDAS_BREAKDOWN.map((b) => b[0]) },
+        { kind: "subRow", label: "Fornecedor Direto", values: SAIDAS_BREAKDOWN.map((b) => b[1]) },
+        { kind: "subRow", label: "Despesas Operacionais", values: SAIDAS_BREAKDOWN.map((b) => b[2]) },
+        { kind: "subRow", label: "Comissão", values: SAIDAS_BREAKDOWN.map((b) => b[3]) },
+        { kind: "subRow", label: "Logística", values: SAIDAS_BREAKDOWN.map((b) => b[4]) },
+        { kind: "subRow", label: "Tributos", values: SAIDAS_BREAKDOWN.map((b) => b[5]) },
+        { kind: "subRow", label: "Outros", values: SAIDAS_BREAKDOWN.map((b) => b[6]) },
+      )
+    }
+    r.push({ kind: "totalSaidas" }, { kind: "caixaFinal" }, { kind: "caixaMin" })
+    return r
+  }, [groupOpen])
+
   return (
     <section
       className="overflow-x-auto rounded-lg border bg-white"
@@ -435,8 +461,13 @@ function Zone3Grid() {
         </thead>
 
         <tbody>
-          {ROWS.map((row, rowIdx) => (
-            <BodyRowRenderer key={rowIdx} row={row} />
+          {rows.map((row, rowIdx) => (
+            <BodyRowRenderer
+              key={rowIdx}
+              row={row}
+              groupOpen={groupOpen}
+              onToggleGroup={onToggleGroup}
+            />
           ))}
         </tbody>
       </table>
@@ -444,7 +475,15 @@ function Zone3Grid() {
   )
 }
 
-function BodyRowRenderer({ row }: { row: BodyRow }) {
+function BodyRowRenderer({
+  row,
+  groupOpen,
+  onToggleGroup,
+}: {
+  row: BodyRow
+  groupOpen: Record<GroupKey, boolean>
+  onToggleGroup: (k: GroupKey) => void
+}) {
   // Linha "Saldo Inicial"
   if (row.kind === "saldoInicial") {
     return (
@@ -460,12 +499,30 @@ function BodyRowRenderer({ row }: { row: BodyRow }) {
     )
   }
 
-  // Header de grupo (ENTRADAS / SAÍDAS)
+  // Header de grupo (ENTRADAS / SAÍDAS) — clicável, toggle expand/collapse.
   if (row.kind === "groupHeader") {
+    const key: GroupKey = row.label === "ENTRADAS" ? "ENTRADAS" : "SAIDAS"
+    const isOpen = groupOpen[key]
+    const Icon = isOpen ? ChevronDown : ChevronRight
     return (
-      <tr>
+      <tr
+        onClick={() => onToggleGroup(key)}
+        role="button"
+        aria-expanded={isOpen}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            onToggleGroup(key)
+          }
+        }}
+        style={{ cursor: "pointer" }}
+      >
         <ThSticky bg={GROUP_GRADIENT} fg="#FFFFFF" uppercase>
-          {row.label}
+          <span className="inline-flex items-center gap-2">
+            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
+            {row.label}
+          </span>
         </ThSticky>
         {Array.from({ length: 13 }).map((_, i) => (
           <td
