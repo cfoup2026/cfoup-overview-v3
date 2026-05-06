@@ -183,10 +183,15 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 // =====================================================================
 // Página
 // =====================================================================
-// NOTA: "Gregorutt" é nome do cliente, não de unidade. As 2 unidades reais
-// são as filiais (Gregorutt Indústria e LR Dias Transportes). "Consolidado"
-// = soma das duas com transferências internas neutralizadas.
-type UnidadeId = "gregorutt" | "lrdias" | "consolidado"
+// NOTA — multi-tenant. CFOup atende 70k+ clientes e cada um tem N unidades
+// (filiais, CNPJs, centros de custo) com nomes próprios vindos do source
+// system (ERP, contábil, Open Finance). O nome do cliente (tenant) NÃO
+// aparece nesta tela — vem do sidebar/header global do app.
+// Esta tela é cliente-agnostic: o header recebe um array dinâmico de unidades
+// e adiciona a opção "Consolidado" fixa no final. Os labels "Filial 1" /
+// "Filial 2" abaixo são placeholders genéricos para mock visual desta
+// iteração — em produção virão do payload do tenant.
+type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
@@ -209,9 +214,15 @@ export default function FluxoDeCaixa13Semanas() {
 // ---------------------------------------------------------------------
 // Zona 1 — Header (selector pill segmentado de 3 unidades)
 // ---------------------------------------------------------------------
+// PLACEHOLDER MOCK — em produção, as N filiais virão do source system do
+// cliente (array dinâmico). "Consolidado" é fixo no final e representa a
+// soma das filiais com transferências internas neutralizadas.
+// Estrutura esperada em prod:
+//   const filiais = await fetchFiliais(tenantId)            // [{id, label}]
+//   const UNIDADES = [...filiais, { id: "consolidado", label: "Consolidado" }]
 const UNIDADES: { id: UnidadeId; label: string }[] = [
-  { id: "gregorutt", label: "Gregorutt Indústria" },
-  { id: "lrdias", label: "LR Dias Transportes" },
+  { id: "filial-1", label: "Filial 1" },
+  { id: "filial-2", label: "Filial 2" },
   { id: "consolidado", label: "Consolidado" },
 ]
 
@@ -236,35 +247,40 @@ function Zone1Header({
         </p>
       </div>
 
-      {/* Pill segmentado — 3 unidades. Mock: clique apenas troca estado visual. */}
-      <div
-        className="inline-flex items-center gap-1 rounded-full border p-1"
-        role="tablist"
-        aria-label="Unidade"
-        style={{ borderColor: LINE, background: "#FFFFFF", fontFamily: "var(--font-sans)" }}
-      >
-        <span className="px-2.5 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: MUTED }}>
-          Unidade
+      {/* Selector de unidade. Label "Unidade:" fica fora do pill, à esquerda.
+          Mock: clique apenas troca estado visual; valores da grid não mudam. */}
+      <div className="inline-flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
+        <span
+          className="text-[11px] font-semibold uppercase"
+          style={{ color: NAVY, letterSpacing: "0.06em" }}
+        >
+          Unidade:
         </span>
-        {UNIDADES.map((u) => {
-          const active = unidade === u.id
-          return (
-            <button
-              key={u.id}
-              role="tab"
-              aria-selected={active}
-              onClick={() => setUnidade(u.id)}
-              className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-              style={{
-                background: active ? NAVY : "transparent",
-                color: active ? "#FFFFFF" : MUTED,
-                border: active ? "none" : `1px solid transparent`,
-              }}
-            >
-              {u.label}
-            </button>
-          )
-        })}
+        <div
+          className="inline-flex items-center gap-1"
+          role="tablist"
+          aria-label="Unidade"
+        >
+          {UNIDADES.map((u) => {
+            const active = unidade === u.id
+            return (
+              <button
+                key={u.id}
+                role="tab"
+                aria-selected={active}
+                onClick={() => setUnidade(u.id)}
+                className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
+                style={{
+                  background: active ? NAVY : "#FFFFFF",
+                  color: active ? "#FFFFFF" : NAVY,
+                  border: `1px solid ${active ? NAVY : LINE}`,
+                }}
+              >
+                {u.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <button
