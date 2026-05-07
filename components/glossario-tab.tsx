@@ -33,18 +33,13 @@ export function GlossarioTab() {
   // Ordenar alfabeticamente em pt-BR
   dedupe.sort((a, b) => a.termo.localeCompare(b.termo, "pt-BR"))
 
-  // Agrupar por letra inicial
+  // Agrupar por letra inicial (ordenado)
   const grupos: Record<string, typeof dedupe> = {}
   dedupe.forEach((item) => {
     const letra = item.termo[0].toUpperCase()
     if (!grupos[letra]) grupos[letra] = []
     grupos[letra].push(item)
   })
-
-  // Ordenar letras
-  const letrasOrdenadas = Object.keys(grupos).sort((a, b) =>
-    a.localeCompare(b, "pt-BR")
-  )
 
   return (
     <section className="mb-12">
@@ -66,36 +61,18 @@ export function GlossarioTab() {
       </div>
 
       {/* Lista por letra */}
-      <div className="mt-6 space-y-6">
-        {letrasOrdenadas.map((letra) => (
-          <div key={letra}>
-            {/* Divisor com letra */}
+      <div className="mt-6 space-y-4">
+        {Object.entries(grupos).map(([letra, termos]) => (
+          <div key={letra} className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-3">
-              <span
-                className="text-2xl font-extrabold"
-                style={{ color: "var(--brand-blue)" }}
-              >
-                {letra}
-              </span>
+              <span className="text-2xl font-extrabold text-[color:var(--brand-blue)]">{letra}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
-
-            {/* Termos */}
             <dl className="mt-3 space-y-3">
-              {grupos[letra].map((item) => (
+              {termos.map((item) => (
                 <div key={item.termo}>
-                  <dt
-                    className="text-[13px] font-semibold"
-                    style={{ color: "var(--brand-navy)" }}
-                  >
-                    {item.termo}
-                  </dt>
-                  <dd
-                    className="mt-0.5 text-[13px] leading-relaxed"
-                    style={{ color: "var(--slate-700)" }}
-                  >
-                    {item.definicao}
-                  </dd>
+                  <dt className="text-[13px] font-semibold text-[color:var(--brand-navy)]">{item.termo}</dt>
+                  <dd className="mt-0.5 text-[13px] leading-relaxed text-[color:var(--slate-700)]">{item.definicao}</dd>
                 </div>
               ))}
             </dl>
