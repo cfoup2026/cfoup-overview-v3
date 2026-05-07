@@ -20,6 +20,7 @@ import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
+import { GlossarioTab } from "@/components/glossario-tab"
 
 // ---------------------------------------------------------------------
 // Tabs config
@@ -58,7 +59,8 @@ export default function AnaliseContabilPage() {
       {activeTab === "balanco" && <BPTab dados={data.balanco} />}
       {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
       {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
-      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && activeTab !== "perguntas-contador" && (
+      {activeTab === "glossario" && <GlossarioTab />}
+      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && activeTab !== "perguntas-contador" && activeTab !== "glossario" && (
         <div className="text-[12px] text-muted-foreground">
           Em construção · próximo PR.
         </div>

@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
 import type { DREData, DRELinhaAH } from "@/lib/clientes/empresa-001"
+import { conteudoDRE } from "@/lib/conteudos/analise-contabil"
 
 // ---------------------------------------------------------------------
 // Helpers
@@ -137,7 +138,7 @@ export function DRETab({ data }: { data: DREData }) {
           Glossário · Termos usados no DRE +
         </summary>
         <dl className="mt-3 space-y-3">
-          {data.glossario.map((item) => (
+          {conteudoDRE.glossario.map((item) => (
             <div key={item.termo}>
               <dt
                 className="text-[13px] font-semibold"

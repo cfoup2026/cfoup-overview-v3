@@ -33,7 +33,6 @@ export type DREData = {
   linhasAV: DRELinhaAV[]
   linhasAH: DRELinhaAH[]
   comentarios: DREComentario[]
-  glossario: { termo: string; definicao: string }[]
 }
 
 // ---------------------------------------------------------------------
@@ -552,79 +551,6 @@ export const dadosCliente: AnaliseContabilData = {
         status: "positivo",
         corpo:
           "Mais que dobrou em três anos: R$ 475 mil em 2023, R$ 972 mil em 2025. As vendas subiram só 31% no mesmo período. Quase todo o crescimento do lucro veio da margem maior, não de vender mais.",
-      },
-    ],
-
-    glossario: [
-      {
-        termo: "Receita Bruta",
-        definicao:
-          "Tudo que a empresa faturou, antes de tirar qualquer imposto. É o 'total na nota fiscal'.",
-      },
-      {
-        termo: "Receita Líquida",
-        definicao:
-          "O que sobra da Receita Bruta depois de tirar os impostos sobre vendas e as devoluções. É o valor 'real' que a empresa tem para pagar suas contas.",
-      },
-      {
-        termo: "CPV (Custo dos Produtos Vendidos)",
-        definicao:
-          "Tudo que a empresa gastou especificamente para produzir o que vendeu: matéria-prima, insumos, embalagem, mão-de-obra direta de produção. Não inclui folha administrativa, aluguel de escritório, marketing.",
-      },
-      {
-        termo: "Lucro Bruto",
-        definicao:
-          "O que sobra depois de pagar o custo de produção. É Receita Líquida menos CPV. Mostra se o negócio em si (vender mais caro do que custa produzir) funciona.",
-      },
-      {
-        termo: "Margem Bruta",
-        definicao:
-          "Lucro Bruto dividido pela Receita Líquida, em porcentagem. Responde: 'de cada R$ 100 vendidos, quantos R$ sobram depois de pagar o que custa produzir?'",
-      },
-      {
-        termo: "Despesas Operacionais",
-        definicao:
-          "Todos os outros gastos da empresa que não são o custo de produção: folha administrativa, aluguel, luz, telefone, marketing, contador, sistemas, entrega, etc.",
-      },
-      {
-        termo: "Lucro Líquido",
-        definicao:
-          "O que sobra no final, depois de tudo. Receita menos impostos menos custo de produção menos todas as despesas. É o 'lucro' propriamente dito.",
-      },
-      {
-        termo: "Margem Líquida",
-        definicao:
-          "Lucro Líquido dividido pela Receita Líquida, em porcentagem. Responde: 'de cada R$ 100 vendidos, quantos R$ viram lucro no final?'",
-      },
-      {
-        termo: "Análise Vertical (AV)",
-        definicao:
-          "Cada linha mostrada como porcentagem do total daquele ano. No DRE, usa-se a Receita Líquida como base. Serve para comparar anos diferentes lado a lado e ver se a estrutura está mudando.",
-      },
-      {
-        termo: "Análise Horizontal (AH)",
-        definicao:
-          "Mostra de quanto por cento cada linha cresceu ou caiu entre um ano e outro. Serve para entender o ritmo das mudanças.",
-      },
-      {
-        termo: "Reclassificação contábil",
-        definicao:
-          "Quando o contador muda a conta em que uma despesa é registrada. Ex: uma assessoria que estava em 'Pessoal' passa a ser lançada em 'Despesas Gerais'. O gasto é o mesmo, mas aparece em linha diferente — e isso distorce comparações entre anos.",
-      },
-      {
-        termo: "Simples Nacional",
-        definicao:
-          "Regime tributário para empresas que faturam até R$ 4,8 milhões por ano. Paga um imposto único que junta vários (IRPJ, CSLL, PIS, COFINS, ICMS, ISS). A alíquota sobe conforme o faturamento anual aumenta.",
-      },
-      {
-        termo: "Lucro Presumido",
-        definicao:
-          "Outro regime tributário. A Receita Federal 'presume' uma margem de lucro padrão e cobra imposto sobre ela, não sobre o lucro real. Pode ser mais barato que o Simples em algumas situações.",
-      },
-      {
-        termo: "Pró-labore",
-        definicao:
-          "O salário mensal que os sócios tiram da empresa pelo trabalho que fazem nela. É obrigatório registrar em folha e recolhe INSS. Diferente de distribuição de lucros.",
       },
     ],
   },
