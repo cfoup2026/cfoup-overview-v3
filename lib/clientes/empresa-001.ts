@@ -70,6 +70,28 @@ export type BPDadosCliente = {
   comentarios: BPComentario[]
 }
 
+// ---------------------------------------------------------------------
+// Tipos Indicadores
+// ---------------------------------------------------------------------
+export type IndicadorLinha = {
+  id: string
+  label: string
+  valoresPorAno: { ano: string; valor: string }[]
+  explicacao: string
+}
+
+export type IndicadorComentario = {
+  id: string
+  titulo: string
+  corpo: string
+  status: "positivo" | "atencao" | "info"
+}
+
+export type IndicadoresDadosCliente = {
+  linhas: IndicadorLinha[]
+  comentarios: IndicadorComentario[]
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
@@ -83,6 +105,7 @@ export type AnaliseContabilData = {
   }
   dre: DREData
   balanco: BPDadosCliente
+  indicadores: IndicadoresDadosCliente
 }
 
 // ---------------------------------------------------------------------
@@ -673,6 +696,25 @@ export const dadosCliente: AnaliseContabilData = {
       { id: "bp-6", titulo: "R$ 5 mil de capital, R$ 1,45 milhão de lucro guardado", corpo: "Quando os sócios abriram a empresa, colocaram **R$ 5 mil**. Hoje o lucro acumulado é **R$ 1,45 milhão**. Só nos últimos três anos, a empresa deu R$ 1,98 milhão de lucro — e não tem registro de distribuição formal aos sócios. Ou os sócios retiraram via pró-labore (que está dentro da folha), ou deixaram tudo dentro da empresa.", status: "atencao" },
       { id: "bp-7", titulo: "Sem dívida nenhuma", corpo: "A empresa não tem empréstimo, não tem financiamento, não tem leasing. Todo o crescimento foi feito com dinheiro próprio. Sem risco financeiro, mas também sem uso de banco para crescer mais rápido.", status: "positivo" },
       { id: "bp-8", titulo: "Saldo do banco e patrimônio crescem juntos", corpo: "Em três anos, o saldo em banco cresceu 113,7%. O patrimônio dos sócios cresceu 111,9%. A diferença é quase zero. Na prática: **todo lucro que a empresa dá vai para o banco**. Não vira máquina nova, não vira distribuição para os sócios, não vira estoque.", status: "info" },
+    ],
+  },
+
+  // =====================================================================
+  // INDICADORES — dados do cliente piloto
+  // =====================================================================
+  indicadores: {
+    linhas: [
+      { id: "margem-bruta", label: "Margem Bruta", valoresPorAno: [{ ano: "2023", valor: "36,3%" }, { ano: "2024", valor: "36,0%" }, { ano: "2025", valor: "36,2%" }], explicacao: "De cada R$ 100 que entra de venda, sobram R$ 36 depois de pagar o custo do produto. Estável nos três anos." },
+      { id: "margem-liquida", label: "Margem Líquida", valoresPorAno: [{ ano: "2023", valor: "17,2%" }, { ano: "2024", valor: "18,5%" }, { ano: "2025", valor: "18,9%" }], explicacao: "De cada R$ 100 que entra de venda, sobram R$ 19 de lucro limpo. Subindo devagar — bom sinal." },
+      { id: "liquidez-corrente", label: "Liquidez Corrente", valoresPorAno: [{ ano: "2023", valor: "10,8x" }, { ano: "2024", valor: "25,4x" }, { ano: "2025", valor: "17,6x" }], explicacao: "Para cada R$ 1 que a empresa deve no curto prazo, ela tem R$ 17,60 em caixa e estoque. Folga enorme." },
+      { id: "endividamento", label: "Endividamento", valoresPorAno: [{ ano: "2023", valor: "9,0%" }, { ano: "2024", valor: "3,8%" }, { ano: "2025", valor: "5,5%" }], explicacao: "De cada R$ 100 de patrimônio, R$ 5,50 são dívida de curto prazo. A empresa quase não deve nada." },
+      { id: "roe", label: "ROE", valoresPorAno: [{ ano: "2023", valor: "38,9%" }, { ano: "2024", valor: "43,8%" }, { ano: "2025", valor: "32,4%" }], explicacao: "O lucro do ano dividido pelo patrimônio dos sócios. Em 2025, cada R$ 100 investido rendeu R$ 32 de lucro." },
+      { id: "giro-ativo", label: "Giro do Ativo", valoresPorAno: [{ ano: "2023", valor: "2,1x" }, { ano: "2024", valor: "2,0x" }, { ano: "2025", valor: "1,6x" }], explicacao: "Quantas vezes o ativo 'girou' em vendas no ano. Em 2025, vendeu 1,6x o tamanho do ativo — normal para indústria." },
+    ],
+    comentarios: [
+      { id: "ind-1", titulo: "Margens estáveis e saudáveis", corpo: "Margem bruta de 36% e líquida de 19% são **boas para indústria**. A empresa não está perdendo rentabilidade mesmo crescendo.", status: "positivo" },
+      { id: "ind-2", titulo: "Liquidez altíssima — talvez demais", corpo: "Liquidez corrente de 17,6x é muito acima do necessário. A empresa tem **muito dinheiro parado** que poderia render mais ou ser distribuído.", status: "atencao" },
+      { id: "ind-3", titulo: "ROE caiu em 2025", corpo: "O retorno sobre patrimônio caiu de 44% para 32%. Motivo provável: o patrimônio cresceu mais rápido que o lucro (lucro acumulando no banco). Não é problema grave, mas indica **capital ocioso**.", status: "info" },
     ],
   },
 }

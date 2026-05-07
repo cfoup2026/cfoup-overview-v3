@@ -88,3 +88,49 @@ export const conteudoBP: BPConteudoUniversal = {
     },
   ],
 }
+
+// ---------------------------------------------------------------------
+// Indicadores — conteúdo universal
+// ---------------------------------------------------------------------
+export type IndicadoresConteudoUniversal = {
+  intro: string
+  glossario: { termo: string; definicao: string }[]
+}
+
+export const conteudoIndicadores: IndicadoresConteudoUniversal = {
+  intro:
+    "Indicadores financeiros resumem a saúde da empresa em poucos números. Cada um responde uma pergunta diferente: a empresa é lucrativa? Tem dinheiro para pagar as contas? Está usando bem o capital dos sócios?",
+
+  glossario: [
+    {
+      termo: "Margem Bruta",
+      definicao:
+        "Quanto sobra da venda depois de pagar o custo do produto. Fórmula: (Receita − Custo) ÷ Receita. Se é 36%, de cada R$ 100 vendido, R$ 36 sobram antes de pagar despesas.",
+    },
+    {
+      termo: "Margem Líquida",
+      definicao:
+        "Quanto sobra de lucro limpo depois de pagar tudo: custo, despesa, imposto. Fórmula: Lucro Líquido ÷ Receita. Se é 19%, de cada R$ 100 vendido, R$ 19 viram lucro.",
+    },
+    {
+      termo: "Liquidez Corrente",
+      definicao:
+        "Quantos reais a empresa tem para cada R$ 1 que ela deve no curto prazo. Fórmula: Ativo Circulante ÷ Passivo Circulante. Se é 2x, ela tem R$ 2 para cada R$ 1 de dívida imediata.",
+    },
+    {
+      termo: "Endividamento",
+      definicao:
+        "Quanto do patrimônio da empresa é financiado por dívida. Fórmula: Passivo ÷ Ativo. Se é 10%, de cada R$ 100 de patrimônio, R$ 10 são dívida.",
+    },
+    {
+      termo: "ROE (Retorno sobre PL)",
+      definicao:
+        "Quanto o lucro do ano representa do patrimônio dos sócios. Fórmula: Lucro Líquido ÷ Patrimônio Líquido. Se é 30%, cada R$ 100 investido rendeu R$ 30 de lucro.",
+    },
+    {
+      termo: "Giro do Ativo",
+      definicao:
+        "Quantas vezes o ativo 'girou' em vendas no ano. Fórmula: Receita ÷ Ativo Total. Se é 2x, a empresa vendeu o dobro do tamanho do seu patrimônio.",
+    },
+  ],
+}

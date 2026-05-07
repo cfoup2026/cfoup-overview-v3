@@ -17,6 +17,7 @@ import {
 } from "@/lib/clientes/empresa-001"
 import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
+import { IndicadoresTab } from "@/components/indicadores-tab"
 
 // ---------------------------------------------------------------------
 // Tabs config
@@ -53,7 +54,8 @@ export default function AnaliseContabilPage() {
       {activeTab === "sintese" && <SinteseExecutiva data={data.sintese} />}
       {activeTab === "dre" && <DRETab data={data.dre} />}
       {activeTab === "balanco" && <BPTab dados={data.balanco} />}
-      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && (
+      {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
+      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && (
         <div className="text-[12px] text-muted-foreground">
           Em construção · próximo PR.
         </div>
