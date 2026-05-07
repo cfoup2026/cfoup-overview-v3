@@ -43,9 +43,9 @@ export function AnalysisShell({
   return (
     <>
       {/* ============================================================ */}
-      {/* HEADER                                                        */}
+      {/* HEADER — envolvido em bloco com bg-hero-gradient              */}
       {/* ============================================================ */}
-      <header>
+      <header className="rounded-2xl border border-border bg-hero-gradient p-5 md:p-6">
         {/* Eyebrow */}
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.16em]"
@@ -80,32 +80,38 @@ export function AnalysisShell({
       </header>
 
       {/* ============================================================ */}
-      {/* TABS NAV                                                       */}
+      {/* TABS NAV — fora do bloco header, separado por mt-4            */}
       {/* ============================================================ */}
-      <nav className="mt-6 border-b border-border">
-        <div className="flex gap-6">
+      <nav className="mt-4 border-b border-border">
+        <div className="flex gap-1">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex items-baseline gap-1.5 py-3 transition-colors"
+                className={`flex items-baseline gap-1.5 rounded-t-md px-2 py-3 transition-colors ${
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                }`}
                 style={{
                   borderBottom: isActive
-                    ? "2px solid var(--brand-blue)"
-                    : "2px solid transparent",
+                    ? "3px solid var(--brand-blue)"
+                    : "3px solid transparent",
                   marginBottom: "-1px",
                 }}
               >
-                <span className="text-[10px] text-muted-foreground">
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--brand-blue)" }}
+                >
                   {tab.numeral}
                 </span>
                 <span
-                  className="text-[13px]"
+                  className="text-sm"
                   style={{
-                    color: isActive ? "var(--foreground)" : undefined,
-                    fontWeight: isActive ? 600 : 400,
+                    fontWeight: isActive ? 700 : 500,
                   }}
                 >
                   {tab.label}

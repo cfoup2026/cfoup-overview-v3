@@ -129,32 +129,36 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               <button
                 key={fato.numero}
                 type="button"
-                className="rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
+                className="flex h-full flex-col rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
               >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="flex h-9 w-9 items-center justify-center rounded-full"
-                    style={{ background: fatoConfig.bg }}
+                {/* Conteúdo principal — flex-1 pra empurrar footer pro rodapé */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-full"
+                      style={{ background: fatoConfig.bg }}
+                    >
+                      <fatoConfig.Icon size={18} style={{ color: fatoConfig.color }} />
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      {fato.numero}
+                    </span>
+                  </div>
+                  <p
+                    className="mt-3 text-[13px] font-semibold"
+                    style={{ color: "var(--brand-navy)" }}
                   >
-                    <fatoConfig.Icon size={18} style={{ color: fatoConfig.color }} />
-                  </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    {fato.numero}
-                  </span>
+                    {fato.titulo}
+                  </p>
+                  <p
+                    className="mt-2 text-[13px] leading-relaxed"
+                    style={{ color: "var(--slate-700)" }}
+                  >
+                    {renderBold(fato.corpo)}
+                  </p>
                 </div>
-                <p
-                  className="mt-3 text-[13px] font-semibold"
-                  style={{ color: "var(--brand-navy)" }}
-                >
-                  {fato.titulo}
-                </p>
-                <p
-                  className="mt-2 text-[13px] leading-relaxed"
-                  style={{ color: "var(--slate-700)" }}
-                >
-                  {renderBold(fato.corpo)}
-                </p>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                {/* Footer CTA — mt-auto garante posição no rodapé */}
+                <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
                   <span className="text-[12px] text-foreground">
                     {fato.chatCfoup}
                   </span>
