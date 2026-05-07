@@ -71,7 +71,7 @@ export type BPDadosCliente = {
 }
 
 export type AnaliseContabilData = {
-  empresa: { nome: string; cnpj: string; regime: string }
+  empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
   emitidoEm: string
   sintese: {
@@ -91,6 +91,7 @@ export type AnaliseContabilData = {
 export const dadosCliente: AnaliseContabilData = {
   empresa: {
     nome: "Gregorutt Indústria e Comércio Ltda",
+    nomeCurto: "Gregorutt",
     cnpj: "05.218.914/0001-47",
     regime: "Simples Nacional",
   },

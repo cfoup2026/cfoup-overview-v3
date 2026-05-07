@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { GitBranch, Plus, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export default function CenariosPage() {
   return (
@@ -8,7 +9,7 @@ export default function CenariosPage() {
       <PageHeader
         eyebrow="Planejamento"
         title="Cenários"
-        description="Compare decisões antes de tomar. O CFOup projeta impacto em caixa, margem e fôlego usando as fontes conectadas da Gregorutt."
+        description={`Compare decisões antes de tomar. O CFOup projeta impacto em caixa, margem e fôlego usando as fontes conectadas da ${clienteAtual.empresa.nomeCurto}.`}
         actions={
           <button className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110">
             <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -36,7 +37,7 @@ export default function CenariosPage() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href={`/chat?q=${encodeURIComponent(
-              "Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale pra Gregorutt agora?",
+              `Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale pra ${clienteAtual.empresa.nomeCurto} agora?`,
             )}&auto=1`}
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-navy)] px-4 py-2.5 text-sm font-bold text-white hover:brightness-110"
           >

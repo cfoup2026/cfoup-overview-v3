@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ArrowLeft, AlertTriangle } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 type AgingBucket = {
   label: string
@@ -60,7 +61,7 @@ export default function AtrasoFornecedoresPage() {
       <PageHeader
         eyebrow="Atraso médio"
         title="Aging dos pagamentos"
-        description="Distribuição das contas a pagar por faixa e fornecedores que a Gregorutt está pagando em atraso."
+        description={`Distribuição das contas a pagar por faixa e fornecedores que a ${clienteAtual.empresa.nomeCurto} está pagando em atraso.`}
         actions={
           <Link
             href="/fornecedores"

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { AlertTriangle, Clock, FileText, CheckCircle2 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 function chatHref(q: string) {
   return `/chat?q=${encodeURIComponent(q)}&auto=1`
@@ -12,7 +13,7 @@ export default function PendenciasPage() {
       <PageHeader
         eyebrow="Controle"
         title="Pendências"
-        description="Exceções, conciliações e decisões que esperam seu olhar. Tudo em ordem pelo impacto financeiro na Gregorutt."
+        description={`Exceções, conciliações e decisões que esperam seu olhar. Tudo em ordem pelo impacto financeiro na ${clienteAtual.empresa.nomeCurto}.`}
       />
 
       <section className="mb-8 grid gap-4 md:grid-cols-3">

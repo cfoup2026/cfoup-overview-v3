@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export const navSections = [
   {
@@ -81,7 +82,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Empresa
           </p>
-          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">Gregorutt</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">{clienteAtual.empresa.nomeCurto}</p>
           <p className="text-xs text-muted-foreground">Indústria e Comércio</p>
         </div>
       </div>

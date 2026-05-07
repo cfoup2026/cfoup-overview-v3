@@ -23,6 +23,8 @@
 
 "use client"
 
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
+
 export type ConfiguracoesSectionId =
   | "empresa"
   | "metas"
@@ -211,8 +213,7 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
 
     alertas: {
       title: "Alertas e comunicação",
-      description:
-        "Escolha como o CFOup avisa a Gregorutt quando algo sair do combinado.",
+      description: `Escolha como o CFOup avisa a ${clienteAtual.empresa.nomeCurto} quando algo sair do combinado.`,
       toggles: [
         {
           id: "resumo-diario",

@@ -1,6 +1,7 @@
 "use client"
 
 import { LedgerListView, type LedgerItem, type FilterChip } from "@/components/ledger-list-view"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 const items: LedgerItem[] = [
   {
@@ -106,7 +107,7 @@ export default function ContasAPagarPage() {
     <LedgerListView
       eyebrow="Investigar · a partir da Visão Geral"
       title="Contas a pagar"
-      description="Tudo que a Gregorutt precisa pagar nos próximos dias. Confira o que vence essa semana, o que está vencido e o que pode estar duplicado antes de liberar pagamento."
+      description={`Tudo que a ${clienteAtual.empresa.nomeCurto} precisa pagar nos próximos dias. Confira o que vence essa semana, o que está vencido e o que pode estar duplicado antes de liberar pagamento.`}
       summary={{
         totalLabel: "Total a pagar",
         total,
