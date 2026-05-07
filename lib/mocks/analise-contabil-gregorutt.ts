@@ -36,6 +36,40 @@ export type DREData = {
   glossario: { termo: string; definicao: string }[]
 }
 
+// ---------------------------------------------------------------------
+// Tipos Balanço Patrimonial
+// ---------------------------------------------------------------------
+export type BPLinhaAV = {
+  id: string
+  label: string
+  isHeaderSecao?: boolean
+  isSubtotal?: boolean
+  valores: { ano: string; rs: number | null; av: number | null }[]
+}
+
+export type BPLinhaAH = {
+  id: string
+  label: string
+  isHeaderSecao?: boolean
+  isSubtotal?: boolean
+  direcaoFavoravel: "cresce" | "cai" | "neutra"
+  valores: { ano: string; rs: number }[]
+  deltas: { intervalo: string; pct: number }[]
+}
+
+export type BPComentario = {
+  id: string
+  titulo: string
+  corpo: string
+  status: "positivo" | "atencao" | "info"
+}
+
+export type BPDadosCliente = {
+  linhasAV: BPLinhaAV[]
+  linhasAH: BPLinhaAH[]
+  comentarios: BPComentario[]
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; cnpj: string; regime: string }
   periodos: string[]
@@ -48,6 +82,7 @@ export type AnaliseContabilData = {
     glossario: { termo: string; definicao: string }[]
   }
   dre: DREData
+  balanco: BPDadosCliente
 }
 
 // ---------------------------------------------------------------------
@@ -585,6 +620,56 @@ export const gregoruttData: AnaliseContabilData = {
         definicao:
           "O salário mensal que os sócios tiram da empresa pelo trabalho que fazem nela. É obrigatório registrar em folha e recolhe INSS. Diferente de distribuição de lucros.",
       },
+    ],
+  },
+
+  // =====================================================================
+  // BALANÇO PATRIMONIAL — dados cliente Gregorutt
+  // =====================================================================
+  balanco: {
+    linhasAV: [
+      // ATIVO
+      { id: "ativo-header", label: "ATIVO", isHeaderSecao: true, valores: [{ ano: "2023", rs: null, av: null }, { ano: "2024", rs: null, av: null }, { ano: "2025", rs: null, av: null }] },
+      { id: "ativo-circulante", label: "Ativo Circulante", isSubtotal: true, valores: [{ ano: "2023", rs: 1_420_000, av: 62.3 }, { ano: "2024", rs: 1_580_000, av: 64.1 }, { ano: "2025", rs: 1_890_000, av: 66.8 }] },
+      { id: "caixa-equivalentes", label: "Caixa e Equivalentes", valores: [{ ano: "2023", rs: 520_000, av: 22.8 }, { ano: "2024", rs: 680_000, av: 27.6 }, { ano: "2025", rs: 920_000, av: 32.5 }] },
+      { id: "clientes-receber", label: "Clientes a Receber", valores: [{ ano: "2023", rs: 480_000, av: 21.1 }, { ano: "2024", rs: 510_000, av: 20.7 }, { ano: "2025", rs: 540_000, av: 19.1 }] },
+      { id: "estoques", label: "Estoques", valores: [{ ano: "2023", rs: 320_000, av: 14.0 }, { ano: "2024", rs: 290_000, av: 11.8 }, { ano: "2025", rs: 310_000, av: 11.0 }] },
+      { id: "outros-circulante", label: "Outros Ativos Circulantes", valores: [{ ano: "2023", rs: 100_000, av: 4.4 }, { ano: "2024", rs: 100_000, av: 4.1 }, { ano: "2025", rs: 120_000, av: 4.2 }] },
+      { id: "ativo-nao-circulante", label: "Ativo Não Circulante", isSubtotal: true, valores: [{ ano: "2023", rs: 860_000, av: 37.7 }, { ano: "2024", rs: 885_000, av: 35.9 }, { ano: "2025", rs: 940_000, av: 33.2 }] },
+      { id: "imobilizado", label: "Imobilizado", valores: [{ ano: "2023", rs: 780_000, av: 34.2 }, { ano: "2024", rs: 800_000, av: 32.5 }, { ano: "2025", rs: 850_000, av: 30.0 }] },
+      { id: "intangivel", label: "Intangível", valores: [{ ano: "2023", rs: 80_000, av: 3.5 }, { ano: "2024", rs: 85_000, av: 3.4 }, { ano: "2025", rs: 90_000, av: 3.2 }] },
+      { id: "total-ativo", label: "TOTAL DO ATIVO", isSubtotal: true, valores: [{ ano: "2023", rs: 2_280_000, av: 100.0 }, { ano: "2024", rs: 2_465_000, av: 100.0 }, { ano: "2025", rs: 2_830_000, av: 100.0 }] },
+      // PASSIVO + PL
+      { id: "passivo-header", label: "PASSIVO + PATRIMÔNIO LÍQUIDO", isHeaderSecao: true, valores: [{ ano: "2023", rs: null, av: null }, { ano: "2024", rs: null, av: null }, { ano: "2025", rs: null, av: null }] },
+      { id: "passivo-circulante", label: "Passivo Circulante", isSubtotal: true, valores: [{ ano: "2023", rs: 580_000, av: 25.4 }, { ano: "2024", rs: 620_000, av: 25.2 }, { ano: "2025", rs: 680_000, av: 24.0 }] },
+      { id: "fornecedores", label: "Fornecedores", valores: [{ ano: "2023", rs: 320_000, av: 14.0 }, { ano: "2024", rs: 350_000, av: 14.2 }, { ano: "2025", rs: 380_000, av: 13.4 }] },
+      { id: "obrigacoes-trabalhistas", label: "Obrigações Trabalhistas", valores: [{ ano: "2023", rs: 140_000, av: 6.1 }, { ano: "2024", rs: 150_000, av: 6.1 }, { ano: "2025", rs: 160_000, av: 5.7 }] },
+      { id: "obrigacoes-fiscais", label: "Obrigações Fiscais", valores: [{ ano: "2023", rs: 120_000, av: 5.3 }, { ano: "2024", rs: 120_000, av: 4.9 }, { ano: "2025", rs: 140_000, av: 4.9 }] },
+      { id: "passivo-nao-circulante", label: "Passivo Não Circulante", isSubtotal: true, valores: [{ ano: "2023", rs: 200_000, av: 8.8 }, { ano: "2024", rs: 180_000, av: 7.3 }, { ano: "2025", rs: 150_000, av: 5.3 }] },
+      { id: "emprestimos-lp", label: "Empréstimos LP", valores: [{ ano: "2023", rs: 200_000, av: 8.8 }, { ano: "2024", rs: 180_000, av: 7.3 }, { ano: "2025", rs: 150_000, av: 5.3 }] },
+      { id: "patrimonio-liquido", label: "Patrimônio Líquido", isSubtotal: true, valores: [{ ano: "2023", rs: 1_500_000, av: 65.8 }, { ano: "2024", rs: 1_665_000, av: 67.5 }, { ano: "2025", rs: 2_000_000, av: 70.7 }] },
+      { id: "capital-social", label: "Capital Social", valores: [{ ano: "2023", rs: 800_000, av: 35.1 }, { ano: "2024", rs: 800_000, av: 32.5 }, { ano: "2025", rs: 800_000, av: 28.3 }] },
+      { id: "reservas-lucros", label: "Reservas e Lucros Acumulados", valores: [{ ano: "2023", rs: 700_000, av: 30.7 }, { ano: "2024", rs: 865_000, av: 35.1 }, { ano: "2025", rs: 1_200_000, av: 42.4 }] },
+      { id: "total-passivo-pl", label: "TOTAL DO PASSIVO + PL", isSubtotal: true, valores: [{ ano: "2023", rs: 2_280_000, av: 100.0 }, { ano: "2024", rs: 2_465_000, av: 100.0 }, { ano: "2025", rs: 2_830_000, av: 100.0 }] },
+    ],
+    linhasAH: [
+      { id: "ativo-header", label: "ATIVO", isHeaderSecao: true, direcaoFavoravel: "neutra", valores: [{ ano: "2023", rs: 0 }, { ano: "2024", rs: 0 }, { ano: "2025", rs: 0 }], deltas: [{ intervalo: "24/23", pct: 0 }, { intervalo: "25/24", pct: 0 }, { intervalo: "25/23", pct: 0 }] },
+      { id: "ativo-circulante", label: "Ativo Circulante", isSubtotal: true, direcaoFavoravel: "cresce", valores: [{ ano: "2023", rs: 1_420_000 }, { ano: "2024", rs: 1_580_000 }, { ano: "2025", rs: 1_890_000 }], deltas: [{ intervalo: "24/23", pct: 11.3 }, { intervalo: "25/24", pct: 19.6 }, { intervalo: "25/23", pct: 33.1 }] },
+      { id: "caixa-equivalentes", label: "Caixa e Equivalentes", direcaoFavoravel: "cresce", valores: [{ ano: "2023", rs: 520_000 }, { ano: "2024", rs: 680_000 }, { ano: "2025", rs: 920_000 }], deltas: [{ intervalo: "24/23", pct: 30.8 }, { intervalo: "25/24", pct: 35.3 }, { intervalo: "25/23", pct: 76.9 }] },
+      { id: "clientes-receber", label: "Clientes a Receber", direcaoFavoravel: "neutra", valores: [{ ano: "2023", rs: 480_000 }, { ano: "2024", rs: 510_000 }, { ano: "2025", rs: 540_000 }], deltas: [{ intervalo: "24/23", pct: 6.3 }, { intervalo: "25/24", pct: 5.9 }, { intervalo: "25/23", pct: 12.5 }] },
+      { id: "estoques", label: "Estoques", direcaoFavoravel: "cai", valores: [{ ano: "2023", rs: 320_000 }, { ano: "2024", rs: 290_000 }, { ano: "2025", rs: 310_000 }], deltas: [{ intervalo: "24/23", pct: -9.4 }, { intervalo: "25/24", pct: 6.9 }, { intervalo: "25/23", pct: -3.1 }] },
+      { id: "total-ativo", label: "TOTAL DO ATIVO", isSubtotal: true, direcaoFavoravel: "cresce", valores: [{ ano: "2023", rs: 2_280_000 }, { ano: "2024", rs: 2_465_000 }, { ano: "2025", rs: 2_830_000 }], deltas: [{ intervalo: "24/23", pct: 8.1 }, { intervalo: "25/24", pct: 14.8 }, { intervalo: "25/23", pct: 24.1 }] },
+      { id: "passivo-header", label: "PASSIVO + PL", isHeaderSecao: true, direcaoFavoravel: "neutra", valores: [{ ano: "2023", rs: 0 }, { ano: "2024", rs: 0 }, { ano: "2025", rs: 0 }], deltas: [{ intervalo: "24/23", pct: 0 }, { intervalo: "25/24", pct: 0 }, { intervalo: "25/23", pct: 0 }] },
+      { id: "passivo-circulante", label: "Passivo Circulante", isSubtotal: true, direcaoFavoravel: "cai", valores: [{ ano: "2023", rs: 580_000 }, { ano: "2024", rs: 620_000 }, { ano: "2025", rs: 680_000 }], deltas: [{ intervalo: "24/23", pct: 6.9 }, { intervalo: "25/24", pct: 9.7 }, { intervalo: "25/23", pct: 17.2 }] },
+      { id: "patrimonio-liquido", label: "Patrimônio Líquido", isSubtotal: true, direcaoFavoravel: "cresce", valores: [{ ano: "2023", rs: 1_500_000 }, { ano: "2024", rs: 1_665_000 }, { ano: "2025", rs: 2_000_000 }], deltas: [{ intervalo: "24/23", pct: 11.0 }, { intervalo: "25/24", pct: 20.1 }, { intervalo: "25/23", pct: 33.3 }] },
+      { id: "total-passivo-pl", label: "TOTAL DO PASSIVO + PL", isSubtotal: true, direcaoFavoravel: "cresce", valores: [{ ano: "2023", rs: 2_280_000 }, { ano: "2024", rs: 2_465_000 }, { ano: "2025", rs: 2_830_000 }], deltas: [{ intervalo: "24/23", pct: 8.1 }, { intervalo: "25/24", pct: 14.8 }, { intervalo: "25/23", pct: 24.1 }] },
+    ],
+    comentarios: [
+      { id: "bp-1", titulo: "Caixa forte e crescente", corpo: "O caixa saltou de **R$ 520 mil em 2023** para **R$ 920 mil em 2025** (+77%). Empresa tem **folga financeira** para investir ou enfrentar imprevistos.", status: "positivo" },
+      { id: "bp-2", titulo: "Patrimônio Líquido cresce consistentemente", corpo: "PL subiu de **R$ 1,5 milhão para R$ 2 milhões** em dois anos (+33%). Isso mostra que a empresa está **retendo lucros** e se fortalecendo.", status: "positivo" },
+      { id: "bp-3", titulo: "Dívida de longo prazo diminuindo", corpo: "Empréstimos LP caíram de **R$ 200 mil para R$ 150 mil** (-25%). A empresa está **quitando dívidas antigas** sem contrair novas.", status: "positivo" },
+      { id: "bp-4", titulo: "Estoque sob controle", corpo: "Estoque caiu em participação (14% → 11% do ativo). Empresa pode estar **vendendo mais rápido** ou comprando melhor. Vale confirmar se não está faltando produto.", status: "atencao" },
+      { id: "bp-5", titulo: "Clientes a Receber estável", corpo: "Contas a receber cresceu em linha com vendas. **PMR (prazo médio de recebimento)** parece estável. Nenhum sinal de atraso relevante.", status: "info" },
     ],
   },
 }
