@@ -1,6 +1,15 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
+import {
+  TrendingUp,
+  Wallet,
+  Coins,
+  ArrowUpRight,
+  AlertTriangle,
+  Info,
+  ChevronRight,
+} from "lucide-react"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import {
   type AnaliseContabilData,
@@ -64,6 +73,22 @@ function renderBold(text: string): ReactNode {
 // ---------------------------------------------------------------------
 type SinteseData = AnaliseContabilData["sintese"]
 
+// Fato icons config: 01 ganha mais, 02 dinheiro parado, 03 lucro não tirado
+const FATO_ICONS = [
+  { Icon: TrendingUp, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" },
+  { Icon: Wallet, color: "#b45309", bg: "rgba(234,179,8,0.12)" },
+  { Icon: Coins, color: "var(--brand-blue)", bg: "rgba(21,103,200,0.10)" },
+]
+
+// KPI icons config (by index)
+const KPI_ICONS = [
+  { Icon: ArrowUpRight, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" }, // Quanto vendeu
+  { Icon: ArrowUpRight, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" }, // Lucro de 2025
+  { Icon: TrendingUp, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" },  // Lucro por R$100
+  { Icon: AlertTriangle, color: "#b45309", bg: "rgba(234,179,8,0.12)" },                // Do patrimônio em banco
+  { Icon: Info, color: "var(--brand-blue)", bg: "rgba(21,103,200,0.10)" },              // Liquidez Corrente
+]
+
 function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
@@ -98,58 +123,99 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           O que o DRE e o Balanço mostram juntos
         </h3>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {data.fatos.map((fato) => (
-            <div
-              key={fato.numero}
-              className="rounded-2xl border border-border bg-card p-4 md:p-5"
-            >
-              <p
-                className="text-[1.25rem] font-extrabold leading-none"
-                style={{ color: "var(--brand-blue)" }}
+          {data.fatos.map((fato, idx) => {
+            const fatoConfig = FATO_ICONS[idx] || FATO_ICONS[0]
+            return (
+              <button
+                key={fato.numero}
+                type="button"
+                className="rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
               >
-                {fato.numero}
-              </p>
-              <p
-                className="mt-2 text-[13px] font-semibold"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {fato.titulo}
-              </p>
-              <p
-                className="mt-2 text-[13px] leading-relaxed"
-                style={{ color: "var(--slate-700)" }}
-              >
-                {renderBold(fato.corpo)}
-              </p>
-              <p className="mt-3 border-t border-border pt-3 text-[11px] italic text-muted-foreground">
-                {fato.chatCfoup}
-              </p>
-            </div>
-          ))}
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-full"
+                    style={{ background: fatoConfig.bg }}
+                  >
+                    <fatoConfig.Icon size={18} style={{ color: fatoConfig.color }} />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    {fato.numero}
+                  </span>
+                </div>
+                <p
+                  className="mt-3 text-[13px] font-semibold"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {fato.titulo}
+                </p>
+                <p
+                  className="mt-2 text-[13px] leading-relaxed"
+                  style={{ color: "var(--slate-700)" }}
+                >
+                  {renderBold(fato.corpo)}
+                </p>
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                  <span className="text-[12px] text-foreground">
+                    {fato.chatCfoup}
+                  </span>
+                  <ChevronRight size={16} style={{ color: "var(--brand-blue)" }} />
+                </div>
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* KPIs */}
       <div className="mt-6 grid gap-3 md:grid-cols-5">
-        {data.kpis.map((kpi) => (
-          <div
-            key={kpi.label}
-            className="rounded-2xl border border-border bg-card p-4"
-          >
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {kpi.label}
-            </p>
-            <p
-              className="mt-2 text-[1.25rem] font-extrabold leading-none tabular-nums"
-              style={{ color: "var(--brand-navy)" }}
+        {data.kpis.map((kpi, idx) => {
+          const kpiConfig = KPI_ICONS[idx] || KPI_ICONS[0]
+          return (
+            <div
+              key={kpi.label}
+              className="relative rounded-2xl border border-border bg-card p-4"
             >
-              {kpi.valor}
-            </p>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-              {kpi.comentario}
-            </p>
-          </div>
-        ))}
+              <span
+                className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full"
+                style={{ background: kpiConfig.bg }}
+              >
+                <kpiConfig.Icon size={14} style={{ color: kpiConfig.color }} />
+              </span>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {kpi.label}
+              </p>
+              <p
+                className="mt-2 text-[1.25rem] font-extrabold leading-none tabular-nums"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {kpi.valor}
+              </p>
+              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                {kpi.comentario}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Card de ação */}
+      <div className="mt-6 rounded-2xl bg-brand-gradient p-4 text-white md:p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+          AÇÃO
+        </p>
+        <h3 className="mt-1 text-base font-extrabold leading-tight md:text-[1.1rem]">
+          Quer entender o que esses números dizem pro próximo passo?
+        </h3>
+        <p className="mt-2 text-[13px] leading-relaxed text-white/85">
+          Pergunte ao Chat CFOup. Ele tem o DRE, o Balanço e os 3 anos da empresa em mãos pra responder o que importa pro dono.
+        </p>
+        <button
+          type="button"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-[13px] font-semibold text-white transition hover:bg-white/20"
+        >
+          Abrir Chat CFOup
+          <ChevronRight size={14} />
+        </button>
       </div>
 
       {/* Como usar */}
