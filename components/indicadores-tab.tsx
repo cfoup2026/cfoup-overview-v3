@@ -64,11 +64,11 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
       <div className="mr-auto mt-4 max-w-[1180px] overflow-hidden rounded-2xl border border-border bg-card px-4 py-4 md:px-5">
         <table className="w-full table-fixed text-[12px]">
           <colgroup>
-            <col style={{ width: "25%" }} />
+            <col style={{ width: "22%" }} />
             <col style={{ width: "9%" }} />
             <col style={{ width: "9%" }} />
             <col style={{ width: "9%" }} />
-            <col style={{ width: "48%" }} />
+            <col style={{ width: "51%" }} />
           </colgroup>
           <thead className="bg-muted/40 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
             <tr>
