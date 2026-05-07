@@ -18,6 +18,7 @@ import {
 import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
+import { AoContadorTab } from "@/components/ao-contador-tab"
 
 // ---------------------------------------------------------------------
 // Tabs config
@@ -27,7 +28,7 @@ const TABS: TabConfig[] = [
   { id: "dre", numeral: "02", label: "DRE" },
   { id: "balanco", numeral: "03", label: "BP" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
-  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
+  { id: "perguntas-contador", numeral: "05", label: "Ao Contador" },
   { id: "glossario", numeral: "06", label: "Glossário" },
   { id: "conclusao", numeral: "07", label: "Conclusão" },
 ]
@@ -55,7 +56,8 @@ export default function AnaliseContabilPage() {
       {activeTab === "dre" && <DRETab data={data.dre} />}
       {activeTab === "balanco" && <BPTab dados={data.balanco} />}
       {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
-      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && (
+      {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
+      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && activeTab !== "perguntas-contador" && (
         <div className="text-[12px] text-muted-foreground">
           Em construção · próximo PR.
         </div>

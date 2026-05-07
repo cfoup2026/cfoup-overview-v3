@@ -134,3 +134,16 @@ export const conteudoIndicadores: IndicadoresConteudoUniversal = {
     },
   ],
 }
+
+// ---------------------------------------------------------------------
+// Ao Contador — conteúdo universal
+// ---------------------------------------------------------------------
+export type AoContadorConteudoUniversal = {
+  intro: string
+  glossario: { termo: string; definicao: string }[]
+}
+
+export const conteudoAoContador: AoContadorConteudoUniversal = {
+  intro: "", // Prompt 2 popula
+  glossario: [],
+}

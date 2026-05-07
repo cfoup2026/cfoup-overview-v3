@@ -92,6 +92,21 @@ export type IndicadoresDadosCliente = {
   comentarios: IndicadorComentario[]
 }
 
+// ---------------------------------------------------------------------
+// Tipos Ao Contador
+// ---------------------------------------------------------------------
+export type GrupoAoContador = {
+  id: string
+  numero: number
+  titulo: string
+  contexto: string
+  perguntas: string[]
+}
+
+export type AoContadorDadosCliente = {
+  grupos: GrupoAoContador[]
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
@@ -106,6 +121,7 @@ export type AnaliseContabilData = {
   dre: DREData
   balanco: BPDadosCliente
   indicadores: IndicadoresDadosCliente
+  aoContador: AoContadorDadosCliente
 }
 
 // ---------------------------------------------------------------------
@@ -719,5 +735,12 @@ export const dadosCliente: AnaliseContabilData = {
       { id: "ind-2", titulo: "Mas o dinheiro não trabalha", corpo: "O retorno sobre o patrimônio e sobre o ativo são quase iguais. Isso acontece porque **a empresa não usa dinheiro de banco para crescer**. Além disso, quase todo o patrimônio está parado em banco. O lucro é grande porque a margem é grande, não porque o patrimônio está trabalhando.", status: "atencao" },
       { id: "ind-3", titulo: "Muito caixa, zero dívida", corpo: "Com 2 anos de despesa pagos no caixa e sem dívida, não há risco financeiro. O oposto do que acontece na maioria das PMEs — aqui o desafio é o que fazer com o excesso.", status: "positivo" },
     ],
+  },
+
+  // =====================================================================
+  // AO CONTADOR — dados do cliente piloto (placeholder, Prompt 3 popula)
+  // =====================================================================
+  aoContador: {
+    grupos: [],
   },
 }
