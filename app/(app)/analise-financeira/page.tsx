@@ -1,7 +1,7 @@
 "use client"
 
 import { AnalysisShell } from "@/components/analysis-shell"
-import { SinteseTab } from "@/components/analise-financeira/sintese-tab"
+import SinteseTab from "@/components/analise-financeira/sintese-tab"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 import { conteudoSintese } from "@/lib/conteudos/analise-financeira"
 
