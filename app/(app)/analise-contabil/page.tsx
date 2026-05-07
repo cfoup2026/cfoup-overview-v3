@@ -15,6 +15,7 @@ import {
   type AnaliseContabilData,
   dadosCliente,
 } from "@/lib/clientes/empresa-001"
+import { conteudoSintese } from "@/lib/conteudos/analise-contabil"
 import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
@@ -279,7 +280,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           Glossário · Termos usados na Síntese Executiva +
         </summary>
         <dl className="mt-3 space-y-3">
-          {data.glossario.map((item) => (
+          {conteudoSintese.glossario.map((item) => (
             <div key={item.termo}>
               <dt
                 className="text-[13px] font-semibold"

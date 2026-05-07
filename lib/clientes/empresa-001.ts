@@ -116,7 +116,6 @@ export type AnaliseContabilData = {
     fatos: { numero: string; titulo: string; corpo: string; chatCfoup: string }[]
     kpis: { label: string; valor: string; comentario: string }[]
     comoUsar: { navegacao: string; oQueAnalisamos: string }
-    glossario: { termo: string; definicao: string }[]
   }
   dre: DREData
   balanco: BPDadosCliente
@@ -202,39 +201,6 @@ export const dadosCliente: AnaliseContabilData = {
       oQueAnalisamos:
         "Olhamos apenas o DRE e o Balanço Patrimonial dos períodos analisados, emitidos pela contabilidade na data de emissão acima. **Não cruzamos ainda com o fluxo de caixa real** (contas a pagar, contas a receber, extrato bancário). Isso é o próximo passo.",
     },
-
-    glossario: [
-      {
-        termo: "DRE",
-        definicao:
-          "Demonstração do Resultado. Relatório do resultado de um ano inteiro: quanto a empresa vendeu, o que gastou para produzir, folha, impostos, despesas em geral, e o lucro que sobrou.",
-      },
-      {
-        termo: "Balanço Patrimonial",
-        definicao:
-          "Relatório que mostra a posição da empresa em 31/12 de cada ano — tudo que ela tem, tudo que ela deve, e o que sobra para os sócios.",
-      },
-      {
-        termo: "Capital Social",
-        definicao:
-          "O valor que os sócios registraram oficialmente quando abriram a empresa.",
-      },
-      {
-        termo: "Lucro Acumulado",
-        definicao:
-          "A soma de todos os lucros que a empresa deu desde que foi fundada e que nunca foram distribuídos para os sócios.",
-      },
-      {
-        termo: "Distribuição de lucros",
-        definicao:
-          "Retirada formal de parte do lucro para os sócios, com registro em ata e no livro contábil. Isenta de imposto de renda até certo limite.",
-      },
-      {
-        termo: "Liquidez Corrente",
-        definicao:
-          "Divide o que a empresa tem de curto prazo pelo que ela deve de curto prazo. Abaixo de 1,0x = risco; 1,5x a 2,0x = saudável; acima de 2,5x = vale investigar onde está aplicado.",
-      },
-    ],
   },
 
   dre: {
