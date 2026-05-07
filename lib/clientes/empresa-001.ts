@@ -801,10 +801,58 @@ export const dadosCliente: AnaliseContabilData = {
   },
 
   // =====================================================================
-  // DADOS FINANCEIROS — Análise Financeira (campos zerados)
+  // DADOS FINANCEIROS — Análise Financeira
   // =====================================================================
   dadosFinanceiros: {
-    sintese: undefined,
+    sintese: {
+      veredito:
+        "A empresa vai bem, mas tem três pontos que precisam de gestão ativa: concentração de receita no top 5 clientes, uso do prazo do fornecedor como capital de giro, e dependência de dois fornecedores de embalagem.",
+      kpis: [
+        { label: "Receita Total", valor: "R$ 3,75M", sub: "+30% vs 2024", subTone: "pos" },
+        { label: "Base de Clientes", valor: "386", sub: "ativos no exercício", subTone: "neutral" },
+        { label: "Títulos Emitidos", valor: "3.467", sub: "no exercício", subTone: "neutral" },
+        { label: "Inadimplência", valor: "5,3%", sub: "R$ 225K em aberto", subTone: "pos" },
+        { label: "PMR Médio", valor: "9 dias", sub: "de atraso", subTone: "pos" },
+        { label: "Pago a Fornecedores", valor: "R$ 3,2M", sub: "no exercício", subTone: "neutral" },
+        { label: "PMP Médio", valor: "27 dias", sub: "de atraso", subTone: "neg" },
+        { label: "CP em Aberto", valor: "14,6%", sub: "R$ 549K", subTone: "neg" },
+      ],
+      alerts: [
+        {
+          nivel: "atencao",
+          titulo: "Concentração de Receita",
+          texto:
+            "Top 5 clientes representam 23,9% da receita do exercício. SUPRICORP sozinho concentra 9,4% — e tem PMR de 68 dias contra 18 da média da base.",
+        },
+        {
+          nivel: "atencao",
+          titulo: "Pressão de Caixa",
+          texto:
+            "Atraso médio de recebimento de 9 dias é operacionalmente normal. Mas pagamentos a fornecedores em atraso de 27 dias indicam uso do prazo do fornecedor como capital de giro implícito.",
+        },
+        {
+          nivel: "controle",
+          titulo: "Concentração de Fornecedor",
+          texto:
+            "ACF e Novaplastics juntos representam 17,3% das saídas — ambos fornecedores de embalagens. Dependência de um único segmento de insumo.",
+        },
+      ],
+      leituraExecutiva: {
+        titulo: "Leitura do exercício",
+        funcionou:
+          "Receita cresceu 30% YoY com base de clientes saudável — inadimplência de 5,3% e atraso médio de recebimento de 9 dias indicam carteira confiável e cobrança eficiente.",
+        preocupa:
+          "Dois pontos de atenção operacional: o gap entre o ritmo de recebimento (9 dias de atraso) e o de pagamento (27 dias de atraso) sugere uso do prazo do fornecedor como capital de giro implícito; e a dependência de embalagens, com 17,3% das saídas concentrados em dois fornecedores do mesmo segmento, é risco de continuidade.",
+        fazerAgora:
+          "Nenhum dos sinais é crítico isolado, mas todos merecem gestão ativa. Priorizar diversificação de fornecedores e negociação de prazos com os top 5 clientes.",
+        acoes: [
+          "Revisar contrato e prazos com SUPRICORP (9,4% da receita, PMR 68 dias)",
+          "Mapear fornecedores alternativos de embalagem",
+          "Criar política de crédito diferenciada para clientes acima de 5% da receita",
+          "Monitorar semanalmente o saldo de CP em aberto",
+        ],
+      },
+    },
     caixa: {
       veredito: undefined,
       saldoAtual: undefined,

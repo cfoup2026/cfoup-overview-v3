@@ -3,11 +3,16 @@
 // ---------------------------------------------------------------------
 
 export type DadosSintese = {
-  periodoDescricao?: string
-  fontes?: string[]
-  kpis?: { label: string; valor: string; delta?: string; status?: "positivo" | "atencao" | "neutro" }[]
-  headlines?: { titulo: string; texto: string; status: "positivo" | "atencao" | "neutro"; link?: { label: string; href: string } }[]
-  leituraExecutiva?: string
+  veredito?: string
+  kpis?: { label: string; valor: string; sub: string; subTone?: "pos" | "neg" | "neutral" }[]
+  alerts?: { nivel: "critico" | "atencao" | "controle"; titulo: string; texto: string }[]
+  leituraExecutiva?: {
+    titulo: string
+    funcionou: string
+    preocupa: string
+    fazerAgora: string
+    acoes: string[]
+  }
 }
 
 export type DadosCaixa = {

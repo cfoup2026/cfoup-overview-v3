@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import type { AnaliseContabilData } from "@/lib/clientes/empresa-001"
 import type { DadosFinanceiros } from "@/lib/types/analise-financeira"
+import SinteseTab from "./sintese-tab"
 import CaixaTab from "./caixa-tab"
 
 // ---------------------------------------------------------------------
@@ -34,7 +35,7 @@ type Props = {
 // Component
 // ---------------------------------------------------------------------
 export default function AnaliseFinanceiraShell({ cliente }: Props) {
-  const [activeTab, setActiveTab] = useState("A")
+  const [activeTab, setActiveTab] = useState("S")
 
   // Reset scroll to top when tab changes
   useEffect(() => {
@@ -135,10 +136,13 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
       {/* CONTENT                                                        */}
       {/* ============================================================ */}
       <div className="mt-6">
+        {activeTab === "S" && (
+          <SinteseTab dados={cliente.dadosFinanceiros?.sintese} />
+        )}
         {activeTab === "A" && (
           <CaixaTab dados={cliente.dadosFinanceiros?.caixa} />
         )}
-        {activeTab !== "A" && (
+        {activeTab !== "S" && activeTab !== "A" && (
           <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <p className="text-[13px] text-muted-foreground">
               Em construção · próximo PR.

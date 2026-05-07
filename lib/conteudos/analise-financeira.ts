@@ -3,7 +3,19 @@
 // ---------------------------------------------------------------------
 
 export const conteudoSintese = {
-  // TODO: PR seguinte
+  vereditoLabel: "Veredito",
+  alertsLabels: {
+    critico: "Crítico",
+    atencao: "Atenção",
+    controle: "Controle",
+  },
+  leituraExecutivaLabel: "Leitura executiva",
+  subBlocosLabels: {
+    funcionou: "O que funcionou",
+    preocupa: "O que preocupa",
+    fazerAgora: "O que fazer agora",
+    acoes: "Ações priorizadas",
+  },
 }
 
 export const conteudoCaixa = {
