@@ -24,7 +24,7 @@ import { BPTab } from "@/components/bp-tab"
 const TABS: TabConfig[] = [
   { id: "sintese", numeral: "01", label: "Síntese Executiva" },
   { id: "dre", numeral: "02", label: "DRE" },
-  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
+  { id: "balanco", numeral: "03", label: "BP" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
   { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
   { id: "glossario", numeral: "06", label: "Glossário" },
