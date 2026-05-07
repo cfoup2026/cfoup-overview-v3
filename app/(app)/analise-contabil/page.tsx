@@ -13,8 +13,8 @@ import {
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import {
   type AnaliseContabilData,
-  gregoruttData,
-} from "@/lib/mocks/analise-contabil-gregorutt"
+  dadosCliente,
+} from "@/lib/clientes/empresa-001"
 import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 
@@ -35,7 +35,7 @@ const TABS: TabConfig[] = [
 // Page component
 // ---------------------------------------------------------------------
 export default function AnaliseContabilPage() {
-  const data: AnaliseContabilData = gregoruttData
+  const data: AnaliseContabilData = dadosCliente
   const [activeTab, setActiveTab] = useState("sintese")
 
   return (

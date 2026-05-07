@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
-import type { DREData, DRELinhaAH } from "@/lib/mocks/analise-contabil-gregorutt"
+import type { DREData, DRELinhaAH } from "@/lib/clientes/empresa-001"
 
 // ---------------------------------------------------------------------
 // Helpers

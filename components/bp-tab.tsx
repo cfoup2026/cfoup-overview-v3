@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
-import type { BPDadosCliente, BPLinhaAH } from "@/lib/mocks/analise-contabil-gregorutt"
+import type { BPDadosCliente, BPLinhaAH } from "@/lib/clientes/empresa-001"
 import { conteudoBP } from "@/lib/conteudos/analise-contabil"
 
 // ---------------------------------------------------------------------

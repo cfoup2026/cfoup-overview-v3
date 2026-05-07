@@ -86,9 +86,9 @@ export type AnaliseContabilData = {
 }
 
 // ---------------------------------------------------------------------
-// Mock Gregorutt
+// Dados do cliente piloto
 // ---------------------------------------------------------------------
-export const gregoruttData: AnaliseContabilData = {
+export const dadosCliente: AnaliseContabilData = {
   empresa: {
     nome: "Gregorutt Indústria e Comércio Ltda",
     cnpj: "05.218.914/0001-47",
@@ -624,7 +624,7 @@ export const gregoruttData: AnaliseContabilData = {
   },
 
   // =====================================================================
-  // BALANÇO PATRIMONIAL — dados cliente Gregorutt
+  // BALANÇO PATRIMONIAL — dados do cliente piloto
   // =====================================================================
   balanco: {
     linhasAV: [
