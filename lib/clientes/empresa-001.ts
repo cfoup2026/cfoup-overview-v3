@@ -704,17 +704,20 @@ export const dadosCliente: AnaliseContabilData = {
   // =====================================================================
   indicadores: {
     linhas: [
-      { id: "margem-bruta", label: "Margem Bruta", valoresPorAno: [{ ano: "2023", valor: "36,3%" }, { ano: "2024", valor: "36,0%" }, { ano: "2025", valor: "36,2%" }], explicacao: "De cada R$ 100 que entra de venda, sobram R$ 36 depois de pagar o custo do produto. Estável nos três anos." },
-      { id: "margem-liquida", label: "Margem Líquida", valoresPorAno: [{ ano: "2023", valor: "17,2%" }, { ano: "2024", valor: "18,5%" }, { ano: "2025", valor: "18,9%" }], explicacao: "De cada R$ 100 que entra de venda, sobram R$ 19 de lucro limpo. Subindo devagar — bom sinal." },
-      { id: "liquidez-corrente", label: "Liquidez Corrente", valoresPorAno: [{ ano: "2023", valor: "10,8x" }, { ano: "2024", valor: "25,4x" }, { ano: "2025", valor: "17,6x" }], explicacao: "Para cada R$ 1 que a empresa deve no curto prazo, ela tem R$ 17,60 em caixa e estoque. Folga enorme." },
-      { id: "endividamento", label: "Endividamento", valoresPorAno: [{ ano: "2023", valor: "9,0%" }, { ano: "2024", valor: "3,8%" }, { ano: "2025", valor: "5,5%" }], explicacao: "De cada R$ 100 de patrimônio, R$ 5,50 são dívida de curto prazo. A empresa quase não deve nada." },
-      { id: "roe", label: "ROE", valoresPorAno: [{ ano: "2023", valor: "38,9%" }, { ano: "2024", valor: "43,8%" }, { ano: "2025", valor: "32,4%" }], explicacao: "O lucro do ano dividido pelo patrimônio dos sócios. Em 2025, cada R$ 100 investido rendeu R$ 32 de lucro." },
-      { id: "giro-ativo", label: "Giro do Ativo", valoresPorAno: [{ ano: "2023", valor: "2,1x" }, { ano: "2024", valor: "2,0x" }, { ano: "2025", valor: "1,6x" }], explicacao: "Quantas vezes o ativo 'girou' em vendas no ano. Em 2025, vendeu 1,6x o tamanho do ativo — normal para indústria." },
+      { id: "margem-bruta", label: "Margem Bruta", valoresPorAno: [{ ano: "2023", valor: "61,1%" }, { ano: "2024", valor: "68,2%" }, { ano: "2025", valor: "75,6%" }], explicacao: "De cada R$ 100 vendidos, R$ 76 sobram depois de pagar o custo de produção." },
+      { id: "margem-liquida", label: "Margem Líquida", valoresPorAno: [{ ano: "2023", valor: "28,4%" }, { ano: "2024", valor: "31,3%" }, { ano: "2025", valor: "44,4%" }], explicacao: "De cada R$ 100 vendidos, R$ 44 viram lucro no final." },
+      { id: "roe", label: "Retorno sobre Patrimônio (ROE)", valoresPorAno: [{ ano: "2023", valor: "68,6%" }, { ano: "2024", valor: "53,5%" }, { ano: "2025", valor: "66,3%" }], explicacao: "Para cada R$ 100 de patrimônio dos sócios, a empresa gerou R$ 66 de lucro no ano." },
+      { id: "roa", label: "Retorno sobre Ativo (ROA)", valoresPorAno: [{ ano: "2023", valor: "62,5%" }, { ano: "2024", valor: "51,5%" }, { ano: "2025", valor: "62,6%" }], explicacao: "Para cada R$ 100 que a empresa tem, gerou R$ 63 de lucro. Igual ao ROE porque não tem dívida." },
+      { id: "faturamento-banco", label: "Quanto do faturamento fica em banco", valoresPorAno: [{ ano: "2023", valor: "40,6%" }, { ano: "2024", valor: "56,2%" }, { ano: "2025", valor: "66,3%" }], explicacao: "Em 2025, o banco equivale a 8 meses de faturamento." },
+      { id: "anos-despesa-caixa", label: "Quantos anos de despesa cabem no caixa", valoresPorAno: [{ ano: "2023", valor: "1,24 ano" }, { ano: "2024", valor: "1,52 ano" }, { ano: "2025", valor: "2,12 anos" }], explicacao: "O que tem em caixa paga 2 anos de despesa sem vender nada." },
+      { id: "folha-faturamento", label: "Folha / Faturamento Líquido", valoresPorAno: [{ ano: "2023", valor: "20,7%" }, { ano: "2024", valor: "23,5%" }, { ano: "2025", valor: "17,3%" }], explicacao: "Queda em 2025 apesar da receita crescer 30%." },
+      { id: "endividamento", label: "Nível de endividamento", valoresPorAno: [{ ano: "2023", valor: "9,0%" }, { ano: "2024", valor: "3,8%" }, { ano: "2025", valor: "5,5%" }], explicacao: "Só contas do dia-a-dia (fornecedor, imposto). Zero dívida com banco." },
+      { id: "capital-giro", label: "Capital de Giro Líquido", valoresPorAno: [{ ano: "2023", valor: "R$ 669 mil" }, { ano: "2024", valor: "R$ 959 mil" }, { ano: "2025", valor: "R$ 1,42 mi" }], explicacao: "Igual ao caixa. A operação não precisa de dinheiro girando." },
     ],
     comentarios: [
-      { id: "ind-1", titulo: "Margens estáveis e saudáveis", corpo: "Margem bruta de 36% e líquida de 19% são **boas para indústria**. A empresa não está perdendo rentabilidade mesmo crescendo.", status: "positivo" },
-      { id: "ind-2", titulo: "Liquidez altíssima — talvez demais", corpo: "Liquidez corrente de 17,6x é muito acima do necessário. A empresa tem **muito dinheiro parado** que poderia render mais ou ser distribuído.", status: "atencao" },
-      { id: "ind-3", titulo: "ROE caiu em 2025", corpo: "O retorno sobre patrimônio caiu de 44% para 32%. Motivo provável: o patrimônio cresceu mais rápido que o lucro (lucro acumulando no banco). Não é problema grave, mas indica **capital ocioso**.", status: "info" },
+      { id: "ind-1", titulo: "Empresa ganha muito em cada venda", corpo: "R$ 44 de lucro em cada R$ 100 vendidos é muito para uma indústria pequena. No ritmo atual, a empresa devolve 100% do investimento dos sócios a cada 18 meses.", status: "positivo" },
+      { id: "ind-2", titulo: "Mas o dinheiro não trabalha", corpo: "O retorno sobre o patrimônio e sobre o ativo são quase iguais. Isso acontece porque **a empresa não usa dinheiro de banco para crescer**. Além disso, quase todo o patrimônio está parado em banco. O lucro é grande porque a margem é grande, não porque o patrimônio está trabalhando.", status: "atencao" },
+      { id: "ind-3", titulo: "Muito caixa, zero dívida", corpo: "Com 2 anos de despesa pagos no caixa e sem dívida, não há risco financeiro. O oposto do que acontece na maioria das PMEs — aqui o desafio é o que fazer com o excesso.", status: "positivo" },
     ],
   },
 }
