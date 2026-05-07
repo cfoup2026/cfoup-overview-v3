@@ -2,35 +2,33 @@
 // Types — Análise Financeira
 // ---------------------------------------------------------------------
 
-export type DadosSintese = {
-  veredito?: string
-  kpis?: { label: string; valor: string; sub: string; subTone?: "pos" | "neg" | "neutral" }[]
-  alerts?: { nivel: "critico" | "atencao" | "controle"; titulo: string; texto: string }[]
-  leituraExecutiva?: {
-    titulo: string
-    funcionou: string
-    preocupa: string
-    fazerAgora: string
-    acoes: string[]
-  }
+export type SinteseDecisao = {
+  titulo: string
+  descricao: string
+  meta: string
 }
 
+export type SinteseDados = {
+  tese: string
+  decisoes: SinteseDecisao[]
+  citacaoFechamento: string
+}
+
+export type HeroFinanceiro = {
+  exercicios: string
+  cobertura: string
+  fonte: string
+  dataBase: string
+}
+
+export type AnaliseFinanceiraDados = {
+  hero: HeroFinanceiro
+  sintese: SinteseDados
+}
+
+// Tipos para abas futuras (stubs)
 export type DadosCaixa = {
-  veredito?: string
-  saldoAtual?: { valor: number; sub: string }
-  runwayDias?: { valor: number; sub: string }
-  entradas30d?: { valor: number; sub: string }
-  saidas30d?: { valor: number; sub: string }
-  fluxoCaixa?: {
-    categoria: string
-    ano2023: number
-    ano2024: number
-    ano2025: number
-    varPct: number
-    isSubtotal?: boolean
-  }[]
-  atencao?: string
-  acoes?: string[]
+  // TODO: PR seguinte
 }
 
 export type DadosClientes = {
@@ -49,21 +47,10 @@ export type DadosCiclo = {
   // TODO: PR seguinte
 }
 
-export type DadosAuditoria = {
+export type DadosValidacao = {
   // TODO: PR seguinte
 }
 
 export type DadosChecklist = {
   // TODO: PR seguinte
-}
-
-export type DadosFinanceiros = {
-  sintese?: DadosSintese
-  caixa?: DadosCaixa
-  clientes?: DadosClientes
-  faturamento?: DadosFaturamento
-  fornecedor?: DadosFornecedor
-  ciclo?: DadosCiclo
-  auditoria?: DadosAuditoria
-  checklist?: DadosChecklist
 }

@@ -1,53 +1,42 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import type { AnaliseContabilData } from "@/lib/clientes/empresa-001"
-import type { DadosFinanceiros } from "@/lib/types/analise-financeira"
+import type { AnaliseFinanceiraDados } from "@/lib/types/analise-financeira"
+import { conteudoAnaliseFinanceira } from "@/lib/conteudos/analise-financeira"
 import SinteseTab from "./sintese-tab"
-import CaixaTab from "./caixa-tab"
-
-// ---------------------------------------------------------------------
-// Tab config
-// ---------------------------------------------------------------------
-const tabs = [
-  { id: "S", numeral: "S", label: "Síntese" },
-  { id: "A", numeral: "A", label: "Caixa" },
-  { id: "B", numeral: "B", label: "Clientes" },
-  { id: "C", numeral: "C", label: "Faturamento" },
-  { id: "D", numeral: "D", label: "Fornecedor" },
-  { id: "E", numeral: "E", label: "Ciclo Financeiro" },
-  { id: "F", numeral: "F", label: "Auditoria" },
-  { id: "checklist", numeral: "✓", label: "Checklist Mensal" },
-]
 
 // ---------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------
-type ClienteComFinanceiro = AnaliseContabilData & {
-  dadosFinanceiros?: DadosFinanceiros
+type ClienteComFinanceiro = {
+  nome: string
+  dadosFinanceiros: AnaliseFinanceiraDados
 }
 
 type Props = {
   cliente: ClienteComFinanceiro
+  conteudo: typeof conteudoAnaliseFinanceira
 }
 
 // ---------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------
-export default function AnaliseFinanceiraShell({ cliente }: Props) {
-  const [activeTab, setActiveTab] = useState("S")
+export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
+  const [activeTab, setActiveTab] = useState("sintese")
 
   // Reset scroll to top when tab changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior })
   }, [activeTab])
 
+  const { hero, sintese } = cliente.dadosFinanceiros
+
   return (
-    <>
+    <div className="mx-auto max-w-[1340px] px-6">
       {/* ============================================================ */}
       {/* STICKY WRAPPER — hero card + tab nav fixos no topo            */}
       {/* ============================================================ */}
-      <div className="sticky top-14 z-20 -mx-8 bg-background px-8 pb-0 pt-0 md:-mx-10 md:px-10 lg:-mx-12 lg:top-0 lg:px-12">
+      <div className="sticky top-14 z-20 -mx-6 bg-background px-6 lg:top-0">
         {/* ============================================================ */}
         {/* HEADER — hero card com bg-hero-gradient                      */}
         {/* ============================================================ */}
@@ -57,34 +46,33 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
             className="text-[10px] font-semibold uppercase tracking-[0.16em]"
             style={{ color: "var(--brand-blue)" }}
           >
-            CFOup · Análise Financeira
+            {conteudo.hero.eyebrow}
           </p>
           {/* Eyebrow line 2 */}
           <p className="text-[12px] text-muted-foreground">
-            Operação · Vendas · Recebíveis · Caixa
+            {conteudo.hero.subEyebrow}
           </p>
           {/* H1 */}
           <h1
             className="mt-0.5 text-lg font-extrabold leading-tight md:text-[1.3rem]"
             style={{ color: "var(--brand-navy)" }}
           >
-            {cliente.empresa?.nome ?? "—"}
+            {cliente.nome}
           </h1>
-          {/* Descrição */}
+          {/* Subtítulo */}
           <p
             className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
             style={{ color: "var(--slate-700)" }}
           >
-            Análise operacional e financeira do negócio — faturamento, clientes,
-            caixa, ciclo e fornecedores.
+            {conteudo.hero.subtitulo}
           </p>
 
           {/* Meta chips */}
           <div className="mt-4 flex flex-wrap gap-6">
-            <Chip label="EXERCÍCIOS" value={cliente.periodos?.join(" · ") ?? "—"} />
-            <Chip label="DATA-BASE" value={cliente.emitidoEm ?? "—"} />
-            <Chip label="NFs ANALISADAS" value="—" />
-            <Chip label="SETOR" value="—" />
+            <Chip label={conteudo.hero.metaLabels.exercicios} value={hero.exercicios} />
+            <Chip label={conteudo.hero.metaLabels.cobertura} value={hero.cobertura} />
+            <Chip label={conteudo.hero.metaLabels.fonte} value={hero.fonte} />
+            <Chip label={conteudo.hero.metaLabels.dataBase} value={hero.dataBase} />
           </div>
         </header>
 
@@ -93,7 +81,7 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
         {/* ============================================================ */}
         <nav className="mt-4 border-b border-border">
           <div className="flex gap-1 overflow-x-auto">
-            {tabs.map((tab) => {
+            {conteudo.abas.map((tab) => {
               const isActive = activeTab === tab.id
               return (
                 <button
@@ -112,10 +100,10 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
                   }}
                 >
                   <span
-                    className="text-[10px] font-medium"
+                    className="text-[10px] font-bold"
                     style={{ color: "var(--brand-blue)" }}
                   >
-                    {tab.numeral}
+                    {tab.num}
                   </span>
                   <span
                     className="text-sm"
@@ -123,7 +111,7 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
                       fontWeight: isActive ? 700 : 500,
                     }}
                   >
-                    {tab.label}
+                    {tab.nome}
                   </span>
                 </button>
               )
@@ -136,13 +124,14 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
       {/* CONTENT                                                        */}
       {/* ============================================================ */}
       <div className="mt-6">
-        {activeTab === "S" && (
-          <SinteseTab dados={cliente.dadosFinanceiros?.sintese} />
+        {activeTab === "sintese" && (
+          <SinteseTab
+            dados={sintese}
+            conteudo={conteudo.sintese}
+            empresa={{ nome: cliente.nome }}
+          />
         )}
-        {activeTab === "A" && (
-          <CaixaTab dados={cliente.dadosFinanceiros?.caixa} />
-        )}
-        {activeTab !== "S" && activeTab !== "A" && (
+        {activeTab !== "sintese" && (
           <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <p className="text-[13px] text-muted-foreground">
               Em construção · próximo PR.
@@ -150,7 +139,7 @@ export default function AnaliseFinanceiraShell({ cliente }: Props) {
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }
 

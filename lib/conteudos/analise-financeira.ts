@@ -2,50 +2,41 @@
 // Conteúdo universal — Análise Financeira
 // ---------------------------------------------------------------------
 
-export const conteudoSintese = {
-  vereditoLabel: "Veredito",
-  alertsLabels: {
-    critico: "Crítico",
-    atencao: "Atenção",
-    controle: "Controle",
+export const conteudoAnaliseFinanceira = {
+  hero: {
+    eyebrow: "CFOup · Análise Financeira",
+    subEyebrow: "Operação · Vendas · Recebíveis · Caixa · Ciclo",
+    subtitulo:
+      "Análise operacional do negócio cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",
+    metaLabels: {
+      exercicios: "EXERCÍCIOS",
+      cobertura: "COBERTURA",
+      fonte: "FONTE",
+      dataBase: "DATA-BASE",
+    },
   },
-  leituraExecutivaLabel: "Leitura executiva",
-  subBlocosLabels: {
-    funcionou: "O que funcionou",
-    preocupa: "O que preocupa",
-    fazerAgora: "O que fazer agora",
-    acoes: "Ações priorizadas",
+  abas: [
+    { num: "01", nome: "Síntese", id: "sintese" },
+    { num: "02", nome: "Posição de Caixa", id: "posicao-de-caixa" },
+    { num: "03", nome: "Clientes", id: "clientes" },
+    { num: "04", nome: "Faturamento", id: "faturamento" },
+    { num: "05", nome: "Fornecedor", id: "fornecedor" },
+    { num: "06", nome: "Ciclo Financeiro", id: "ciclo-financeiro" },
+    { num: "07", nome: "Validação", id: "validacao" },
+    { num: "✓", nome: "Checklist Mensal", id: "checklist" },
+  ],
+  sintese: {
+    titulo: "Síntese",
+    subtitulo: "O que importa agora",
+    src: "A tese e as decisões da semana",
+    tagTese: "Tese",
+    tituloDecisoes: "3 decisões desta semana",
   },
 }
 
+// Stubs para abas futuras
 export const conteudoCaixa = {
-  intro:
-    "Posição de caixa atual, fluxo dos últimos exercícios e projeção de runway. Dados extraídos de extratos bancários e notas fiscais.",
-  kpis: {
-    saldoAtual: "Saldo atual",
-    runway: "Runway",
-    entradas: "Entradas (últ. 30d)",
-    saidas: "Saídas (últ. 30d)",
-  },
-  tabela: {
-    titulo: "Fluxo de caixa · 2023–2025",
-    source: "Extratos bancários + NFs",
-    colunas: ["Categoria", "2023", "2024", "2025", "Var. 2025/2024"],
-  },
-  categorias: [
-    { id: "recebimentos", label: "Recebimentos de clientes" },
-    { id: "fornecedores", label: "Pagamentos a fornecedores" },
-    { id: "folha", label: "Folha de pagamento" },
-    { id: "despesas", label: "Despesas operacionais" },
-    { id: "impostos", label: "Impostos e encargos" },
-    { id: "fluxo-operacional", label: "Fluxo operacional líquido", isSubtotal: true },
-    { id: "capex", label: "Capex / investimentos" },
-    { id: "variacao-liquida", label: "Variação líquida de caixa", isSubtotal: true },
-  ],
-  atencaoTemplate: "Insights aparecem após conexão dos dados.",
-  veredictTemplate: "Aguardando conexão dos dados.",
-  acoesTitulo: "Ações de caixa",
-  acoesEmptyState: "Ações são geradas a partir dos dados conectados.",
+  // TODO: PR seguinte
 }
 
 export const conteudoClientes = {
@@ -64,7 +55,7 @@ export const conteudoCiclo = {
   // TODO: PR seguinte
 }
 
-export const conteudoAuditoria = {
+export const conteudoValidacao = {
   // TODO: PR seguinte
 }
 
