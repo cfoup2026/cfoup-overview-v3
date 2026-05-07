@@ -799,4 +799,27 @@ export const dadosCliente: AnaliseContabilData = {
       },
     ],
   },
+
+  // =====================================================================
+  // DADOS FINANCEIROS — Análise Financeira (campos zerados)
+  // =====================================================================
+  dadosFinanceiros: {
+    sintese: undefined,
+    caixa: {
+      veredito: undefined,
+      saldoAtual: undefined,
+      runwayDias: undefined,
+      entradas30d: undefined,
+      saidas30d: undefined,
+      fluxoCaixa: undefined,
+      atencao: undefined,
+      acoes: undefined,
+    },
+    clientes: undefined,
+    faturamento: undefined,
+    fornecedor: undefined,
+    ciclo: undefined,
+    auditoria: undefined,
+    checklist: undefined,
+  },
 }
