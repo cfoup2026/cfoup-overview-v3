@@ -108,20 +108,15 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       <TabHeaderCard titulo="Síntese Executiva" intro={data.intro} />
 
       {/* Três fatos */}
-      <div className="mt-6">
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--brand-blue)]">
           Os três fatos que importam
         </p>
-        <h3
-          className="mt-0.5 text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
+        <h3 className="mt-1 text-base font-bold leading-snug text-[color:var(--brand-navy)]">
           O que o DRE e o Balanço mostram juntos
         </h3>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
           {data.fatos.map((fato, idx) => {
             const fatoConfig = FATO_ICONS[idx] || FATO_ICONS[0]
             return (
@@ -166,7 +161,6 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               </button>
             )
           })}
-        </div>
       </div>
 
       {/* KPIs */}
