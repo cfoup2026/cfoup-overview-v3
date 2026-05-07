@@ -15,6 +15,7 @@ import {
   type AnaliseContabilData,
   gregoruttData,
 } from "@/lib/mocks/analise-contabil-gregorutt"
+import { DRETab } from "@/components/dre-tab"
 
 // ---------------------------------------------------------------------
 // Tabs config
@@ -49,7 +50,8 @@ export default function AnaliseContabilPage() {
       onTabChange={setActiveTab}
     >
       {activeTab === "sintese" && <SinteseExecutiva data={data.sintese} />}
-      {activeTab !== "sintese" && (
+      {activeTab === "dre" && <DRETab data={data.dre} />}
+      {activeTab !== "sintese" && activeTab !== "dre" && (
         <div className="text-[12px] text-muted-foreground">
           Em construção · próximo PR.
         </div>
