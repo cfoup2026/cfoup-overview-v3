@@ -181,7 +181,7 @@ function ViewVertical({ data }: { data: DREData }) {
       </div>
 
       {/* Tabela */}
-      <div className="mx-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+      <div className="mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
         <table className="w-full table-fixed text-[12px]">
           <colgroup>
             <col style={{ width: "28%" }} />
@@ -268,7 +268,7 @@ function ViewHorizontal({ data }: { data: DREData }) {
       </div>
 
       {/* Tabela */}
-      <div className="mx-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+      <div className="mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
         <table className="w-full table-fixed text-[12px]">
           <colgroup>
             <col style={{ width: "28%" }} />
