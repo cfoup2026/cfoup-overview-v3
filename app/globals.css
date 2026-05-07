@@ -17,6 +17,21 @@
   --brand-red: #c81e1e;
   --brand-red-dark: #991b1b;
 
+  /* CFOup aliases (para componentes da Análise Financeira) */
+  --cfoup-navy: var(--brand-navy);
+  --cfoup-navy-light: var(--brand-navy-mid);
+  --cfoup-blue: var(--brand-blue);
+  --cfoup-cyan: var(--brand-cyan);
+  --cfoup-pos: var(--brand-green);
+  --cfoup-neg: #d14343;
+  --cfoup-warn: #e08b00;
+  --cfoup-muted: #64748b;
+  --cfoup-ink-soft: #475569;
+  --cfoup-line: #e2e8f0;
+  --cfoup-bg: #f8fafc;
+  --cfoup-font-sans: var(--font-montserrat), 'Montserrat', ui-sans-serif, sans-serif;
+  --cfoup-font-serif: var(--font-fraunces), 'Fraunces', ui-serif, Georgia, serif;
+
   /* Neutros */
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;

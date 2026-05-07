@@ -830,7 +830,7 @@ export const dadosCliente: AnaliseContabilData = {
           label: "Concentração Top 1",
           valor: "9,6%",
           sub: "SUPRICORP · saudável (era 8,8% em 2023)",
-          subTone: "neutral",
+          subTone: "muted",
         },
         {
           label: "PMR (DSO)",

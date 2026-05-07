@@ -6,7 +6,7 @@ export type SinteseKPI = {
   label: string
   valor: string
   sub: string
-  subTone?: "pos" | "neg" | "neutral" | "warn"
+  subTone?: "pos" | "neg" | "warn" | "muted"
 }
 
 export type SinteseAlerta = {

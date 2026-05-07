@@ -32,128 +32,128 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
   const { hero, sintese } = cliente.dadosFinanceiros
 
   return (
-    <div className="mx-auto max-w-[1340px] px-6">
+    <>
       {/* ============================================================ */}
       {/* STICKY WRAPPER — hero card + tab nav fixos no topo            */}
       {/* ============================================================ */}
-      <div className="sticky top-14 z-20 -mx-6 bg-background px-6 lg:top-0">
+      <div
+        className="sticky top-14 z-20 lg:top-0"
+        style={{ background: "var(--cfoup-bg)", borderBottom: "1px solid var(--cfoup-line)" }}
+      >
         {/* ============================================================ */}
-        {/* HEADER — hero card com bg-hero-gradient                      */}
+        {/* HEADER — hero card com gradient navy                         */}
         {/* ============================================================ */}
-        <header className="rounded-2xl border border-border bg-hero-gradient p-5 md:p-6">
-          {/* Eyebrow line 1 */}
-          <p
-            className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            {conteudo.hero.eyebrow}
-          </p>
-          {/* Eyebrow line 2 */}
-          <p className="text-[12px] text-muted-foreground">
-            {conteudo.hero.subEyebrow}
-          </p>
-          {/* H1 */}
-          <h1
-            className="mt-0.5 text-lg font-extrabold leading-tight md:text-[1.3rem]"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            {cliente.nome}
-          </h1>
-          {/* Subtítulo */}
-          <p
-            className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-            style={{ color: "var(--slate-700)" }}
-          >
-            {conteudo.hero.subtitulo}
-          </p>
+        <div
+          className="text-white"
+          style={{ background: "linear-gradient(135deg, var(--cfoup-navy) 0%, var(--cfoup-navy-light) 100%)" }}
+        >
+          <div className="mx-auto max-w-[1340px] px-6 py-6">
+            {/* Eyebrow line 1 */}
+            <div
+              className="text-[11px] uppercase tracking-wider"
+              style={{ color: "var(--cfoup-cyan)" }}
+            >
+              {conteudo.hero.eyebrow}
+            </div>
+            {/* Eyebrow line 2 */}
+            <div className="mt-1 text-[11px] uppercase tracking-wider text-white/60">
+              {conteudo.hero.subEyebrow}
+            </div>
+            {/* H1 */}
+            <h1
+              className="mt-3 text-[30px] md:text-[44px]"
+              style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
+            >
+              {cliente.nome}
+            </h1>
+            {/* Subtítulo */}
+            <p
+              className="mt-2 text-[14px] text-white/80 md:text-[15px]"
+              style={{ fontFamily: "var(--cfoup-font-sans)" }}
+            >
+              {conteudo.hero.subtitulo}
+            </p>
 
-          {/* Meta chips */}
-          <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <Chip label={conteudo.hero.metaLabels.exercicios} value={hero.exercicios} />
-            <Chip label={conteudo.hero.metaLabels.dataBase} value={hero.dataBase} />
-            <Chip label={conteudo.hero.metaLabels.nfsAnalisadas} value={hero.nfsAnalisadas} />
-            <Chip label={conteudo.hero.metaLabels.setor} value={hero.setor} />
+            {/* Meta chips */}
+            <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+              <MetaChip label={conteudo.hero.metaLabels.exercicios} value={hero.exercicios} />
+              <MetaChip label={conteudo.hero.metaLabels.dataBase} value={hero.dataBase} />
+              <MetaChip label={conteudo.hero.metaLabels.nfsAnalisadas} value={hero.nfsAnalisadas} />
+              <MetaChip label={conteudo.hero.metaLabels.setor} value={hero.setor} />
+            </div>
           </div>
-        </header>
+        </div>
 
         {/* ============================================================ */}
         {/* TABS NAV                                                      */}
         {/* ============================================================ */}
-        <nav className="mt-4 border-b border-border">
-          <div className="flex gap-1 overflow-x-auto">
-            {conteudo.abas.map((tab) => {
-              const isActive = activeTab === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex shrink-0 items-baseline gap-1.5 rounded-t-md px-3 py-3 transition-colors ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                  }`}
-                  style={{
-                    borderBottom: isActive
-                      ? "3px solid var(--brand-blue)"
-                      : "3px solid transparent",
-                    marginBottom: "-1px",
-                  }}
-                >
-                  <span
-                    className="text-[10px] font-bold"
-                    style={{ color: "var(--brand-blue)" }}
-                  >
-                    {tab.num}
-                  </span>
-                  <span
-                    className="text-sm"
+        <div className="border-t bg-white" style={{ borderColor: "var(--cfoup-line)" }}>
+          <div className="mx-auto max-w-[1340px] overflow-x-auto px-6">
+            <div className="flex gap-1 whitespace-nowrap">
+              {conteudo.abas.map((tab) => {
+                const isActive = activeTab === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className="px-3 py-3 text-[12px]"
                     style={{
-                      fontWeight: isActive ? 700 : 500,
+                      borderBottom: isActive
+                        ? "2px solid var(--cfoup-blue)"
+                        : "2px solid transparent",
+                      color: isActive ? "var(--cfoup-navy)" : "var(--cfoup-muted)",
                     }}
                   >
+                    <span
+                      className="mr-1"
+                      style={{ color: "var(--cfoup-blue)", fontWeight: 700 }}
+                    >
+                      {tab.num}
+                    </span>
                     {tab.nome}
-                  </span>
-                </button>
-              )
-            })}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </nav>
+        </div>
       </div>
 
       {/* ============================================================ */}
       {/* CONTENT                                                        */}
       {/* ============================================================ */}
-      <div className="py-8">
-        {activeTab === "sintese" && (
-          <SinteseTab dados={sintese} conteudo={conteudo.sintese} />
-        )}
-        {activeTab !== "sintese" && (
-          <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-            <p className="text-[13px] text-muted-foreground">
-              Em construção · próximo PR.
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+      <main className="min-h-screen" style={{ background: "var(--cfoup-bg)" }}>
+        <div className="mx-auto max-w-[1340px] px-6 py-8">
+          {activeTab === "sintese" && (
+            <SinteseTab dados={sintese} conteudo={conteudo.sintese} />
+          )}
+          {activeTab !== "sintese" && (
+            <div
+              className="rounded-[12px] border bg-white p-8 text-center"
+              style={{ borderColor: "var(--cfoup-line)", color: "var(--cfoup-muted)" }}
+            >
+              Em construção
+            </div>
+          )}
+        </div>
+      </main>
+    </>
   )
 }
 
 // ---------------------------------------------------------------------
-// Chip helper
+// MetaChip helper
 // ---------------------------------------------------------------------
-function Chip({ label, value }: { label: string; value: string }) {
+function MetaChip({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p
-        className="mt-0.5 text-[13px] font-semibold"
-        style={{ color: "var(--brand-navy)" }}
+      <div
+        className="text-[11px] uppercase tracking-wider"
+        style={{ color: "var(--cfoup-cyan)" }}
       >
-        {value}
-      </p>
+        {label}
+      </div>
+      <div className="mt-0.5 text-[14px] font-medium text-white">{value}</div>
     </div>
   )
 }
