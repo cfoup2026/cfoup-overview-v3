@@ -181,19 +181,28 @@ function ViewVertical({ data }: { data: DREData }) {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+      <div className="mx-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+        <table className="w-full table-fixed text-[12px]">
+          <colgroup>
+            <col style={{ width: "28%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+          </colgroup>
           <thead
             className="bg-muted/40 text-[11px] uppercase tracking-[0.08em] text-muted-foreground"
           >
             <tr>
-              <th className="px-3 py-2.5 text-left">Linha</th>
-              <th className="px-3 py-2.5 text-right">2023 R$</th>
-              <th className="px-3 py-2.5 text-right">2023 AV</th>
-              <th className="px-3 py-2.5 text-right">2024 R$</th>
-              <th className="px-3 py-2.5 text-right">2024 AV</th>
-              <th className="px-3 py-2.5 text-right">2025 R$</th>
-              <th className="px-3 py-2.5 text-right">2025 AV</th>
+              <th className="px-2 py-2 text-left">Linha</th>
+              <th className="px-2 py-2 text-right">2023 R$</th>
+              <th className="px-2 py-2 text-right">2023 AV</th>
+              <th className="px-2 py-2 text-right">2024 R$</th>
+              <th className="px-2 py-2 text-right">2024 AV</th>
+              <th className="px-2 py-2 text-right">2025 R$</th>
+              <th className="px-2 py-2 text-right">2025 AV</th>
             </tr>
           </thead>
           <tbody>
@@ -210,18 +219,18 @@ function ViewVertical({ data }: { data: DREData }) {
                   className={`border-b border-border ${isLast ? "border-b-0" : ""} ${rowClass}`}
                   style={{ color: "var(--brand-navy)" }}
                 >
-                  <td className="px-3 py-2.5">{linha.label}</td>
+                  <td className="px-2 py-2">{linha.label}</td>
                   {linha.valores.map((v) => (
                     <>
                       <td
                         key={`${v.ano}-rs`}
-                        className="px-3 py-2.5 text-right tabular-nums"
+                        className="px-2 py-2 text-right tabular-nums"
                       >
                         {formatBRL(v.rs)}
                       </td>
                       <td
                         key={`${v.ano}-av`}
-                        className="px-3 py-2.5 text-right tabular-nums"
+                        className="px-2 py-2 text-right tabular-nums"
                       >
                         {formatPct(v.av)}
                       </td>
@@ -259,19 +268,28 @@ function ViewHorizontal({ data }: { data: DREData }) {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+      <div className="mx-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+        <table className="w-full table-fixed text-[12px]">
+          <colgroup>
+            <col style={{ width: "28%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+          </colgroup>
           <thead
             className="bg-muted/40 text-[11px] uppercase tracking-[0.08em] text-muted-foreground"
           >
             <tr>
-              <th className="px-3 py-2.5 text-left">Linha</th>
-              <th className="px-3 py-2.5 text-right">2023</th>
-              <th className="px-3 py-2.5 text-right">2024</th>
-              <th className="px-3 py-2.5 text-right">2025</th>
-              <th className="px-3 py-2.5 text-right">Δ 24/23</th>
-              <th className="px-3 py-2.5 text-right">Δ 25/24</th>
-              <th className="px-3 py-2.5 text-right">Δ 25/23</th>
+              <th className="px-2 py-2 text-left">Linha</th>
+              <th className="px-2 py-2 text-right">2023</th>
+              <th className="px-2 py-2 text-right">2024</th>
+              <th className="px-2 py-2 text-right">2025</th>
+              <th className="px-2 py-2 text-right">Δ 24/23</th>
+              <th className="px-2 py-2 text-right">Δ 25/24</th>
+              <th className="px-2 py-2 text-right">Δ 25/23</th>
             </tr>
           </thead>
           <tbody>
@@ -288,11 +306,11 @@ function ViewHorizontal({ data }: { data: DREData }) {
                   className={`border-b border-border ${isLast ? "border-b-0" : ""} ${rowClass}`}
                   style={{ color: "var(--brand-navy)" }}
                 >
-                  <td className="px-3 py-2.5">{linha.label}</td>
+                  <td className="px-2 py-2">{linha.label}</td>
                   {linha.valores.map((v) => (
                     <td
                       key={v.ano}
-                      className="px-3 py-2.5 text-right tabular-nums"
+                      className="px-2 py-2 text-right tabular-nums"
                     >
                       {formatBRL(v.rs)}
                     </td>
@@ -300,7 +318,7 @@ function ViewHorizontal({ data }: { data: DREData }) {
                   {linha.deltas.map((d) => (
                     <td
                       key={d.intervalo}
-                      className={`px-3 py-2.5 text-right tabular-nums font-semibold ${getDeltaClass(d.pct, linha.direcaoFavoravel)}`}
+                      className={`px-2 py-2 text-right tabular-nums font-semibold ${getDeltaClass(d.pct, linha.direcaoFavoravel)}`}
                     >
                       {formatPct(d.pct, true)}
                     </td>
