@@ -2,23 +2,45 @@
 // Types — Análise Financeira
 // ---------------------------------------------------------------------
 
-export type SinteseDecisao = {
+export type SinteseKPI = {
+  label: string
+  valor: string
+  sub: string
+  subTone?: "pos" | "neg" | "neutral" | "warn"
+}
+
+export type SinteseAlerta = {
+  nivel: "critico" | "atencao" | "controle"
+  titulo: string
+  texto: string
+}
+
+export type SinteseLeitura = {
+  tese: string
+  funcionou: string
+  preocupa: string
+  fazerAgora: string
+}
+
+export type SinteseAcao = {
   titulo: string
   descricao: string
   meta: string
 }
 
 export type SinteseDados = {
-  tese: string
-  decisoes: SinteseDecisao[]
-  citacaoFechamento: string
+  veredito: string
+  kpis: SinteseKPI[]
+  alertas: SinteseAlerta[]
+  leitura: SinteseLeitura
+  acoes: SinteseAcao[]
 }
 
 export type HeroFinanceiro = {
   exercicios: string
-  cobertura: string
-  fonte: string
   dataBase: string
+  nfsAnalisadas: string
+  setor: string
 }
 
 export type AnaliseFinanceiraDados = {

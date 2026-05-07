@@ -5,14 +5,14 @@
 export const conteudoAnaliseFinanceira = {
   hero: {
     eyebrow: "CFOup · Análise Financeira",
-    subEyebrow: "Operação · Vendas · Recebíveis · Caixa · Ciclo",
+    subEyebrow: "Operação · Vendas · Recebíveis · Caixa",
     subtitulo:
-      "Análise operacional do negócio cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",
+      "Análise operacional e financeira do negócio — faturamento, clientes, caixa, ciclo e fornecedores.",
     metaLabels: {
       exercicios: "EXERCÍCIOS",
-      cobertura: "COBERTURA",
-      fonte: "FONTE",
       dataBase: "DATA-BASE",
+      nfsAnalisadas: "NFs ANALISADAS",
+      setor: "SETOR",
     },
   },
   abas: [
@@ -26,11 +26,19 @@ export const conteudoAnaliseFinanceira = {
     { num: "✓", nome: "Checklist Mensal", id: "checklist" },
   ],
   sintese: {
-    titulo: "Síntese",
-    subtitulo: "O que importa agora",
-    src: "A tese e as decisões da semana",
-    tagTese: "Tese",
-    tituloDecisoes: "3 decisões desta semana",
+    vereditoLabel: "Veredito",
+    alertasLabels: {
+      critico: "Crítico",
+      atencao: "Atenção",
+      controle: "Controle",
+    },
+    leituraLabel: "Leitura executiva",
+    leituraSubBlocos: {
+      funcionou: "O que funcionou",
+      preocupa: "O que preocupa",
+      fazerAgora: "O que fazer agora",
+    },
+    acoesLabel: "Ações priorizadas",
   },
 }
 

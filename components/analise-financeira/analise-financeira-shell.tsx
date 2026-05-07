@@ -68,11 +68,11 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
           </p>
 
           {/* Meta chips */}
-          <div className="mt-4 flex flex-wrap gap-6">
+          <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
             <Chip label={conteudo.hero.metaLabels.exercicios} value={hero.exercicios} />
-            <Chip label={conteudo.hero.metaLabels.cobertura} value={hero.cobertura} />
-            <Chip label={conteudo.hero.metaLabels.fonte} value={hero.fonte} />
             <Chip label={conteudo.hero.metaLabels.dataBase} value={hero.dataBase} />
+            <Chip label={conteudo.hero.metaLabels.nfsAnalisadas} value={hero.nfsAnalisadas} />
+            <Chip label={conteudo.hero.metaLabels.setor} value={hero.setor} />
           </div>
         </header>
 
@@ -87,7 +87,7 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex shrink-0 items-baseline gap-1.5 rounded-t-md px-2 py-3 transition-colors ${
+                  className={`flex shrink-0 items-baseline gap-1.5 rounded-t-md px-3 py-3 transition-colors ${
                     isActive
                       ? "text-foreground"
                       : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
@@ -123,13 +123,9 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
       {/* ============================================================ */}
       {/* CONTENT                                                        */}
       {/* ============================================================ */}
-      <div className="mt-6">
+      <div className="py-8">
         {activeTab === "sintese" && (
-          <SinteseTab
-            dados={sintese}
-            conteudo={conteudo.sintese}
-            empresa={{ nome: cliente.nome }}
-          />
+          <SinteseTab dados={sintese} conteudo={conteudo.sintese} />
         )}
         {activeTab !== "sintese" && (
           <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
