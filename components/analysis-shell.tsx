@@ -80,9 +80,9 @@ export function AnalysisShell({
       </header>
 
       {/* ============================================================ */}
-      {/* TABS NAV — sticky abaixo do topbar mobile (54px), top-0 desktop */}
+      {/* TABS NAV — sticky abaixo do topbar mobile (56px), top-0 desktop */}
       {/* ============================================================ */}
-      <nav className="sticky top-[54px] z-20 -mx-8 mt-4 border-b border-border bg-background px-8 md:-mx-10 md:px-10 lg:-mx-12 lg:top-0 lg:px-12">
+      <nav className="sticky top-14 z-20 -mx-8 mt-4 border-b border-border bg-background px-8 md:-mx-10 md:px-10 lg:-mx-12 lg:top-0 lg:px-12">
         <div className="flex gap-1">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
