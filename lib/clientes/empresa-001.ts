@@ -1,3 +1,5 @@
+import type { DadosSintese } from "@/lib/types/analise-financeira"
+
 // ---------------------------------------------------------------------
 // Tipos
 // ---------------------------------------------------------------------
@@ -798,5 +800,56 @@ export const dadosCliente: AnaliseContabilData = {
         paragrafo: "A empresa é um caso raro: R$ 44 de lucro em cada R$ 100 vendidos, zero dívida, R$ 1,45 milhão em banco. O desafio não é ganhar dinheiro — é decidir o que fazer com ele.",
       },
     ],
+  },
+
+  // =====================================================================
+  // DADOS FINANCEIROS — Análise Financeira (novo módulo)
+  // =====================================================================
+  dadosFinanceiros: {
+    sintese: {
+      periodoDescricao:
+        "Exercício 2025 — 01/01/2025 a 31/12/2025. Análise construída a partir das bases de Contas a Receber, Contas a Pagar e Faturamento por cliente, exportadas do SIFWin, complementadas com extratos bancários.",
+      fontes: [
+        "Contas a Receber — SIFWin",
+        "Contas a Pagar — SIFWin",
+        "Faturamento por cliente — SIFWin",
+        "Extratos bancários — CEF",
+      ],
+      kpis: [
+        { label: "Receita Total", valor: "R$ 3,75M", delta: "+30% YoY", status: "positivo" },
+        { label: "Base de Clientes", valor: "386", delta: "ativos no exercício" },
+        { label: "Títulos Emitidos", valor: "3.467" },
+        { label: "Inadimplência", valor: "5,3%", delta: "R$ 225K em aberto", status: "positivo" },
+        { label: "Atraso médio recebimento", valor: "9 dias", status: "positivo" },
+        { label: "Pago a Fornecedores", valor: "R$ 3,2M" },
+        { label: "Atraso médio pagamento", valor: "27 dias", status: "atencao" },
+        { label: "CP em aberto", valor: "14,6%", delta: "R$ 549K", status: "atencao" },
+      ],
+      headlines: [
+        {
+          titulo: "Concentração de Receita",
+          texto:
+            "Top 5 clientes representam 23,9% da receita do exercício. SUPRICORP sozinho concentra 9,4% — e tem PMR de 68 dias contra 18 da média da base.",
+          status: "atencao",
+          link: { label: "Ver Clientes", href: "/analise-financeira?aba=clientes" },
+        },
+        {
+          titulo: "Pressão de Caixa",
+          texto:
+            "Atraso médio de recebimento de 9 dias é operacionalmente normal. Mas pagamentos a fornecedores em atraso de 27 dias indicam uso do prazo do fornecedor como capital de giro implícito.",
+          status: "atencao",
+          link: { label: "Ver Posição de Caixa", href: "/analise-financeira?aba=posicao-caixa" },
+        },
+        {
+          titulo: "Concentração de Fornecedor",
+          texto:
+            "ACF e Novaplastics juntos representam 17,3% das saídas — ambos fornecedores de embalagens. Dependência de um único segmento de insumo.",
+          status: "atencao",
+          link: { label: "Ver Fornecedor", href: "/analise-financeira?aba=fornecedor" },
+        },
+      ],
+      leituraExecutiva:
+        "Empresa rentável e com base de clientes saudável — inadimplência de 5,3% e atraso médio de recebimento de 9 dias indicam carteira confiável e cobrança eficiente. Dois pontos de atenção operacional: o gap entre o ritmo de recebimento (9 dias de atraso) e o de pagamento (27 dias de atraso) sugere uso do prazo do fornecedor como capital de giro implícito; e a dependência de embalagens, com 17,3% das saídas concentrados em dois fornecedores do mesmo segmento, é risco de continuidade. Nenhum dos sinais é crítico isolado, mas todos merecem gestão ativa.",
+    } satisfies DadosSintese,
   },
 }
