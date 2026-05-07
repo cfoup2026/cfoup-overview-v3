@@ -144,6 +144,69 @@ export type AoContadorConteudoUniversal = {
 }
 
 export const conteudoAoContador: AoContadorConteudoUniversal = {
-  intro: "", // Prompt 2 popula
-  glossario: [],
+  intro:
+    "Perguntas técnicas que só o contador responde — sobre como as contas foram registradas e como os impostos foram apurados. Lista pra o dono levar à próxima conversa com o escritório de contabilidade.",
+
+  glossario: [
+    {
+      termo: "PEPS / Custo Médio",
+      definicao:
+        "Formas de avaliar o estoque. PEPS (Primeiro que Entra, Primeiro que Sai): o custo do estoque segue a ordem de chegada da matéria-prima. Custo Médio: a cada compra nova, tira a média do que está no estoque.",
+    },
+    {
+      termo: "Mão-de-obra direta",
+      definicao:
+        "Salário de quem trabalha na produção — o operário da fábrica, por exemplo. Entra no custo de produção. Diferente da folha administrativa, que entra em Despesas.",
+    },
+    {
+      termo: "Custos Indiretos de Fabricação",
+      definicao:
+        "Gastos da produção que não dá para ligar a um produto específico: energia da fábrica, aluguel do galpão, manutenção da máquina. Também fazem parte do custo de produção.",
+    },
+    {
+      termo: "Depreciação Acumulada",
+      definicao:
+        "Conta que mostra quanto já foi depreciado dos ativos ao longo dos anos.",
+    },
+    {
+      termo: "Incorporação de lucros ao Capital",
+      definicao:
+        "Transformar o lucro guardado em capital social da empresa. Aumenta o capital sem que os sócios precisem colocar dinheiro novo.",
+    },
+    {
+      termo: "Anexo do Simples",
+      definicao:
+        "Categorias dentro do Simples Nacional. Anexo II é indústria. Anexo III é serviços em geral. Anexo IV é serviços específicos. Anexo V é outros serviços. Cada um tem alíquota diferente.",
+    },
+    {
+      termo: "Alíquota efetiva",
+      definicao:
+        "Imposto que a empresa realmente paga, em porcentagem do faturamento. Diferente da alíquota de tabela.",
+    },
+    {
+      termo: "Conciliação bancária",
+      definicao:
+        "Conferir se o saldo que está no livro da contabilidade bate com o saldo do extrato do banco.",
+    },
+    {
+      termo: "Aplicações financeiras",
+      definicao:
+        "Investimentos que a empresa fez: CDB, tesouro direto, fundo, LCI. Diferente de 'Bancos conta movimento', que é dinheiro em conta corrente.",
+    },
+    {
+      termo: "Operação entre empresas do grupo",
+      definicao:
+        "Quando uma empresa dos sócios vende ou compra de outra empresa dos mesmos sócios. Precisa ser lançada certinho para não distorcer o resultado de cada empresa.",
+    },
+    {
+      termo: "Notas Explicativas",
+      definicao:
+        "Texto que acompanha o balanço e o DRE, explicando as contas, os métodos usados e eventos importantes do ano.",
+    },
+    {
+      termo: "Livro Razão / Livro Diário",
+      definicao:
+        "Livros oficiais da contabilidade. O Razão mostra todos os lançamentos, conta por conta. O Diário mostra todos os lançamentos em ordem de data.",
+    },
+  ],
 }
