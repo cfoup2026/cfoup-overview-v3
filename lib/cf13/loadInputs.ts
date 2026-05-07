@@ -1,6 +1,6 @@
 import type { EventoCaixa, OpeningBalanceSnapshot } from 'cfoup-core'
 
-import gregoruttFixture from './fixtures/gregorutt.json'
+import clienteFixture from './fixtures/empresa-001.json'
 import {
   resolverDataReferencia,
   type ResolucaoDataReferencia,
@@ -54,7 +54,7 @@ function reviveDates(obj: any, fields: readonly string[]): any {
 }
 
 /**
- * V0: fixture estática para `clienteId === 'gregorutt'`.
+ * V0: fixture estática para `clienteId === 'empresa-001'`.
  *
  * Retorna **sempre** todos os eventos do cliente — pipeline precisa do
  * histórico pra calibrar recorrência/confiança e dos futuros (CR/CP em
@@ -71,7 +71,7 @@ function reviveDates(obj: any, fields: readonly string[]): any {
 export async function loadCF13Inputs(
   clienteId: string,
 ): Promise<CF13Inputs> {
-  if (clienteId !== 'gregorutt') {
+  if (clienteId !== 'empresa-001') {
     return {
       eventos: [],
       openingBalances: [],
@@ -80,7 +80,7 @@ export async function loadCF13Inputs(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const fixture = gregoruttFixture as any
+  const fixture = clienteFixture as any
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const eventos: EventoCaixa[] = (fixture.eventos_caixa ?? []).map((ev: any) =>

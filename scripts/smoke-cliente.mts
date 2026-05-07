@@ -1,11 +1,11 @@
 /**
- * Smoke do piloto Gregorutt (FKN).
+ * Smoke do cliente piloto (FKN).
  *
- * Uso: `pnpm tsx scripts/smoke-gregorutt.mts`
+ * Uso: `pnpm tsx scripts/smoke-cliente.mts`
  *
- * Lê os 3 CSVs em `data/gregorutt/csv/` (cp1252) e roda o pipeline FKN
+ * Lê os 3 CSVs em `data/empresa-001/csv/` (cp1252) e roda o pipeline FKN
  * completo, imprimindo um relatório de cobertura e qualidade no stdout.
- * Salva o `IngestOutput` em `data/gregorutt/output/run-{ISO}.json`.
+ * Salva o `IngestOutput` em `data/empresa-001/output/run-{ISO}.json`.
  *
  * Nada commita: CSVs e output ficam ignorados pelo .gitignore.
  *
@@ -29,13 +29,13 @@ import type { GroupMap, IngestOutput } from "../parsers/types"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(HERE, "..")
-const CSV_DIR = resolve(REPO_ROOT, "data/gregorutt/csv")
-const OUTPUT_DIR = resolve(REPO_ROOT, "data/gregorutt/output")
-const MAPPINGS_FILE = resolve(REPO_ROOT, "mappings/gregorutt-groups.json")
+const CSV_DIR = resolve(REPO_ROOT, "data/empresa-001/csv")
+const OUTPUT_DIR = resolve(REPO_ROOT, "data/empresa-001/output")
+const MAPPINGS_FILE = resolve(REPO_ROOT, "mappings/empresa-001-groups.json")
 
-const CP_FILE = resolve(CSV_DIR, "Gregorutt_CP_2023_ate_20Abr2026.csv")
-const CR_FILE = resolve(CSV_DIR, "Gregorutt_CR_2023__ate_20Abr2026.csv")
-const VENDAS_FILE = resolve(CSV_DIR, "Gregorutt_Vendas_2023_ate_20Abr2026.csv")
+const CP_FILE = resolve(CSV_DIR, "Empresa001_CP_2023_ate_20Abr2026.csv")
+const CR_FILE = resolve(CSV_DIR, "Empresa001_CR_2023__ate_20Abr2026.csv")
+const VENDAS_FILE = resolve(CSV_DIR, "Empresa001_Vendas_2023_ate_20Abr2026.csv")
 
 interface FixturesCheck {
   ok: boolean
@@ -123,7 +123,7 @@ function printReport(
   const joinMatched = vendasCount - q.joinMisses.length
 
   const lines = [
-    "=== SMOKE GREGORUTT (FKN) ===",
+    "=== SMOKE CLIENTE PILOTO (FKN) ===",
     `referenceDate: ${out.referenceDate}`,
     "",
     "PARSING",
@@ -167,7 +167,7 @@ function printReport(
 async function main(): Promise<void> {
   const check = checkFixtures()
   if (!check.ok) {
-    console.error("Fontes ausentes em data/gregorutt/csv/:")
+    console.error("Fontes ausentes em data/empresa-001/csv/:")
     for (const m of check.missing) console.error(`  - ${m}`)
     console.error("")
     console.error(
