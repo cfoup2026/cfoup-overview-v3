@@ -738,9 +738,126 @@ export const dadosCliente: AnaliseContabilData = {
   },
 
   // =====================================================================
-  // AO CONTADOR — dados do cliente piloto (placeholder, Prompt 3 popula)
+  // AO CONTADOR — dados do cliente piloto
   // =====================================================================
   aoContador: {
-    grupos: [],
+    grupos: [
+      {
+        id: "ac-1",
+        numero: 1,
+        titulo: "Sobre o custo de produção que caiu",
+        contexto: "O CPV caiu 17% em 2024 e ficou quase igual em 2025, mesmo com faturamento 30% maior.",
+        perguntas: [
+          "Mudou alguma coisa na forma de registrar o custo de produção entre 2023 e 2025? Por exemplo, energia da fábrica, aluguel do galpão ou depreciação que antes entravam no custo passaram para outra linha?",
+          "Como o estoque é avaliado — PEPS, custo médio, outro método? Mudou o método em algum ano?",
+          "O CPV inclui só matéria-prima, ou também mão-de-obra da produção e outros custos da fábrica?",
+          "Em 2024 ou 2025 foi feita alguma reclassificação que mexeu nas contas do CPV?",
+        ],
+      },
+      {
+        id: "ac-2",
+        numero: 2,
+        titulo: "Sobre a ausência de depreciação",
+        contexto: "As máquinas e equipamentos aparecem sempre pelo valor original, sem depreciação registrada nos três anos.",
+        perguntas: [
+          "Por que não aparece conta de Depreciação Acumulada no balanço?",
+          "As máquinas já estão todas depreciadas por completo, ou a contabilidade optou por não registrar depreciação?",
+          "Para empresa do Simples Nacional, qual é a orientação adotada sobre depreciação — não registra, registra só no DRE, ou registra também no balanço?",
+          "As Instalações que foram adicionadas em 2024 (R$ 12,3 mil) e 2025 (R$ 19,3 mil) estão sendo depreciadas?",
+        ],
+      },
+      {
+        id: "ac-3",
+        numero: 3,
+        titulo: "Sobre a Reserva Legal parada",
+        contexto: "A Reserva Legal manteve exatamente R$ 7.106,60 nos três anos, mesmo com lucro grande.",
+        perguntas: [
+          "A Reserva Legal já atingiu o teto de 20% do capital social e por isso não é mais alimentada?",
+          "Se sim, por que o capital social nunca foi aumentado com incorporação de lucros nesses três anos?",
+          "Existe alguma regra específica no contrato social sobre o destino do lucro?",
+        ],
+      },
+      {
+        id: "ac-4",
+        numero: 4,
+        titulo: "Sobre a distribuição de lucros",
+        contexto: "O lucro guardado subiu de R$ 680 mil para R$ 1,45 milhão sem registro de distribuição formal.",
+        perguntas: [
+          "Nos três anos houve distribuição de lucros aos sócios? Se sim, em qual conta foi registrada?",
+          "Se não teve distribuição formal, existe alguma ata assinada pelos sócios sobre manter o lucro na empresa?",
+          "Tem alguma conta de 'Dividendos a Pagar' ou 'Lucros a Distribuir' no Passivo que não apareceu no balanço resumido?",
+        ],
+      },
+      {
+        id: "ac-5",
+        numero: 5,
+        titulo: "Sobre o Simples Nacional e o ICMS-ST",
+        contexto: "A alíquota sobre vendas subiu de 13,9% para 15,4% em três anos. Em 2025, a Substituição Tributária a recolher é quase igual ao Simples Nacional a recolher.",
+        perguntas: [
+          "Em qual anexo do Simples a empresa está — Anexo II (indústria) ou Anexo III (serviços)?",
+          "Qual a faixa atual de faturamento anual e qual alíquota efetiva está sendo aplicada?",
+          "Qual foi o valor anual de ICMS-ST pago em 2025? Esse valor está no custo de produção ou em outra linha?",
+          "Já foi feita simulação entre Simples Nacional e Lucro Presumido para o faturamento atual?",
+        ],
+      },
+      {
+        id: "ac-6",
+        numero: 6,
+        titulo: "Sobre como as despesas são classificadas",
+        contexto: "'Despesas Gerais' cresceu 64% em três anos. A folha caiu 5,6% em 2025 num ano de vendas +30%.",
+        perguntas: [
+          "Qual o critério usado para separar uma despesa entre 'Despesas Gerais', 'Despesas com Pessoal', 'Despesas com Entrega' ou 'Impostos e Taxas'?",
+          "Pode mandar o detalhamento da conta 'Despesas Gerais' por sub-conta, nos três anos?",
+          "Alguma despesa mudou de linha entre os anos, e isso explica a queda da folha e o crescimento das Despesas Gerais em 2025?",
+          "O pró-labore dos sócios está dentro de 'Despesas com Pessoal' ou em outra conta?",
+        ],
+      },
+      {
+        id: "ac-7",
+        numero: 7,
+        titulo: "Sobre o saldo em banco",
+        contexto: "O balanço de 2025 mostra R$ 1.451.458 em 'Bancos Conta Movimento'.",
+        perguntas: [
+          "Esse saldo corresponde à soma de quais contas bancárias (banco e número)?",
+          "Com que frequência é feita a conciliação bancária — todo mês, todo trimestre, só no fim do ano? Em 31/12/2025 o saldo contábil bateu com o extrato real?",
+          "Tem aplicação financeira (CDB, fundo, tesouro) que não está dentro de 'Bancos Conta Movimento'? Onde aparece no balanço?",
+          "A contabilidade recebe os extratos direto do banco ou a empresa envia os lançamentos já consolidados?",
+        ],
+      },
+      {
+        id: "ac-8",
+        numero: 8,
+        titulo: "Sobre o que a contabilidade vê",
+        contexto: "A contabilidade costuma registrar o que tem nota fiscal. Em PMEs, é comum ter movimentação que fica de fora.",
+        perguntas: [
+          "A contabilidade lança só o que tem nota fiscal, ou também trabalha com recibo e extrato?",
+          "Tem outras empresas do mesmo grupo societário (mesmos sócios) cuja contabilidade também é feita aí no escritório? Quais?",
+          "Tem alguma operação conhecida entre a empresa e outra empresa dos mesmos sócios?",
+          "O escritório tem conhecimento de bens operacionais (veículo, máquina, marca) que estão no nome pessoal dos sócios ou em outra empresa do grupo?",
+        ],
+      },
+      {
+        id: "ac-9",
+        numero: 9,
+        titulo: "Sobre cancelamentos, devoluções e estoque",
+        contexto: "Os cancelamentos saltaram de R$ 47 em 2023 para R$ 6,2 mil em 2025. O estoque oscilou cerca de 25% entre os anos.",
+        perguntas: [
+          "O que explica o salto de cancelamentos e devoluções a partir de 2024? Mudou a forma de registrar, ou mudou a operação?",
+          "A variação de estoque entre os anos (R$ 59 mil → R$ 44 mil → R$ 59 mil) corresponde a contagem física real em 31/12, ou é ajuste contábil de fechamento?",
+          "O estoque registrado inclui só matéria-prima, ou também produto em produção e produto acabado?",
+        ],
+      },
+      {
+        id: "ac-10",
+        numero: 10,
+        titulo: "Sobre documentos e formalidades",
+        contexto: "Três anos de resultados relevantes sem movimentação societária formal aparente.",
+        perguntas: [
+          "Existem Notas Explicativas do balanço que não foram enviadas no material?",
+          "O Livro Razão e o Livro Diário da empresa estão em dia? Pode disponibilizar?",
+          "Houve alteração contratual nos últimos três anos — entrada ou saída de sócio, mudança de capital, mudança de objeto social?",
+        ],
+      },
+    ],
   },
 }
