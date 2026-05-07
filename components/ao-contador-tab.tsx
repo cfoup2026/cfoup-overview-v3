@@ -13,7 +13,7 @@ export function AoContadorTab({ dados }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="mt-12 max-w-3xl">
+      <div className="mt-12">
         <h2
           className="text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
