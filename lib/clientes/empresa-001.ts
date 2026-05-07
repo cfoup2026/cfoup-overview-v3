@@ -639,7 +639,7 @@ export const dadosCliente: AnaliseContabilData = {
       { id: "maquinas-equip", label: "Máquinas e equipamentos", valores: [{ ano: "2023", rs: 17762, av: 2.3 }, { ano: "2024", rs: 17762, av: 1.7 }, { ano: "2025", rs: 17762, av: 1.1 }] },
       { id: "computadores-inst", label: "Computadores e instalações", valores: [{ ano: "2023", rs: 1000, av: 0.1 }, { ano: "2024", rs: 13288, av: 1.3 }, { ano: "2025", rs: 20288, av: 1.3 }] },
       // PASSIVO + PL
-      { id: "passivo-header", label: "PASSIVO + PATRIMÔNIO DOS SÓCIOS", isHeaderSecao: true, valores: [{ ano: "2023", rs: 760051, av: 100.0 }, { ano: "2024", rs: 1033417, av: 100.0 }, { ano: "2025", rs: 1551939, av: 100.0 }] },
+      { id: "passivo-header", label: "PASSIVO + PL", isHeaderSecao: true, valores: [{ ano: "2023", rs: 760051, av: 100.0 }, { ano: "2024", rs: 1033417, av: 100.0 }, { ano: "2025", rs: 1551939, av: 100.0 }] },
       { id: "passivo-circulante", label: "Passivo Circulante", isSubtotal: true, valores: [{ ano: "2023", rs: 68156, av: 9.0 }, { ano: "2024", rs: 39379, av: 3.8 }, { ano: "2025", rs: 85977, av: 5.5 }] },
       { id: "fornecedores", label: "A pagar para fornecedores", valores: [{ ano: "2023", rs: 40498, av: 5.3 }, { ano: "2024", rs: 6179, av: 0.6 }, { ano: "2025", rs: 38587, av: 2.5 }] },
       { id: "impostos-recolher", label: "Impostos a recolher", valores: [{ ano: "2023", rs: 23328, av: 3.1 }, { ano: "2024", rs: 27892, av: 2.7 }, { ano: "2025", rs: 42076, av: 2.7 }] },
