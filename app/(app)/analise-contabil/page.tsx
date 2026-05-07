@@ -1,10 +1,53 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
+import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import {
   type AnaliseContabilData,
   gregoruttData,
 } from "@/lib/mocks/analise-contabil-gregorutt"
+
+// ---------------------------------------------------------------------
+// Tabs config
+// ---------------------------------------------------------------------
+const TABS: TabConfig[] = [
+  { id: "sintese", numeral: "01", label: "Síntese Executiva" },
+  { id: "dre", numeral: "02", label: "DRE" },
+  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
+  { id: "indicadores", numeral: "04", label: "Indicadores" },
+  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
+  { id: "glossario", numeral: "06", label: "Glossário" },
+  { id: "conclusao", numeral: "07", label: "Conclusão" },
+]
+
+// ---------------------------------------------------------------------
+// Page component
+// ---------------------------------------------------------------------
+export default function AnaliseContabilPage() {
+  const data: AnaliseContabilData = gregoruttData
+  const [activeTab, setActiveTab] = useState("sintese")
+
+  return (
+    <AnalysisShell
+      empresa={data.empresa}
+      periodos={data.periodos}
+      emitidoEm={data.emitidoEm}
+      eyebrow="CFOup · Análise Contábil"
+      subtitulo="Demonstração do Resultado · Balanço Patrimonial"
+      descricao={`Análise do DRE e do Balanço Patrimonial de ${data.periodos.join(", ")} para embasar as próximas decisões financeiras da empresa.`}
+      tabs={TABS}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      {activeTab === "sintese" && <SinteseExecutiva data={data.sintese} />}
+      {activeTab !== "sintese" && (
+        <div className="text-[12px] text-muted-foreground">
+          Em construção · próximo PR.
+        </div>
+      )}
+    </AnalysisShell>
+  )
+}
 
 // ---------------------------------------------------------------------
 // Helper: converte **trecho** em <strong>trecho</strong> inline
@@ -17,156 +60,68 @@ function renderBold(text: string): ReactNode {
 }
 
 // ---------------------------------------------------------------------
-// Tabs config
+// Síntese Executiva
 // ---------------------------------------------------------------------
-const TABS = [
-  { id: "sintese", numeral: "01", label: "Síntese Executiva" },
-  { id: "dre", numeral: "02", label: "DRE" },
-  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
-  { id: "indicadores", numeral: "04", label: "Indicadores" },
-  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
-  { id: "glossario", numeral: "06", label: "Glossário" },
-  { id: "conclusao", numeral: "07", label: "Conclusão" },
-] as const
+type SinteseData = AnaliseContabilData["sintese"]
 
-type TabId = (typeof TABS)[number]["id"]
-
-// ---------------------------------------------------------------------
-// Page component
-// ---------------------------------------------------------------------
-export default function AnaliseContabilPage() {
-  const data: AnaliseContabilData = gregoruttData
-  const [activeTab, setActiveTab] = useState<TabId>("sintese")
-
-  return (
-    <div
-      className="mx-auto max-w-[1340px] px-8 py-10"
-      style={{ fontFamily: "var(--font-sans)" }}
-    >
-      {/* ============================================================ */}
-      {/* HEADER                                                        */}
-      {/* ============================================================ */}
-      <header>
-        <p className="text-sm tracking-wide" style={{ color: "var(--brand-blue)" }}>
-          CFOup · Análise Contábil
-        </p>
-        <p className="text-sm" style={{ color: "var(--slate-500)" }}>
-          Demonstração do Resultado · Balanço Patrimonial
-        </p>
-        <h1 className="mt-2 text-4xl font-bold" style={{ color: "var(--brand-navy)" }}>
-          {data.empresa.nome}
-        </h1>
-        <p className="mt-3 max-w-3xl" style={{ color: "var(--slate-600)" }}>
-          Análise do DRE e do Balanço Patrimonial de{" "}
-          {data.periodos.join(", ")} para embasar as próximas decisões
-          financeiras da empresa.
-        </p>
-
-        {/* Chips */}
-        <div className="mt-6 flex gap-8">
-          <Chip label="EXERCÍCIOS" value={data.periodos.join(" · ")} />
-          <Chip label="CNPJ" value={data.empresa.cnpj} />
-          <Chip label="REGIME" value={data.empresa.regime} />
-          <Chip label="EMITIDO EM" value={data.emitidoEm} />
-        </div>
-      </header>
-
-      {/* ============================================================ */}
-      {/* SUB-TABS NAV (sticky)                                         */}
-      {/* ============================================================ */}
-      <nav
-        className="sticky top-0 z-10 -mx-8 mt-10 border-b bg-white px-8"
-        style={{ borderColor: "var(--slate-200)" }}
-      >
-        <div className="flex gap-8">
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className="py-4 font-medium transition-colors"
-                style={{
-                  borderBottom: isActive ? "2px solid var(--brand-blue)" : "2px solid transparent",
-                  color: isActive ? "var(--brand-navy)" : "var(--slate-500)",
-                  fontWeight: isActive ? 600 : 400,
-                }}
-              >
-                <span className="mr-2 text-xs" style={{ color: "var(--slate-400)" }}>
-                  {tab.numeral}
-                </span>
-                <span className="text-sm">{tab.label}</span>
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
-      {/* ============================================================ */}
-      {/* TAB CONTENT                                                   */}
-      {/* ============================================================ */}
-      {activeTab === "sintese" && <TabSintese data={data} />}
-      {activeTab !== "sintese" && (
-        <div className="mt-12 text-sm" style={{ color: "var(--slate-400)" }}>
-          Em construção · próximo PR.
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Chip helper
-// ---------------------------------------------------------------------
-function Chip({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs uppercase tracking-wider" style={{ color: "var(--slate-400)" }}>{label}</p>
-      <p className="mt-1 text-base font-semibold" style={{ color: "var(--brand-navy)" }}>{value}</p>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Tab Síntese Executiva
-// ---------------------------------------------------------------------
-function TabSintese({ data }: { data: AnaliseContabilData }) {
+function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
       {/* Intro */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold" style={{ color: "var(--brand-navy)" }}>Síntese Executiva</h2>
-        <p className="mt-4 max-w-3xl text-lg" style={{ color: "var(--slate-700)" }}>
-          {data.sintese.intro}
+      <div>
+        <h2
+          className="text-base font-bold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          Síntese Executiva
+        </h2>
+        <p
+          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
+          style={{ color: "var(--slate-700)" }}
+        >
+          {data.intro}
         </p>
       </div>
 
       {/* Três fatos */}
-      <div className="mt-12">
-        <p className="text-sm uppercase tracking-wider" style={{ color: "var(--brand-cyan)" }}>
+      <div className="mt-6">
+        <p
+          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
           Os três fatos que importam
         </p>
-        <h3 className="mt-2 text-xl font-semibold" style={{ color: "var(--brand-navy)" }}>
+        <h3
+          className="mt-0.5 text-base font-bold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
+        >
           O que o DRE e o Balanço mostram juntos
         </h3>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {data.sintese.fatos.map((fato) => (
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {data.fatos.map((fato) => (
             <div
               key={fato.numero}
-              className="rounded-lg border bg-white p-6"
-              style={{ borderColor: "var(--slate-200)" }}
+              className="rounded-2xl border border-border bg-card p-4 md:p-5"
             >
-              <p className="text-3xl font-bold" style={{ color: "var(--brand-blue)" }}>{fato.numero}</p>
-              <p className="mt-2 text-base font-semibold" style={{ color: "var(--brand-navy)" }}>
-                {fato.titulo}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--slate-600)" }}>
-                {renderBold(fato.corpo)}
+              <p
+                className="text-[1.25rem] font-extrabold leading-none"
+                style={{ color: "var(--brand-blue)" }}
+              >
+                {fato.numero}
               </p>
               <p
-                className="mt-4 border-t pt-3 text-xs italic"
-                style={{ borderColor: "var(--slate-100)", color: "var(--slate-500)" }}
+                className="mt-2 text-[13px] font-semibold"
+                style={{ color: "var(--brand-navy)" }}
               >
+                {fato.titulo}
+              </p>
+              <p
+                className="mt-2 text-[13px] leading-relaxed"
+                style={{ color: "var(--slate-700)" }}
+              >
+                {renderBold(fato.corpo)}
+              </p>
+              <p className="mt-3 border-t border-border pt-3 text-[11px] italic text-muted-foreground">
                 {fato.chatCfoup}
               </p>
             </div>
@@ -174,58 +129,90 @@ function TabSintese({ data }: { data: AnaliseContabilData }) {
         </div>
       </div>
 
-      {/* KPI strip */}
-      <div className="mt-12 grid gap-4 md:grid-cols-5">
-        {data.sintese.kpis.map((kpi) => (
-          <div key={kpi.label} className="rounded-lg p-5" style={{ background: "var(--slate-50)" }}>
-            <p className="text-xs uppercase tracking-wider" style={{ color: "var(--slate-500)" }}>
+      {/* KPIs */}
+      <div className="mt-6 grid gap-3 md:grid-cols-5">
+        {data.kpis.map((kpi) => (
+          <div
+            key={kpi.label}
+            className="rounded-2xl border border-border bg-card p-4"
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {kpi.label}
             </p>
-            <p className="mt-2 text-2xl font-bold" style={{ color: "var(--brand-navy)" }}>{kpi.valor}</p>
-            <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--slate-500)" }}>
+            <p
+              className="mt-2 text-[1.25rem] font-extrabold leading-none tabular-nums"
+              style={{ color: "var(--brand-navy)" }}
+            >
+              {kpi.valor}
+            </p>
+            <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
               {kpi.comentario}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Como usar este relatório */}
-      <div className="mt-16">
-        <h3 className="text-xl font-semibold" style={{ color: "var(--brand-navy)" }}>
+      {/* Como usar */}
+      <div className="mt-8">
+        <h3
+          className="text-base font-bold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
+        >
           Como usar este relatório
         </h3>
-        <div className="mt-6 grid gap-12 md:grid-cols-2">
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
           <div>
-            <h4 className="mb-3 text-base font-semibold" style={{ color: "var(--brand-navy)" }}>
+            <h4
+              className="mb-1.5 text-[13px] font-semibold"
+              style={{ color: "var(--brand-navy)" }}
+            >
               Navegação
             </h4>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--slate-600)" }}>
-              {renderBold(data.sintese.comoUsar.navegacao)}
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: "var(--slate-700)" }}
+            >
+              {renderBold(data.comoUsar.navegacao)}
             </p>
           </div>
           <div>
-            <h4 className="mb-3 text-base font-semibold" style={{ color: "var(--brand-navy)" }}>
+            <h4
+              className="mb-1.5 text-[13px] font-semibold"
+              style={{ color: "var(--brand-navy)" }}
+            >
               O que analisamos
             </h4>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--slate-600)" }}>
-              {renderBold(data.sintese.comoUsar.oQueAnalisamos)}
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: "var(--slate-700)" }}
+            >
+              {renderBold(data.comoUsar.oQueAnalisamos)}
             </p>
           </div>
         </div>
       </div>
 
       {/* Glossário */}
-      <details className="mb-16 mt-12">
-        <summary className="cursor-pointer list-none text-sm font-semibold" style={{ color: "var(--brand-blue)" }}>
+      <details className="mb-6 mt-6">
+        <summary
+          className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
           Glossário · Termos usados na Síntese Executiva +
         </summary>
-        <dl className="mt-4 space-y-4">
-          {data.sintese.glossario.map((item) => (
+        <dl className="mt-3 space-y-3">
+          {data.glossario.map((item) => (
             <div key={item.termo}>
-              <dt className="text-sm font-semibold" style={{ color: "var(--brand-navy)" }}>
+              <dt
+                className="text-[13px] font-semibold"
+                style={{ color: "var(--brand-navy)" }}
+              >
                 {item.termo}
               </dt>
-              <dd className="mt-1 text-sm leading-relaxed" style={{ color: "var(--slate-600)" }}>
+              <dd
+                className="mt-1 text-[13px] leading-relaxed"
+                style={{ color: "var(--slate-700)" }}
+              >
                 {item.definicao}
               </dd>
             </div>
