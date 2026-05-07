@@ -4,6 +4,7 @@ import { type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
 import type { IndicadoresDadosCliente } from "@/lib/clientes/empresa-001"
 import { conteudoIndicadores } from "@/lib/conteudos/analise-contabil"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
 // Helpers
@@ -45,20 +46,7 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
   return (
     <div>
       {/* Header */}
-      <div className="mt-12">
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Indicadores
-        </h2>
-        <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          {conteudoIndicadores.intro}
-        </p>
-      </div>
+      <TabHeaderCard titulo="Indicadores" intro={conteudoIndicadores.intro} />
 
       {/* Tabela */}
       <div className="mr-auto mt-4 max-w-[1280px] overflow-hidden rounded-2xl border border-border bg-card px-4 py-4 md:px-5">

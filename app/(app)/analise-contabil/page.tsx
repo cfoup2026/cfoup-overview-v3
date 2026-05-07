@@ -21,6 +21,7 @@ import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
 import { GlossarioTab } from "@/components/glossario-tab"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
 // Tabs config
@@ -104,20 +105,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
       {/* Intro */}
-      <div>
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Síntese Executiva
-        </h2>
-        <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          {data.intro}
-        </p>
-      </div>
+      <TabHeaderCard titulo="Síntese Executiva" intro={data.intro} />
 
       {/* Três fatos */}
       <div className="mt-6">

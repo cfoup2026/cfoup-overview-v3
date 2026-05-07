@@ -7,6 +7,7 @@ import {
   conteudoIndicadores,
   conteudoAoContador,
 } from "@/lib/conteudos/analise-contabil"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
 // GlossarioTab — consolidação de todos os glossários universais
@@ -44,21 +45,10 @@ export function GlossarioTab() {
   return (
     <section className="mb-12">
       {/* Header */}
-      <div className="mt-12">
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Glossário
-        </h2>
-        <p
-          className="mt-1.5 text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          Todos os termos contábeis e financeiros usados neste relatório,
-          explicados em linguagem simples.
-        </p>
-      </div>
+      <TabHeaderCard
+        titulo="Glossário"
+        intro="Todos os termos contábeis e financeiros usados neste relatório, explicados em linguagem simples."
+      />
 
       {/* Lista por letra */}
       <div className="mt-6 space-y-4">

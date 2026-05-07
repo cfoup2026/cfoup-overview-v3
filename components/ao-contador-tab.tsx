@@ -2,6 +2,7 @@
 
 import { conteudoAoContador } from "@/lib/conteudos/analise-contabil"
 import type { AoContadorDadosCliente } from "@/lib/clientes/empresa-001"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 type Props = {
   dados: AoContadorDadosCliente
@@ -13,22 +14,7 @@ export function AoContadorTab({ dados }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="mt-12">
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Ao Contador
-        </h2>
-        {conteudoAoContador.intro && (
-          <p
-            className="mt-1.5 text-[13px] leading-relaxed"
-            style={{ color: "var(--slate-700)" }}
-          >
-            {conteudoAoContador.intro}
-          </p>
-        )}
-      </div>
+      <TabHeaderCard titulo="Ao Contador" intro={conteudoAoContador.intro} />
 
       {/* Lista de grupos */}
       <div className="mt-6 space-y-4">

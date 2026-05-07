@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
 import type { DREData, DRELinhaAH } from "@/lib/clientes/empresa-001"
 import { conteudoDRE } from "@/lib/conteudos/analise-contabil"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
 // Helpers
@@ -83,20 +84,7 @@ export function DRETab({ data }: { data: DREData }) {
   return (
     <section>
       {/* Header */}
-      <div className="mt-6">
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Demonstração do Resultado
-        </h2>
-        <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          {data.intro}
-        </p>
-      </div>
+      <TabHeaderCard titulo="Demonstração do Resultado" intro={data.intro} />
 
       {/* Toggle pills */}
       <div className="mt-4 flex gap-2">

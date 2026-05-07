@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react"
 import { TrendingUp, AlertTriangle, Info } from "lucide-react"
 import type { BPDadosCliente, BPLinhaAH } from "@/lib/clientes/empresa-001"
 import { conteudoBP } from "@/lib/conteudos/analise-contabil"
+import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
 // Helpers (idênticos ao DRETab)
@@ -84,20 +85,7 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
   return (
     <section>
       {/* Header */}
-      <div className="mt-6">
-        <h2
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          Balanço Patrimonial
-        </h2>
-        <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          {conteudoBP.intro}
-        </p>
-      </div>
+      <TabHeaderCard titulo="Balanço Patrimonial" intro={conteudoBP.intro} />
 
       {/* Toggle pills */}
       <div className="mt-4 flex gap-2">
