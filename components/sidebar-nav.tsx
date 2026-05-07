@@ -13,6 +13,7 @@ import {
   PieChart,
   LogOut,
   ListChecks,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
@@ -28,6 +29,13 @@ export const navSections = [
       { href: "/pendencias", label: "Pendências", icon: AlertCircle },
       { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
       { href: "/margens", label: "Margens e Rentabilidade", icon: PieChart },
+    ],
+  },
+  {
+    label: "Análises",
+    items: [
+      { href: "/analise-financeira", label: "Análise Financeira", icon: FileText },
+      { href: "/analise-contabil", label: "Análise Contábil", icon: FileText },
     ],
   },
   {
