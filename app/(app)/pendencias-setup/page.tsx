@@ -23,8 +23,8 @@ import type {
  *   - Cards 1, 2, 3 (em aberto e a confirmar): DEMO visual com arrays placeholder.
  *   - Card 4 ("Lançamentos sem classificação"): integrado ao Motor de
  *     Classificação v1 do cfoup-core via `groupClassificationExceptions`.
- *     Os dados de entrada ainda são mock (derivado do diagnóstico Gregorutt
- *     do cfoup-core, ver `mockDerivedFromGregoruttDiagnostic` abaixo). Quando
+ *     Os dados de entrada ainda são mock (derivado do diagnóstico do cliente
+ *     piloto no cfoup-core, ver `mockDerivedFromClientDiagnostic` abaixo). Quando
  *     o pipeline real for plugado, basta substituir essa função por um hook
  *     que devolva `{ transactions, results, snapshot }` reais — a função do
  *     core já é a real.
@@ -551,9 +551,9 @@ function RowActions({ actions }: { actions: Action[] }) {
 // (`getCategoryByCode`) vêm direto do cfoup-core — não há cópia local de
 // regra, tipo ou função.
 //
-// Dataset de entrada: mock derivado do diagnóstico real Gregorutt
-// (`scripts/classify-gregorutt.ts` no cfoup-core, rodado sobre os fixtures
-// Gregorutt). Os contraparte, count e totalAmount de cada grupo refletem
+// Dataset de entrada: mock derivado do diagnóstico real do cliente piloto
+// (`scripts/classify-cliente.ts` no cfoup-core, rodado sobre os fixtures
+// do cliente piloto). Os contraparte, count e totalAmount de cada grupo refletem
 // os top-12 grupos pendentes daquele diagnóstico — não são exemplos
 // genéricos. Snapshot do diagnóstico:
 //   total analisado: 28.394
@@ -587,7 +587,7 @@ const GROUP_ACTION_LABEL: Record<GroupActionId, string> = {
   manter: "Manter pendente",
 }
 
-interface MockGregoruttDiagnostic {
+interface MockClientDiagnostic {
   transactions: SourceTransaction[]
   results: ClassificationResult[]
   snapshot: {
@@ -600,8 +600,8 @@ interface MockGregoruttDiagnostic {
 }
 
 /**
- * Counterparties cujo valor monetário não é informado pelo diagnóstico
- * Gregorutt — a UI mostra "valor não informado" no lugar de R$ 0,00.
+ * Counterparties cujo valor monetário não é informado pelo diagnóstico do
+ * cliente piloto — a UI mostra "valor não informado" no lugar de R$ 0,00.
  */
 const VALOR_NAO_INFORMADO = new Set<string>([
   "DESPESAS",
@@ -611,9 +611,9 @@ const VALOR_NAO_INFORMADO = new Set<string>([
 /**
  * Override de label de sugestão. Usado quando o `ownerFriendlyLabel` da
  * categoria standard do core não bate exatamente com o que o diagnóstico
- * Gregorutt anotou — ou quando não há código standard que cubra (precisa
- * abrir / abrir composição). A `standardCategoryCode` enviada para o core
- * continua sendo a oficial; este override só afeta o texto exibido.
+ * do cliente piloto anotou — ou quando não há código standard que cubra
+ * (precisa abrir / abrir composição). A `standardCategoryCode` enviada para
+ * o core continua sendo a oficial; este override só afeta o texto exibido.
  */
 const SUGGESTION_OVERRIDE: Record<string, string> = {
   "AVANZI QUIMICA LTDA": "Fornecedor direto / insumo",
@@ -631,11 +631,11 @@ const SUGGESTION_OVERRIDE: Record<string, string> = {
 }
 
 /**
- * Mock derivado do diagnóstico Gregorutt do cfoup-core.
+ * Mock derivado do diagnóstico do cliente piloto no cfoup-core.
  *
  * Os 12 grupos abaixo são os top-12 grupos pendentes que o diagnóstico
- * (`scripts/classify-gregorutt.ts`) cospe rodando contra os fixtures
- * Gregorutt. counterparte, count e totalAmount são reproduzidos do
+ * (`scripts/classify-cliente.ts`) cospe rodando contra os fixtures do
+ * cliente piloto. counterparte, count e totalAmount são reproduzidos do
  * relatório — não são exemplos sintetizados.
  *
  * Todos os grupos têm `exceptionReason = "low_confidence"` e
@@ -645,7 +645,7 @@ const SUGGESTION_OVERRIDE: Record<string, string> = {
  * Quando este app receber pipeline real, esta função some e o card passa
  * a ler `{ transactions, results, snapshot }` de um hook real.
  */
-function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
+function mockDerivedFromClientDiagnostic(): MockClientDiagnostic {
   const reason: ExceptionReason = "low_confidence"
   const now = new Date("2026-04-20T00:00:00Z")
 
@@ -734,7 +734,7 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
 
       const tx: SourceTransaction = {
         id,
-        companyId: "gregorutt",
+        companyId: "empresa-001",
         sourceSystem: "accounts_payable",
         transactionDate: now,
         direction,
@@ -746,7 +746,7 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
 
       const r: ClassificationResult = {
         sourceTransactionId: id,
-        companyId: "gregorutt",
+        companyId: "empresa-001",
         bucket: cat?.bucket ?? null,
         confidenceScore: 0.35,
         confidenceLevel: "low",
@@ -764,7 +764,7 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
     }
   }
 
-  // Snapshot agregado batendo com o diagnóstico Gregorutt do core.
+  // Snapshot agregado batendo com o diagnóstico do cliente piloto no core.
   // Os pendingCount/totalGroups são do diagnóstico inteiro (217 grupos);
   // a UI exibe só os top-12 acima, mas o número de pendentes e o nº total
   // de grupos refletem o diagnóstico completo.
@@ -782,10 +782,10 @@ function mockDerivedFromGregoruttDiagnostic(): MockGregoruttDiagnostic {
 
 function CardLancamentosSemClassificacao() {
   const { groups, snapshot } = useMemo(() => {
-    const mock = mockDerivedFromGregoruttDiagnostic()
+    const mock = mockDerivedFromClientDiagnostic()
     // Ordenação default por count desc — confirmando os top grupos primeiro
-    // se ganha mais cobertura em menos cliques (princípio do diagnóstico
-    // Gregorutt: top-N por count cobre a maior parte das pendências).
+    // se ganha mais cobertura em menos cliques (princípio do diagnóstico do
+    // cliente piloto: top-N por count cobre a maior parte das pendências).
     const sorted = [...groupClassificationExceptions(mock.results, mock.transactions)].sort(
       (a, b) => b.count - a.count,
     )
@@ -857,7 +857,7 @@ function CardLancamentosSemClassificacao() {
           className="mt-4 text-[12px] italic"
           style={{ color: MUTED }}
         >
-          Mock derivado do diagnóstico Gregorutt. Ações locais sem
+          Mock derivado do diagnóstico do cliente piloto. Ações locais sem
           persistência nesta versão.
         </p>
       </div>
