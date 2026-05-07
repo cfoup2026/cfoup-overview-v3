@@ -21,6 +21,7 @@ import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
 import { GlossarioTab } from "@/components/glossario-tab"
+import { ConclusaoTab } from "@/components/conclusao-tab"
 import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
@@ -61,11 +62,7 @@ export default function AnaliseContabilPage() {
       {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
       {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
       {activeTab === "glossario" && <GlossarioTab />}
-      {activeTab !== "sintese" && activeTab !== "dre" && activeTab !== "balanco" && activeTab !== "indicadores" && activeTab !== "perguntas-contador" && activeTab !== "glossario" && (
-        <div className="text-[12px] text-muted-foreground">
-          Em construção · próximo PR.
-        </div>
-      )}
+      {activeTab === "conclusao" && <ConclusaoTab dados={data.conclusao} />}
     </AnalysisShell>
   )
 }

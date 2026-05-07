@@ -106,6 +106,19 @@ export type AoContadorDadosCliente = {
   grupos: GrupoAoContador[]
 }
 
+// ---------------------------------------------------------------------
+// Tipos Conclusão
+// ---------------------------------------------------------------------
+export type CardConclusao = {
+  id: string
+  titulo: string
+  paragrafo: string
+}
+
+export type ConclusaoDadosCliente = {
+  cards: CardConclusao[]
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
@@ -120,6 +133,7 @@ export type AnaliseContabilData = {
   balanco: BPDadosCliente
   indicadores: IndicadoresDadosCliente
   aoContador: AoContadorDadosCliente
+  conclusao: ConclusaoDadosCliente
 }
 
 // ---------------------------------------------------------------------
@@ -751,5 +765,12 @@ export const dadosCliente: AnaliseContabilData = {
         ],
       },
     ],
+  },
+
+  // =====================================================================
+  // CONCLUSÃO — dados do cliente piloto (Prompt 2 popula)
+  // =====================================================================
+  conclusao: {
+    cards: [],
   },
 }

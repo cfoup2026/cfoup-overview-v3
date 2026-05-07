@@ -337,3 +337,14 @@ export const conteudoAoContador: AoContadorConteudoUniversal = {
     },
   ],
 }
+
+// ---------------------------------------------------------------------
+// Conclusão — conteúdo universal
+// ---------------------------------------------------------------------
+export type ConclusaoConteudoUniversal = {
+  intro: string
+}
+
+export const conteudoConclusao: ConclusaoConteudoUniversal = {
+  intro: "O que os números mostram, antes do dono e do contador responderem as perguntas.",
+}
