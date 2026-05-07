@@ -99,38 +99,38 @@ export type IndicadoresConteudoUniversal = {
 
 export const conteudoIndicadores: IndicadoresConteudoUniversal = {
   intro:
-    "Indicadores financeiros resumem a saúde da empresa em poucos números. Cada um responde uma pergunta diferente: a empresa é lucrativa? Tem dinheiro para pagar as contas? Está usando bem o capital dos sócios?",
+    "Contas que juntam o DRE e o Balanço para mostrar quanto a empresa ganha, quanto tem guardado e se tem dívida.",
 
   glossario: [
     {
-      termo: "Margem Bruta",
+      termo: "ROE (Retorno sobre Patrimônio)",
       definicao:
-        "Quanto sobra da venda depois de pagar o custo do produto. Fórmula: (Receita − Custo) ÷ Receita. Se é 36%, de cada R$ 100 vendido, R$ 36 sobram antes de pagar despesas.",
+        "O lucro do ano dividido pelo patrimônio dos sócios, em porcentagem. Responde: a cada R$ 100 que os sócios têm dentro da empresa, quantos viraram lucro neste ano?",
     },
     {
-      termo: "Margem Líquida",
+      termo: "ROA (Retorno sobre Ativo)",
       definicao:
-        "Quanto sobra de lucro limpo depois de pagar tudo: custo, despesa, imposto. Fórmula: Lucro Líquido ÷ Receita. Se é 19%, de cada R$ 100 vendido, R$ 19 viram lucro.",
+        "O lucro do ano dividido por tudo que a empresa tem. Responde: a cada R$ 100 de patrimônio, quantos viraram lucro? Quando o ROA é quase igual ao ROE, quer dizer que a empresa não tem dívida.",
     },
     {
-      termo: "Liquidez Corrente",
+      termo: "Alavancagem",
       definicao:
-        "Quantos reais a empresa tem para cada R$ 1 que ela deve no curto prazo. Fórmula: Ativo Circulante ÷ Passivo Circulante. Se é 2x, ela tem R$ 2 para cada R$ 1 de dívida imediata.",
+        "Usar dinheiro de banco ou financiamento para crescer mais rápido do que o dinheiro próprio permitiria.",
     },
     {
       termo: "Endividamento",
       definicao:
-        "Quanto do patrimônio da empresa é financiado por dívida. Fórmula: Passivo ÷ Ativo. Se é 10%, de cada R$ 100 de patrimônio, R$ 10 são dívida.",
+        "Quanto do patrimônio da empresa veio de dívida, em vez de vir do dinheiro dos sócios.",
     },
     {
-      termo: "ROE (Retorno sobre PL)",
+      termo: "Liquidez",
       definicao:
-        "Quanto o lucro do ano representa do patrimônio dos sócios. Fórmula: Lucro Líquido ÷ Patrimônio Líquido. Se é 30%, cada R$ 100 investido rendeu R$ 30 de lucro.",
+        "Capacidade da empresa de pagar as contas. Se tem muito dinheiro e pouca dívida, a liquidez é alta.",
     },
     {
-      termo: "Giro do Ativo",
+      termo: "Capital de Giro Líquido",
       definicao:
-        "Quantas vezes o ativo 'girou' em vendas no ano. Fórmula: Receita ÷ Ativo Total. Se é 2x, a empresa vendeu o dobro do tamanho do seu patrimônio.",
+        "Diferença entre o que a empresa tem de curto prazo e o que ela deve de curto prazo. Se for positivo, tem folga para tocar o dia-a-dia. Se for negativo, tem problema.",
     },
   ],
 }
