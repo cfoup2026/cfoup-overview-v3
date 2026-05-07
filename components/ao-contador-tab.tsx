@@ -35,7 +35,7 @@ export function AoContadorTab({ dados }: Props) {
         {dados.grupos.map((grupo) => (
           <div
             key={grupo.id}
-            className="mr-auto max-w-[920px] rounded-2xl border border-border bg-card p-5 md:p-6"
+            className="rounded-2xl border border-border bg-card p-5 md:p-6"
           >
             {/* Eyebrow */}
             <span
