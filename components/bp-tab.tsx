@@ -119,29 +119,31 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
       {view === "comentarios" && <ViewComentarios dados={dados} />}
 
       {/* Glossário */}
-      <details className="mb-8 mt-8">
-        <summary
-          className="cursor-pointer list-none text-[13px] font-semibold"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Glossário · Termos do Balanço Patrimonial +
-        </summary>
-        <dl className="mt-4 space-y-3">
-          {conteudoBP.glossario.map((item) => (
-            <div key={item.termo}>
-              <dt
-                className="text-[13px] font-semibold"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {item.termo}
-              </dt>
-              <dd className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
-                {item.definicao}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </details>
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <details>
+          <summary
+            className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            Glossário · Termos do Balanço Patrimonial +
+          </summary>
+          <dl className="mt-3 space-y-3">
+            {conteudoBP.glossario.map((item) => (
+              <div key={item.termo}>
+                <dt
+                  className="text-[13px] font-semibold"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {item.termo}
+                </dt>
+                <dd className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                  {item.definicao}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      </div>
     </section>
   )
 }
@@ -154,12 +156,14 @@ function ViewVertical({ dados }: { dados: BPDadosCliente }) {
   return (
     <div className="mt-6">
       {/* Legenda */}
-      <p className="text-[11px] italic text-muted-foreground">
-        {conteudoBP.legendaAV}
-      </p>
+      <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+        <p className="text-[11px] italic text-muted-foreground">
+          {conteudoBP.legendaAV}
+        </p>
+      </div>
 
       {/* Tabela */}
-      <div className="mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+      <div className="mt-4 mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
         <table className="w-full table-fixed text-[12px]">
           <colgroup>
             <col style={{ width: "28%" }} />
@@ -233,12 +237,14 @@ function ViewHorizontal({ dados }: { dados: BPDadosCliente }) {
   return (
     <div className="mt-6">
       {/* Legenda */}
-      <p className="text-[11px] italic text-muted-foreground">
-        {conteudoBP.legendaAH}
-      </p>
+      <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+        <p className="text-[11px] italic text-muted-foreground">
+          {conteudoBP.legendaAH}
+        </p>
+      </div>
 
       {/* Tabela */}
-      <div className="mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
+      <div className="mt-4 mr-auto max-w-[920px] overflow-x-auto px-4 py-4 md:px-5">
         <table className="w-full table-fixed text-[12px]">
           <colgroup>
             <col style={{ width: "28%" }} />

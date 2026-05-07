@@ -118,32 +118,34 @@ export function DRETab({ data }: { data: DREData }) {
       {view === "comentarios" && <ViewComentarios data={data} />}
 
       {/* Glossário */}
-      <details className="mb-6 mt-6">
-        <summary
-          className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Glossário · Termos usados no DRE +
-        </summary>
-        <dl className="mt-3 space-y-3">
-          {conteudoDRE.glossario.map((item) => (
-            <div key={item.termo}>
-              <dt
-                className="text-[13px] font-semibold"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {item.termo}
-              </dt>
-              <dd
-                className="mt-1 text-[13px] leading-relaxed"
-                style={{ color: "var(--slate-700)" }}
-              >
-                {item.definicao}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </details>
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <details>
+          <summary
+            className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            Glossário · Termos usados no DRE +
+          </summary>
+          <dl className="mt-3 space-y-3">
+            {conteudoDRE.glossario.map((item) => (
+              <div key={item.termo}>
+                <dt
+                  className="text-[13px] font-semibold"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {item.termo}
+                </dt>
+                <dd
+                  className="mt-1 text-[13px] leading-relaxed"
+                  style={{ color: "var(--slate-700)" }}
+                >
+                  {item.definicao}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      </div>
     </section>
   )
 }

@@ -98,7 +98,7 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
       </div>
 
       {/* Leitura geral */}
-      <div className="mt-6">
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--brand-blue)" }}
@@ -106,12 +106,13 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
           Leitura geral
         </p>
         <h3
-          className="mt-0.5 text-base font-bold leading-snug"
+          className="mt-1 text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
           O que esses números dizem no conjunto
         </h3>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
           {dados.comentarios.map((c) => {
             const cfg = STATUS_CONFIG[c.status]
             return (
@@ -142,11 +143,11 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
               </div>
             )
           })}
-        </div>
       </div>
 
       {/* Glossário */}
-      <details className="mb-6 mt-6">
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <details>
         <summary
           className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--brand-blue)" }}
@@ -171,7 +172,8 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
             </div>
           ))}
         </dl>
-      </details>
+        </details>
+      </div>
     </div>
   )
 }
