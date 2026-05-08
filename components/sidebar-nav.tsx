@@ -71,7 +71,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
       aria-label="Navegação principal"
       className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground overflow-y-auto"
     >
-      <div className="flex items-center px-5 pt-6 pb-5">
+      <div className="flex items-center px-5 pt-4 pb-3">
         <Link href="/visao-geral" aria-label="CFOup — ir para Visão Geral" className="inline-flex items-center">
           <CfoupLogo size={96} />
         </Link>
@@ -87,7 +87,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-5 px-3 pb-6">
+      <div className="mt-4 flex flex-col gap-3 px-3 pb-6">
         {navSections.map((section) => (
           <div key={section.label}>
             <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -104,7 +104,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group flex items-center gap-3 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                        "group flex items-center gap-3 rounded-lg px-3 py-1 text-sm font-medium transition-colors",
                         active
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
