@@ -39,6 +39,36 @@ export const conteudoAnaliseFinanceira = {
       fazerAgora: "O que fazer agora",
     },
     acoesLabel: "Ações priorizadas",
+    glossario: [
+      {
+        termo: "Runway",
+        definicao: "Quantos dias o caixa atual aguenta cobrindo o custo fixo mensal, sem entrada de receita. Mede 'tempo de sobrevivência'.",
+      },
+      {
+        termo: "CP (Contas a Pagar)",
+        definicao: "Tudo que a empresa deve a fornecedores e ainda não pagou.",
+      },
+      {
+        termo: "CR (Contas a Receber)",
+        definicao: "Tudo que clientes devem à empresa e ainda não pagaram.",
+      },
+      {
+        termo: "PMR (DSO)",
+        definicao: "Prazo Médio de Recebimento (Days Sales Outstanding em inglês). Em quantos dias, em média, o cliente paga depois da venda. PMR alto = dinheiro demorando a entrar.",
+      },
+      {
+        termo: "Margem operacional de caixa",
+        definicao: "Quanto sobra em dinheiro de cada R$ 100 vendidos, depois de pagar tudo da operação. Diferente do lucro contábil — aqui é caixa real.",
+      },
+      {
+        termo: "Ciclo de caixa negativo",
+        definicao: "Quando o cliente paga ANTES de a empresa pagar o fornecedor. Significa que o fornecedor está financiando a operação. Bom sinal.",
+      },
+      {
+        termo: "Concentração Top 1",
+        definicao: "Quanto % do faturamento depende do maior cliente. Acima de 30% é risco.",
+      },
+    ],
   },
 }
 
