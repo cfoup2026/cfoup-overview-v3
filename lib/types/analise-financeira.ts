@@ -37,10 +37,12 @@ export type SinteseDados = {
 }
 
 export type HeroFinanceiro = {
+  subTitulo: string
+  descricao: string
   exercicios: string
+  cobertura: string
+  fonte: string
   dataBase: string
-  nfsAnalisadas: string
-  setor: string
 }
 
 export type AnaliseFinanceiraDados = {

@@ -20,14 +20,14 @@ export default function AnaliseFinanceiraPage() {
   return (
     <AnalysisShell
       empresa={{ nome: clienteAtual.empresa?.nome ?? "—" }}
-      eyebrow={conteudoAnaliseFinanceira.hero.eyebrow}
-      subtitulo={conteudoAnaliseFinanceira.hero.subEyebrow}
-      descricao={conteudoAnaliseFinanceira.hero.subtitulo}
+      eyebrow="CFOup · Análise Financeira"
+      subtitulo={hero.subTitulo}
+      descricao={hero.descricao}
       chips={[
         { label: "EXERCÍCIOS", value: hero.exercicios },
+        { label: "COBERTURA", value: hero.cobertura },
+        { label: "FONTE", value: hero.fonte },
         { label: "DATA-BASE", value: hero.dataBase },
-        { label: "NFs ANALISADAS", value: hero.nfsAnalisadas },
-        { label: "SETOR", value: hero.setor },
       ]}
       tabs={TABS}
       activeTab={activeTab}

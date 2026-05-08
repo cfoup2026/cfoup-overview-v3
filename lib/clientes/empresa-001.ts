@@ -805,10 +805,12 @@ export const dadosCliente: AnaliseContabilData = {
   // =====================================================================
   dadosFinanceiros: {
     hero: {
-      exercicios: "2023 · 2024 · 2025",
-      dataBase: "Mar/2026",
-      nfsAnalisadas: "9.903",
-      setor: "Indústria / Manufatura",
+      subTitulo: "Operação · Vendas · Recebíveis · Caixa · Ciclo",
+      descricao: "Análise operacional do negócio em 2023, 2024 e 2025 cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",
+      exercicios: "2023 · 2024 · 2025 · Q1-2026",
+      cobertura: "9.903 NFs · 6.880 títulos · 6.364 lançamentos",
+      fonte: "SIFWIN/FKN + extratos bancários",
+      dataBase: "20/04/2026",
     },
     sintese: {
       veredito:
