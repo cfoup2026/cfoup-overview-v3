@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, type ReactNode } from "react"
-import { CfoupLogo } from "@/components/cfoup-logo"
 
 // ---------------------------------------------------------------------
 // AnalysisShell — reusable header + tabs wrapper for Análise Contábil
@@ -57,7 +56,9 @@ export function AnalysisShell({
       >
         {/* Linha topo: logo + divider + brand text */}
         <div className="mb-8 flex items-center gap-5">
-          <CfoupLogo
+          <img
+            src="/cfoup-logo.png"
+            alt="CFOup"
             className="h-14 w-auto md:h-[72px]"
             style={{ mixBlendMode: "screen", filter: "brightness(1.05)" }}
           />
