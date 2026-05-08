@@ -45,13 +45,13 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
         {/* ============================================================ */}
         <div
           className="text-white"
-          style={{ background: "linear-gradient(135deg, var(--cfoup-navy) 0%, var(--cfoup-navy-light) 100%)" }}
+          style={{ background: "linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-mid) 100%)" }}
         >
           <div className="mx-auto max-w-[1340px] px-6 py-6">
             {/* Eyebrow line 1 */}
             <div
               className="text-[11px] uppercase tracking-wider"
-              style={{ color: "var(--cfoup-cyan)" }}
+              style={{ color: "var(--brand-cyan)" }}
             >
               {conteudo.hero.eyebrow}
             </div>
@@ -99,14 +99,14 @@ export default function AnaliseFinanceiraShell({ cliente, conteudo }: Props) {
                     className="px-3 py-3 text-[12px]"
                     style={{
                       borderBottom: isActive
-                        ? "2px solid var(--cfoup-blue)"
+                        ? "2px solid var(--brand-blue)"
                         : "2px solid transparent",
-                      color: isActive ? "var(--cfoup-navy)" : "var(--cfoup-muted)",
+                      color: isActive ? "var(--brand-navy)" : "var(--cfoup-muted)",
                     }}
                   >
                     <span
                       className="mr-1"
-                      style={{ color: "var(--cfoup-blue)", fontWeight: 700 }}
+                      style={{ color: "var(--brand-blue)", fontWeight: 700 }}
                     >
                       {tab.num}
                     </span>
@@ -149,7 +149,7 @@ function MetaChip({ label, value }: { label: string; value: string }) {
     <div>
       <div
         className="text-[11px] uppercase tracking-wider"
-        style={{ color: "var(--cfoup-cyan)" }}
+        style={{ color: "var(--brand-cyan)" }}
       >
         {label}
       </div>
