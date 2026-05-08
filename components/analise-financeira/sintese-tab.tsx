@@ -27,7 +27,7 @@ export default function SinteseTab({ dados }: Props) {
       {/* Section Body */}
       <div className="p-7" style={{ background: "#FFFFFF" }}>
         {/* Clean header */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-border bg-white p-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             Síntese
           </p>
