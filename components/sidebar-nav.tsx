@@ -22,14 +22,22 @@ import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export const navSections = [
   {
+    label: "Implantação",
+    items: [
+      { href: "/configuracoes", label: "Configurações", icon: Settings },
+      { href: "/conexoes", label: "Conexões", icon: Plug },
+      { href: "/pendencias-setup", label: "Itens em Aberto", icon: ListChecks },
+    ],
+  },
+  {
     label: "Mesa de decisão",
     items: [
       { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
+      { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
       { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
       { href: "/cenarios", label: "Cenários", icon: GitBranch },
+      { href: "/margens", label: "Indicadores", icon: PieChart },
       { href: "/pendencias", label: "Pendências", icon: AlertCircle },
-      { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
-      { href: "/margens", label: "Margens e Rentabilidade", icon: PieChart },
     ],
   },
   {
@@ -37,14 +45,6 @@ export const navSections = [
     items: [
       { href: "/analise-financeira", label: "Análise Financeira", icon: FileText },
       { href: "/analise-contabil", label: "Análise Contábil", icon: FileText },
-    ],
-  },
-  {
-    label: "Implantação",
-    items: [
-      { href: "/configuracoes", label: "Configurações", icon: Settings },
-      { href: "/conexoes", label: "Conexões", icon: Plug },
-      { href: "/pendencias-setup", label: "Pendências de Setup", icon: ListChecks },
     ],
   },
 ] as const
