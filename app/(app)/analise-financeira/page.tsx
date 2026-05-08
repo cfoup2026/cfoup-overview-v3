@@ -11,7 +11,7 @@ import { AuditoriaTab } from "@/components/analise-financeira/auditoria-tab"
 import { FornecedoresTab } from "@/components/analise-financeira/fornecedores-tab"
 import { CaixaTab } from "@/components/analise-financeira/caixa-tab"
 import { CicloTab } from "@/components/analise-financeira/ciclo-tab"
-import { ChecklistTab } from "@/components/analise-financeira/checklist-tab"
+import { ChecklistMensalTab } from "@/components/analise-financeira/checklist-mensal-tab"
 
 const TABS: TabConfig[] = conteudoAnaliseFinanceira.abas.map((a) => ({
   id: a.id,
@@ -47,7 +47,7 @@ export default function AnaliseFinanceiraPage() {
       {activeTab === "fornecedores" && <FornecedoresTab dados={dados.fornecedores} />}
       {activeTab === "caixa" && <CaixaTab dados={dados.caixa} />}
       {activeTab === "ciclo" && <CicloTab dados={dados.ciclo} />}
-      {activeTab === "checklist" && <ChecklistTab />}
+      {activeTab === "checklist" && <ChecklistMensalTab />}
     </AnalysisShell>
   )
 }
