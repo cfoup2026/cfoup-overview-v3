@@ -17,11 +17,11 @@ type Props = {
 function subToneColor(tone?: string): string {
   switch (tone) {
     case "pos":
-      return "var(--cfoup-pos)"
+      return "var(--brand-green)"
     case "neg":
-      return "var(--cfoup-neg)"
+      return "var(--brand-error-soft)"
     case "warn":
-      return "var(--cfoup-warn)"
+      return "var(--brand-warning)"
     default:
       return "var(--cfoup-muted)"
   }
@@ -31,24 +31,24 @@ function alertaStyle(nivel: "critico" | "atencao" | "controle") {
   switch (nivel) {
     case "critico":
       return {
-        borderColor: "var(--cfoup-neg)",
+        borderColor: "var(--brand-error-soft)",
         background: "rgba(209,67,67,.08)",
         badgeBg: "rgba(209,67,67,.15)",
-        badgeColor: "var(--cfoup-neg)",
+        badgeColor: "var(--brand-error-soft)",
       }
     case "atencao":
       return {
-        borderColor: "var(--cfoup-warn)",
+        borderColor: "var(--brand-warning)",
         background: "rgba(224,139,0,.08)",
         badgeBg: "rgba(224,139,0,.15)",
-        badgeColor: "var(--cfoup-warn)",
+        badgeColor: "var(--brand-warning)",
       }
     case "controle":
       return {
-        borderColor: "var(--cfoup-pos)",
+        borderColor: "var(--brand-green)",
         background: "rgba(54,186,88,.08)",
         badgeBg: "rgba(54,186,88,.15)",
-        badgeColor: "var(--cfoup-pos)",
+        badgeColor: "var(--brand-green)",
       }
   }
 }
@@ -77,7 +77,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           style={{
             fontFamily: "var(--cfoup-font-serif)",
             fontWeight: 500,
-            color: "var(--cfoup-navy)",
+            color: "var(--brand-navy)",
           }}
         >
           {dados.veredito}
@@ -95,7 +95,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
             style={{
               borderColor: "var(--cfoup-line)",
               borderLeftWidth: "3px",
-              borderLeftColor: "var(--cfoup-cyan)",
+              borderLeftColor: "var(--brand-cyan)",
             }}
           >
             <div
@@ -109,7 +109,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
               style={{
                 fontFamily: "var(--cfoup-font-serif)",
                 fontWeight: 500,
-                color: "var(--cfoup-navy)",
+                color: "var(--brand-navy)",
               }}
             >
               {kpi.valor}
@@ -147,7 +147,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
               </span>
               <h4
                 className="mt-2 text-[15px] font-semibold"
-                style={{ color: "var(--cfoup-navy)", fontFamily: "var(--cfoup-font-sans)" }}
+                style={{ color: "var(--brand-navy)", fontFamily: "var(--cfoup-font-sans)" }}
               >
                 {alerta.titulo}
               </h4>
@@ -180,7 +180,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           style={{
             fontFamily: "var(--cfoup-font-serif)",
             fontWeight: 500,
-            color: "var(--cfoup-navy)",
+            color: "var(--brand-navy)",
           }}
         >
           {dados.leitura.tese}
@@ -221,7 +221,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
               className="text-[14px]"
               style={{ color: "var(--cfoup-ink-soft)" }}
             >
-              <strong style={{ color: "var(--cfoup-navy)" }}>{acao.titulo}</strong> —{" "}
+              <strong style={{ color: "var(--brand-navy)" }}>{acao.titulo}</strong> —{" "}
               {acao.descricao}
               <span
                 className="ml-6 mt-1 block text-[11px]"
@@ -245,7 +245,7 @@ function SubBloco({ label, texto }: { label: string; texto: string }) {
     <div>
       <h4
         className="text-[12px] font-semibold uppercase tracking-wider"
-        style={{ color: "var(--cfoup-navy)" }}
+        style={{ color: "var(--brand-navy)" }}
       >
         {label}
       </h4>
