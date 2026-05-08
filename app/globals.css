@@ -16,6 +16,8 @@
   --brand-green-dark: #1e8a3a;
   --brand-red: #c81e1e;
   --brand-red-dark: #991b1b;
+  --brand-warning: #e08b00;
+  --brand-error-soft: #d14343;
 
   /* CFOup aliases (para componentes da Análise Financeira) */
   --cfoup-navy: var(--brand-navy);
