@@ -22,14 +22,6 @@ import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export const navSections = [
   {
-    label: "Implantação",
-    items: [
-      { href: "/configuracoes", label: "Configurações", icon: Settings },
-      { href: "/conexoes", label: "Conexões", icon: Plug },
-      { href: "/pendencias-setup", label: "Itens em Aberto", icon: ListChecks },
-    ],
-  },
-  {
     label: "Mesa de decisão",
     items: [
       { href: "/visao-geral", label: "Visão Geral", icon: LayoutDashboard },
@@ -45,6 +37,14 @@ export const navSections = [
     items: [
       { href: "/analise-financeira", label: "Análise Financeira", icon: FileText },
       { href: "/analise-contabil", label: "Análise Contábil", icon: FileText },
+    ],
+  },
+  {
+    label: "Implantação",
+    items: [
+      { href: "/configuracoes", label: "Configurações", icon: Settings },
+      { href: "/conexoes", label: "Conexões", icon: Plug },
+      { href: "/pendencias-setup", label: "Itens em Aberto", icon: ListChecks },
     ],
   },
 ] as const
