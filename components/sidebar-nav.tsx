@@ -13,10 +13,12 @@ import {
   PieChart,
   LogOut,
   ListChecks,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export const navSections = [
   {
@@ -28,6 +30,13 @@ export const navSections = [
       { href: "/pendencias", label: "Pendências", icon: AlertCircle },
       { href: "/fluxo-de-caixa", label: "Fluxo de Caixa", icon: Waves },
       { href: "/margens", label: "Margens e Rentabilidade", icon: PieChart },
+    ],
+  },
+  {
+    label: "Análises",
+    items: [
+      { href: "/analise-financeira", label: "Análise Financeira", icon: FileText },
+      { href: "/analise-contabil", label: "Análise Contábil", icon: FileText },
     ],
   },
   {
@@ -73,7 +82,7 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Empresa
           </p>
-          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">Gregorutt</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">{clienteAtual.empresa.nomeCurto}</p>
           <p className="text-xs text-muted-foreground">Indústria e Comércio</p>
         </div>
       </div>

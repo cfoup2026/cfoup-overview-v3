@@ -14,7 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar — desktop */}
       <aside
         aria-label="Barra lateral"
-        className="fixed inset-y-0 left-0 z-30 hidden w-[280px] border-r border-sidebar-border bg-sidebar lg:block"
+        className="fixed inset-y-0 left-0 z-30 hidden w-[280px] overflow-y-auto border-r border-sidebar-border bg-sidebar lg:block"
       >
         <SidebarNav />
       </aside>

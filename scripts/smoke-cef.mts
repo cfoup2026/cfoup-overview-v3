@@ -1,17 +1,17 @@
 /**
- * Smoke do extrato CEF Gregorutt — Fase A.
+ * Smoke do extrato CEF cliente piloto — Fase A.
  *
  * Uso: `pnpm tsx scripts/smoke-cef.mts`
  *
- * Lê todos os arquivos `data/gregorutt/cef/CEF_*.txt`, roda `ingestCef`
+ * Lê todos os arquivos `data/empresa-001/cef/CEF_*.txt`, roda `ingestCef`
  * com OPENING/ACCOUNT hardcoded, imprime relatório de cobertura por
  * bucket e checks de sanity. Salva o `BankIngestOutput` em
- * `data/gregorutt/output/cef-run-{ISO}.json`.
+ * `data/empresa-001/output/cef-run-{ISO}.json`.
  *
  * Se o sanity falhar (drift > R$ 0,01 ou OTHER ≥ 2%), exit code ≠ 0
  * para que o caller (commit script externo) abortere a sequência.
  *
- * Ver `scripts/smoke-gregorutt.mts` para a nota sobre a extensão `.mts`.
+ * Ver `scripts/smoke-cliente.mts` para a nota sobre a extensão `.mts`.
  */
 
 import {
@@ -40,12 +40,12 @@ import type {
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(HERE, "..")
-const CEF_DIR = resolve(REPO_ROOT, "data/gregorutt/cef")
-const CSV_DIR = resolve(REPO_ROOT, "data/gregorutt/csv")
-const OUTPUT_DIR = resolve(REPO_ROOT, "data/gregorutt/output")
+const CEF_DIR = resolve(REPO_ROOT, "data/empresa-001/cef")
+const CSV_DIR = resolve(REPO_ROOT, "data/empresa-001/csv")
+const OUTPUT_DIR = resolve(REPO_ROOT, "data/empresa-001/output")
 
-const CP_FILE = resolve(CSV_DIR, "Gregorutt_CP_2023_ate_20Abr2026.csv")
-const CR_FILE = resolve(CSV_DIR, "Gregorutt_CR_2023__ate_20Abr2026.csv")
+const CP_FILE = resolve(CSV_DIR, "Empresa001_CP_2023_ate_20Abr2026.csv")
+const CR_FILE = resolve(CSV_DIR, "Empresa001_CR_2023__ate_20Abr2026.csv")
 
 const OPENING = { date: "2025-03-05" as const, balance: 20244.31 }
 const ACCOUNT = "0423012920005778782426"
@@ -227,7 +227,7 @@ function printReport(
   const cb = out.closingBalance ?? 0
 
   const lines: string[] = [
-    "=== SMOKE CEF GREGORUTT ===",
+    "=== SMOKE CEF CLIENTE PILOTO ===",
     `account: ${out.account}`,
     `period: ${out.periodStart} → ${out.periodEnd}`,
     "",
@@ -282,7 +282,7 @@ function printReport(
     lines.push(`  CEF bypass:           ${pad(r.cefBypass, 7)}`)
   } else {
     lines.push(
-      "RECONCILIAÇÃO: pulada (FKN CSVs não encontrados em data/gregorutt/csv/)",
+      "RECONCILIAÇÃO: pulada (FKN CSVs não encontrados em data/empresa-001/csv/)",
     )
   }
   lines.push("")

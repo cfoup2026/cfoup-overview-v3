@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header"
 import { ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 export default function MargensPage() {
   return (
@@ -7,7 +8,7 @@ export default function MargensPage() {
       <PageHeader
         eyebrow="Resultado"
         title="Margens e Rentabilidade"
-        description="Onde a Gregorutt tá ganhando e onde tá perdendo margem. Quebrado por linha de receita, com a leitura do CFOup sobre o que mudar."
+        description={`Onde a ${clienteAtual.empresa.nomeCurto} tá ganhando e onde tá perdendo margem. Quebrado por linha de receita, com a leitura do CFOup sobre o que mudar.`}
       />
 
       {/* Três indicadores principais */}

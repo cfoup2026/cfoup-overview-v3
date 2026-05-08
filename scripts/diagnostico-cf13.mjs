@@ -120,7 +120,7 @@ function resolverDataReferenciaLocal(eventos, snapshots) {
 
 /* ─── Carregar fixture e reviver datas ─── */
 const HERE = dirname(fileURLToPath(import.meta.url));
-const FIXTURE_PATH = resolve(HERE, '..', 'lib', 'cf13', 'fixtures', 'gregorutt.json');
+const FIXTURE_PATH = resolve(HERE, '..', 'lib', 'cf13', 'fixtures', 'empresa-001.json');
 const fixture = JSON.parse(readFileSync(FIXTURE_PATH, 'utf8'));
 
 const EVENTO_DATE = [
@@ -149,7 +149,7 @@ const snapshots = fixture.opening_balance_snapshots.map((s) =>
 const resolucao = resolverDataReferenciaLocal(eventos, snapshots);
 
 const out = runCF13Pipeline({
-  cliente_id: 'gregorutt',
+  cliente_id: 'empresa-001',
   base_date: resolucao.dataReferencia,
   eventos,
   opening_balances: resolucao.saldoInicial,

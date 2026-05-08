@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { cn } from "@/lib/utils"
+import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
  *  Integração com window.claude.complete (ambiente Claude Artifacts)
@@ -31,18 +32,18 @@ declare global {
   }
 }
 
-const SYSTEM_PROMPT = `Você é o CFOup. É o CFO digital da Gregorutt Indústria e Comércio LTDA. Fala direto com o Rafael, o dono.
+const buildSystemPrompt = () => `Você é o CFOup. É o CFO digital da ${clienteAtual.empresa.nome}. Fala direto com o Rafael, o dono.
 
 ## Como você fala
 - Curto, direto, humano. Como um amigo de confiança que entende das contas da empresa.
 - Nunca use jargão de MBA, de consultoria ou de startup. Nada de "sinergia", "mindset", "alavancar", "benchmark", "framework", "OKR".
 - Se precisar de termo técnico, traduz na mesma frase (ex.: "PMR, que é o tempo até você receber").
 - Português brasileiro simples. Trata por "você".
-- Máximo 4 ou 5 frases. Vai direto ao impacto: o que isso muda no caixa, na margem, no bolso da Gregorutt.
+- Máximo 4 ou 5 frases. Vai direto ao impacto: o que isso muda no caixa, na margem, no bolso da ${clienteAtual.empresa.nomeCurto}.
 - Nunca pergunte "como posso ajudar?". Já responde com a leitura.
 - Valor em R$ quando fizer sentido. Primeiro a leitura, depois o número. Se recomendar, diz o tradeoff em uma frase.
 
-## O que você sabe da Gregorutt neste mês
+## O que você sabe da ${clienteAtual.empresa.nomeCurto} neste mês
 - Caixa hoje: R$ 1,284 milhão (+R$ 48k sobre o mês passado).
 - No ritmo atual o caixa aguenta cerca de 8 meses (queima média R$ 156k/mês).
 - Receita 30 dias: R$ 482,1k (+6,4%). Resultado 30 dias: R$ 71,8k.
@@ -118,7 +119,7 @@ function buildPrompt(history: Message[]): string {
   const transcript = history
     .map((m) => `${m.role === "cfoup" ? "CFOup" : "Rafael"}: ${m.content}`)
     .join("\n\n")
-  return `${SYSTEM_PROMPT}\n\n## Conversa até agora\n${transcript}\n\nCFOup:`
+  return `${buildSystemPrompt()}\n\n## Conversa até agora\n${transcript}\n\nCFOup:`
 }
 
 function fallbackFor(question: string): string {
@@ -140,7 +141,7 @@ function fallbackFor(question: string): string {
     return "Antecipar 40% coloca ~R$ 244,8k no caixa hoje. Custa R$ 7,1k (2,9% ao mês do adquirente). Só vale se você já tem destino pro dinheiro — estoque, dívida cara ou oportunidade comercial. Senão, é custo sem retorno."
   }
   if (/(runway|caixa aguent|quanto tempo|fôlego|folego)/.test(q)) {
-    return "No ritmo de hoje, a Gregorutt aguenta cerca de 8 meses de caixa. Folga confortável. A dor aqui não é liquidez — é o PMR subindo, que já trava ~R$ 48k de capital de giro."
+    return `No ritmo de hoje, a ${clienteAtual.empresa.nomeCurto} aguenta cerca de 8 meses de caixa. Folga confortável. A dor aqui não é liquidez — é o PMR subindo, que já trava ~R$ 48k de capital de giro.`
   }
   if (/(margem|perdendo|rentabil)/.test(q)) {
     return "A bruta subiu pra 42,6%. Quem tá puxando pra baixo é a Linha B: caiu 2,1 p.p. no trimestre por desconto fora da política. Corrigir a régua de desconto recupera uns R$ 18k por mês direto no resultado."
@@ -170,10 +171,10 @@ function fallbackFor(question: string): string {
     return "Capital de giro hoje tá apertando por dois motivos: PMR em 34 dias e fornecedores em 30. Se você antecipasse R$ 200k de recebíveis e destinasse a estoque, ganharia 2 a 3 semanas de fôlego operacional."
   }
   if (/(compet|concorr|mercad)/.test(q)) {
-    return "Comparação com o mercado não é minha praia — não vejo os concorrentes. O que vejo é Gregorutt: sua margem bruta de 42,6% é forte, e a Linha B é onde você tá deixando dinheiro na mesa."
+    return `Comparação com o mercado não é minha praia — não vejo os concorrentes. O que vejo é ${clienteAtual.empresa.nomeCurto}: sua margem bruta de 42,6% é forte, e a Linha B é onde você tá deixando dinheiro na mesa.`
   }
 
-  return "Pra te dar leitura sólida, me ancora nos números reais da Gregorutt. Me diz qual valor, qual decisão ou qual cenário — eu devolvo o impacto direto em caixa e margem."
+  return `Pra te dar leitura sólida, me ancora nos números reais da ${clienteAtual.empresa.nomeCurto}. Me diz qual valor, qual decisão ou qual cenário — eu devolvo o impacto direto em caixa e margem.`
 }
 
 async function askClaude(history: Message[]): Promise<string> {
@@ -260,7 +261,7 @@ function ChatInner() {
         id: `c-${Date.now()}`,
         role: "cfoup",
         content: reply,
-        sources: ["Dados de Gregorutt · mês corrente"],
+        sources: [`Dados de ${clienteAtual.empresa.nomeCurto} · mês corrente`],
       }
       setThreads((prev) =>
         prev.map((t) => (t.id === tid ? { ...t, messages: [...t.messages, cfoupMsg] } : t)),
@@ -385,7 +386,7 @@ function ChatInner() {
           <div className="border-t border-border bg-white/70 px-5 py-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5" />
-              Respostas com base nos dados conectados da Gregorutt.
+              Respostas com base nos dados conectados da {clienteAtual.empresa.nomeCurto}.
             </div>
           </div>
         </aside>
@@ -403,7 +404,7 @@ function ChatInner() {
                     Chat CFOup
                   </h1>
                   <p className="text-[13px] text-muted-foreground">
-                    Conversa sobre Gregorutt · contexto conectado em tempo real
+                    Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
                   </p>
                 </div>
               </div>
@@ -437,12 +438,12 @@ function ChatInner() {
                 <SuggestionChip
                   icon={<Wallet className="h-3.5 w-3.5" />}
                   label="Como tá o caixa hoje?"
-                  onClick={() => submit("Como tá o caixa da Gregorutt hoje e quanto de fôlego eu tenho?")}
+                  onClick={() => submit(`Como tá o caixa da ${clienteAtual.empresa.nomeCurto} hoje e quanto de fôlego eu tenho?`)}
                 />
                 <SuggestionChip
                   icon={<PieChart className="h-3.5 w-3.5" />}
                   label="Onde estou perdendo margem?"
-                  onClick={() => submit("Onde a Gregorutt tá perdendo margem nos últimos 60 dias?")}
+                  onClick={() => submit(`Onde a ${clienteAtual.empresa.nomeCurto} tá perdendo margem nos últimos 60 dias?`)}
                 />
                 <SuggestionChip
                   icon={<TrendingUp className="h-3.5 w-3.5" />}
@@ -506,7 +507,7 @@ function ChatInner() {
                 </div>
               </form>
               <p className="mt-3 text-[11px] text-muted-foreground">
-                Respostas baseadas nos dados conectados da Gregorutt. Revise antes de decidir.
+                Respostas baseadas nos dados conectados da {clienteAtual.empresa.nomeCurto}. Revise antes de decidir.
               </p>
             </div>
           </div>
@@ -617,7 +618,7 @@ function EmptyState({ onPick }: { onPick: (q: string) => void }) {
         Comece por aqui
       </div>
       <h2 className="mt-2 text-xl font-extrabold" style={{ color: "var(--brand-navy)" }}>
-        O que você quer saber sobre a Gregorutt?
+        O que você quer saber sobre a {clienteAtual.empresa.nomeCurto}?
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">
         Responde em poucas frases, com os números do mês corrente. Quanto mais específica a pergunta, melhor a leitura.

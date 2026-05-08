@@ -61,7 +61,7 @@ const WEEKS: WeekHeader[] = [
 ]
 
 // =====================================================================
-// Mocks Gregorutt (engenharia mínima em S13 = -251.633)
+// Mocks cliente piloto (engenharia mínima em S13 = -251.633)
 // =====================================================================
 const CAIXA_MINIMO_OPERACIONAL = 25_000
 
