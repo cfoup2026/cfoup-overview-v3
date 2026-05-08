@@ -64,7 +64,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
       {/* ============================================================ */}
       {/* BLOCO 1 — Veredito                                            */}
       {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--brand-blue)" }}
@@ -72,7 +72,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           {conteudo.vereditoLabel}
         </p>
         <h3
-          className="mt-1 text-base font-bold leading-snug"
+          className="mt-1 text-base font-semibold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
           {dados.veredito}
@@ -88,7 +88,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           return (
             <div
               key={idx}
-              className="relative rounded-2xl border border-border bg-card p-4"
+              className="relative rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
             >
               <span
                 className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full"
@@ -122,7 +122,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           return (
             <div
               key={idx}
-              className="rounded-2xl border border-border bg-card p-5"
+              className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
               style={{ borderLeftWidth: "4px", borderLeftColor: s.border }}
             >
               <span
@@ -151,7 +151,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
       {/* ============================================================ */}
       {/* BLOCO 4 — Leitura Executiva                                   */}
       {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--brand-blue)" }}
@@ -159,7 +159,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
           {conteudo.leituraLabel}
         </p>
         <h3
-          className="mt-1 text-base font-bold leading-snug"
+          className="mt-1 text-base font-semibold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
           {dados.leitura.tese}
@@ -213,7 +213,7 @@ export default function SinteseTab({ dados, conteudo }: Props) {
       {/* ============================================================ */}
       {/* BLOCO 5 — Ações Priorizadas                                   */}
       {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
         <p
           className="text-[10px] font-semibold uppercase tracking-[0.16em]"
           style={{ color: "var(--brand-blue)" }}
