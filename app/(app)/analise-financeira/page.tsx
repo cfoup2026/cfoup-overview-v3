@@ -33,13 +33,24 @@ export default function AnaliseFinanceiraPage() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-      {activeTab === "sintese" && (
-        <SinteseTab dados={sintese} conteudo={conteudoAnaliseFinanceira.sintese} />
-      )}
+      {activeTab === "sintese" && <SinteseTab dados={sintese} />}
       {activeTab !== "sintese" && (
-        <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
-          Em construção
-        </div>
+        <section className="op-section">
+          <div
+            className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
+            style={{ background: "linear-gradient(135deg, #071D3B 0%, #0A2647 100%)" }}
+          >
+            <h2
+              className="m-0 text-[22px] font-medium tracking-[-0.005em] text-white"
+              style={{ fontFamily: "var(--cfoup-font-serif)" }}
+            >
+              {TABS.find((t) => t.id === activeTab)?.label ?? "—"}
+            </h2>
+          </div>
+          <div className="p-7" style={{ background: "#FFFFFF" }}>
+            <p className="text-center text-muted-foreground">Em construção</p>
+          </div>
+        </section>
       )}
     </AnalysisShell>
   )

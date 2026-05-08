@@ -813,95 +813,25 @@ export const dadosCliente: AnaliseContabilData = {
       dataBase: "20/04/2026",
     },
     sintese: {
-      veredito:
-        "Faturamento cresceu 21% em 2025 e a margem operacional dobrou em 2 anos — mas o caixa não acompanhou.",
-      kpis: [
+      tese: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
+      decisoes: [
         {
-          label: "Faturamento 2025",
-          valor: "R$ 3,70M",
-          sub: "↑ +21,0% vs 2024",
-          subTone: "pos",
+          titulo: "SUPRICORP",
+          descricao: "reduzir dependência e melhorar prazo de recebimento.",
+          meta: "9,6% da receita · paga em 69 dias · puxou 56% do crescimento de Q1-2026",
         },
         {
-          label: "Margem Operacional Caixa",
-          valor: "7,3%",
-          sub: "↑ +1,6 p.p. vs 2024 (5,7%)",
-          subTone: "pos",
+          titulo: "Base ativa",
+          descricao: "atacar os 70 clientes em queda e os 58 já perdidos antes de buscar mais volume. Reter quem já é seu custa menos que conquistar novo.",
+          meta: "Lista completa no Bloco B",
         },
         {
-          label: "Concentração Top 1",
-          valor: "9,6%",
-          sub: "SUPRICORP · saudável (era 8,8% em 2023)",
-          subTone: "muted",
-        },
-        {
-          label: "PMR (DSO)",
-          valor: "24d",
-          sub: "Estável · ciclo de caixa negativo (fornecedor financia)",
-          subTone: "pos",
-        },
-        {
-          label: "Runway atual",
-          valor: "21d",
-          sub: "Saldo R$ 34,5k vs custo fixo R$ 50k/mês",
-          subTone: "neg",
+          titulo: "Caixa completo",
+          descricao: "consolidar todos os bancos e separar o que é operação do que é movimento pessoal dos sócios.",
+          meta: "R$ 73 mil/mês circulam fora do banco analisado",
         },
       ],
-      alertas: [
-        {
-          nivel: "critico",
-          titulo: "Runway abaixo de 1 mês",
-          texto:
-            "Saldo de R$ 34,5k em Mar/2026 cobre menos de 1 mês de operação. Custo fixo mensal de R$ 50k (Pessoal + Comercial + Administrativas). Sem reserva, qualquer atraso de cliente trava a folha.",
-        },
-        {
-          nivel: "atencao",
-          titulo: "87% do CP vencido há mais de 120 dias",
-          texto:
-            "R$ 2,19M dos R$ 2,52M de contas a pagar estão vencidos >120 dias. Provável ruído contábil — limpar antes de qualquer análise de endividamento.",
-        },
-        {
-          nivel: "controle",
-          titulo: "Crescimento operacional saudável",
-          texto:
-            "Faturamento +21% YoY (R$ 3,06M → R$ 3,70M). Margem operacional caixa quase dobrou em 2 anos (4,2% → 7,3%). Crescer sem aumentar custo fixo está funcionando.",
-        },
-      ],
-      leitura: {
-        tese: "A empresa cresceu. O caixa não acompanhou.",
-        funcionou:
-          "Faturamento cresceu +21% no ano. Margem operacional caixa subiu de 5,7% para 7,3% — quase dobrou em 2 anos. PMR de 24 dias e ciclo de caixa negativo: fornecedor financia operação. Concentração de clientes baixa (Top 1 em 9,6%).",
-        preocupa:
-          "Saldo em Mar/2026 cobre menos de 1 mês. 87% do contas a pagar vencido >120 dias — provável ruído contábil. Crescimento de R$ 642k em 2025 não se traduziu em melhora do saldo bancário.",
-        fazerAgora:
-          "Limpar CP e CR vencidos com o contador antes de qualquer análise de endividamento. Construir reserva mínima de 2 meses de custo fixo. Mapear pra onde está indo o caixa do crescimento.",
-      },
-      acoes: [
-        {
-          titulo: "Limpeza com o contador",
-          descricao:
-            "separar CP vencido real do ruído contábil. R$ 2,19M de \"dívida >120d\" pode ser distorção.",
-          meta: "Prazo: 30 dias · Owner: contador",
-        },
-        {
-          titulo: "Reserva mínima de caixa",
-          descricao:
-            "meta R$ 100k (2 meses de custo fixo) até jun/2026. Hoje R$ 34,5k.",
-          meta: "Faltam R$ 65k · Owner: dono",
-        },
-        {
-          titulo: "Diagnóstico do consumo de caixa",
-          descricao:
-            "receita +R$ 642k em 2025 não virou saldo. Identificar pra onde foi.",
-          meta: "Cruzar Posição de Caixa com Ciclo Financeiro",
-        },
-        {
-          titulo: "Simulação Lucro Presumido",
-          descricao:
-            "em 77% do teto do Simples (R$ 4,8M de R$ 3,70M). Vale calcular o regime alternativo antes de estourar limite.",
-          meta: "Owner: contador · janela 60d",
-        },
-      ],
+      callout: "Crescer, a Gregorutt já sabe. O próximo passo é ganhar controle sobre cliente, caixa e previsibilidade.",
     },
   },
 }

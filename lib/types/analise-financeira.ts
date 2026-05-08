@@ -1,41 +1,22 @@
 // ---------------------------------------------------------------------
 // Types — Análise Financeira
+// Estrutura fiel ao HTML cfoup-tese
 // ---------------------------------------------------------------------
 
-export type SinteseKPI = {
-  label: string
-  valor: string
-  sub: string
-  subTone?: "pos" | "neg" | "warn" | "muted"
-}
-
-export type SinteseAlerta = {
-  nivel: "critico" | "atencao" | "controle"
-  titulo: string
-  texto: string
-}
-
-export type SinteseLeitura = {
-  tese: string
-  funcionou: string
-  preocupa: string
-  fazerAgora: string
-}
-
-export type SinteseAcao = {
+// Síntese (aba principal)
+export type DecisaoSintese = {
   titulo: string
   descricao: string
   meta: string
 }
 
-export type SinteseDados = {
-  veredito: string
-  kpis: SinteseKPI[]
-  alertas: SinteseAlerta[]
-  leitura: SinteseLeitura
-  acoes: SinteseAcao[]
+export type SinteseFinanceiraData = {
+  tese: string
+  decisoes: DecisaoSintese[]
+  callout: string
 }
 
+// Hero
 export type HeroFinanceiro = {
   subTitulo: string
   descricao: string
@@ -45,9 +26,10 @@ export type HeroFinanceiro = {
   dataBase: string
 }
 
+// Dados completos da Análise Financeira
 export type AnaliseFinanceiraDados = {
   hero: HeroFinanceiro
-  sintese: SinteseDados
+  sintese: SinteseFinanceiraData
 }
 
 // Tipos para abas futuras (stubs)
@@ -71,7 +53,7 @@ export type DadosCiclo = {
   // TODO: PR seguinte
 }
 
-export type DadosValidacao = {
+export type DadosAuditoria = {
   // TODO: PR seguinte
 }
 
