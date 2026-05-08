@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, type ReactNode } from "react"
+import { CfoupLogo } from "@/components/cfoup-logo"
 
 // ---------------------------------------------------------------------
 // AnalysisShell — reusable header + tabs wrapper for Análise Contábil
-// and Análise Financeira. Espelha sizes/weights/cores do header de
-// /visao-geral. Tamanhos de texto, pesos e cores seguem o design system
-// (Tailwind semântico + CSS vars).
+// and Análise Financeira. Hero editorial (fundo navy gradient, Fraunces
+// no H1, chips claros). Tabs nav sticky. Espelha sizes/weights/cores
+// dos HTMLs cfoup-tese.
 // ---------------------------------------------------------------------
 
 export type TabConfig = {
@@ -46,110 +47,117 @@ export function AnalysisShell({
   return (
     <>
       {/* ============================================================ */}
-      {/* STICKY WRAPPER — hero card + tab nav fixos no topo            */}
+      {/* HERO — fundo navy gradient, NÃO sticky                        */}
       {/* ============================================================ */}
-      <div className="sticky top-14 z-20 -mx-8 bg-background px-8 pb-0 pt-0 md:-mx-10 md:px-10 lg:-mx-12 lg:top-0 lg:px-12">
-        {/* ============================================================ */}
-        {/* HEADER — envolvido em bloco com bg-hero-gradient              */}
-        {/* ============================================================ */}
-        <header className="rounded-2xl border border-border bg-hero-gradient p-5 md:p-6">
-        {/* Eyebrow */}
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          {eyebrow}
-        </p>
-        {/* Subtitulo */}
-        <p className="text-[12px] text-muted-foreground">{subtitulo}</p>
+      <header
+        className="-mx-8 rounded-2xl px-8 py-10 md:-mx-10 md:px-10 lg:-mx-12 lg:px-12"
+        style={{
+          background: "linear-gradient(135deg, #071D3B 0%, #0A2647 60%, #0E3A6B 100%)",
+        }}
+      >
+        {/* Linha topo: logo + divider + brand text */}
+        <div className="mb-8 flex items-center gap-5">
+          <CfoupLogo
+            className="h-14 w-auto md:h-[72px]"
+            style={{ mixBlendMode: "screen", filter: "brightness(1.05)" }}
+          />
+          <div className="border-l border-white/[0.18] pl-5">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "#38B8E8" }}
+            >
+              {eyebrow}
+            </p>
+            <p
+              className="mt-0.5 text-[13px]"
+              style={{ color: "#B8C8DC" }}
+            >
+              {subtitulo}
+            </p>
+          </div>
+        </div>
+
         {/* H1 */}
         <h1
-          className="mt-0.5 text-lg font-extrabold leading-tight md:text-[1.3rem]"
-          style={{ color: "var(--brand-navy)" }}
+          className="mb-3 text-[30px] leading-[1.1] tracking-[-0.015em] text-white md:text-[44px]"
+          style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
         >
           {empresa.nome}
         </h1>
+
         {/* Descrição */}
         <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
+          className="mb-7 max-w-[1180px] text-[14px] font-light leading-[1.55] md:text-[16px]"
+          style={{ color: "#B8C8DC" }}
         >
           {descricao}
         </p>
 
         {/* Chips */}
-        <div className="mt-4 flex flex-wrap gap-6">
-          {chips.map((c, idx) => <Chip key={idx} label={c.label} value={c.value} />)}
+        <div className="flex flex-wrap gap-8">
+          {chips.map((c, idx) => (
+            <div key={idx}>
+              <p
+                className="text-[11px] font-semibold uppercase tracking-[0.06em]"
+                style={{ color: "#8FA3BD" }}
+              >
+                {c.label}
+              </p>
+              <p className="mt-0.5 text-[14px] font-medium text-white">
+                {c.value}
+              </p>
+            </div>
+          ))}
         </div>
       </header>
 
-        {/* ============================================================ */}
-        {/* TABS NAV — dentro do wrapper sticky                           */}
-        {/* ============================================================ */}
-        <nav className="mt-4 border-b border-border">
-          <div className="flex gap-1">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={`flex items-baseline gap-1.5 rounded-t-md px-2 py-3 transition-colors ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                  }`}
+      {/* ============================================================ */}
+      {/* TABS NAV — sticky top:0                                        */}
+      {/* ============================================================ */}
+      <nav className="sticky top-0 z-20 -mx-8 border-b border-border bg-background px-8 md:-mx-10 md:px-10 lg:-mx-12 lg:px-12">
+        <div className="flex gap-1 overflow-x-auto">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`flex items-baseline gap-1.5 whitespace-nowrap rounded-t-md px-2 py-3 transition-colors ${
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                }`}
+                style={{
+                  borderBottom: isActive
+                    ? "3px solid var(--brand-blue)"
+                    : "3px solid transparent",
+                  marginBottom: "-1px",
+                }}
+              >
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--brand-blue)" }}
+                >
+                  {tab.numeral}
+                </span>
+                <span
+                  className="text-sm"
                   style={{
-                    borderBottom: isActive
-                      ? "3px solid var(--brand-blue)"
-                      : "3px solid transparent",
-                    marginBottom: "-1px",
+                    fontWeight: isActive ? 700 : 500,
                   }}
                 >
-                  <span
-                    className="text-[10px] font-medium"
-                    style={{ color: "var(--brand-blue)" }}
-                  >
-                    {tab.numeral}
-                  </span>
-                  <span
-                    className="text-sm"
-                    style={{
-                      fontWeight: isActive ? 700 : 500,
-                    }}
-                  >
-                    {tab.label}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </nav>
-      </div>
+                  {tab.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
 
       {/* ============================================================ */}
       {/* CONTENT                                                        */}
       {/* ============================================================ */}
       <div className="mt-6">{children}</div>
     </>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Chip helper — label + value
-// ---------------------------------------------------------------------
-function Chip({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p
-        className="mt-0.5 text-[13px] font-semibold"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        {value}
-      </p>
-    </div>
   )
 }
