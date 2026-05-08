@@ -66,8 +66,8 @@ export function AnalysisShell({
 
           {/* H1 */}
           <h1
-            className="mb-2 text-[26px] leading-[1.1] tracking-[-0.015em] md:text-[36px]"
-            style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+            className="mb-2 text-[20px] font-extrabold leading-tight tracking-tight md:text-[26px]"
+            style={{ color: "var(--brand-navy)" }}
           >
             {empresa.nome}
           </h1>
