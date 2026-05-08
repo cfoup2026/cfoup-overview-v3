@@ -1,15 +1,7 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import {
-  TrendingUp,
-  Wallet,
-  Coins,
-  ArrowUpRight,
-  AlertTriangle,
-  Info,
-  ChevronRight,
-} from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import {
   type AnaliseContabilData,
@@ -77,7 +69,7 @@ export default function AnaliseContabilPage() {
 function renderBold(text: string): ReactNode {
   const parts = text.split(/\*\*(.+?)\*\*/g)
   return parts.map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+    i % 2 === 1 ? <strong key={i} className="font-semibold text-white">{part}</strong> : part
   )
 }
 
@@ -86,20 +78,13 @@ function renderBold(text: string): ReactNode {
 // ---------------------------------------------------------------------
 type SinteseData = AnaliseContabilData["sintese"]
 
-// Fato icons config: 01 ganha mais, 02 dinheiro parado, 03 lucro não tirado
-const FATO_ICONS = [
-  { Icon: TrendingUp, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" },
-  { Icon: Wallet, color: "#b45309", bg: "rgba(234,179,8,0.12)" },
-  { Icon: Coins, color: "var(--brand-blue)", bg: "rgba(21,103,200,0.10)" },
-]
-
-// KPI icons config (by index)
-const KPI_ICONS = [
-  { Icon: ArrowUpRight, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" }, // Quanto vendeu
-  { Icon: ArrowUpRight, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" }, // Lucro de 2025
-  { Icon: TrendingUp, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" },  // Lucro por R$100
-  { Icon: AlertTriangle, color: "#b45309", bg: "rgba(234,179,8,0.12)" },                // Do patrimônio em banco
-  { Icon: Info, color: "var(--brand-blue)", bg: "rgba(21,103,200,0.10)" },              // Liquidez Corrente
+// KPI border colors by index
+const KPI_BORDER_COLORS = [
+  "var(--brand-green)",   // Quanto vendeu
+  "var(--brand-green)",   // Lucro 2025
+  "var(--brand-green)",   // Lucro por R$100
+  "var(--brand-warning)", // Patrimônio em banco
+  "var(--brand-blue)",    // Liquidez
 ]
 
 function SinteseExecutiva({ data }: { data: SinteseData }) {
@@ -108,112 +93,76 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       {/* Intro */}
       <TabHeaderCard titulo="Síntese Executiva" intro={data.intro} />
 
-      {/* Três fatos */}
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--brand-blue)]">
+      {/* ============================================================ */}
+      {/* SYNTHESIS — caixa navy com 3 colunas                          */}
+      {/* ============================================================ */}
+      <div
+        className="my-6 rounded-2xl p-9 md:p-10"
+        style={{ background: "#071D3B" }}
+      >
+        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#38B8E8]">
           Os três fatos que importam
         </p>
-        <h3 className="mt-1 text-base font-bold leading-snug text-[color:var(--brand-navy)]">
+        <h3
+          className="mb-1.5 text-[22px] font-medium leading-tight tracking-[-0.005em] text-white"
+          style={{ fontFamily: "var(--cfoup-font-serif)" }}
+        >
           O que o DRE e o Balanço mostram juntos
         </h3>
-      </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {data.fatos.map((fato, idx) => {
-            const fatoConfig = FATO_ICONS[idx] || FATO_ICONS[0]
-            return (
-              <button
-                key={fato.numero}
-                type="button"
-                className="flex h-full flex-col rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md md:p-5"
-              >
-                {/* Conteúdo principal — flex-1 pra empurrar footer pro rodapé */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-9 w-9 items-center justify-center rounded-full"
-                      style={{ background: fatoConfig.bg }}
-                    >
-                      <fatoConfig.Icon size={18} style={{ color: fatoConfig.color }} />
-                    </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                      {fato.numero}
-                    </span>
-                  </div>
-                  <p
-                    className="mt-3 text-[13px] font-semibold"
-                    style={{ color: "var(--brand-navy)" }}
-                  >
-                    {fato.titulo}
-                  </p>
-                  <p
-                    className="mt-2 text-[13px] leading-relaxed"
-                    style={{ color: "var(--slate-700)" }}
-                  >
-                    {renderBold(fato.corpo)}
-                  </p>
-                </div>
-                {/* Footer CTA — mt-auto garante posição no rodapé */}
-                <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
-                  <span className="text-[12px] text-foreground">
-                    {fato.chatCfoup}
-                  </span>
-                  <ChevronRight size={16} style={{ color: "var(--brand-blue)" }} />
-                </div>
-              </button>
-            )
-          })}
-      </div>
-
-      {/* KPIs */}
-      <div className="mt-6 grid gap-3 md:grid-cols-5">
-        {data.kpis.map((kpi, idx) => {
-          const kpiConfig = KPI_ICONS[idx] || KPI_ICONS[0]
-          return (
-            <div
-              key={kpi.label}
-              className="relative rounded-2xl border border-border bg-card p-4"
-            >
-              <span
-                className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full"
-                style={{ background: kpiConfig.bg }}
-              >
-                <kpiConfig.Icon size={14} style={{ color: kpiConfig.color }} />
-              </span>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {kpi.label}
-              </p>
-              <p
-                className="mt-2 text-[1.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {kpi.valor}
-              </p>
-              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                {kpi.comentario}
+        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {data.fatos.map((fato) => (
+            <div key={fato.numero}>
+              <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#38B8E8]">
+                {fato.numero} · {fato.titulo}
+              </h4>
+              <p className="text-[13.5px] leading-[1.65] text-[#C8D4E5]">
+                {renderBold(fato.corpo)}
               </p>
             </div>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* Card de ação */}
-      <div className="mt-6 rounded-2xl bg-brand-gradient p-4 text-white md:p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
-          AÇÃO
-        </p>
-        <h3 className="mt-1 text-base font-extrabold leading-tight md:text-[1.1rem]">
-          Quer entender o que esses números dizem pro próximo passo?
-        </h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-white/85">
-          Pergunte ao Chat CFOup. Ele tem o DRE, o Balanço e os 3 anos da empresa em mãos pra responder o que importa pro dono.
-        </p>
+      {/* Botão Chat CFOup */}
+      <div className="mt-4">
         <button
           type="button"
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-[13px] font-semibold text-white transition hover:bg-white/20"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-[13px] font-semibold transition hover:bg-muted/40"
+          style={{ color: "var(--brand-blue)" }}
         >
-          Abrir Chat CFOup
-          <ChevronRight size={14} />
+          Pergunte ao Chat CFOup
+          <ArrowUpRight size={14} />
         </button>
+      </div>
+
+      {/* ============================================================ */}
+      {/* KPIs — 5 cards com border-left colorida                       */}
+      {/* ============================================================ */}
+      <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-5">
+        {data.kpis.map((kpi, idx) => (
+          <div
+            key={kpi.label}
+            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border border-border bg-card p-5"
+          >
+            {/* Border-left colorida */}
+            <span
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-blue)" }}
+            />
+            <p className="mb-3 min-h-[28px] text-[10.5px] font-semibold uppercase leading-tight tracking-[0.1em] text-muted-foreground">
+              {kpi.label}
+            </p>
+            <p
+              className="mb-2.5 text-[26px] font-medium leading-[1.05] tracking-[-0.01em] tabular-nums"
+              style={{ fontFamily: "var(--cfoup-font-serif)", color: "var(--brand-navy)" }}
+            >
+              {kpi.valor}
+            </p>
+            <p className="mt-auto text-[11.5px] leading-[1.5] text-muted-foreground">
+              {kpi.comentario}
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* Como usar */}
@@ -236,7 +185,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               className="text-[13px] leading-relaxed"
               style={{ color: "var(--slate-700)" }}
             >
-              {renderBold(data.comoUsar.navegacao)}
+              {renderBoldNavy(data.comoUsar.navegacao)}
             </p>
           </div>
           <div>
@@ -250,7 +199,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               className="text-[13px] leading-relaxed"
               style={{ color: "var(--slate-700)" }}
             >
-              {renderBold(data.comoUsar.oQueAnalisamos)}
+              {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
             </p>
           </div>
         </div>
@@ -286,5 +235,13 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
         </details>
       </div>
     </section>
+  )
+}
+
+// Helper para renderBold em contexto claro (navy em vez de white)
+function renderBoldNavy(text: string): ReactNode {
+  const parts = text.split(/\*\*(.+?)\*\*/g)
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i} className="font-semibold" style={{ color: "var(--brand-navy)" }}>{part}</strong> : part
   )
 }
