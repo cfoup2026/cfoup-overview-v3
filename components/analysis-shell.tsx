@@ -4,9 +4,9 @@ import { useEffect, type ReactNode } from "react"
 
 // ---------------------------------------------------------------------
 // AnalysisShell — reusable header + tabs wrapper for Análise Contábil
-// and Análise Financeira. Espelha sizes/weights/cores do header de
-// /visao-geral. Tamanhos de texto, pesos e cores seguem o design system
-// (Tailwind semântico + CSS vars).
+// and Análise Financeira. Hero editorial (fundo navy gradient, Fraunces
+// no H1, chips claros). Tabs nav sticky. Espelha sizes/weights/cores
+// dos HTMLs cfoup-tese.
 // ---------------------------------------------------------------------
 
 export type TabConfig = {
@@ -46,85 +46,106 @@ export function AnalysisShell({
   return (
     <>
       {/* ============================================================ */}
-      {/* STICKY WRAPPER — hero card + tab nav fixos no topo            */}
+      {/* STICKY HEADER — hero + tabs juntos                            */}
       {/* ============================================================ */}
-      <div className="sticky top-14 z-20 -mx-8 bg-background px-8 pb-0 pt-0 md:-mx-10 md:px-10 lg:-mx-12 lg:top-0 lg:px-12">
-        {/* ============================================================ */}
-        {/* HEADER — envolvido em bloco com bg-hero-gradient              */}
-        {/* ============================================================ */}
-        <header className="rounded-2xl border border-border bg-hero-gradient p-5 md:p-6">
-        {/* Eyebrow */}
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
+      <div className="sticky top-0 z-20 -mx-8 md:-mx-10 lg:-mx-12">
+        {/* HERO — fundo navy gradient */}
+        <header
+          className="rounded-t-2xl px-8 py-8 md:px-10 md:py-10 lg:px-12"
+          style={{
+            background: "linear-gradient(135deg, #071D3B 0%, #0A2647 60%, #0E3A6B 100%)",
+          }}
         >
-          {eyebrow}
-        </p>
-        {/* Subtitulo */}
-        <p className="text-[12px] text-muted-foreground">{subtitulo}</p>
-        {/* H1 */}
-        <h1
-          className="mt-0.5 text-lg font-extrabold leading-tight md:text-[1.3rem]"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          {empresa.nome}
-        </h1>
-        {/* Descrição */}
-        <p
-          className="mt-1.5 max-w-3xl text-[13px] leading-relaxed"
-          style={{ color: "var(--slate-700)" }}
-        >
-          {descricao}
-        </p>
+          {/* Brand text (eyebrow + subtitulo) */}
+          <div className="mb-6">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "#38B8E8" }}
+            >
+              {eyebrow}
+            </p>
+            <p
+              className="mt-0.5 text-[13px]"
+              style={{ color: "#B8C8DC" }}
+            >
+              {subtitulo}
+            </p>
+          </div>
 
-        {/* Chips */}
-        <div className="mt-4 flex flex-wrap gap-6">
-          {chips.map((c, idx) => <Chip key={idx} label={c.label} value={c.value} />)}
-        </div>
-      </header>
+          {/* H1 */}
+          <h1
+            className="mb-2 text-[26px] leading-[1.1] tracking-[-0.015em] text-white md:text-[36px]"
+            style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
+          >
+            {empresa.nome}
+          </h1>
 
-        {/* ============================================================ */}
-        {/* TABS NAV — dentro do wrapper sticky                           */}
-        {/* ============================================================ */}
-        <nav className="mt-4 border-b border-border">
-          <div className="flex gap-1">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={`flex items-baseline gap-1.5 rounded-t-md px-2 py-3 transition-colors ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                  }`}
+          {/* Descrição */}
+          <p
+            className="mb-5 max-w-[1180px] text-[13px] font-light leading-[1.55] md:text-[14px]"
+            style={{ color: "#B8C8DC" }}
+          >
+            {descricao}
+          </p>
+
+          {/* Chips */}
+          <div className="flex flex-wrap gap-6">
+            {chips.map((c, idx) => (
+              <div key={idx}>
+                <p
+                  className="text-[10px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ color: "#8FA3BD" }}
+                >
+                  {c.label}
+                </p>
+                <p className="mt-0.5 text-[13px] font-medium text-white">
+                  {c.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </header>
+
+        {/* TABS NAV */}
+        <nav className="border-b border-border bg-background px-8 md:px-10 lg:px-12">
+        <div className="flex gap-1 overflow-x-auto">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`flex items-baseline gap-1.5 whitespace-nowrap rounded-t-md px-2 py-3 transition-colors ${
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                }`}
+                style={{
+                  borderBottom: isActive
+                    ? "3px solid var(--brand-blue)"
+                    : "3px solid transparent",
+                  marginBottom: "-1px",
+                }}
+              >
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--brand-blue)" }}
+                >
+                  {tab.numeral}
+                </span>
+                <span
+                  className="text-sm"
                   style={{
-                    borderBottom: isActive
-                      ? "3px solid var(--brand-blue)"
-                      : "3px solid transparent",
-                    marginBottom: "-1px",
+                    fontWeight: isActive ? 700 : 500,
                   }}
                 >
-                  <span
-                    className="text-[10px] font-medium"
-                    style={{ color: "var(--brand-blue)" }}
-                  >
-                    {tab.numeral}
-                  </span>
-                  <span
-                    className="text-sm"
-                    style={{
-                      fontWeight: isActive ? 700 : 500,
-                    }}
-                  >
-                    {tab.label}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </nav>
+                  {tab.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
       </div>
 
       {/* ============================================================ */}
@@ -132,24 +153,5 @@ export function AnalysisShell({
       {/* ============================================================ */}
       <div className="mt-6">{children}</div>
     </>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Chip helper — label + value
-// ---------------------------------------------------------------------
-function Chip({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p
-        className="mt-0.5 text-[13px] font-semibold"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        {value}
-      </p>
-    </div>
   )
 }

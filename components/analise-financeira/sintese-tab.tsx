@@ -1,286 +1,109 @@
 "use client"
 
-import { ArrowUpRight, AlertTriangle, Info } from "lucide-react"
-import type { SinteseDados } from "@/lib/types/analise-financeira"
-import type { conteudoAnaliseFinanceira } from "@/lib/conteudos/analise-financeira"
+// ---------------------------------------------------------------------
+// Síntese — Análise Financeira
+// Replicação fiel do HTML cfoup-tese: section-head + verdict + actions + callout
+// ---------------------------------------------------------------------
 
-// ---------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------
+type Decisao = {
+  titulo: string
+  descricao: string
+  meta: string
+}
+
+type SinteseFinanceiraData = {
+  tese: string
+  decisoes: Decisao[]
+  callout: string
+}
+
 type Props = {
-  dados: SinteseDados
-  conteudo: typeof conteudoAnaliseFinanceira.sintese
+  dados: SinteseFinanceiraData
 }
 
-// ---------------------------------------------------------------------
-// KPI icon config by subTone
-// ---------------------------------------------------------------------
-function getKpiIconConfig(tone?: string) {
-  switch (tone) {
-    case "pos":
-      return { Icon: ArrowUpRight, color: "var(--brand-green-dark)", bg: "rgba(54,186,88,0.18)" }
-    case "neg":
-      return { Icon: AlertTriangle, color: "var(--brand-error-soft)", bg: "rgba(209,67,67,0.12)" }
-    case "warn":
-      return { Icon: AlertTriangle, color: "#b45309", bg: "rgba(234,179,8,0.12)" }
-    case "muted":
-    default:
-      return { Icon: Info, color: "var(--brand-blue)", bg: "rgba(21,103,200,0.10)" }
-  }
-}
-
-// ---------------------------------------------------------------------
-// Alerta style config by nivel
-// ---------------------------------------------------------------------
-function getAlertaStyle(nivel: "critico" | "atencao" | "controle") {
-  switch (nivel) {
-    case "critico":
-      return {
-        border: "var(--brand-error-soft)",
-        badgeBg: "rgba(209,67,67,0.12)",
-        badgeColor: "var(--brand-error-soft)",
-      }
-    case "atencao":
-      return {
-        border: "var(--brand-warning)",
-        badgeBg: "rgba(224,139,0,0.12)",
-        badgeColor: "var(--brand-warning)",
-      }
-    case "controle":
-      return {
-        border: "var(--brand-green)",
-        badgeBg: "rgba(54,186,88,0.12)",
-        badgeColor: "var(--brand-green-dark)",
-      }
-  }
-}
-
-// ---------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------
-export default function SinteseTab({ dados, conteudo }: Props) {
+export default function SinteseTab({ dados }: Props) {
   return (
-    <section className="space-y-6">
-      {/* ============================================================ */}
-      {/* BLOCO 1 — Veredito                                            */}
-      {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
+    <section className="op-section">
+      {/* Section Head (navy gradient) */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
+        style={{ background: "linear-gradient(135deg, #071D3B 0%, #0A2647 100%)" }}
+      >
+        <h2
+          className="m-0 text-[22px] font-medium tracking-[-0.005em] text-white"
+          style={{ fontFamily: "var(--cfoup-font-serif)" }}
         >
-          {conteudo.vereditoLabel}
-        </p>
-        <h3
-          className="mt-1 text-base font-semibold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          {dados.veredito}
-        </h3>
+          Síntese · <span style={{ color: "#38B8E8" }}>O que importa agora</span>
+        </h2>
+        <span className="text-[11px] tracking-[0.04em] text-white/70">
+          A tese e as decisões da semana
+        </span>
       </div>
 
-      {/* ============================================================ */}
-      {/* BLOCO 2 — KPIs (grid 5 cols)                                  */}
-      {/* ============================================================ */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-        {dados.kpis.map((kpi, idx) => {
-          const iconConfig = getKpiIconConfig(kpi.subTone)
-          return (
-            <div
-              key={idx}
-              className="relative rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
-            >
-              <span
-                className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full"
-                style={{ background: iconConfig.bg }}
-              >
-                <iconConfig.Icon size={14} style={{ color: iconConfig.color }} />
-              </span>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {kpi.label}
-              </p>
-              <p
-                className="mt-2 text-[1.25rem] font-extrabold leading-none tabular-nums"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {kpi.valor}
-              </p>
-              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                {kpi.sub}
-              </p>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* ============================================================ */}
-      {/* BLOCO 3 — Alertas (grid 3 cols)                               */}
-      {/* ============================================================ */}
-      <div className="grid gap-3 md:grid-cols-3">
-        {dados.alertas.map((alerta, idx) => {
-          const s = getAlertaStyle(alerta.nivel)
-          return (
-            <div
-              key={idx}
-              className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
-              style={{ borderLeftWidth: "4px", borderLeftColor: s.border }}
-            >
-              <span
-                className="inline-block rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em]"
-                style={{ background: s.badgeBg, color: s.badgeColor }}
-              >
-                {conteudo.alertasLabels[alerta.nivel]}
-              </span>
-              <h4
-                className="mt-2 text-[13px] font-semibold"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {alerta.titulo}
-              </h4>
-              <p
-                className="mt-2 text-[13px] leading-relaxed"
-                style={{ color: "var(--slate-700)" }}
-              >
-                {alerta.texto}
-              </p>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* ============================================================ */}
-      {/* BLOCO 4 — Leitura Executiva                                   */}
-      {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
+      {/* Section Body */}
+      <div className="p-7" style={{ background: "#FFFFFF" }}>
+        {/* Verdict */}
+        <div
+          className="mb-7 flex items-baseline gap-4 rounded-r-lg px-[22px] py-4"
+          style={{ background: "#F0F4FA", borderLeft: "4px solid #1567C8" }}
         >
-          {conteudo.leituraLabel}
-        </p>
-        <h3
-          className="mt-1 text-base font-semibold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          {dados.leitura.tese}
-        </h3>
-        <div className="mt-4 grid gap-6 md:grid-cols-3">
-          <div>
-            <h4
-              className="text-[12px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {conteudo.leituraSubBlocos.funcionou}
-            </h4>
-            <p
-              className="mt-1.5 text-[13px] leading-relaxed"
-              style={{ color: "var(--slate-700)" }}
-            >
-              {dados.leitura.funcionou}
-            </p>
-          </div>
-          <div>
-            <h4
-              className="text-[12px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {conteudo.leituraSubBlocos.preocupa}
-            </h4>
-            <p
-              className="mt-1.5 text-[13px] leading-relaxed"
-              style={{ color: "var(--slate-700)" }}
-            >
-              {dados.leitura.preocupa}
-            </p>
-          </div>
-          <div>
-            <h4
-              className="text-[12px] font-semibold uppercase tracking-[0.16em]"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {conteudo.leituraSubBlocos.fazerAgora}
-            </h4>
-            <p
-              className="mt-1.5 text-[13px] leading-relaxed"
-              style={{ color: "var(--slate-700)" }}
-            >
-              {dados.leitura.fazerAgora}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ============================================================ */}
-      {/* BLOCO 5 — Ações Priorizadas                                   */}
-      {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
-        <p
-          className="text-[10px] font-semibold uppercase tracking-[0.16em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          {conteudo.acoesLabel}
-        </p>
-        <ol className="mt-4 space-y-4">
-          {dados.acoes.map((acao, idx) => (
-            <li key={idx} className="flex gap-3">
-              <span
-                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
-                style={{ background: "var(--brand-blue)" }}
-              >
-                {idx + 1}
-              </span>
-              <div className="flex-1">
-                <p
-                  className="text-[13px] font-semibold"
-                  style={{ color: "var(--brand-navy)" }}
-                >
-                  {acao.titulo}
-                </p>
-                <p
-                  className="mt-0.5 text-[13px] leading-relaxed"
-                  style={{ color: "var(--slate-700)" }}
-                >
-                  {acao.descricao}
-                </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {acao.meta}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* ============================================================ */}
-      {/* BLOCO 6 — Glossário                                           */}
-      {/* ============================================================ */}
-      <div className="rounded-2xl border border-border bg-card p-5 md:p-6 transition-shadow hover:shadow-md">
-        <details>
-          <summary
-            className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--brand-blue)" }}
+          <span
+            className="flex-shrink-0 text-[10.5px] font-bold uppercase tracking-[0.12em]"
+            style={{ color: "#1567C8" }}
           >
-            Glossário · Termos usados na Análise Financeira +
-          </summary>
-          <dl className="mt-3 space-y-3">
-            {conteudo.glossario.map((item) => (
-              <div key={item.termo}>
-                <dt
-                  className="text-[13px] font-semibold"
-                  style={{ color: "var(--brand-navy)" }}
+            Tese
+          </span>
+          <span
+            className="text-[19px] font-medium leading-[1.35] tracking-[-0.005em]"
+            style={{ fontFamily: "var(--cfoup-font-serif)", color: "#071D3B" }}
+          >
+            {dados.tese}
+          </span>
+        </div>
+
+        {/* Actions (bloco navy) */}
+        <div
+          className="rounded-[10px] px-7 py-6"
+          style={{ background: "#071D3B" }}
+        >
+          <h4
+            className="mb-[14px] text-[14px] font-medium uppercase tracking-[0.04em]"
+            style={{ fontFamily: "var(--cfoup-font-serif)", color: "#38B8E8" }}
+          >
+            3 decisões desta semana
+          </h4>
+          <ol className="m-0 list-none p-0" style={{ counterReset: "acts" }}>
+            {dados.decisoes.map((d, idx) => (
+              <li
+                key={idx}
+                className="relative block py-[10px] pl-[38px] text-[14px] leading-[1.6]"
+                style={{ color: "#D8E2F0", counterIncrement: "acts" }}
+              >
+                <span
+                  className="absolute left-0 top-[10px] inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-[13px] font-semibold"
+                  style={{
+                    fontFamily: "var(--cfoup-font-serif)",
+                    background: "#38B8E8",
+                    color: "#071D3B",
+                  }}
                 >
-                  {item.termo}
-                </dt>
-                <dd
-                  className="mt-1 text-[13px] leading-relaxed"
-                  style={{ color: "var(--slate-700)" }}
-                >
-                  {item.definicao}
-                </dd>
-              </div>
+                  {idx + 1}
+                </span>
+                <b className="font-semibold text-white">{d.titulo}</b> — {d.descricao}{" "}
+                <span className="ml-2 text-[12px] italic text-white/65">{d.meta}</span>
+              </li>
             ))}
-          </dl>
-        </details>
+          </ol>
+        </div>
+
+        {/* Callout final */}
+        <div
+          className="mt-6 px-[22px] py-[18px] text-[16px] leading-[1.55]"
+          style={{ background: "#F7F9FC", borderLeft: "3px solid #38B8E8", color: "#071D3B" }}
+        >
+          <b className="font-semibold">{dados.callout.split(".")[0]}.</b>
+          {dados.callout.substring(dados.callout.indexOf(".") + 1)}
+        </div>
       </div>
     </section>
   )

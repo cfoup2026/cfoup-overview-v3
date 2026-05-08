@@ -1,102 +1,17 @@
 // ---------------------------------------------------------------------
 // Conteúdo universal — Análise Financeira
+// Ordem das abas: Síntese, Caixa, Clientes, Faturamento, Fornecedores, Ciclo, Auditoria, Checklist
 // ---------------------------------------------------------------------
 
 export const conteudoAnaliseFinanceira = {
-  hero: {
-    eyebrow: "CFOup · Análise Financeira",
-    subEyebrow: "Operação · Vendas · Recebíveis · Caixa",
-    subtitulo:
-      "Análise operacional e financeira do negócio — faturamento, clientes, caixa, ciclo e fornecedores.",
-    metaLabels: {
-      exercicios: "EXERCÍCIOS",
-      dataBase: "DATA-BASE",
-      nfsAnalisadas: "NFs ANALISADAS",
-      setor: "SETOR",
-    },
-  },
   abas: [
-    { num: "01", nome: "Síntese", id: "sintese" },
-    { num: "02", nome: "Posição de Caixa", id: "posicao-de-caixa" },
-    { num: "03", nome: "Clientes", id: "clientes" },
-    { num: "04", nome: "Faturamento", id: "faturamento" },
-    { num: "05", nome: "Fornecedor", id: "fornecedor" },
-    { num: "06", nome: "Ciclo Financeiro", id: "ciclo-financeiro" },
-    { num: "07", nome: "Validação", id: "validacao" },
+    { num: "✦", nome: "Síntese", id: "sintese" },
+    { num: "E", nome: "Caixa", id: "caixa" },
+    { num: "B", nome: "Clientes", id: "clientes" },
+    { num: "A", nome: "Faturamento", id: "faturamento" },
+    { num: "D", nome: "Fornecedores", id: "fornecedores" },
+    { num: "F", nome: "Ciclo", id: "ciclo" },
+    { num: "C", nome: "Auditoria", id: "auditoria" },
     { num: "✓", nome: "Checklist Mensal", id: "checklist" },
   ],
-  sintese: {
-    vereditoLabel: "Veredito",
-    alertasLabels: {
-      critico: "Crítico",
-      atencao: "Atenção",
-      controle: "Controle",
-    },
-    leituraLabel: "Leitura executiva",
-    leituraSubBlocos: {
-      funcionou: "O que funcionou",
-      preocupa: "O que preocupa",
-      fazerAgora: "O que fazer agora",
-    },
-    acoesLabel: "Ações priorizadas",
-    glossario: [
-      {
-        termo: "Runway",
-        definicao: "Quantos dias o caixa atual aguenta cobrindo o custo fixo mensal, sem entrada de receita. Mede 'tempo de sobrevivência'.",
-      },
-      {
-        termo: "CP (Contas a Pagar)",
-        definicao: "Tudo que a empresa deve a fornecedores e ainda não pagou.",
-      },
-      {
-        termo: "CR (Contas a Receber)",
-        definicao: "Tudo que clientes devem à empresa e ainda não pagaram.",
-      },
-      {
-        termo: "PMR (DSO)",
-        definicao: "Prazo Médio de Recebimento (Days Sales Outstanding em inglês). Em quantos dias, em média, o cliente paga depois da venda. PMR alto = dinheiro demorando a entrar.",
-      },
-      {
-        termo: "Margem operacional de caixa",
-        definicao: "Quanto sobra em dinheiro de cada R$ 100 vendidos, depois de pagar tudo da operação. Diferente do lucro contábil — aqui é caixa real.",
-      },
-      {
-        termo: "Ciclo de caixa negativo",
-        definicao: "Quando o cliente paga ANTES de a empresa pagar o fornecedor. Significa que o fornecedor está financiando a operação. Bom sinal.",
-      },
-      {
-        termo: "Concentração Top 1",
-        definicao: "Quanto % do faturamento depende do maior cliente. Acima de 30% é risco.",
-      },
-    ],
-  },
-}
-
-// Stubs para abas futuras
-export const conteudoCaixa = {
-  // TODO: PR seguinte
-}
-
-export const conteudoClientes = {
-  // TODO: PR seguinte
-}
-
-export const conteudoFaturamento = {
-  // TODO: PR seguinte
-}
-
-export const conteudoFornecedor = {
-  // TODO: PR seguinte
-}
-
-export const conteudoCiclo = {
-  // TODO: PR seguinte
-}
-
-export const conteudoValidacao = {
-  // TODO: PR seguinte
-}
-
-export const conteudoChecklist = {
-  // TODO: PR seguinte
 }

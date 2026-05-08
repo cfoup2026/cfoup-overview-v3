@@ -1,78 +1,85 @@
 // ---------------------------------------------------------------------
 // Types — Análise Financeira
+// Estrutura baseada em analise-financeira.html (cfoup-tese)
 // ---------------------------------------------------------------------
 
-export type SinteseKPI = {
+// Tipo genérico para KPI
+export type KPI = {
   label: string
   valor: string
-  sub: string
-  subTone?: "pos" | "neg" | "warn" | "muted"
+  delta: string
+  deltaType: "up" | "down" | "flat" | "warn"
+  highlight?: boolean // fundo amarelo
 }
 
-export type SinteseAlerta = {
+// Tipo genérico para Alerta
+export type Alerta = {
   nivel: "critico" | "atencao" | "controle"
   titulo: string
   texto: string
 }
 
-export type SinteseLeitura = {
-  tese: string
-  funcionou: string
-  preocupa: string
-  fazerAgora: string
+// Tipo genérico para Ação
+export type Acao = {
+  texto: string
+  meta: string
 }
 
-export type SinteseAcao = {
+// Tipo genérico para termo de glossário
+export type TermoGlossario = {
+  termo: string
+  definicao: string
+}
+
+// ---------------------------------------------------------------------
+// Síntese (aba ✦)
+// ---------------------------------------------------------------------
+export type DecisaoSintese = {
   titulo: string
   descricao: string
   meta: string
 }
 
-export type SinteseDados = {
+export type SinteseFinanceiraData = {
+  tese: string
+  decisoes: DecisaoSintese[]
+  callout: string
+}
+
+// ---------------------------------------------------------------------
+// Bloco genérico (Faturamento, Clientes, Auditoria, Fornecedores, Caixa, Ciclo)
+// ---------------------------------------------------------------------
+export type BlocoOperacional = {
   veredito: string
-  kpis: SinteseKPI[]
-  alertas: SinteseAlerta[]
-  leitura: SinteseLeitura
-  acoes: SinteseAcao[]
+  leitura: string
+  kpis: KPI[]
+  alertas: Alerta[]
+  acoes: Acao[]
+  glossario: TermoGlossario[]
 }
 
+// ---------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------
 export type HeroFinanceiro = {
+  subTitulo: string
+  descricao: string
   exercicios: string
+  cobertura: string
+  fonte: string
   dataBase: string
-  nfsAnalisadas: string
-  setor: string
 }
 
+// ---------------------------------------------------------------------
+// Dados completos da Análise Financeira
+// ---------------------------------------------------------------------
 export type AnaliseFinanceiraDados = {
   hero: HeroFinanceiro
-  sintese: SinteseDados
-}
-
-// Tipos para abas futuras (stubs)
-export type DadosCaixa = {
-  // TODO: PR seguinte
-}
-
-export type DadosClientes = {
-  // TODO: PR seguinte
-}
-
-export type DadosFaturamento = {
-  // TODO: PR seguinte
-}
-
-export type DadosFornecedor = {
-  // TODO: PR seguinte
-}
-
-export type DadosCiclo = {
-  // TODO: PR seguinte
-}
-
-export type DadosValidacao = {
-  // TODO: PR seguinte
-}
-
-export type DadosChecklist = {
-  // TODO: PR seguinte
+  sintese: SinteseFinanceiraData
+  faturamento: BlocoOperacional
+  clientes: BlocoOperacional
+  auditoria: BlocoOperacional
+  fornecedores: BlocoOperacional
+  caixa: BlocoOperacional
+  ciclo: BlocoOperacional
 }

@@ -18,6 +18,18 @@
   --brand-red-dark: #991b1b;
   --brand-warning: #e08b00;
   --brand-error-soft: #d14343;
+  
+  /* HTML reference tokens */
+  --ink: #0F1B2D;
+  --muted-html: #5B6B82;
+  --line: #E5EBF2;
+  --bg-html: #F7F9FC;
+  --pos: #36BA58;
+  --neg: #D14343;
+  --neutral: #8A99B0;
+  --warn: #E08B00;
+  --tbl-header-bg: #FAFBFD;
+  --tbl-row-hover: #FAFCFF;
 
   /* CFOup aliases (para componentes da Análise Financeira) */
   --cfoup-navy: var(--brand-navy);
@@ -173,4 +185,17 @@
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+}
+
+/* ==========================================================================
+   COMPONENTES OPERACIONAIS (analise-financeira)
+   Classes do HTML cfoup-tese replicadas em CSS
+   ========================================================================== */
+.op-section {
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(7,29,59,0.04), 0 8px 24px rgba(7,29,59,0.04);
 }
