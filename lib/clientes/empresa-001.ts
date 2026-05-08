@@ -833,5 +833,189 @@ export const dadosCliente: AnaliseContabilData = {
       ],
       callout: "Crescer, a Gregorutt já sabe. O próximo passo é ganhar controle sobre cliente, caixa e previsibilidade.",
     },
+
+    // -----------------------------------------------------------------
+    // BLOCO A — FATURAMENTO
+    // -----------------------------------------------------------------
+    faturamento: {
+      veredito: "Você cresceu, mas não ficou mais saudável — crescimento concentrado em poucos clientes.",
+      leitura: "A Gregorutt cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores, especialmente a <strong>SUPRICORP</strong>. Isso sugere que a empresa não expandiu a base — <strong>ela passou a faturar mais em cima de menos relações comerciais</strong>. Sem a contribuição extraordinária da SUPRICORP, o crescimento do ano teria ficado perto de <strong>13%, não 21%</strong>.",
+      kpis: [
+        { label: "Q1-2026 (mais recente)", valor: "R$ 0,94<span class='unit'>M</span>", delta: "↑ +11,7% vs Q1-2025 · ritmo abaixo de 2025", deltaType: "warn", highlight: true },
+        { label: "Faturamento 2025", valor: "R$ 3,70<span class='unit'>M</span>", delta: "↑ +21,0% contra 2024", deltaType: "up" },
+        { label: "Margem Bruta declarada", valor: "51,9<span class='unit'>%</span>", delta: "→ −0,8 p.p. · margem real ~48%", deltaType: "flat" },
+        { label: "Receita média por cliente", valor: "R$ 9.838", delta: "↑ +25,8% — atenção: base menor", deltaType: "warn" },
+        { label: "Clientes ativos no ano", valor: "376", delta: "↓ −15 contra 2024 · base encolhendo", deltaType: "down" },
+      ],
+      alertas: [
+        { nivel: "critico", titulo: "SUPRICORP virou cliente crítico", texto: "Saiu de R$ 16k em 2023 para <b>R$ 354k em 2025</b> (9,6% da sua receita). Sozinha puxou 37% do seu crescimento e <b>paga em 69 dias</b>. Sem segundo lugar próximo." },
+        { nivel: "atencao", titulo: "Margem não acompanhou crescimento", texto: "Receita +21%, margem bruta declarada caiu 0,8 p.p. <b>Margem real de caixa ~48%</b> (cadastro de custo do produto está defasado em ~10%)." },
+      ],
+      acoes: [
+        { texto: "<b>Reunião com SUPRICORP em 2 semanas</b> — entender pipeline 2026 e renegociar prazo de pagamento (hoje 69 dias).", meta: "Risco: 9,6% da receita" },
+        { texto: "<b>Reconciliar custo dos top 10 SKUs</b> com o preço real pago aos fornecedores (ACF, NOVAPLASTICS, AVANZI).", meta: "Gap ~10% entre NF e caixa" },
+        { texto: "<b>Plano comercial Q2: meta de 20 clientes novos</b> para compensar os 15 que sumiram.", meta: "Receita esperada: R$ 16-30k/mês" },
+        { texto: "<b>Cross-sell nos 145 estáveis de cauda longa</b> — se metade dobrar para R$ 5k, são <b>+R$ 180k/ano</b>.", meta: "Mais barato que aquisição" },
+      ],
+      glossario: [
+        { termo: "NF", definicao: "= Nota Fiscal." },
+        { termo: "Q1, Q2, Q3, Q4", definicao: "= trimestres do ano (Q1 = Jan+Fev+Mar; Q4 = Out+Nov+Dez)." },
+        { termo: "YoY (ano contra ano)", definicao: "= compara o mesmo período de anos diferentes (ex: Q1-2026 vs Q1-2025)." },
+        { termo: "SKU", definicao: "= cada produto no seu cadastro. Cada item tem seu código único." },
+        { termo: "Margem Bruta declarada", definicao: "= margem calculada pelo custo que está cadastrado na nota fiscal. Pode estar desatualizada vs realidade." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // BLOCO B — CLIENTES
+    // -----------------------------------------------------------------
+    clientes: {
+      veredito: "Você está perdendo mais clientes do que ganhando — e concentrando receita em menos motores.",
+      leitura: "A base tem <strong>593 clientes únicos em 3 anos</strong>, mas só <strong>223 são estáveis</strong> (compraram nos 3 anos). Os <strong>70 em queda</strong> e <strong>58 perdidos</strong> superam os <strong>43 em alta</strong>. Enquanto a receita total subiu, o saldo líquido de clientes é <strong>negativo</strong>: você está concentrando mais, não expandindo.",
+      kpis: [
+        { label: "Universo de 3 anos", valor: "593", delta: "clientes únicos 2023-2025", deltaType: "flat" },
+        { label: "Estáveis (3 anos)", valor: "223", delta: "37,6% da base · o coração", deltaType: "flat" },
+        { label: "Em alta contínua", valor: "43", delta: "+R$ 540k de ganho em 2025", deltaType: "up" },
+        { label: "Em queda contínua", valor: "70", delta: "−R$ 285k em risco", deltaType: "down" },
+        { label: "Perdidos em 2025", valor: "58", delta: "−R$ 233k de receita 2024", deltaType: "down" },
+      ],
+      alertas: [
+        { nivel: "critico", titulo: "Saldo líquido negativo", texto: "Crescendo (43) menos caindo (70) = <b>−27 clientes em deterioração</b>. Esse é o dado mais importante da aba." },
+        { nivel: "atencao", titulo: "Top 1 = 9,6% da receita", texto: "SUPRICORP sozinha vale quase 10% do faturamento. Se sair, abre um buraco de <b>R$ 354k/ano</b>." },
+        { nivel: "controle", titulo: "Aquisição funcionando", texto: "79 clientes novos em 2025. O canal de aquisição está saudável — o problema é a retenção." },
+      ],
+      acoes: [
+        { texto: "<b>Listar os 70 clientes em queda</b> e atribuir a vendedor para diagnóstico em 30 dias.", meta: "~R$ 400k/ano em risco" },
+        { texto: "<b>Programa \"Save\"</b>: ligar nos 58 que sumiram em 2025.", meta: "Receita 2024: R$ 233k" },
+        { texto: "<b>Plano de proteção SUPRICORP</b>: contrato de fornecimento com prazo definido.", meta: "Risco: R$ 354k/ano" },
+        { texto: "<b>Análise dos 79 novos de 2025</b>: como entraram? Replicar canal.", meta: "Aquisição funciona" },
+      ],
+      glossario: [
+        { termo: "Universo de 3 anos", definicao: "= total de clientes diferentes que compraram em 2023, 2024 ou 2025 (sem contar duplicados)." },
+        { termo: "Cliente estável", definicao: "= cliente que comprou em todos os 3 anos (2023, 2024 e 2025). É o coração da sua base." },
+        { termo: "Cliente em queda contínua", definicao: "= cliente que compra nos 3 anos, mas a receita anual está caindo ano a ano." },
+        { termo: "Cliente perdido em 2025", definicao: "= cliente que comprou em 2023 e 2024 mas não comprou nada em 2025." },
+        { termo: "Cauda longa", definicao: "= parte grande da base de clientes que, individualmente, compra pouco." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // BLOCO C — AUDITORIA
+    // -----------------------------------------------------------------
+    auditoria: {
+      veredito: "Sua posição está organizada — não aparece nenhum problema grave aqui.",
+      leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência do ERP do que dinheiro realmente perdido.",
+      kpis: [
+        { label: "A receber em aberto", valor: "R$ 533<span class='unit'>k</span>", delta: "49% ainda no prazo", deltaType: "flat" },
+        { label: "A pagar em aberto", valor: "R$ 258<span class='unit'>k</span>", delta: "80% ainda no prazo", deltaType: "flat" },
+        { label: "Saldo (Receber − Pagar)", valor: "+R$ 276<span class='unit'>k</span>", delta: "Posição positiva", deltaType: "up" },
+        { label: "Sujeira contábil (>120 dias)", valor: "R$ 53<span class='unit'>k</span>", delta: "Limpar com contador · não é dívida real", deltaType: "warn" },
+      ],
+      alertas: [
+        { nivel: "controle", titulo: "Carteira organizada", texto: "A maior parte dos títulos ainda está no prazo. Dos que atrasaram, só <b>6-7%</b> estão em atraso longo (mais de 120 dias)." },
+        { nivel: "controle", titulo: "Saldo a seu favor", texto: "Você tem <b>R$ 276k a mais para receber do que para pagar</b>. Não está devendo fornecedor." },
+        { nivel: "atencao", titulo: "SILAVA Lavanderia · cliente crônico", texto: "R$ 17k em atraso em <b>13 títulos</b>, alguns com mais de 8 meses. <b>Decidir se vale continuar atendendo.</b>" },
+      ],
+      acoes: [
+        { texto: "<b>Baixar títulos >120 dias</b> com o contador — a maioria é sujeira, não dívida real.", meta: "R$ 53k para limpar" },
+        { texto: "<b>Decisão sobre SILAVA</b>: cobrar, renegociar ou cortar.", meta: "R$ 17k em 13 títulos" },
+        { texto: "<b>Cobrança ativa nos R$ 117k</b> em atraso >30 dias (19 clientes).", meta: "Lista pronta para ação" },
+      ],
+      glossario: [
+        { termo: "Contas a Receber (CR)", definicao: "= dinheiro que os clientes ainda vão te pagar por vendas já feitas." },
+        { termo: "Contas a Pagar (CP)", definicao: "= dinheiro que você ainda vai pagar a fornecedores por compras já feitas." },
+        { termo: "Sujeira contábil", definicao: "= títulos que aparecem no sistema mas já foram pagos/recebidos, ou que são tão antigos que não serão cobrados." },
+        { termo: "Atraso >120 dias", definicao: "= título vencido há mais de 4 meses. Geralmente indica problema real ou erro de registro." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // BLOCO D — FORNECEDORES
+    // -----------------------------------------------------------------
+    fornecedores: {
+      veredito: "Operação mais enxuta, mas embalagens e diárias cresceram acima do esperado.",
+      leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema.",
+      kpis: [
+        { label: "Total pago a fornecedores 2025", valor: "R$ 3,21<span class='unit'>M</span>", delta: "contra faturamento R$ 3,70M", deltaType: "flat" },
+        { label: "Custo da mercadoria (caixa)", valor: "R$ 1,66<span class='unit'>M</span>", delta: "Insumos + Embalagens = 52%", deltaType: "flat" },
+        { label: "Pago / Faturamento", valor: "86,9<span class='unit'>%</span>", delta: "vs ~95% em 2023 — melhorou 8 p.p.", deltaType: "up" },
+        { label: "Top fornecedor", valor: "ACF", delta: "R$ 322k · 10% do total", deltaType: "flat" },
+      ],
+      alertas: [
+        { nivel: "atencao", titulo: "Diárias subiram 45% em 2025", texto: "R$ 143k → R$ 221k. Folha caiu 4%. <b>Está trocando CLT por terceirizado.</b> Pode estar criando passivo trabalhista." },
+        { nivel: "atencao", titulo: "Embalagens +40% (vs receita +21%)", texto: "Custo de embalagem cresceu 2× a receita. Confirmar se foi <b>estoque antecipado</b> (saudável) ou <b>consumo real maior</b> (problema)." },
+        { nivel: "controle", titulo: "Eficiência operacional melhorou", texto: "Custo total / faturamento caiu de 95% (2023) para 87% (2025). <b>8 p.p. de melhora em 2 anos.</b>" },
+      ],
+      acoes: [
+        { texto: "<b>Negociar volume com ACF + NOVAPLASTICS</b> (juntas 17% do que você paga).", meta: "Embalagens +40%" },
+        { texto: "<b>Investigar a explosão de Diárias</b> (+R$ 78k): mapear quem, quando, por que.", meta: "Risco trabalhista" },
+        { texto: "<b>Atualizar custo real dos top 10 produtos no ERP</b> — gap de ~10%.", meta: "Margem real menor" },
+        { texto: "<b>Controle mensal Insumos por NF de venda</b>: detectar perdas.", meta: "Insumos +6% vs receita +21%" },
+      ],
+      glossario: [
+        { termo: "CMV (Custo da Mercadoria Vendida)", definicao: "= quanto você gasta com matéria-prima, insumos e embalagem pra produzir o que vende." },
+        { termo: "CMV de caixa", definicao: "= CMV calculado pelo que realmente saiu do banco (diferente do CMV da nota fiscal)." },
+        { termo: "Passivo trabalhista", definicao: "= risco de ter que pagar direitos de trabalhador depois, mesmo sem CLT, se a justiça reconhecer vínculo." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // BLOCO E — CAIXA
+    // -----------------------------------------------------------------
+    caixa: {
+      veredito: "A conta bancária analisada não está acumulando reserva — e a leitura final ainda depende de consolidar os demais bancos.",
+      leitura: "Mesmo com muito movimento, esta conta quase não acumulou saldo ao longo de <strong>13 meses</strong>. Isso mostra que ela funciona mais como <strong>passagem</strong> do que como <strong>formação de reserva</strong>. Para entender se isso vem da operação ou de saídas fora dela, ainda falta consolidar os demais bancos.",
+      kpis: [
+        { label: "Saldo inicial (05/03/2025)", valor: "R$ 20<span class='unit'>k</span>", delta: "validado por extrato físico", deltaType: "flat" },
+        { label: "Saldo atual (~31/03/2026)", valor: "R$ 34<span class='unit'>k</span>", delta: "+R$ 14k em 13 meses", deltaType: "flat" },
+        { label: "Meses positivos / negativos", valor: "6 / 7", delta: "Mais meses queimando que gerando", deltaType: "warn" },
+        { label: "Pior mês", valor: "−R$ 32<span class='unit'>k</span>", delta: "Novembro/2025", deltaType: "down" },
+      ],
+      alertas: [
+        { nivel: "critico", titulo: "R$ 734k circulando fora do banco", texto: "O banco captou menos do que o sistema registra. <b>R$ 73k/mês</b> de fluxo invisível. <b>Confirmar com contador qual outra conta está ativa.</b>" },
+        { nivel: "atencao", titulo: "Sem reserva de caixa", texto: "+R$ 14k em 13 meses = <b>operação no empate</b>. Caixa atual cobre só 4 dias de saída." },
+        { nivel: "atencao", titulo: "Mais meses negativos que positivos", texto: "7 meses negativos contra 6 positivos. <b>Pior mês foi Nov/25 (R$ −32k)</b> — evento específico daquele mês." },
+      ],
+      acoes: [
+        { texto: "<b>Identificar a outra conta bancária</b> com o contador — verificar se é outra PJ ou conta pessoal.", meta: "R$ 73k/mês fora" },
+        { texto: "<b>Consolidar visão de caixa de TODAS as contas</b>.", meta: "Sem isso, projeção incompleta" },
+        { texto: "<b>Implementar fluxo de caixa de 13 semanas</b>, atualizado toda sexta.", meta: "Modelo existe" },
+        { texto: "<b>Definir caixa mínimo operacional</b>: 1 mês de saída = R$ 254k.", meta: "Hoje R$ 34k = ~4 dias" },
+      ],
+      glossario: [
+        { termo: "Fluxo de caixa", definicao: "= entrada e saída de dinheiro do banco ao longo do tempo." },
+        { termo: "Reserva de caixa", definicao: "= dinheiro guardado na conta pra cobrir imprevistos ou meses mais fracos." },
+        { termo: "Runway", definicao: "= quanto tempo seu caixa aguenta se a receita zerar hoje." },
+        { termo: "Caixa mínimo operacional", definicao: "= valor de segurança que a conta não deveria ficar abaixo (recomendação: 1 mês de saída)." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // BLOCO F — CICLO
+    // -----------------------------------------------------------------
+    ciclo: {
+      veredito: "Ciclo bom, porém frágil — a folga é curta e pode sumir rápido.",
+      leitura: "Hoje você <strong>recebe antes de pagar</strong>, e isso ajuda o caixa. Em média, o cliente paga em <strong>24 dias</strong> e você paga o fornecedor em <strong>31 dias</strong> — ou seja, o fornecedor financia <strong>7 dias</strong> da sua operação. O problema é que <strong>essa folga é curta e pode sumir rápido</strong>.",
+      kpis: [
+        { label: "Prazo médio de recebimento", valor: "24,1<span class='unit'>d</span>", delta: "estável mês a mês — cobrança funciona", deltaType: "flat" },
+        { label: "Prazo médio de pagamento", valor: "31,4<span class='unit'>d</span>", delta: "volátil (21 a 49 dias) — varia muito", deltaType: "warn" },
+        { label: "Folga (receber vs pagar)", valor: "7<span class='unit'> dias</span>", delta: "Fornecedor financia 7 dias da operação", deltaType: "up" },
+      ],
+      alertas: [
+        { nivel: "controle", titulo: "Recebimento estável em 24 dias", texto: "O prazo médio de recebimento não se deteriorou ao longo do ano. <b>A cobrança está funcionando.</b>" },
+        { nivel: "atencao", titulo: "Folga de 7 dias é curta e volátil", texto: "O prazo de pagamento variou entre <b>21 e 49 dias</b>. Se cair pra 21 dias, a folga some e vira <b>déficit de 3 dias</b>." },
+      ],
+      acoes: [
+        { texto: "<b>Política de prazo padrão por cliente</b>: 30 dias como regra. Acima de 45 dias só com aprovação.", meta: "Trava crescimento fora de controle" },
+        { texto: "<b>Proteger o prazo de pagamento</b>: negociar cláusula mínima de 30 dias nos principais fornecedores.", meta: "ACF, NOVAPLASTICS, AVANZI" },
+        { texto: "<b>Monitorar PMR e PMP mensalmente</b>: criar alerta se folga cair abaixo de 5 dias.", meta: "Antecipar pressão" },
+      ],
+      glossario: [
+        { termo: "PMR (Prazo Médio de Recebimento)", definicao: "= quantos dias, em média, o cliente demora pra pagar depois que você emite a nota." },
+        { termo: "PMP (Prazo Médio de Pagamento)", definicao: "= quantos dias, em média, você demora pra pagar o fornecedor depois que ele emite a nota." },
+        { termo: "Ciclo de caixa", definicao: "= diferença entre PMR e PMP. Se positivo, você paga antes de receber (ruim). Se negativo, recebe antes de pagar (bom)." },
+        { termo: "Fornecedor financia", definicao: "= quando o prazo de pagamento é maior que o de recebimento, o fornecedor está 'emprestando' dinheiro pra você operar." },
+      ],
+    },
   },
 }
