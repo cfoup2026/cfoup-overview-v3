@@ -16,12 +16,11 @@ export type TabConfig = {
 }
 
 export type AnalysisShellProps = {
-  empresa: { nome: string; cnpj: string; regime: string }
-  periodos: string[]
-  emitidoEm: string
+  empresa: { nome: string }
   eyebrow: string
   subtitulo: string
   descricao: string
+  chips: { label: string; value: string }[]
   tabs: TabConfig[]
   activeTab: string
   onTabChange: (id: string) => void
@@ -30,11 +29,10 @@ export type AnalysisShellProps = {
 
 export function AnalysisShell({
   empresa,
-  periodos,
-  emitidoEm,
   eyebrow,
   subtitulo,
   descricao,
+  chips,
   tabs,
   activeTab,
   onTabChange,
@@ -81,10 +79,7 @@ export function AnalysisShell({
 
         {/* Chips */}
         <div className="mt-4 flex flex-wrap gap-6">
-          <Chip label="EXERCÍCIOS" value={periodos.join(" · ")} />
-          <Chip label="CNPJ" value={empresa.cnpj} />
-          <Chip label="REGIME" value={empresa.regime} />
-          <Chip label="EMITIDO EM" value={emitidoEm} />
+          {chips.map((c, idx) => <Chip key={idx} label={c.label} value={c.value} />)}
         </div>
       </header>
 
