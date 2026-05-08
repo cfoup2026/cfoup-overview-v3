@@ -90,8 +90,8 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
     <section>
       {/* H2 + lede */}
       <h2
-        className="mb-2 text-[30px] leading-[1.1] tracking-[-0.01em]"
-        style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+        className="mb-2 text-[20px] md:text-[26px] font-extrabold tracking-tight leading-tight"
+        style={{ color: "var(--brand-navy)" }}
       >
         Síntese Executiva
       </h2>
@@ -106,18 +106,18 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       {/* SYNTHESIS — caixa navy com 3 colunas                          */}
       {/* ============================================================ */}
       <div
-        className="rounded-[14px] p-9 md:p-10"
-        style={{ background: "var(--brand-navy)" }}
+        className="rounded-[14px] border border-border p-9 md:p-10"
+        style={{ background: "white" }}
       >
         <p
           className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em]"
-          style={{ color: "var(--brand-cyan)" }}
+          style={{ color: "var(--brand-blue)" }}
         >
           Os três fatos que importam
         </p>
         <h3
-          className="mb-1.5 text-[22px] leading-[1.1] tracking-[-0.005em] text-white"
-          style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
+          className="mb-1.5 text-base md:text-lg font-bold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
         >
           O que o DRE e o Balanço mostram juntos
         </h3>
@@ -126,20 +126,19 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
             <div key={fato.numero}>
               <h4
                 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
-                style={{ color: "var(--brand-cyan)" }}
+                style={{ color: "var(--brand-blue)" }}
               >
                 {fato.numero} · {fato.titulo}
               </h4>
               <p
                 className="text-[13.5px] leading-[1.65]"
-                style={{ color: "#C8D4E5" }}
+                style={{ color: "var(--brand-navy)" }}
               >
-                {renderBold(fato.corpo)}
+                {renderBoldNavy(fato.corpo)}
               </p>
               {fato.chatCfoup && (
                 <em
-                  className="mt-2.5 block text-[12.5px]"
-                  style={{ color: "#9FCAE5" }}
+                  className="mt-2.5 block text-[12.5px] text-muted-foreground"
                 >
                   Chat CFOup: {fato.chatCfoup}
                 </em>
@@ -171,8 +170,8 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               {kpi.label}
             </p>
             <p
-              className="mb-2.5 text-[26px] leading-[1.05] tracking-[-0.01em] tabular-nums"
-              style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+              className="mb-2.5 text-[20px] md:text-[24px] font-extrabold leading-tight tabular-nums"
+              style={{ color: "var(--brand-navy)" }}
             >
               {kpi.valor}
             </p>
