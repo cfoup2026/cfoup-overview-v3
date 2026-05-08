@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-import { ArrowUpRight } from "lucide-react"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import {
   type AnaliseContabilData,
@@ -14,17 +13,16 @@ import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
 import { GlossarioTab } from "@/components/glossario-tab"
 import { ConclusaoTab } from "@/components/conclusao-tab"
-import { TabHeaderCard } from "@/components/tab-header-card"
 
 // ---------------------------------------------------------------------
-// Tabs config
+// Tabs config — matches HTML cfoup-tese
 // ---------------------------------------------------------------------
 const TABS: TabConfig[] = [
   { id: "sintese", numeral: "01", label: "Síntese Executiva" },
   { id: "dre", numeral: "02", label: "DRE" },
-  { id: "balanco", numeral: "03", label: "BP" },
+  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
-  { id: "perguntas-contador", numeral: "05", label: "Ao Contador" },
+  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
   { id: "glossario", numeral: "06", label: "Glossário" },
   { id: "conclusao", numeral: "07", label: "Conclusão" },
 ]
@@ -73,167 +71,173 @@ function renderBold(text: string): ReactNode {
   )
 }
 
+// KPI border colors by index (green, blue, cyan, warn, warn)
+const KPI_BORDER_COLORS = [
+  "var(--brand-green)",
+  "var(--brand-blue)",
+  "var(--brand-cyan)",
+  "var(--warn)",
+  "var(--warn)",
+]
+
 // ---------------------------------------------------------------------
-// Síntese Executiva
+// Síntese Executiva — replica HTML cfoup-tese fielmente
 // ---------------------------------------------------------------------
 type SinteseData = AnaliseContabilData["sintese"]
-
-// KPI border colors by index
-const KPI_BORDER_COLORS = [
-  "var(--brand-green)",   // Quanto vendeu
-  "var(--brand-green)",   // Lucro 2025
-  "var(--brand-green)",   // Lucro por R$100
-  "var(--brand-warning)", // Patrimônio em banco
-  "var(--brand-blue)",    // Liquidez
-]
 
 function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
-      {/* Intro */}
-      <TabHeaderCard titulo="Síntese Executiva" intro={data.intro} />
+      {/* H2 + lede */}
+      <h2
+        className="mb-2 text-[30px] leading-[1.1] tracking-[-0.01em]"
+        style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+      >
+        Síntese Executiva
+      </h2>
+      <p
+        className="mb-8 max-w-[1180px] text-[15.5px] leading-[1.65]"
+        style={{ color: "var(--muted-html)" }}
+      >
+        {data.intro}
+      </p>
 
       {/* ============================================================ */}
       {/* SYNTHESIS — caixa navy com 3 colunas                          */}
       {/* ============================================================ */}
       <div
-        className="my-6 rounded-2xl p-9 md:p-10"
-        style={{ background: "#071D3B" }}
+        className="rounded-[14px] p-9 md:p-10"
+        style={{ background: "var(--brand-navy)" }}
       >
-        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#38B8E8]">
+        <p
+          className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em]"
+          style={{ color: "var(--brand-cyan)" }}
+        >
           Os três fatos que importam
         </p>
         <h3
-          className="mb-1.5 text-[22px] font-medium leading-tight tracking-[-0.005em] text-white"
-          style={{ fontFamily: "var(--cfoup-font-serif)" }}
+          className="mb-1.5 text-[22px] leading-[1.1] tracking-[-0.005em] text-white"
+          style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
         >
           O que o DRE e o Balanço mostram juntos
         </h3>
         <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
           {data.fatos.map((fato) => (
             <div key={fato.numero}>
-              <h4 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#38B8E8]">
+              <h4
+                className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
+                style={{ color: "var(--brand-cyan)" }}
+              >
                 {fato.numero} · {fato.titulo}
               </h4>
-              <p className="text-[13.5px] leading-[1.65] text-[#C8D4E5]">
+              <p
+                className="text-[13.5px] leading-[1.65]"
+                style={{ color: "#C8D4E5" }}
+              >
                 {renderBold(fato.corpo)}
               </p>
+              {fato.chatCfoup && (
+                <em
+                  className="mt-2.5 block text-[12.5px]"
+                  style={{ color: "#9FCAE5" }}
+                >
+                  Chat CFOup: {fato.chatCfoup}
+                </em>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Botão Chat CFOup */}
-      <div className="mt-4">
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-[13px] font-semibold transition hover:bg-muted/40"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Pergunte ao Chat CFOup
-          <ArrowUpRight size={14} />
-        </button>
-      </div>
-
       {/* ============================================================ */}
       {/* KPIs — 5 cards com border-left colorida                       */}
       {/* ============================================================ */}
-      <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-5">
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
         {data.kpis.map((kpi, idx) => (
           <div
             key={kpi.label}
-            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border border-border bg-card p-5"
+            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
+            style={{ borderColor: "var(--line)" }}
           >
             {/* Border-left colorida */}
             <span
               className="absolute left-0 top-0 h-full w-[3px]"
-              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-blue)" }}
+              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
             />
-            <p className="mb-3 min-h-[28px] text-[10.5px] font-semibold uppercase leading-tight tracking-[0.1em] text-muted-foreground">
+            <p
+              className="mb-3 min-h-[28px] text-[10.5px] font-semibold uppercase leading-[1.3] tracking-[0.1em]"
+              style={{ color: "var(--muted-html)" }}
+            >
               {kpi.label}
             </p>
             <p
-              className="mb-2.5 text-[26px] font-medium leading-[1.05] tracking-[-0.01em] tabular-nums"
-              style={{ fontFamily: "var(--cfoup-font-serif)", color: "var(--brand-navy)" }}
+              className="mb-2.5 text-[26px] leading-[1.05] tracking-[-0.01em] tabular-nums"
+              style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
             >
               {kpi.valor}
             </p>
-            <p className="mt-auto text-[11.5px] leading-[1.5] text-muted-foreground">
+            <p
+              className="mt-auto text-[11.5px] leading-[1.5]"
+              style={{ color: "var(--muted-html)" }}
+            >
               {kpi.comentario}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Como usar */}
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-        <h3
-          className="text-base font-bold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
+      {/* ============================================================ */}
+      {/* Como usar — notes                                             */}
+      {/* ============================================================ */}
+      <h3
+        className="mb-3 mt-10 text-[17px] font-semibold tracking-[-0.005em]"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        Como usar este relatório
+      </h3>
+      <div
+        className="rounded-xl border bg-white py-2"
+        style={{ borderColor: "var(--line)" }}
+      >
+        <div
+          className="grid gap-6 border-b px-7 py-4 md:grid-cols-[140px_1fr]"
+          style={{ borderColor: "var(--line)" }}
         >
-          Como usar este relatório
-        </h3>
-        <div className="mt-4 grid gap-6 md:grid-cols-2">
-          <div>
-            <h4
-              className="mb-1.5 text-[13px] font-semibold"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              Navegação
-            </h4>
-            <p
-              className="text-[13px] leading-relaxed"
-              style={{ color: "var(--slate-700)" }}
-            >
-              {renderBoldNavy(data.comoUsar.navegacao)}
-            </p>
-          </div>
-          <div>
-            <h4
-              className="mb-1.5 text-[13px] font-semibold"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              O que analisamos
-            </h4>
-            <p
-              className="text-[13px] leading-relaxed"
-              style={{ color: "var(--slate-700)" }}
-            >
-              {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
-            </p>
-          </div>
+          <p
+            className="pt-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            Navegação
+          </p>
+          <p
+            className="text-[14px] leading-[1.65]"
+            style={{ color: "#243042" }}
+          >
+            {renderBoldNavy(data.comoUsar.navegacao)}
+          </p>
+        </div>
+        <div
+          className="grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr]"
+        >
+          <p
+            className="pt-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            O que analisamos
+          </p>
+          <p
+            className="text-[14px] leading-[1.65]"
+            style={{ color: "#243042" }}
+          >
+            {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
+          </p>
         </div>
       </div>
 
-      {/* Glossário */}
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-        <details>
-          <summary
-            className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            Glossário · Termos usados na Síntese Executiva +
-          </summary>
-          <dl className="mt-3 space-y-3">
-            {conteudoSintese.glossario.map((item) => (
-              <div key={item.termo}>
-                <dt
-                  className="text-[13px] font-semibold"
-                  style={{ color: "var(--brand-navy)" }}
-                >
-                  {item.termo}
-                </dt>
-                <dd
-                  className="mt-1 text-[13px] leading-relaxed"
-                  style={{ color: "var(--slate-700)" }}
-                >
-                  {item.definicao}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </details>
-      </div>
+      {/* ============================================================ */}
+      {/* Glossário inline                                              */}
+      {/* ============================================================ */}
+      <GlossarioInline glossario={conteudoSintese.glossario} label="Síntese Executiva" />
     </section>
   )
 }
@@ -243,5 +247,76 @@ function renderBoldNavy(text: string): ReactNode {
   const parts = text.split(/\*\*(.+?)\*\*/g)
   return parts.map((part, i) =>
     i % 2 === 1 ? <strong key={i} className="font-semibold" style={{ color: "var(--brand-navy)" }}>{part}</strong> : part
+  )
+}
+
+// ---------------------------------------------------------------------
+// Glossário Inline — accordion fiel ao HTML
+// ---------------------------------------------------------------------
+function GlossarioInline({
+  glossario,
+  label,
+}: {
+  glossario: { termo: string; definicao: string }[]
+  label: string
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="mt-14 border-t pt-8" style={{ borderColor: "var(--line)" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between rounded-[10px] border bg-white px-6 py-4 text-left transition hover:border-[color:var(--brand-cyan)] hover:bg-[#FAFCFF]"
+        style={{ borderColor: "var(--line)" }}
+      >
+        <span className="flex items-center gap-3">
+          <span
+            className="text-[10.5px] font-bold uppercase tracking-[0.14em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            Glossário
+          </span>
+          <span
+            className="text-[13.5px] font-semibold tracking-[0.02em]"
+            style={{ color: "var(--brand-navy)" }}
+          >
+            Termos usados na {label}
+          </span>
+        </span>
+        <span
+          className={`flex h-[22px] w-[22px] items-center justify-center rounded-full text-[16px] leading-none transition-transform ${
+            open ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-[#EEF3F9] text-[color:var(--brand-blue)]"
+          }`}
+        >
+          +
+        </span>
+      </button>
+      <div
+        className={`overflow-hidden rounded-b-[10px] border border-t-0 bg-white transition-all ${
+          open ? "max-h-[3000px] border-dashed border-t" : "max-h-0 border-transparent"
+        }`}
+        style={{ borderColor: open ? "var(--line)" : "transparent" }}
+      >
+        <div className="px-7 pb-2 pt-6">
+          {glossario.map((item) => (
+            <div key={item.termo} className="border-b py-3.5 last:border-b-0" style={{ borderColor: "#F0F3F8" }}>
+              <p
+                className="mb-1 text-[14px] font-semibold tracking-[-0.005em]"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {item.termo}
+              </p>
+              <p
+                className="text-[13.5px] leading-[1.6]"
+                style={{ color: "#3D4D66" }}
+              >
+                {item.definicao}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
