@@ -48,9 +48,10 @@ export function AnalysisShell({
       {/* ============================================================ */}
       {/* STICKY HEADER — hero + tabs juntos                            */}
       {/* ============================================================ */}
-      <div className="sticky top-0 z-20 -mx-8 md:-mx-10 lg:-mx-12">
-        {/* HERO — fundo navy gradient */}
-        <header className="rounded-t-2xl bg-hero-gradient px-8 py-8 md:px-10 md:py-10 lg:px-12">
+      <div className="sticky top-0 z-20 -mx-8 bg-background md:-mx-10 lg:-mx-12">
+        <div className="px-8 pt-4 md:px-10 lg:px-12">
+          {/* HERO — card visual */}
+          <header className="rounded-2xl border border-border bg-hero-gradient p-6 md:p-8">
           {/* Brand text (eyebrow + subtitulo) */}
           <div className="mb-6">
             <p
@@ -94,6 +95,7 @@ export function AnalysisShell({
             ))}
           </div>
         </header>
+        </div>
 
         {/* TABS NAV */}
         <nav className="border-b border-border bg-background px-8 md:px-10 lg:px-12">
