@@ -23,28 +23,23 @@ type Props = {
 
 export default function SinteseTab({ dados }: Props) {
   return (
-    <section className="op-section">
-      {/* Section Head (navy gradient) */}
-      <div
-        className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
-        style={{ background: "linear-gradient(135deg, #071D3B 0%, #0A2647 100%)" }}
-      >
-        <h2
-          className="m-0 text-[22px] font-medium tracking-[-0.005em] text-white"
-          style={{ fontFamily: "var(--cfoup-font-serif)" }}
-        >
-          Síntese · <span style={{ color: "#38B8E8" }}>O que importa agora</span>
-        </h2>
-        <span className="text-[11px] tracking-[0.04em] text-white/70">
-          A tese e as decisões da semana
-        </span>
-      </div>
+    <section className="op-section space-y-4">
+        {/* Clean header */}
+        <div className="rounded-xl border border-border bg-white p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+            Síntese
+          </p>
+          <h2 className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+            O que importa agora
+          </h2>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            A tese e as decisões da semana
+          </p>
+        </div>
 
-      {/* Section Body */}
-      <div className="p-7" style={{ background: "#FFFFFF" }}>
         {/* Verdict */}
         <div
-          className="mb-7 flex items-baseline gap-4 rounded-r-lg px-[22px] py-4"
+          className="flex items-baseline gap-4 rounded-xl border border-border px-[22px] py-4"
           style={{ background: "#F0F4FA", borderLeft: "4px solid #1567C8" }}
         >
           <span
@@ -54,21 +49,21 @@ export default function SinteseTab({ dados }: Props) {
             Tese
           </span>
           <span
-            className="text-[19px] font-medium leading-[1.35] tracking-[-0.005em]"
-            style={{ fontFamily: "var(--cfoup-font-serif)", color: "#071D3B" }}
+            className="text-[15px] md:text-[16px] font-semibold leading-snug"
+            style={{ color: "#071D3B" }}
           >
             {dados.tese}
           </span>
         </div>
 
-        {/* Actions (bloco navy) */}
+        {/* Actions */}
         <div
-          className="rounded-[10px] px-7 py-6"
-          style={{ background: "#071D3B" }}
+          className="rounded-[10px] border border-border px-7 py-6"
+          style={{ background: "white" }}
         >
           <h4
-            className="mb-[14px] text-[14px] font-medium uppercase tracking-[0.04em]"
-            style={{ fontFamily: "var(--cfoup-font-serif)", color: "#38B8E8" }}
+            className="mb-[14px] text-[11px] font-semibold uppercase tracking-[0.14em]"
+            style={{ color: "var(--brand-blue)" }}
           >
             3 decisões desta semana
           </h4>
@@ -77,20 +72,19 @@ export default function SinteseTab({ dados }: Props) {
               <li
                 key={idx}
                 className="relative block py-[10px] pl-[38px] text-[14px] leading-[1.6]"
-                style={{ color: "#D8E2F0", counterIncrement: "acts" }}
+                style={{ color: "var(--brand-navy)", counterIncrement: "acts" }}
               >
                 <span
                   className="absolute left-0 top-[10px] inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-[13px] font-semibold"
                   style={{
-                    fontFamily: "var(--cfoup-font-serif)",
-                    background: "#38B8E8",
-                    color: "#071D3B",
+                    background: "var(--brand-blue)",
+                    color: "white",
                   }}
                 >
                   {idx + 1}
                 </span>
-                <b className="font-semibold text-white">{d.titulo}</b> — {d.descricao}{" "}
-                <span className="ml-2 text-[12px] italic text-white/65">{d.meta}</span>
+                <b className="font-semibold">{d.titulo}</b> — {d.descricao}{" "}
+                <span className="ml-2 text-[12px] italic text-muted-foreground">{d.meta}</span>
               </li>
             ))}
           </ol>
@@ -98,13 +92,12 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Callout final */}
         <div
-          className="mt-6 px-[22px] py-[18px] text-[16px] leading-[1.55]"
+          className="rounded-xl border border-border px-[22px] py-[18px] text-[16px] leading-[1.55]"
           style={{ background: "#F7F9FC", borderLeft: "3px solid #38B8E8", color: "#071D3B" }}
         >
           <b className="font-semibold">{dados.callout.split(".")[0]}.</b>
           {dados.callout.substring(dados.callout.indexOf(".") + 1)}
         </div>
-      </div>
     </section>
   )
 }

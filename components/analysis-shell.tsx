@@ -48,34 +48,27 @@ export function AnalysisShell({
       {/* ============================================================ */}
       {/* STICKY HEADER — hero + tabs juntos                            */}
       {/* ============================================================ */}
-      <div className="sticky top-0 z-20 -mx-8 md:-mx-10 lg:-mx-12">
-        {/* HERO — fundo navy gradient */}
-        <header
-          className="rounded-t-2xl px-8 py-8 md:px-10 md:py-10 lg:px-12"
-          style={{
-            background: "linear-gradient(135deg, #071D3B 0%, #0A2647 60%, #0E3A6B 100%)",
-          }}
-        >
+      <div className="sticky top-0 z-20 -mx-8 bg-background md:-mx-10 lg:-mx-12">
+        <div className="px-8 pt-4 md:px-10 lg:px-12">
+          {/* HERO — card visual */}
+          <header className="rounded-2xl border border-border bg-hero-gradient p-6 md:p-8">
           {/* Brand text (eyebrow + subtitulo) */}
           <div className="mb-6">
             <p
               className="text-[11px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: "#38B8E8" }}
+              style={{ color: "var(--brand-blue)" }}
             >
               {eyebrow}
             </p>
-            <p
-              className="mt-0.5 text-[13px]"
-              style={{ color: "#B8C8DC" }}
-            >
+            <p className="mt-0.5 text-[13px] text-muted-foreground">
               {subtitulo}
             </p>
           </div>
 
           {/* H1 */}
           <h1
-            className="mb-2 text-[26px] leading-[1.1] tracking-[-0.015em] text-white md:text-[36px]"
-            style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500 }}
+            className="mb-2 text-[20px] font-extrabold leading-tight tracking-tight md:text-[26px]"
+            style={{ color: "var(--brand-navy)" }}
           >
             {empresa.nome}
           </h1>
@@ -83,7 +76,7 @@ export function AnalysisShell({
           {/* Descrição */}
           <p
             className="mb-5 max-w-[1180px] text-[13px] font-light leading-[1.55] md:text-[14px]"
-            style={{ color: "#B8C8DC" }}
+            style={{ color: "var(--slate-700)" }}
           >
             {descricao}
           </p>
@@ -92,19 +85,17 @@ export function AnalysisShell({
           <div className="flex flex-wrap gap-6">
             {chips.map((c, idx) => (
               <div key={idx}>
-                <p
-                  className="text-[10px] font-semibold uppercase tracking-[0.06em]"
-                  style={{ color: "#8FA3BD" }}
-                >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                   {c.label}
                 </p>
-                <p className="mt-0.5 text-[13px] font-medium text-white">
+                <p className="mt-0.5 text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
                   {c.value}
                 </p>
               </div>
             ))}
           </div>
         </header>
+        </div>
 
         {/* TABS NAV */}
         <nav className="border-b border-border bg-background px-8 md:px-10 lg:px-12">
