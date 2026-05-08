@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
-import { conteudoAnaliseFinanceira } from "@/lib/conteudos/analise-financeira"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import SinteseTab from "@/components/analise-financeira/sintese-tab"
 import { FaturamentoTab } from "@/components/analise-financeira/faturamento-tab"
@@ -13,11 +12,16 @@ import { CaixaTab } from "@/components/analise-financeira/caixa-tab"
 import { CicloTab } from "@/components/analise-financeira/ciclo-tab"
 import { ChecklistMensalTab } from "@/components/analise-financeira/checklist-mensal-tab"
 
-const TABS: TabConfig[] = conteudoAnaliseFinanceira.abas.map((a) => ({
-  id: a.id,
-  numeral: a.num,
-  label: a.nome,
-}))
+const TABS: TabConfig[] = [
+  { id: "sintese", numeral: "01", label: "Síntese" },
+  { id: "caixa", numeral: "02", label: "Caixa" },
+  { id: "clientes", numeral: "03", label: "Clientes" },
+  { id: "faturamento", numeral: "04", label: "Faturamento" },
+  { id: "fornecedores", numeral: "05", label: "Fornecedores" },
+  { id: "ciclo", numeral: "06", label: "Ciclo Financeiro" },
+  { id: "auditoria", numeral: "07", label: "Auditoria" },
+  { id: "checklist", numeral: "08", label: "Checklist Mensal" },
+]
 
 export default function AnaliseFinanceiraPage() {
   const [activeTab, setActiveTab] = useState("sintese")
