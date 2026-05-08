@@ -23,11 +23,9 @@ type Props = {
 
 export default function SinteseTab({ dados }: Props) {
   return (
-    <section className="op-section">
-      {/* Section Body */}
-      <div className="p-7" style={{ background: "#FFFFFF" }}>
+    <section className="op-section space-y-4">
         {/* Clean header */}
-        <div className="mb-6 rounded-xl border border-border bg-white p-5">
+        <div className="rounded-xl border border-border bg-white p-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             Síntese
           </p>
@@ -41,7 +39,7 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Verdict */}
         <div
-          className="mb-7 flex items-baseline gap-4 rounded-r-lg px-[22px] py-4"
+          className="flex items-baseline gap-4 rounded-xl border border-border px-[22px] py-4"
           style={{ background: "#F0F4FA", borderLeft: "4px solid #1567C8" }}
         >
           <span
@@ -94,13 +92,12 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Callout final */}
         <div
-          className="mt-6 px-[22px] py-[18px] text-[16px] leading-[1.55]"
+          className="rounded-xl border border-border px-[22px] py-[18px] text-[16px] leading-[1.55]"
           style={{ background: "#F7F9FC", borderLeft: "3px solid #38B8E8", color: "#071D3B" }}
         >
           <b className="font-semibold">{dados.callout.split(".")[0]}.</b>
           {dados.callout.substring(dados.callout.indexOf(".") + 1)}
         </div>
-      </div>
     </section>
   )
 }
