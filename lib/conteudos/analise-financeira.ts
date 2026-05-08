@@ -12,6 +12,6 @@ export const conteudoAnaliseFinanceira = {
     { num: "D", nome: "Fornecedores", id: "fornecedores" },
     { num: "F", nome: "Ciclo", id: "ciclo" },
     { num: "C", nome: "Auditoria", id: "auditoria" },
-    { num: "✓", nome: "Checklist Mensal", id: "checklist" },
+    { num: "08", nome: "Checklist Mensal", id: "checklist" },
   ],
 }
