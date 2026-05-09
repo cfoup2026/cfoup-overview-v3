@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw } from "lucide-react"
+import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw, Plus } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -277,10 +277,18 @@ function Zone1Header({
 
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
+        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
       >
         <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
         Atualizar
+      </button>
+
+      <button
+        type="button"
+        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
+      >
+        <Plus className="h-4 w-4 text-[var(--brand-blue)]" strokeWidth={2.2} />
+        Adicionar previsão
       </button>
     </header>
   )
@@ -369,7 +377,7 @@ function Zone3Grid() {
           <button
             type="button"
             onClick={collapseAll}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
           >
             <ChevronsUp className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
             Recolher tudo
@@ -377,7 +385,7 @@ function Zone3Grid() {
           <button
             type="button"
             onClick={expandAll}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
           >
             <ChevronsDown className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
             Expandir tudo
