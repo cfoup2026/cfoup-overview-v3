@@ -3,8 +3,19 @@
 import type { ReactNode } from "react"
 import { useState } from "react"
 import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw, Plus, Building2, AlertTriangle } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
-const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.04)] hover:text-[var(--brand-navy)] transition"
+const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
 
 /**
  * /fluxo-de-caixa
@@ -232,6 +243,7 @@ function Zone1Header({
   unidade: UnidadeId
   setUnidade: (v: UnidadeId) => void
 }) {
+  const activeLabel = UNIDADES.find((u) => u.id === unidade)?.label ?? "Consolidado"
   return (
     <header className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
       <div className="flex items-baseline gap-2 flex-wrap">
@@ -239,11 +251,20 @@ function Zone1Header({
         <span className="text-[11px] text-muted-foreground">· há 2 min</span>
       </div>
       <div className="flex items-center gap-0.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger className={GHOST_BTN}>
+            <Building2 className="h-3 w-3 text-muted-foreground" />{activeLabel}<ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[180px]">
+            {UNIDADES.map((u) => (
+              <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px]">
+                {u.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <button type="button" className={GHOST_BTN}>
-          <Building2 className="h-3 w-3 text-muted-foreground" />Consolidado<ChevronDown className="h-3 w-3 text-muted-foreground" />
-        </button>
-        <button type="button" className={GHOST_BTN} aria-label="Atualizar">
-          <RefreshCw className="h-3 w-3 text-muted-foreground" />
+          <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
         </button>
         <button type="button" className={GHOST_BTN}>
           <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
@@ -262,11 +283,23 @@ function Zone2Kpis() {
     <section className="mb-3 flex flex-wrap items-baseline border-y border-border py-2 px-1">
       <KpiInline label="Caixa hoje" value="R$ 34.494" />
       <KpiInline label="Mínimo" value="-R$ 251.633" valueColor="var(--brand-error-soft)" meta="S12 · 20/jul" />
+      <KpiInline label="Médio" value="-R$ 121.566" valueColor="var(--brand-error-soft)" meta="13 sem" />
       <div className="inline-flex items-baseline gap-2 px-4">
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-          {veredito.label}
-        </span>
+        <Popover>
+          <PopoverTrigger className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition">
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+            {veredito.label}
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-[280px] text-[12px]">
+            <p className="font-semibold mb-2 text-[var(--brand-navy)]">Por que dados insuficientes</p>
+            <ul className="space-y-1.5 text-muted-foreground">
+              <li>• Saldo de abertura ausente · Filial 2</li>
+              <li>• Conta CEF sem atualização há 14 dias</li>
+              <li>• 3 eventos sem classificação · R$ 89k</li>
+              <li>• Folha S6 sem evento confirmado</li>
+            </ul>
+          </PopoverContent>
+        </Popover>
         <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
           <AlertTriangle className="h-3 w-3" />4 críticas
         </button>
