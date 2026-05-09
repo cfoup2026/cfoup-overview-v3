@@ -92,55 +92,73 @@ export default function VisaoGeralPage() {
 
       {/* Diagnóstico Vivo do Dia */}
       <section aria-labelledby="bloco-diagnostico" className="mb-3">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          {/* Linha de abertura */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[12px] font-medium" style={{ color: "var(--slate-700)" }}>
-              CFOup olhou banco, eNotas, ERP e contábil hoje. Aqui está o que importa:
-            </p>
-            {data.saldoAtual.status === "ok" && data.saldoAtual.value && (
-              <span
-                className="rounded-full bg-[var(--brand-blue)]/10 px-3 py-1 text-[13px] font-extrabold tabular-nums"
+        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+          {/* Topo */}
+          <div className="flex flex-col gap-6 border-b border-border/60 pb-5 md:flex-row md:items-start md:justify-between">
+            {/* Esquerda */}
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Diagnóstico do dia · atualizado há 12 min
+              </p>
+              <h2
+                id="bloco-diagnostico"
+                className="mt-1.5 text-[18px] font-extrabold leading-tight md:text-[22px]"
                 style={{ color: "var(--brand-navy)" }}
               >
-                Saldo {data.saldoAtual.value}
-              </span>
+                CFOup olhou banco, eNotas, ERP e contábil. Você tem 3 coisas pra decidir hoje.
+              </h2>
+              <p className="mt-2 text-[12px] text-muted-foreground">
+                1 crítico · 2 atenção · 1 saudável
+              </p>
+            </div>
+            {/* Direita */}
+            {data.saldoAtual.status === "ok" && data.saldoAtual.value && (
+              <div className="shrink-0 text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Saldo atual
+                </p>
+                <p
+                  className="mt-1 text-[1.75rem] font-extrabold leading-none tabular-nums md:text-[2rem]"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {data.saldoAtual.value}
+                </p>
+              </div>
             )}
           </div>
-          <h2 id="bloco-diagnostico" className="sr-only">
-            Diagnóstico do dia
-          </h2>
 
           {/* Lista de decisões */}
-          <ul className="mt-3 divide-y divide-border/60">
+          <ul className="mt-5 space-y-1">
             {DIAGNOSTICO_VIVO.map((item, i) => (
               <li key={i}>
                 <Link
                   href={item.href}
-                  className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition hover:bg-muted/40"
+                  className="group -mx-2 flex items-start gap-4 rounded-xl px-2 py-4 transition hover:bg-muted/50"
                 >
                   <span
                     aria-hidden
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    className="mt-1.5 h-3 w-3 shrink-0 rounded-full"
                     style={{ background: item.color }}
                   />
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="text-[15px] font-bold"
+                      style={{ color: "var(--brand-navy)" }}
+                    >
+                      {item.frase}
+                    </p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">
+                      {item.fonte}
+                    </p>
+                  </div>
                   <p
-                    className="flex-1 truncate text-[14px] font-bold"
-                    style={{ color: "var(--brand-navy)" }}
-                  >
-                    {item.frase}
-                  </p>
-                  <p
-                    className="shrink-0 text-[14px] font-extrabold tabular-nums"
+                    className="shrink-0 text-right text-[16px] font-extrabold tabular-nums"
                     style={{ color: "var(--brand-navy)" }}
                   >
                     {item.valor}
                   </p>
-                  <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    {item.fonte}
-                  </span>
                   <ChevronRight
-                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
+                    className="ml-3 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
                     strokeWidth={2.2}
                   />
                 </Link>
