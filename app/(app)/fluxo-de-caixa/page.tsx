@@ -25,20 +25,9 @@ import {
  */
 
 // =====================================================================
-// Tokens
+// Subtotal background (kept as const for table cells)
 // =====================================================================
-const NAVY = "#071D3B"
-const BLUE = "#1567C8"
-const CYAN = "#38B8E8"
-const GREEN = "#36BA58"
-const NEG = "#D14343"
-const WARN = "#E08B00"
-const INK = "#0F1B2D"
-const MUTED = "#5B6B82"
-const LINE = "#E5EBF2"
-const BG = "#F7F9FC"
-// (1) Cor única dos subtotais e linhas de saldo: azul claro #DCE7F5 com texto navy bold.
-const SUBTOTAL_BG = "#DCE7F5"
+const SUBTOTAL_BG = "rgba(21,103,200,0.08)"
 
 // =====================================================================
 // Janela de 13 semanas (sempre segunda → domingo)
@@ -154,11 +143,11 @@ function fmtBRL(v: number | null | undefined): string {
 type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES"
 const VEREDITO_ATUAL: Veredito = "DADOS_INSUFICIENTES"
 const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string }> = {
-  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: GREEN },
-  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: WARN },
+  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)" },
+  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)" },
   ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "#B86D00" },
-  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: NEG },
-  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "#EEF1F5", fg: MUTED },
+  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)" },
+  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "#EEF1F5", fg: "var(--muted-html)" },
 }
 
 // =====================================================================
@@ -179,14 +168,14 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
   const entry = GLOSSARY[term]
   return (
     <span className="group relative inline-block">
-      <span className="cursor-help border-b border-dotted" style={{ borderColor: "rgba(91,107,130,0.55)" }} aria-describedby={`gloss-${term}`}>
+      <span className="cursor-help border-b border-dotted border-muted-foreground/50" aria-describedby={`gloss-${term}`}>
         {children}
       </span>
       <span
         id={`gloss-${term}`}
         role="tooltip"
-        className="pointer-events-none invisible absolute left-0 top-full z-[60] mt-1.5 w-64 rounded-md px-3 py-2 text-[12px] font-normal normal-case leading-snug opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100"
-        style={{ background: NAVY, color: "#FFFFFF", letterSpacing: "normal", fontFamily: "var(--font-sans)", boxShadow: "0 8px 20px -6px rgba(7,29,59,0.35)" }}
+        className="pointer-events-none invisible absolute left-0 top-full z-[60] mt-1.5 w-64 rounded-md bg-[var(--brand-navy)] px-3 py-2 text-[12px] font-normal normal-case leading-snug text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100"
+        style={{ boxShadow: "0 8px 20px -6px rgba(7,29,59,0.35)" }}
       >
         <strong className="block text-[12px] font-semibold">{entry.title}</strong>
         <span className="mt-0.5 block opacity-90">{entry.body}</span>
@@ -212,17 +201,12 @@ export default function FluxoDeCaixa13Semanas() {
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
 
   return (
-    <div
-      className="-mx-8 -my-3 min-h-[calc(100vh-3rem)] px-8 py-8 md:-mx-10 md:px-10 lg:-mx-12 lg:-my-4 lg:px-12 lg:py-10"
-      style={{ background: BG, color: INK, fontFamily: "var(--font-sans)" }}
-    >
-      <div className="mx-auto w-full max-w-[1340px]">
-        <Zone1Header unidade={unidade} setUnidade={setUnidade} />
-        <Zone2Kpis />
-        <Zone3Grid />
-        <FooterPendencias />
-      </div>
-    </div>
+    <>
+      <Zone1Header unidade={unidade} setUnidade={setUnidade} />
+      <Zone2Kpis />
+      <Zone3Grid />
+      <FooterPendencias />
+    </>
   )
 }
 
@@ -255,47 +239,34 @@ function Zone1Header({
   setUnidade: (v: UnidadeId) => void
 }) {
   return (
-    <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <header className="mb-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <h1
-          className="text-[28px] font-semibold leading-tight tracking-tight"
-          style={{ color: NAVY, fontFamily: "var(--font-serif)" }}
-        >
+        <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[var(--brand-navy)] md:text-[1.3rem]">
           Fluxo de Caixa
         </h1>
-        <p className="mt-1.5 text-[13px]" style={{ color: MUTED }}>
+        <p className="mt-1 text-[12px] text-muted-foreground">
           Atualizado em 06/05 às 14:23
         </p>
       </div>
 
-      {/* Selector de unidade. Label "Unidade:" fica fora do controle, à esquerda.
-          Dropdown único — escala para qualquer nº de unidades do tenant.
-          Mock: selecionar muda apenas o estado visual; valores da grid não mudam. */}
-      <div className="inline-flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
-        <span
-          className="text-[11px] font-semibold uppercase"
-          style={{ color: NAVY, letterSpacing: "0.06em" }}
-        >
+      {/* Selector de unidade */}
+      <div className="inline-flex items-center gap-3">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--brand-navy)]">
           Unidade:
         </span>
         <Select value={unidade} onValueChange={setUnidade}>
           <SelectTrigger
             aria-label="Unidade"
-            className="h-auto min-w-[180px] gap-2 rounded-md border bg-white px-3 py-2 text-[13px] font-semibold focus:ring-0 focus:ring-offset-0"
-            style={{ borderColor: LINE, color: NAVY }}
+            className="h-auto min-w-[180px] gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] font-semibold text-[var(--brand-navy)] focus:ring-0 focus:ring-offset-0"
           >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent
-            className="border bg-white"
-            style={{ borderColor: LINE, color: NAVY, fontFamily: "var(--font-sans)" }}
-          >
+          <SelectContent className="border border-border bg-card text-[var(--brand-navy)]">
             {UNIDADES.map((u) => (
               <SelectItem
                 key={u.id}
                 value={u.id}
-                className="text-[13px] font-semibold"
-                style={{ color: NAVY }}
+                className="text-[13px] font-semibold text-[var(--brand-navy)]"
               >
                 {u.label}
               </SelectItem>
@@ -306,8 +277,7 @@ function Zone1Header({
 
       <button
         type="button"
-        className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[13px] font-semibold transition-colors hover:opacity-90"
-        style={{ borderColor: NAVY, color: NAVY }}
+        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
       >
         <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
         Atualizar
@@ -322,13 +292,12 @@ function Zone1Header({
 function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
   return (
-    <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="Hoje · 05/05" />
-      <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor={NEG} sub="em 28/07 (S13)" />
-      <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor={NEG} sub="Média das 13 semanas" />
-      <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
-        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
-        <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>Veredito</p>
+      <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor="var(--brand-error-soft)" sub="em 28/07 (S13)" />
+      <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor="var(--brand-error-soft)" sub="Média das 13 semanas" />
+      <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Veredito</p>
         <div className="mt-2 flex items-center">
           <span
             className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide"
@@ -337,7 +306,7 @@ function Zone2Kpis() {
             {veredito.label}
           </span>
         </div>
-        <p className="mt-1.5 text-[11px]" style={{ color: MUTED }}>Aguardando ingestão completa</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">Aguardando ingestão completa</p>
       </article>
     </section>
   )
@@ -345,18 +314,17 @@ function Zone2Kpis() {
 
 function KpiCard({ label, value, sub, valueColor }: { label: string; value: string; sub: string; valueColor?: string }) {
   return (
-    <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
-      <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
-      <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>
+    <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
       <p
-        className="mt-1.5 text-[18px] font-semibold leading-tight tabular-nums"
-        style={{ color: valueColor ?? NAVY, fontVariantNumeric: "tabular-nums" }}
+        className="mt-1.5 text-[1.25rem] font-extrabold leading-none tabular-nums"
+        style={{ color: valueColor ?? "var(--brand-navy)" }}
       >
         {value}
       </p>
-      <p className="mt-1 text-[11px]" style={{ color: MUTED }}>
+      <p className="mt-1 text-[11px] text-muted-foreground">
         {sub}
       </p>
     </article>
@@ -370,8 +338,8 @@ const FIRST_COL_WIDTH = 220
 const WEEK_COL_WIDTH = 65
 const TOTAL_COL_WIDTH = 95
 const BEYOND_COL_WIDTH = 95
-const TOTAL_BORDER_LEFT = `4px solid ${LINE}`
-const HEADER_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
+const TOTAL_BORDER_LEFT = "4px solid var(--line)"
+const HEADER_GRADIENT = "linear-gradient(180deg, var(--brand-navy) 0%, #0a2853 100%)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
 const ALL_KEYS: (keyof OpenState)[] = ["op", "op_rec", "op_sai", "fin", "inv", "ic"]
@@ -391,21 +359,17 @@ function Zone3Grid() {
   const collapseAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: false }), {} as OpenState))
 
   return (
-    <section className="rounded-lg border bg-white" style={{ borderColor: LINE }} aria-label="Grade de fluxo de caixa em 13 semanas">
+    <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
       {/* Sub-header da tabela: rótulo + botões expandir/recolher tudo */}
-      <div
-        className="flex items-center justify-between gap-2 border-b px-4 py-2"
-        style={{ borderColor: LINE }}
-      >
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>
+      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Valores em R$
         </span>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={collapseAll}
-            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
-            style={{ borderColor: LINE, color: NAVY }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
           >
             <ChevronsUp className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
             Recolher tudo
@@ -413,8 +377,7 @@ function Zone3Grid() {
           <button
             type="button"
             onClick={expandAll}
-            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
-            style={{ borderColor: LINE, color: NAVY }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition-colors hover:border-[var(--brand-blue)]/40"
           >
             <ChevronsDown className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
             Expandir tudo
@@ -559,13 +522,13 @@ function Zone3Grid() {
                 {open.op_rec && (
                   <>
                     <DataRow
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span style={{ color: MUTED }}>(vencimentos)</span></>}
+                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CR_RECEBER}
                       total={sum(CR_RECEBER)}
                       beyond={BEYOND_CR_RECEBER}
                     />
                     <DataRow
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span style={{ color: MUTED }}>- recuperação</span></>}
+                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
                       values={CR_RECUPERACAO}
                       total={sum(CR_RECUPERACAO)}
                       beyond={0}
@@ -586,13 +549,13 @@ function Zone3Grid() {
                 {open.op_sai && (
                   <>
                     <DataRow
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span style={{ color: MUTED }}>(vencimentos)</span></>}
+                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CP_A_PAGAR}
                       total={sum(CP_A_PAGAR)}
                       beyond={BEYOND_CP_A_PAGAR}
                     />
                     <DataRow
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span style={{ color: MUTED }}>- renegociação</span></>}
+                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
                       values={CP_VENCIDOS}
                       total={sum(CP_VENCIDOS)}
                       beyond={0}
@@ -732,42 +695,37 @@ function SectionHeader({
     >
       <th
         scope="row"
-        className="px-3 text-left"
+        className="px-3 text-left text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--brand-navy)]"
         style={{
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: "#FFFFFF",
-          color: NAVY,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
+          background: "var(--card)",
           paddingTop: 8,
           paddingBottom: 6,
-          borderBottom: `1px solid ${LINE}`,
+          borderBottom: "1px solid var(--line)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
+          <Icon className="h-3 w-3 text-[var(--brand-navy)]" strokeWidth={2.4} aria-hidden />
           {label}
         </span>
       </th>
       {Array.from({ length: 13 }).map((_, i) => (
         <td
           key={i}
-          style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }}
+          style={{ background: "var(--card)", borderBottom: "1px solid var(--line)", height: 26 }}
         />
       ))}
       <td
         style={{
-          background: "#FFFFFF",
-          borderBottom: `1px solid ${LINE}`,
+          background: "var(--card)",
+          borderBottom: "1px solid var(--line)",
           borderLeft: TOTAL_BORDER_LEFT,
           height: 26,
         }}
       />
-      <td style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }} />
+      <td style={{ background: "var(--card)", borderBottom: "1px solid var(--line)", height: 26 }} />
     </tr>
   )
 }
@@ -809,20 +767,17 @@ function SubGroupHeader({
     >
       <th
         scope="row"
-        className="px-3 py-1.5 text-left"
+        className="px-3 py-1.5 text-left text-[11px] font-bold text-[var(--brand-navy)]"
         style={{
           position: "sticky",
           left: 0,
           zIndex: 1,
           background: SUBTOTAL_BG,
-          color: NAVY,
-          fontSize: 11,
-          fontWeight: 700,
-          borderBottom: `1px solid ${LINE}`,
+          borderBottom: "1px solid var(--line)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
+          <Icon className="h-3 w-3 text-[var(--brand-navy)]" strokeWidth={2.4} aria-hidden />
           {label}
         </span>
       </th>
@@ -833,7 +788,7 @@ function SubGroupHeader({
           baseBg={SUBTOTAL_BG}
           fontWeight={700}
           colorRule="signed"
-          borderBottom={`1px solid ${LINE}`}
+          borderBottom="1px solid var(--line)"
         />
       ))}
       <NumericCell
@@ -841,7 +796,7 @@ function SubGroupHeader({
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom={`1px solid ${LINE}`}
+        borderBottom="1px solid var(--line)"
         isTotalCol
       />
       <NumericCell
@@ -849,7 +804,7 @@ function SubGroupHeader({
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom={`1px solid ${LINE}`}
+        borderBottom="1px solid var(--line)"
         isTotalCol
       />
     </tr>
@@ -881,9 +836,9 @@ function DataRow({
   upperLabel?: boolean
   isLast?: boolean
 }) {
-  const borderBottom = isLast ? "none" : `1px solid ${LINE}`
+  const borderBottom = isLast ? "none" : "1px solid var(--line)"
 
-  let labelColor = NAVY
+  let labelColor = "var(--brand-navy)"
   let valueWeight: 400 | 500 | 600 | 700 = 500
   let labelWeight: 400 | 500 | 600 | 700 = 500
   let italic = false
@@ -898,7 +853,7 @@ function DataRow({
       rowBg = SUBTOTAL_BG
       break
     case "muted":
-      labelColor = MUTED
+      labelColor = "var(--muted-html)"
       labelWeight = 400
       valueWeight = 400
       italic = true
@@ -937,7 +892,7 @@ function DataRow({
           baseBg={rowBg}
           fontWeight={valueWeight}
           italic={italic}
-          colorOverride={variant === "muted" ? MUTED : undefined}
+          colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
           colorRule={colorRule}
           borderBottom={borderBottom}
         />
@@ -947,7 +902,7 @@ function DataRow({
         baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={variant === "muted" ? MUTED : undefined}
+        colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
@@ -957,7 +912,7 @@ function DataRow({
         baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={variant === "muted" ? MUTED : undefined}
+        colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
@@ -993,13 +948,13 @@ function NumericCell({
 
   let color: string
   if (isEmpty) {
-    color = MUTED
+    color = "var(--muted-html)"
   } else if (colorOverride) {
     color = colorOverride
   } else if (colorRule === "signed") {
-    color = isNegative ? NEG : NAVY
+    color = isNegative ? "var(--brand-error-soft)" : "var(--brand-navy)"
   } else {
-    color = isNegative ? NEG : INK
+    color = isNegative ? "var(--brand-error-soft)" : "var(--foreground)"
   }
 
   return (
@@ -1027,15 +982,15 @@ function NumericCell({
 // ---------------------------------------------------------------------
 function FooterPendencias() {
   return (
-    <footer className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]" style={{ color: MUTED }}>
+    <footer className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
       <span>Pendências críticas:</span>
-      <button type="button" className="font-semibold underline-offset-2 hover:underline" style={{ color: BLUE }}>
+      <button type="button" className="font-semibold text-[var(--brand-blue)] underline-offset-2 hover:underline">
         1
       </button>
       <span>(Banco sem dado recente)</span>
-      <span aria-hidden style={{ color: MUTED }}>·</span>
+      <span aria-hidden>·</span>
       <span>Pendências laterais:</span>
-      <button type="button" className="font-semibold underline-offset-2 hover:underline" style={{ color: BLUE }}>
+      <button type="button" className="font-semibold text-[var(--brand-blue)] underline-offset-2 hover:underline">
         0
       </button>
     </footer>
