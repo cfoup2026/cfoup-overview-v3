@@ -39,6 +39,37 @@ const DRILLDOWN_ICON: Record<
   concentracao: TrendingUp,
 }
 
+const DIAGNOSTICO_VIVO = [
+  {
+    color: "#d14343",
+    frase: "Bertoni atrasou 3 títulos",
+    valor: "R$ 142.300",
+    fonte: "banco · há 12 min",
+    href: "/clientes?cliente=Bertoni",
+  },
+  {
+    color: "#e08b00",
+    frase: "Margem caiu 4pp vs mês anterior",
+    valor: "21,8%",
+    fonte: "contábil · há 2 h",
+    href: "/analise-contabil",
+  },
+  {
+    color: "#e08b00",
+    frase: "Caixa cobre 8 semanas, 9ª negativa",
+    valor: "R$ -47.000",
+    fonte: "banco+ERP · há 12 min",
+    href: "/fluxo-de-caixa",
+  },
+  {
+    color: "#36BA58",
+    frase: "14 notas emitidas hoje",
+    valor: "R$ 89.420",
+    fonte: "eNotas · há 5 min",
+    href: "/analise-financeira",
+  },
+]
+
 export default function VisaoGeralPage() {
   const data = useVisaoGeralData()
   const user = useCurrentUser()
@@ -59,56 +90,63 @@ export default function VisaoGeralPage() {
         <LiveStatus />
       </header>
 
-      {/* Resumo executivo */}
-      <section aria-labelledby="bloco-resumo" className="mb-3">
-        <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
-          <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-6 md:p-5">
-            <div>
-              <p
-                className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: "var(--brand-blue)" }}
-              >
-                {data.resumoEyebrow}
-              </p>
-              <h2
-                id="bloco-resumo"
-                className="text-balance text-[15px] font-bold leading-snug md:text-base"
+      {/* Diagnóstico Vivo do Dia */}
+      <section aria-labelledby="bloco-diagnostico" className="mb-3">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          {/* Linha de abertura */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[12px] font-medium" style={{ color: "var(--slate-700)" }}>
+              CFOup olhou banco, eNotas, ERP e contábil hoje. Aqui está o que importa:
+            </p>
+            {data.saldoAtual.status === "ok" && data.saldoAtual.value && (
+              <span
+                className="rounded-full bg-[var(--brand-blue)]/10 px-3 py-1 text-[13px] font-extrabold tabular-nums"
                 style={{ color: "var(--brand-navy)" }}
               >
-                {data.resumoTitulo}
-              </h2>
-              <p className="mt-1.5 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-                {data.resumoTexto}
-              </p>
-              {!data.hasConnections && (
-                <Link
-                  href="/conexoes"
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[var(--brand-blue)]"
-                >
-                  <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
-                  Ir para Conexões
-                </Link>
-              )}
-            </div>
-
-            <div className="flex items-baseline justify-between gap-4 rounded-xl border border-[var(--brand-blue)]/20 bg-white px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                Saldo atual
-              </p>
-              {data.saldoAtual.status === "ok" && data.saldoAtual.value ? (
-                <p
-                  className="text-[1.5rem] font-extrabold leading-none tabular-nums"
-                  style={{ color: "var(--brand-navy)" }}
-                >
-                  {data.saldoAtual.value}
-                </p>
-              ) : (
-                <p className="text-right text-[11px] font-medium leading-snug text-muted-foreground">
-                  Aguardando conexão
-                </p>
-              )}
-            </div>
+                Saldo {data.saldoAtual.value}
+              </span>
+            )}
           </div>
+          <h2 id="bloco-diagnostico" className="sr-only">
+            Diagnóstico do dia
+          </h2>
+
+          {/* Lista de decisões */}
+          <ul className="mt-3 divide-y divide-border/60">
+            {DIAGNOSTICO_VIVO.map((item, i) => (
+              <li key={i}>
+                <Link
+                  href={item.href}
+                  className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition hover:bg-muted/40"
+                >
+                  <span
+                    aria-hidden
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ background: item.color }}
+                  />
+                  <p
+                    className="flex-1 truncate text-[14px] font-bold"
+                    style={{ color: "var(--brand-navy)" }}
+                  >
+                    {item.frase}
+                  </p>
+                  <p
+                    className="shrink-0 text-[14px] font-extrabold tabular-nums"
+                    style={{ color: "var(--brand-navy)" }}
+                  >
+                    {item.valor}
+                  </p>
+                  <span className="shrink-0 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                    {item.fonte}
+                  </span>
+                  <ChevronRight
+                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
+                    strokeWidth={2.2}
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
