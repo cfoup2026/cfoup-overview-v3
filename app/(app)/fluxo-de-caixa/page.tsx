@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw, Plus, Building2, AlertTriangle } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -310,7 +310,7 @@ function Zone2Kpis() {
 
 function KpiInline({ label, value, valueColor, meta }: { label: string; value: string; valueColor?: string; meta?: string }) {
   return (
-    <div className="inline-flex items-baseline gap-1.5 px-4 first:pl-1 border-r last:border-r-0 border-border">
+    <div className="inline-flex items-baseline gap-1.5 px-4 first:pl-1 border-r last:border-r-0 border-border rounded-md hover:bg-[rgba(7,29,59,0.04)] transition">
       <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
       <span className="text-[13px] font-bold tabular-nums" style={{ color: valueColor ?? "var(--brand-navy)" }}>{value}</span>
       {meta && <span className="text-[11px] text-muted-foreground font-normal">{meta}</span>}
@@ -329,48 +329,19 @@ const TOTAL_BORDER_LEFT = "4px solid var(--border)"
 const HEADER_GRADIENT = "linear-gradient(180deg, var(--brand-navy) 0%, rgba(7,29,59,0.92) 100%)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
-const ALL_KEYS: (keyof OpenState)[] = ["op", "op_rec", "op_sai", "fin", "inv", "ic"]
-
-function Zone3Grid() {
+  function Zone3Grid() {
   const [open, setOpen] = useState<OpenState>({
-    op: true,
-    op_rec: false,
-    op_sai: false,
-    fin: false,
-    inv: false,
-    ic: false,
+  op: true,
+  op_rec: false,
+  op_sai: false,
+  fin: false,
+  inv: false,
+  ic: false,
   })
   const toggle = (k: keyof OpenState) => setOpen((p) => ({ ...p, [k]: !p[k] }))
-  // (4) Recolher / Expandir tudo — mexe nos 6 chevrons de uma vez.
-  const expandAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: true }), {} as OpenState))
-  const collapseAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: false }), {} as OpenState))
 
   return (
-    <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
-      {/* Sub-header da tabela: rótulo + botões expandir/recolher tudo */}
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          Valores em R$
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={collapseAll}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
-          >
-            <ChevronsUp className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
-            Recolher tudo
-          </button>
-          <button
-            type="button"
-            onClick={expandAll}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
-          >
-            <ChevronsDown className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
-            Expandir tudo
-          </button>
-        </div>
-      </div>
+  <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
 
       {/* Wrapper com scrollbars sempre visíveis. */}
       <div style={{ overflowX: "scroll", overflowY: "scroll", maxHeight: "70vh" }}>
