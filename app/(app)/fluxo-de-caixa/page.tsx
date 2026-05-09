@@ -301,10 +301,10 @@ function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
   return (
     <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="Hoje · 05/05" />
+      <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="em 05/05" />
       <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor="var(--brand-error-soft)" sub="em 28/07 (S13)" />
       <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor="var(--brand-error-soft)" sub="Média das 13 semanas" />
-      <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+      <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 transition hover:border-[var(--brand-blue)]/30 hover:shadow-[0_2px_10px_-4px_rgba(7,29,59,0.14)] md:p-5">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Veredito</p>
         <div className="mt-2 flex items-center">
           <span
@@ -322,7 +322,7 @@ function Zone2Kpis() {
 
 function KpiCard({ label, value, sub, valueColor }: { label: string; value: string; sub: string; valueColor?: string }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+    <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 transition hover:border-[var(--brand-blue)]/30 hover:shadow-[0_2px_10px_-4px_rgba(7,29,59,0.14)] md:p-5">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
