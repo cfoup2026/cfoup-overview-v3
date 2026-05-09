@@ -39,37 +39,6 @@ const DRILLDOWN_ICON: Record<
   concentracao: TrendingUp,
 }
 
-const DIAGNOSTICO_VIVO = [
-  {
-    color: "#d14343",
-    frase: "Bertoni atrasou 3 títulos",
-    valor: "R$ 142.300",
-    fonte: "banco · há 12 min",
-    href: "/clientes?cliente=Bertoni",
-  },
-  {
-    color: "#e08b00",
-    frase: "Margem caiu 4pp vs mês anterior",
-    valor: "21,8%",
-    fonte: "contábil · há 2 h",
-    href: "/analise-contabil",
-  },
-  {
-    color: "#e08b00",
-    frase: "Caixa cobre 8 semanas, 9ª negativa",
-    valor: "R$ -47.000",
-    fonte: "banco+ERP · há 12 min",
-    href: "/fluxo-de-caixa",
-  },
-  {
-    color: "#36BA58",
-    frase: "14 notas emitidas hoje",
-    valor: "R$ 89.420",
-    fonte: "eNotas · há 5 min",
-    href: "/analise-financeira",
-  },
-]
-
 export default function VisaoGeralPage() {
   const data = useVisaoGeralData()
   const user = useCurrentUser()
@@ -90,81 +59,56 @@ export default function VisaoGeralPage() {
         <LiveStatus />
       </header>
 
-      {/* Diagnóstico Vivo do Dia */}
-      <section aria-labelledby="bloco-diagnostico" className="mb-3">
-        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-          {/* Topo */}
-          <div className="flex flex-col gap-6 border-b border-border/60 pb-5 md:flex-row md:items-start md:justify-between">
-            {/* Esquerda */}
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Diagnóstico do dia · atualizado há 12 min
+      {/* Resumo executivo */}
+      <section aria-labelledby="bloco-resumo" className="mb-3">
+        <div className="overflow-hidden rounded-2xl border border-border bg-hero-gradient">
+          <div className="grid gap-4 p-4 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-6 md:p-5">
+            <div>
+              <p
+                className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "var(--brand-blue)" }}
+              >
+                {data.resumoEyebrow}
               </p>
               <h2
-                id="bloco-diagnostico"
-                className="mt-1.5 text-[18px] font-extrabold leading-tight md:text-[22px]"
+                id="bloco-resumo"
+                className="text-balance text-[15px] font-bold leading-snug md:text-base"
                 style={{ color: "var(--brand-navy)" }}
               >
-                CFOup olhou banco, eNotas, ERP e contábil. Você tem 3 coisas pra decidir hoje.
+                {data.resumoTitulo}
               </h2>
-              <p className="mt-2 text-[12px] text-muted-foreground">
-                1 crítico · 2 atenção · 1 saudável
+              <p className="mt-1.5 max-w-xl text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
+                {data.resumoTexto}
               </p>
+              {!data.hasConnections && (
+                <Link
+                  href="/conexoes"
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[var(--brand-blue)]"
+                >
+                  <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Ir para Conexões
+                </Link>
+              )}
             </div>
-            {/* Direita */}
-            {data.saldoAtual.status === "ok" && data.saldoAtual.value && (
-              <div className="shrink-0 text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Saldo atual
-                </p>
+
+            <div className="flex items-baseline justify-between gap-4 rounded-xl border border-[var(--brand-blue)]/20 bg-white px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Saldo atual
+              </p>
+              {data.saldoAtual.status === "ok" && data.saldoAtual.value ? (
                 <p
-                  className="mt-1 text-[1.75rem] font-extrabold leading-none tabular-nums md:text-[2rem]"
+                  className="text-[1.5rem] font-extrabold leading-none tabular-nums"
                   style={{ color: "var(--brand-navy)" }}
                 >
                   {data.saldoAtual.value}
                 </p>
-              </div>
-            )}
+              ) : (
+                <p className="text-right text-[11px] font-medium leading-snug text-muted-foreground">
+                  Aguardando conexão
+                </p>
+              )}
+            </div>
           </div>
-
-          {/* Lista de decisões */}
-          <ul className="mt-5 space-y-1">
-            {DIAGNOSTICO_VIVO.map((item, i) => (
-              <li key={i}>
-                <Link
-                  href={item.href}
-                  className="group -mx-2 flex items-start gap-4 rounded-xl px-2 py-4 transition hover:bg-muted/50"
-                >
-                  <span
-                    aria-hidden
-                    className="mt-1.5 h-3 w-3 shrink-0 rounded-full"
-                    style={{ background: item.color }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p
-                      className="text-[15px] font-bold"
-                      style={{ color: "var(--brand-navy)" }}
-                    >
-                      {item.frase}
-                    </p>
-                    <p className="mt-1 text-[12px] text-muted-foreground">
-                      {item.fonte}
-                    </p>
-                  </div>
-                  <p
-                    className="shrink-0 text-right text-[16px] font-extrabold tabular-nums"
-                    style={{ color: "var(--brand-navy)" }}
-                  >
-                    {item.valor}
-                  </p>
-                  <ChevronRight
-                    className="ml-3 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5"
-                    strokeWidth={2.2}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
