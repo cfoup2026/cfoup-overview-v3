@@ -326,7 +326,7 @@ const WEEK_COL_WIDTH = 65
 const TOTAL_COL_WIDTH = 95
 const BEYOND_COL_WIDTH = 95
 const TOTAL_BORDER_LEFT = "4px solid var(--border)"
-const HEADER_GRADIENT = "linear-gradient(180deg, var(--brand-navy) 0%, rgba(7,29,59,0.92) 100%)"
+const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
   function Zone3Grid() {
@@ -374,11 +374,12 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                   top: 0,
                   zIndex: 4,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--brand-navy)",
                   fontSize: 11,
                   fontWeight: 700,
-                  letterSpacing: "0.06em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
+                  borderBottom: "1px solid var(--brand-navy)",
                 }}
               >
                 Categoria
@@ -387,17 +388,19 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                 <th
                   key={i}
                   scope="col"
-                  className="px-1.5 py-2 text-right"
+                  className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
                   style={{
                     position: "sticky",
                     top: 0,
                     zIndex: 3,
                     background: HEADER_GRADIENT,
-                    color: "#FFFFFF",
+                    color: "var(--muted-foreground)",
                     fontSize: 10,
                     fontWeight: 700,
-                    letterSpacing: "0.04em",
+                    letterSpacing: "0.02em",
                     textTransform: "uppercase",
+                    borderBottom: "1px solid var(--brand-navy)",
+                    cursor: "pointer",
                   }}
                 >
                   <div className="flex flex-col items-end leading-tight">
@@ -410,18 +413,20 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
               ))}
               <th
                 scope="col"
-                className="px-1.5 py-2 text-right"
+                className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
                 style={{
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--muted-foreground)",
                   fontSize: 10,
                   fontWeight: 700,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
                   borderLeft: TOTAL_BORDER_LEFT,
+                  borderBottom: "1px solid var(--brand-navy)",
+                  cursor: "pointer",
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
@@ -431,17 +436,19 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
               </th>
               <th
                 scope="col"
-                className="px-1.5 py-2 text-right"
+                className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
                 style={{
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--muted-foreground)",
                   fontSize: 10,
                   fontWeight: 700,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
+                  borderBottom: "1px solid var(--brand-navy)",
+                  cursor: "pointer",
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
@@ -649,11 +656,11 @@ function SectionHeader({
           onToggle()
         }
       }}
-      style={{ cursor: "pointer" }}
+      className="group cursor-pointer transition-colors"
     >
       <th
         scope="row"
-        className="px-3 text-left text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--brand-navy)]"
+        className="px-3 text-left text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--brand-navy)] transition group-hover:!bg-[rgba(21,103,200,0.06)]"
         style={{
           position: "sticky",
           left: 0,
@@ -665,17 +672,19 @@ function SectionHeader({
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3 text-[var(--brand-navy)]" strokeWidth={2.4} aria-hidden />
+          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
           {label}
         </span>
       </th>
       {Array.from({ length: 13 }).map((_, i) => (
         <td
           key={i}
+          className="transition group-hover:!bg-[rgba(21,103,200,0.06)]"
           style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }}
         />
       ))}
       <td
+        className="transition group-hover:!bg-[rgba(21,103,200,0.06)]"
         style={{
           background: "var(--card)",
           borderBottom: "1px solid var(--border)",
@@ -683,7 +692,7 @@ function SectionHeader({
           height: 26,
         }}
       />
-      <td style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }} />
+      <td className="transition group-hover:!bg-[rgba(21,103,200,0.06)]" style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }} />
     </tr>
   )
 }
@@ -721,11 +730,11 @@ function SubGroupHeader({
           onToggle()
         }
       }}
-      style={{ cursor: "pointer" }}
+      className="group cursor-pointer transition-colors"
     >
       <th
         scope="row"
-        className="px-3 py-1.5 text-left text-[11px] font-bold text-[var(--brand-navy)]"
+        className="px-3 py-1.5 text-left text-[11px] font-bold text-[var(--brand-navy)] transition group-hover:!bg-[rgba(21,103,200,0.10)]"
         style={{
           position: "sticky",
           left: 0,
@@ -735,7 +744,7 @@ function SubGroupHeader({
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3 text-[var(--brand-navy)]" strokeWidth={2.4} aria-hidden />
+          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
           {label}
         </span>
       </th>
@@ -747,6 +756,7 @@ function SubGroupHeader({
           fontWeight={700}
           colorRule="signed"
           borderBottom="1px solid var(--border)"
+          className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
         />
       ))}
       <NumericCell
@@ -756,6 +766,7 @@ function SubGroupHeader({
         colorRule="signed"
         borderBottom="1px solid var(--border)"
         isTotalCol
+        className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
       />
       <NumericCell
         value={subtotalBeyond}
@@ -764,6 +775,7 @@ function SubGroupHeader({
         colorRule="signed"
         borderBottom="1px solid var(--border)"
         isTotalCol
+        className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
       />
     </tr>
   )
@@ -795,6 +807,7 @@ function DataRow({
   isLast?: boolean
 }) {
   const borderBottom = isLast ? "none" : "1px solid var(--border)"
+  const isClickable = variant === "default"
 
   let labelColor = "var(--brand-navy)"
   let valueWeight: 400 | 500 | 600 | 700 = 500
@@ -823,10 +836,10 @@ function DataRow({
   }
 
   return (
-    <tr>
+    <tr className={isClickable ? "group cursor-pointer transition-colors" : undefined}>
       <th
         scope="row"
-        className="px-3 py-1.5 text-left"
+        className={`px-3 py-1.5 text-left${isClickable ? " transition group-hover:!bg-[rgba(21,103,200,0.05)]" : ""}`}
         style={{
           position: "sticky",
           left: 0,
@@ -853,6 +866,7 @@ function DataRow({
           colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
           colorRule={colorRule}
           borderBottom={borderBottom}
+          className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
         />
       ))}
       <NumericCell
@@ -864,6 +878,7 @@ function DataRow({
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
+        className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
       />
       <NumericCell
         value={beyond}
@@ -874,6 +889,7 @@ function DataRow({
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
+        className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
       />
     </tr>
   )
@@ -891,6 +907,7 @@ function NumericCell({
   colorRule = "default",
   borderBottom,
   isTotalCol = false,
+  className,
 }: {
   value: number | null
   baseBg: string
@@ -900,6 +917,7 @@ function NumericCell({
   colorRule?: "default" | "signed"
   borderBottom: string
   isTotalCol?: boolean
+  className?: string
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
@@ -917,7 +935,7 @@ function NumericCell({
 
   return (
     <td
-      className="px-1.5 py-1.5 text-right"
+      className={["px-1.5 py-1.5 text-right", className].filter(Boolean).join(" ")}
       style={{
         background: baseBg,
         color,
