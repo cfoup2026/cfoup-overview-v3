@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
 
@@ -244,6 +249,7 @@ function Zone1Header({
   setUnidade: (v: UnidadeId) => void
 }) {
   const activeLabel = UNIDADES.find((u) => u.id === unidade)?.label ?? "Consolidado"
+  const [sheetOpen, setSheetOpen] = useState(false)
   return (
     <header className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
       <div className="flex items-baseline gap-2 flex-wrap">
@@ -266,11 +272,196 @@ function Zone1Header({
         <button type="button" className={GHOST_BTN}>
           <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
         </button>
-        <button type="button" className={GHOST_BTN}>
-          <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
-        </button>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <button type="button" className={GHOST_BTN}>
+              <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
+            </button>
+          </SheetTrigger>
+          <QuickAddForecastSheet onClose={() => setSheetOpen(false)} />
+        </Sheet>
       </div>
     </header>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Quick Add Sheet — evento futuro (inline component)
+// ---------------------------------------------------------------------
+function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
+  const [valor, setValor] = useState("")
+  const [direcao, setDirecao] = useState<"entrada" | "saida">("entrada")
+  const [data, setData] = useState("")
+  const [categoria, setCategoria] = useState("")
+  const [contraparte, setContraparte] = useState("")
+  const [status, setStatus] = useState<"confirmado" | "estimado">("estimado")
+  const [confianca, setConfianca] = useState<"A" | "M" | "B">("M")
+  const [obs, setObs] = useState("")
+  const [showObs, setShowObs] = useState(false)
+
+  const handleStatusChange = (s: "confirmado" | "estimado") => {
+    setStatus(s)
+    if (s === "confirmado") setConfianca("A")
+    else setConfianca("M")
+  }
+
+  const handleSubmit = () => {
+    console.log({ valor, direcao, data, categoria, contraparte, status, confianca, obs })
+    onClose()
+  }
+
+  const PILL = "h-5 px-2 text-[10.5px] font-semibold rounded-full border transition"
+  const PILL_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
+  const PILL_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
+  const MINI_PILL = `${PILL} min-w-[18px] px-1.5`
+  const DIR_BTN = "w-8 h-3.5 flex items-center justify-center border rounded-sm transition"
+  const DIR_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
+  const DIR_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
+  const LABEL = "text-[9px] uppercase text-muted-foreground tracking-[0.06em] font-medium"
+  const INPUT_BASE = "w-full border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60"
+
+  return (
+    <SheetContent side="right" className="w-[340px] p-[14px]">
+      {/* Eyebrow */}
+      <div className="border-b border-border pb-2 mb-2">
+        <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+          Quick Add · Evento Futuro
+        </span>
+      </div>
+
+      {/* Linha 1: Valor + Direção */}
+      <div className="flex items-end gap-3 mb-3">
+        <div className="flex-1">
+          <label className={LABEL}>Valor</label>
+          <input
+            type="text"
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+            placeholder="R$ 0"
+            className={`${INPUT_BASE} h-7 text-[18px] font-extrabold tabular-nums mt-0.5`}
+          />
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <button
+            type="button"
+            onClick={() => setDirecao("entrada")}
+            className={`${DIR_BTN} ${direcao === "entrada" ? DIR_ACTIVE : DIR_INACTIVE}`}
+            style={{ borderWidth: "0.5px" }}
+          >
+            <ArrowDownRight className="h-2.5 w-2.5" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setDirecao("saida")}
+            className={`${DIR_BTN} ${direcao === "saida" ? DIR_ACTIVE : DIR_INACTIVE}`}
+            style={{ borderWidth: "0.5px" }}
+          >
+            <ArrowUpRight className="h-2.5 w-2.5" strokeWidth={2} />
+          </button>
+        </div>
+      </div>
+
+      {/* Linha 2: Data + Categoria */}
+      <div className="flex gap-2 mb-3">
+        <div className="w-[80px]">
+          <label className={LABEL}>Data</label>
+          <input
+            type="text"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            placeholder="DD/MM"
+            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
+          />
+        </div>
+        <div className="flex-1 relative">
+          <label className={LABEL}>Categoria</label>
+          <input
+            type="text"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            placeholder="categoria"
+            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5 pr-5`}
+          />
+          <ChevronDown className="absolute right-0 bottom-1.5 h-3 w-3 text-muted-foreground pointer-events-none" />
+        </div>
+      </div>
+
+      {/* Linha 3: Contraparte */}
+      <div className="mb-3">
+        <label className={LABEL}>Contraparte</label>
+        <input
+          type="text"
+          value={contraparte}
+          onChange={(e) => setContraparte(e.target.value)}
+          placeholder="cliente ou fornecedor"
+          className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
+        />
+      </div>
+
+      {/* Tag bar: Status + Confiança */}
+      <div className="flex items-center gap-1.5 flex-wrap py-1.5">
+        <span className={LABEL}>Status</span>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("confirmado")}
+          className={`${PILL} ${status === "confirmado" ? PILL_ACTIVE : PILL_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          Confirmado
+        </button>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("estimado")}
+          className={`${PILL} ${status === "estimado" ? PILL_ACTIVE : PILL_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          Estimado
+        </button>
+        <span className="text-[10px] text-[#C4CDD9]">·</span>
+        <span className={LABEL}>Confiança</span>
+        {(["A", "M", "B"] as const).map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setConfianca(c)}
+            className={`${MINI_PILL} ${confianca === c ? PILL_ACTIVE : PILL_INACTIVE}`}
+            style={{ borderWidth: "0.5px" }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Observação opcional */}
+      {showObs && (
+        <textarea
+          rows={2}
+          value={obs}
+          onChange={(e) => setObs(e.target.value)}
+          placeholder="anotação livre"
+          className="w-full mt-2 p-2 text-[12px] border rounded-md bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 resize-none"
+          style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
+        />
+      )}
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-border">
+        <button
+          type="button"
+          onClick={() => setShowObs(!showObs)}
+          className="text-[11px] text-muted-foreground hover:text-[var(--brand-blue)] transition"
+        >
+          + obs
+        </button>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="h-6 px-3 bg-[var(--brand-navy)] text-white text-[11px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
+        >
+          Adicionar<span className="opacity-70 ml-0.5">↵</span>
+        </button>
+      </div>
+    </SheetContent>
   )
 }
 
