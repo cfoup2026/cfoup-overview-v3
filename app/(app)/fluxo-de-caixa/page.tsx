@@ -145,9 +145,9 @@ const VEREDITO_ATUAL: Veredito = "DADOS_INSUFICIENTES"
 const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string }> = {
   LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)" },
   ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)" },
-  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "#B86D00" },
+  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "var(--brand-warning)" },
   CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)" },
-  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "#EEF1F5", fg: "var(--muted-html)" },
+  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "var(--muted)", fg: "var(--muted-foreground)" },
 }
 
 // =====================================================================
@@ -338,8 +338,8 @@ const FIRST_COL_WIDTH = 220
 const WEEK_COL_WIDTH = 65
 const TOTAL_COL_WIDTH = 95
 const BEYOND_COL_WIDTH = 95
-const TOTAL_BORDER_LEFT = "4px solid var(--line)"
-const HEADER_GRADIENT = "linear-gradient(180deg, var(--brand-navy) 0%, #0a2853 100%)"
+const TOTAL_BORDER_LEFT = "4px solid var(--border)"
+const HEADER_GRADIENT = "linear-gradient(180deg, var(--brand-navy) 0%, rgba(7,29,59,0.92) 100%)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
 const ALL_KEYS: (keyof OpenState)[] = ["op", "op_rec", "op_sai", "fin", "inv", "ic"]
@@ -703,7 +703,7 @@ function SectionHeader({
           background: "var(--card)",
           paddingTop: 8,
           paddingBottom: 6,
-          borderBottom: "1px solid var(--line)",
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
@@ -714,18 +714,18 @@ function SectionHeader({
       {Array.from({ length: 13 }).map((_, i) => (
         <td
           key={i}
-          style={{ background: "var(--card)", borderBottom: "1px solid var(--line)", height: 26 }}
+          style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }}
         />
       ))}
       <td
         style={{
           background: "var(--card)",
-          borderBottom: "1px solid var(--line)",
+          borderBottom: "1px solid var(--border)",
           borderLeft: TOTAL_BORDER_LEFT,
           height: 26,
         }}
       />
-      <td style={{ background: "var(--card)", borderBottom: "1px solid var(--line)", height: 26 }} />
+      <td style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }} />
     </tr>
   )
 }
@@ -773,7 +773,7 @@ function SubGroupHeader({
           left: 0,
           zIndex: 1,
           background: SUBTOTAL_BG,
-          borderBottom: "1px solid var(--line)",
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
@@ -788,7 +788,7 @@ function SubGroupHeader({
           baseBg={SUBTOTAL_BG}
           fontWeight={700}
           colorRule="signed"
-          borderBottom="1px solid var(--line)"
+          borderBottom="1px solid var(--border)"
         />
       ))}
       <NumericCell
@@ -796,7 +796,7 @@ function SubGroupHeader({
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom="1px solid var(--line)"
+        borderBottom="1px solid var(--border)"
         isTotalCol
       />
       <NumericCell
@@ -804,7 +804,7 @@ function SubGroupHeader({
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom="1px solid var(--line)"
+        borderBottom="1px solid var(--border)"
         isTotalCol
       />
     </tr>
@@ -836,14 +836,14 @@ function DataRow({
   upperLabel?: boolean
   isLast?: boolean
 }) {
-  const borderBottom = isLast ? "none" : "1px solid var(--line)"
+  const borderBottom = isLast ? "none" : "1px solid var(--border)"
 
   let labelColor = "var(--brand-navy)"
   let valueWeight: 400 | 500 | 600 | 700 = 500
   let labelWeight: 400 | 500 | 600 | 700 = 500
   let italic = false
   let colorRule: "default" | "signed" = "default"
-  let rowBg = "#FFFFFF"
+  let rowBg = "var(--card)"
 
   switch (variant) {
     case "subtotal":
@@ -853,7 +853,7 @@ function DataRow({
       rowBg = SUBTOTAL_BG
       break
     case "muted":
-      labelColor = "var(--muted-html)"
+      labelColor = "var(--muted-foreground)"
       labelWeight = 400
       valueWeight = 400
       italic = true
@@ -892,7 +892,7 @@ function DataRow({
           baseBg={rowBg}
           fontWeight={valueWeight}
           italic={italic}
-          colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
+          colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
           colorRule={colorRule}
           borderBottom={borderBottom}
         />
@@ -902,7 +902,7 @@ function DataRow({
         baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
+        colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
@@ -912,7 +912,7 @@ function DataRow({
         baseBg={rowBg}
         fontWeight={Math.max(valueWeight, 600) as 600 | 700}
         italic={italic}
-        colorOverride={variant === "muted" ? "var(--muted-html)" : undefined}
+        colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
         colorRule={colorRule}
         borderBottom={borderBottom}
         isTotalCol
@@ -948,7 +948,7 @@ function NumericCell({
 
   let color: string
   if (isEmpty) {
-    color = "var(--muted-html)"
+    color = "var(--muted-foreground)"
   } else if (colorOverride) {
     color = colorOverride
   } else if (colorRule === "signed") {
@@ -982,7 +982,7 @@ function NumericCell({
 // ---------------------------------------------------------------------
 function FooterPendencias() {
   return (
-    <footer className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+    <footer className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
       <span>Pendências críticas:</span>
       <button type="button" className="font-semibold text-[var(--brand-blue)] underline-offset-2 hover:underline">
         1
