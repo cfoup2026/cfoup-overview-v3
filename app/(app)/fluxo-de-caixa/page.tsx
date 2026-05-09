@@ -2,14 +2,9 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw, Plus } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw, Plus, Building2, AlertTriangle } from "lucide-react"
+
+const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.04)] hover:text-[var(--brand-navy)] transition"
 
 /**
  * /fluxo-de-caixa
@@ -205,7 +200,6 @@ export default function FluxoDeCaixa13Semanas() {
       <Zone1Header unidade={unidade} setUnidade={setUnidade} />
       <Zone2Kpis />
       <Zone3Grid />
-      <FooterPendencias />
     </>
   )
 }
@@ -239,103 +233,55 @@ function Zone1Header({
   setUnidade: (v: UnidadeId) => void
 }) {
   return (
-    <header className="mb-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h1 className="text-lg font-extrabold leading-tight tracking-tight text-[var(--brand-navy)] md:text-[1.3rem]">
-          Fluxo de Caixa
-        </h1>
-        <p className="mt-1 text-[12px] text-muted-foreground">
-          Atualizado em 06/05 às 14:23
-        </p>
+    <header className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <h1 className="text-[13px] font-bold leading-none text-[var(--brand-navy)] tracking-tight">Fluxo de Caixa 13 Semanas</h1>
+        <span className="text-[11px] text-muted-foreground">· há 2 min</span>
       </div>
-
-      {/* Selector de unidade */}
-      <div className="inline-flex items-center gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--brand-navy)]">
-          Unidade:
-        </span>
-        <Select value={unidade} onValueChange={setUnidade}>
-          <SelectTrigger
-            aria-label="Unidade"
-            className="h-auto min-w-[180px] gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] font-semibold text-[var(--brand-navy)] focus:ring-0 focus:ring-offset-0"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="border border-border bg-card text-[var(--brand-navy)]">
-            {UNIDADES.map((u) => (
-              <SelectItem
-                key={u.id}
-                value={u.id}
-                className="text-[13px] font-semibold text-[var(--brand-navy)]"
-              >
-                {u.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center gap-0.5">
+        <button type="button" className={GHOST_BTN}>
+          <Building2 className="h-3 w-3 text-muted-foreground" />Consolidado<ChevronDown className="h-3 w-3 text-muted-foreground" />
+        </button>
+        <button type="button" className={GHOST_BTN} aria-label="Atualizar">
+          <RefreshCw className="h-3 w-3 text-muted-foreground" />
+        </button>
+        <button type="button" className={GHOST_BTN}>
+          <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
+        </button>
       </div>
-
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
-      >
-        <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
-        Atualizar
-      </button>
-
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-[0_4px_12px_-6px_rgba(7,29,59,0.18)]"
-      >
-        <Plus className="h-4 w-4 text-[var(--brand-blue)]" strokeWidth={2.2} />
-        Adicionar previsão
-      </button>
     </header>
   )
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs
+// Zona 2 — KPIs (linha tipográfica compacta)
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
   const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
   return (
-    <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="em 05/05" />
-      <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor="var(--brand-error-soft)" sub="em 28/07 (S13)" />
-      <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor="var(--brand-error-soft)" sub="Média das 13 semanas" />
-      <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 transition hover:border-[var(--brand-blue)]/30 hover:shadow-[0_2px_10px_-4px_rgba(7,29,59,0.14)] md:p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Veredito</p>
-        <div className="mt-2 flex items-center">
-          <span
-            className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide"
-            style={{ background: veredito.bg, color: veredito.fg }}
-          >
-            {veredito.label}
-          </span>
-        </div>
-        <p className="mt-1 text-[11px] text-muted-foreground">Aguardando ingestão completa</p>
-      </article>
+    <section className="mb-3 flex flex-wrap items-baseline border-y border-border py-2 px-1">
+      <KpiInline label="Caixa hoje" value="R$ 34.494" />
+      <KpiInline label="Mínimo" value="-R$ 251.633" valueColor="var(--brand-error-soft)" meta="S12 · 20/jul" />
+      <div className="inline-flex items-baseline gap-2 px-4">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+          {veredito.label}
+        </span>
+        <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
+          <AlertTriangle className="h-3 w-3" />4 críticas
+        </button>
+      </div>
     </section>
   )
 }
 
-function KpiCard({ label, value, sub, valueColor }: { label: string; value: string; sub: string; valueColor?: string }) {
+function KpiInline({ label, value, valueColor, meta }: { label: string; value: string; valueColor?: string; meta?: string }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card p-4 transition hover:border-[var(--brand-blue)]/30 hover:shadow-[0_2px_10px_-4px_rgba(7,29,59,0.14)] md:p-5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </p>
-      <p
-        className="mt-1.5 text-[1.25rem] font-extrabold leading-none tabular-nums"
-        style={{ color: valueColor ?? "var(--brand-navy)" }}
-      >
-        {value}
-      </p>
-      <p className="mt-1 text-[11px] text-muted-foreground">
-        {sub}
-      </p>
-    </article>
+    <div className="inline-flex items-baseline gap-1.5 px-4 first:pl-1 border-r last:border-r-0 border-border">
+      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+      <span className="text-[13px] font-bold tabular-nums" style={{ color: valueColor ?? "var(--brand-navy)" }}>{value}</span>
+      {meta && <span className="text-[11px] text-muted-foreground font-normal">{meta}</span>}
+    </div>
   )
 }
 
@@ -985,22 +931,3 @@ function NumericCell({
   )
 }
 
-// ---------------------------------------------------------------------
-// Footer pendências
-// ---------------------------------------------------------------------
-function FooterPendencias() {
-  return (
-    <footer className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
-      <span>Pendências críticas:</span>
-      <button type="button" className="font-semibold text-[var(--brand-blue)] underline-offset-2 hover:underline">
-        1
-      </button>
-      <span>(Banco sem dado recente)</span>
-      <span aria-hidden>·</span>
-      <span>Pendências laterais:</span>
-      <button type="button" className="font-semibold text-[var(--brand-blue)] underline-offset-2 hover:underline">
-        0
-      </button>
-    </footer>
-  )
-}
