@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -196,6 +196,33 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 }
 
 // =====================================================================
+// Evento Mock (placeholder para integração futura)
+// =====================================================================
+type Evento = {
+  id: string
+  direcao: "entrada" | "saida"
+  valor: number
+  data: string
+  categoria: string
+  contraparte: string
+  status: "confirmado" | "estimado"
+  confianca: "A" | "M" | "B"
+  observacao?: string
+  origem: "API" | "manual"
+}
+const EVENTO_MOCK: Evento = {
+  id: "ev1",
+  direcao: "entrada",
+  valor: 22488,
+  data: "12/05/2026",
+  categoria: "CR a receber",
+  contraparte: "Cliente ABC Ltda",
+  status: "estimado",
+  confianca: "M",
+  origem: "API",
+}
+
+// =====================================================================
 // Página
 // =====================================================================
 // NOTA — multi-tenant. CFOup atende 70k+ clientes e cada um tem N unidades
@@ -210,15 +237,23 @@ type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
+  const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
+  const [openEvento, setOpenEvento] = useState(false)
 
+  const handleRowClick = () => {
+    setSelectedEvento(EVENTO_MOCK)
+    setOpenEvento(true)
+  }
+  
   return (
-    <>
-      <Zone1Header unidade={unidade} setUnidade={setUnidade} />
-      <Zone2Kpis />
-      <Zone3Grid />
-    </>
+  <>
+  <Zone1Header unidade={unidade} setUnidade={setUnidade} />
+  <Zone2Kpis />
+  <Zone3Grid onRowClick={handleRowClick} />
+  <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={setOpenEvento} />
+  </>
   )
-}
+  }
 
 // ---------------------------------------------------------------------
 // Zona 1 — Header (dropdown de unidades)
@@ -466,6 +501,97 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
 }
 
 // ---------------------------------------------------------------------
+// Evento Sheet — detalhes + 5 ações de revisão
+// ---------------------------------------------------------------------
+function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+  if (!evento) return null
+
+  const DirIcon = evento.direcao === "entrada" ? ArrowDownRight : ArrowUpRight
+  const dirColor = evento.direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
+  const OrigemIcon = evento.origem === "API" ? Wifi : Hand
+  const origemText = evento.origem === "API" ? "Importado · Pluggy CEF" : "Manual · adicionado por você"
+
+  const statusStyles = evento.status === "confirmado"
+    ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
+    : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
+
+  const handleAction = (action: string) => {
+    console.log("Ação:", action, "evento:", evento.id)
+    onOpenChange(false)
+  }
+
+  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+
+  const actions = [
+    { icon: CheckCircle2, title: "Confirmar como firme", sub: "marcar como documentado · confiança alta" },
+    { icon: PencilLine, title: "Editar valor ou data", sub: "ajustar projeção" },
+    { icon: Tags, title: "Reclassificar", sub: "mudar categoria ou bucket" },
+    { icon: Gauge, title: "Ajustar confiança", sub: "alta · média · baixa" },
+    { icon: MessageSquare, title: "Adicionar observação", sub: "anotação livre" },
+  ]
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[360px] p-[14px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            EVENTO · CF13
+          </span>
+        </div>
+
+        {/* Bloco identidade */}
+        <div className="mb-3">
+          <div className="flex items-baseline gap-2">
+            <DirIcon className="h-4 w-4 shrink-0" style={{ color: dirColor }} />
+            <span className="text-[20px] font-extrabold tabular-nums" style={{ color: dirColor }}>
+              R$ {evento.valor.toLocaleString("pt-BR")}
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {evento.data} · {evento.categoria} · {evento.contraparte}
+          </p>
+          <p className="text-[10.5px] text-muted-foreground mt-1.5 flex items-center gap-1">
+            <OrigemIcon className="h-2.5 w-2.5" />
+            {origemText}
+          </p>
+        </div>
+
+        {/* Bloco status atual */}
+        <div className="flex items-center gap-1.5 mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span
+            className={`h-5 px-2 rounded-full text-[10.5px] font-semibold inline-flex items-center ${statusStyles}`}
+            style={{ borderWidth: "0.5px" }}
+          >
+            {evento.status === "confirmado" ? "Confirmado" : "Estimado"}
+          </span>
+          <span
+            className="h-5 px-2 rounded-full text-[10.5px] font-semibold text-muted-foreground inline-flex items-center"
+            style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
+          >
+            Confiança {evento.confianca}
+          </span>
+        </div>
+
+        {/* 5 ações verticais */}
+        <div className="flex flex-col gap-0.5">
+          {actions.map((a) => (
+            <button key={a.title} type="button" className={ACTION_ROW} onClick={() => handleAction(a.title)}>
+              <a.icon className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">{a.title}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{a.sub}</p>
+              </div>
+              <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+            </button>
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
 // Zona 2 — KPIs (linha tipográfica compacta)
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
@@ -520,7 +646,7 @@ const TOTAL_BORDER_LEFT = "4px solid var(--border)"
 const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
-  function Zone3Grid() {
+  function Zone3Grid({ onRowClick }: { onRowClick?: () => void }) {
   const [open, setOpen] = useState<OpenState>({
   op: true,
   op_rec: false,
@@ -682,14 +808,16 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       values={CR_RECEBER}
                       total={sum(CR_RECEBER)}
                       beyond={BEYOND_CR_RECEBER}
+                      onClickRow={onRowClick}
                     />
                     <DataRow
                       label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
                       values={CR_RECUPERACAO}
                       total={sum(CR_RECUPERACAO)}
                       beyond={0}
+                      onClickRow={onRowClick}
                     />
-                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} />
+                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} />
                   </>
                 )}
 
@@ -709,17 +837,19 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       values={CP_A_PAGAR}
                       total={sum(CP_A_PAGAR)}
                       beyond={BEYOND_CP_A_PAGAR}
+                      onClickRow={onRowClick}
                     />
                     <DataRow
                       label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
                       values={CP_VENCIDOS}
                       total={sum(CP_VENCIDOS)}
                       beyond={0}
+                      onClickRow={onRowClick}
                     />
-                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} />
-                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} />
-                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} />
-                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} />
+                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} />
+                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} />
+                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} />
+                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} />
                   </>
                 )}
               </>
@@ -738,16 +868,17 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} />
-                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} />
-                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} />
+                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} />
                 <DataRow
                   label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
                   values={TARIFAS_IOF}
                   total={sum(TARIFAS_IOF)}
                   beyond={0}
+                  onClickRow={onRowClick}
                 />
-                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} />
+                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} />
               </>
             )}
             <DataRow
@@ -762,8 +893,8 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} />
-                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} />
+                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} />
               </>
             )}
             <DataRow
@@ -778,8 +909,8 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} />
-                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} />
+                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} />
               </>
             )}
             <DataRow
@@ -988,6 +1119,7 @@ function DataRow({
   variant = "default",
   upperLabel = false,
   isLast = false,
+  onClickRow,
 }: {
   label: ReactNode
   values: number[]
@@ -996,6 +1128,7 @@ function DataRow({
   variant?: RowVariant
   upperLabel?: boolean
   isLast?: boolean
+  onClickRow?: () => void
 }) {
   const borderBottom = isLast ? "none" : "1px solid var(--border)"
   const isClickable = variant === "default"
@@ -1027,7 +1160,7 @@ function DataRow({
   }
 
   return (
-    <tr className={isClickable ? "group cursor-pointer transition-colors" : undefined}>
+    <tr className={isClickable ? "group cursor-pointer transition-colors" : undefined} onClick={isClickable ? onClickRow : undefined}>
       <th
         scope="row"
         className={`px-3 py-1.5 text-left${isClickable ? " transition group-hover:!bg-[rgba(21,103,200,0.05)]" : ""}`}
