@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X, Check } from "lucide-react"
 import {
   DropdownMenu,
@@ -38,16 +39,31 @@ import {
 const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
 
 // ---------------------------------------------------------------------
-// Mocks para Popover Veredito (insuficiências)
+// Mocks para Pendências (unificado)
 // ---------------------------------------------------------------------
-type AcaoInsuficiencia = { label: string }
-type Insuficiencia = { id: string; title: string; impact: string; actions: AcaoInsuficiencia[] }
-const INSUFICIENCIAS: Insuficiencia[] = [
-  { id: "i1", title: "Saldo de abertura ausente · Filial 2", impact: "Sem saldo inicial não há projeção", actions: [{ label: "Conectar banco" }, { label: "Informar manual" }] },
-  { id: "i2", title: "Conta CEF sem atualização há 14 dias", impact: "Realizado pode estar incompleto", actions: [{ label: "Reconectar" }] },
-  { id: "i3", title: "3 eventos sem classificação · R$ 89k", impact: "Inflam linha de outros, distorcem análise", actions: [{ label: "Revisar eventos" }] },
-  { id: "i4", title: "Folha S6 sem evento confirmado", impact: "Risco de subestimar saída de R$ 10.864", actions: [{ label: "Confirmar evento" }] },
+type AcaoProblema = { label: string; route?: string; opensSaldoSheet?: boolean }
+type Problema = { id: string; title: string; detail: string; impact: string; actions: AcaoProblema[] }
+const PROBLEMAS_INITIAL: Problema[] = [
+  { id: "p1", title: "Saldo de abertura ausente", detail: "Filial 2 · CEF Conta Corrente", impact: "Sem saldo inicial não há projeção", actions: [{ label: "Conectar banco", route: "/conexoes" }, { label: "Informar manual", opensSaldoSheet: true }] },
+  { id: "p2", title: "Conta sem atualização há 14 dias", detail: "CEF · ag 1234-5", impact: "Realizado pode estar incompleto", actions: [{ label: "Reconectar", route: "/conexoes" }] },
+  { id: "p3", title: "3 eventos sem classificação", detail: "R$ 89.421 · últimos 7 dias", impact: "Inflam linha de outros, distorcem análise", actions: [{ label: "Revisar eventos", route: "/pendencias-setup" }] },
+  { id: "p4", title: "Folha S6 sem evento confirmado", detail: "esperada R$ 10.864", impact: "Risco de subestimar saída de R$ 10.864", actions: [{ label: "Confirmar evento", route: "/pendencias-setup?filtro=folha" }] },
 ]
+
+// ---------------------------------------------------------------------
+// Masks (reutilizadas por QuickAddForecastSheet e InformarSaldoSheet)
+// ---------------------------------------------------------------------
+function maskValor(v: string): string {
+  const digits = v.replace(/\D/g, "")
+  if (!digits) return ""
+  return (parseInt(digits, 10) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+function maskData(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return d.slice(0, 2) + "/" + d.slice(2)
+  return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4)
+}
 
 // ---------------------------------------------------------------------
 // Mocks para QuickAddForecastSheet
@@ -194,15 +210,15 @@ function fmtBRL(v: number | null | undefined): string {
 // =====================================================================
 // Veredito
 // =====================================================================
-type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES"
-const VEREDITO_ATUAL: Veredito = "DADOS_INSUFICIENTES"
-const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string }> = {
-  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)" },
-  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)" },
-  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "var(--brand-warning)" },
-  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)" },
-  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "var(--muted)", fg: "var(--muted-foreground)" },
-}
+type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES" | "OK"
+  const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string; dotColor: string }> = {
+  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
+  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
+  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
+  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)", dotColor: "var(--brand-error-soft)" },
+  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "var(--muted)", fg: "var(--muted-foreground)", dotColor: "var(--muted-foreground)" },
+  OK: { label: "TUDO VERIFICADO", bg: "rgba(54,186,88,0.10)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
+  }
 
 // =====================================================================
 // Glossário inline (tooltip on hover)
@@ -289,11 +305,21 @@ const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -
 type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
+  const router = useRouter()
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
   const [openEvento, setOpenEvento] = useState(false)
   const [openComposicao, setOpenComposicao] = useState(false)
   const [openSemana, setOpenSemana] = useState(false)
+  const [pendencias, setPendencias] = useState<Problema[]>(PROBLEMAS_INITIAL)
+  const [openSaldo, setOpenSaldo] = useState(false)
+
+  const handleAction = (problemaId: string, action: AcaoProblema) => {
+    setPendencias(prev => prev.filter(p => p.id !== problemaId))
+    if (action.route) router.push(action.route)
+    else if (action.opensSaldoSheet) setOpenSaldo(true)
+    else console.log("Ação:", action.label)
+  }
 
   const handleRowClick = () => {
     setSelectedEvento(EVENTO_MOCK)
@@ -317,11 +343,12 @@ export default function FluxoDeCaixa13Semanas() {
   return (
   <>
   <Zone1Header unidade={unidade} setUnidade={setUnidade} />
-  <Zone2Kpis />
+  <Zone2Kpis pendencias={pendencias} onAction={handleAction} />
   <Zone3Grid onRowClick={handleRowClick} onCellClick={handleCellClick} onWeekClick={handleWeekClick} />
   <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={setOpenEvento} />
   <ComposicaoSheet open={openComposicao} onOpenChange={setOpenComposicao} onEventoClick={handleEventoFromComposicao} />
   <SemanaSheet open={openSemana} onOpenChange={setOpenSemana} />
+  <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
   </>
   )
   }
@@ -406,18 +433,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
   const [obs, setObs] = useState("")
   const [showObs, setShowObs] = useState(false)
   const [contraparteOpen, setContraparteOpen] = useState(false)
-
-  const maskValor = (v: string) => {
-    const digits = v.replace(/\D/g, "")
-    if (!digits) return ""
-    return (parseInt(digits, 10) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-  }
-  const maskData = (v: string) => {
-    const d = v.replace(/\D/g, "").slice(0, 8)
-    if (d.length <= 2) return d
-    if (d.length <= 4) return d.slice(0, 2) + "/" + d.slice(2)
-    return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4)
-  }
 
   const handleDirecaoChange = (dir: "entrada" | "saida") => {
     setDirecao(dir)
@@ -864,10 +879,91 @@ function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: 
 }
 
 // ---------------------------------------------------------------------
+// Informar Saldo Manual Sheet
+// ---------------------------------------------------------------------
+const UNIDADES_SALDO = ["Consolidado", "Filial 1", "Filial 2"]
+
+function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const [unidadeSaldo, setUnidadeSaldo] = useState("Filial 2")
+  const [valorSaldo, setValorSaldo] = useState("")
+  const [dataSaldo, setDataSaldo] = useState("")
+
+  const handleSave = () => {
+    console.log("Saldo salvo:", { unidade: unidadeSaldo, valor: valorSaldo, data: dataSaldo })
+    onOpenChange(false)
+  }
+
+  const LABEL = "text-[10px] font-semibold text-muted-foreground"
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[340px] p-[14px]">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
+          <button type="button" onClick={() => onOpenChange(false)} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Campos */}
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className={LABEL}>Unidade</label>
+            <Select value={unidadeSaldo} onValueChange={setUnidadeSaldo}>
+              <SelectTrigger className="h-7 text-[13px] font-semibold border-0 border-b border-border bg-transparent rounded-none px-1 focus:ring-0 focus:border-[var(--brand-blue)] mt-0.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {UNIDADES_SALDO.map((u) => (
+                  <SelectItem key={u} value={u} className="text-[12px]">{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className={LABEL}>Valor</label>
+            <input
+              type="text"
+              value={valorSaldo}
+              onChange={(e) => setValorSaldo(maskValor(e.target.value))}
+              placeholder="R$ 0,00"
+              className="w-full h-8 text-[18px] font-extrabold tabular-nums border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 mt-0.5 text-[var(--brand-navy)]"
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Data de referência</label>
+            <input
+              type="text"
+              value={dataSaldo}
+              onChange={(e) => setDataSaldo(maskData(e.target.value))}
+              placeholder="DD/MM/AAAA"
+              className="w-full h-6 text-[13px] border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 mt-0.5"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-full h-8 bg-[var(--brand-navy)] text-white text-[12px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
+          >
+            Salvar saldo
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
 // Zona 2 — KPIs (linha tipográfica compacta)
 // ---------------------------------------------------------------------
-function Zone2Kpis() {
-  const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
+function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction: (id: string, action: AcaoProblema) => void }) {
+  const verdictKey: Veredito = pendencias.length === 0 ? "OK" : "DADOS_INSUFICIENTES"
+  const veredito = VEREDITO_STYLES[verdictKey]
   return (
     <section className="mb-3 flex flex-wrap items-baseline border-y border-border py-2 px-1">
       <KpiInline label="Caixa hoje" value="R$ 34.494" />
@@ -875,35 +971,47 @@ function Zone2Kpis() {
       <KpiInline label="Médio" value="-R$ 121.566" valueColor="var(--brand-error-soft)" meta="13 sem" />
       <div className="inline-flex items-baseline gap-2 px-4">
         <Popover>
-          <PopoverTrigger className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition">
-            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+          <PopoverTrigger className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition" style={{ color: veredito.fg }}>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: veredito.dotColor }} />
             {veredito.label}
           </PopoverTrigger>
           <PopoverContent align="start" className="w-[320px] p-3 text-[12px]">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
-              <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
-              <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">{INSUFICIENCIAS.length}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              {INSUFICIENCIAS.map((it) => (
-                <div key={it.id} className="rounded-md p-2 hover:bg-[rgba(7,29,59,0.03)] transition">
-                  <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
-                  <p className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{it.impact}</p>
-                  <div className="flex flex-wrap gap-1.5 mt-1.5">
-                    {it.actions.map((a, i) => (
-                      <button key={i} type="button" onClick={() => console.log("Insuficiência:", it.id, "ação:", a.label)} className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition">
-                        {a.label}
-                      </button>
-                    ))}
-                  </div>
+            {pendencias.length === 0 ? (
+              <div className="py-4 text-center">
+                <CheckCircle2 className="h-6 w-6 mx-auto text-[var(--brand-green)]" />
+                <p className="text-[11px] text-muted-foreground mt-2">Tudo verificado · nenhuma pendência</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
+                  <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
+                  <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">{pendencias.length}</span>
                 </div>
-              ))}
-            </div>
+                <div className="flex flex-col gap-1">
+                  {pendencias.map((it) => (
+                    <div key={it.id} className="rounded-md p-2 hover:bg-[rgba(7,29,59,0.03)] transition">
+                      <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
+                      <p className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{it.detail}</p>
+                      <p className="text-[10px] text-muted-foreground/80 leading-tight mt-0.5 italic">{it.impact}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {it.actions.map((a, i) => (
+                          <button key={i} type="button" onClick={() => onAction(it.id, a)} className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition">
+                            {a.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </PopoverContent>
         </Popover>
-        <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
-          <AlertTriangle className="h-3 w-3" />4 críticas
-        </button>
+        {pendencias.length > 0 && (
+          <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
+            <AlertTriangle className="h-3 w-3" />{pendencias.length} críticas
+          </button>
+        )}
       </div>
     </section>
   )
