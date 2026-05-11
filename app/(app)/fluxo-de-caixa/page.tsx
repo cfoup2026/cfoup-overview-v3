@@ -1038,7 +1038,11 @@ const TOTAL_BORDER_LEFT = "4px solid var(--border)"
 const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
+const SECTION_KEYS: (keyof OpenState)[] = ["op", "fin", "inv", "ic"]
+const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
+
   function Zone3Grid({ onRowClick, onCellClick, onWeekClick }: { onRowClick?: () => void; onCellClick?: () => void; onWeekClick?: () => void }) {
+  const [nivel, setNivel] = useState<1 | 2 | 3>(2)
   const [open, setOpen] = useState<OpenState>({
   op: true,
   op_rec: false,
@@ -1049,8 +1053,46 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
   })
   const toggle = (k: keyof OpenState) => setOpen((p) => ({ ...p, [k]: !p[k] }))
 
+  const applyNivel = (n: 1 | 2 | 3) => {
+    setNivel(n)
+    if (n === 1) {
+      // Sintético: tudo colapsado
+      setOpen({ op: false, op_rec: false, op_sai: false, fin: false, inv: false, ic: false })
+    } else if (n === 2) {
+      // Grupos: seções abertas, sub-grupos fechados
+      setOpen({ op: true, op_rec: false, op_sai: false, fin: true, inv: true, ic: true })
+    } else {
+      // Detalhado: tudo aberto
+      setOpen({ op: true, op_rec: true, op_sai: true, fin: true, inv: true, ic: true })
+    }
+  }
+
   return (
   <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
+
+      {/* Controle de nível */}
+      <div className="flex items-center justify-end px-3 py-1.5 border-b border-border">
+        {[
+          { value: 1 as const, label: "sintético" },
+          { value: 2 as const, label: "grupos" },
+          { value: 3 as const, label: "detalhado" },
+        ].map((n, i) => (
+          <span key={n.value} className="flex items-center">
+            {i > 0 && <span className="text-[10px] text-muted-foreground/40 mx-1.5">·</span>}
+            <button
+              type="button"
+              onClick={() => applyNivel(n.value)}
+              className={
+                nivel === n.value
+                  ? "text-[10px] font-semibold text-[var(--brand-navy)] underline underline-offset-4 decoration-[var(--brand-blue)] decoration-1 transition"
+                  : "text-[10px] font-medium text-muted-foreground hover:text-[var(--brand-navy)] transition"
+              }
+            >
+              {n.label}
+            </button>
+          </span>
+        ))}
+      </div>
 
       {/* Wrapper com scrollbars sempre visíveis. */}
       <div style={{ overflowX: "scroll", overflowY: "scroll", maxHeight: "70vh" }}>
