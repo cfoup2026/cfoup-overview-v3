@@ -484,9 +484,9 @@ function ChatInner() {
 
         {/* Área principal */}
         <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-background lg:min-h-screen">
-          <header className="border-b border-border px-6 py-5 md:px-10 lg:px-12">
+          <header className="border-b border-border px-6 py-7 md:px-10 lg:px-12">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white">
                   <Sparkles className="h-4 w-4" strokeWidth={2.2} />
                 </span>
@@ -494,7 +494,7 @@ function ChatInner() {
                   <h1 className="text-[1.35rem] font-extrabold leading-tight" style={{ color: "var(--brand-navy)" }}>
                     Chat CFOup
                   </h1>
-                  <p className="text-[13px] text-muted-foreground">
+                  <p className="mt-1 text-[13px] text-muted-foreground">
                     Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
                   </p>
                 </div>
@@ -503,7 +503,7 @@ function ChatInner() {
               <button
                 type="button"
                 onClick={startNewConversation}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)]"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)] lg:hidden"
               >
                 <History className="h-4 w-4" />
                 Nova conversa
@@ -513,7 +513,7 @@ function ChatInner() {
 
           {/* Mensagens */}
           <div ref={scroller} className="flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-3xl px-5 py-10 md:px-8">
+            <div className="mx-auto w-full max-w-3xl px-5 py-12 md:px-8">
               {active.messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
               {active.messages.map((m) =>
                 m.role === "user" ? <UserBubble key={m.id} text={m.text} /> : <AnswerCard key={m.id} card={m.card} />,
@@ -612,7 +612,7 @@ function ChatInner() {
 
 function UserBubble({ text }: { text: string }) {
   return (
-    <div className="mb-8 flex justify-end">
+    <div className="mb-10 flex justify-end">
       <div
         className="max-w-[85%] rounded-2xl rounded-tr-md px-4 py-3 text-[15px] leading-relaxed"
         style={{
@@ -628,12 +628,12 @@ function UserBubble({ text }: { text: string }) {
 
 function AnswerCard({ card }: { card: AnswerCardData }) {
   return (
-    <div className="mb-10 flex gap-4">
+    <div className="mb-12 flex gap-4">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
         <CfoupLogo showWordmark={false} size={32} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mb-1.5 flex items-baseline gap-2">
+        <div className="mb-3 flex items-baseline gap-2">
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
@@ -647,15 +647,15 @@ function AnswerCard({ card }: { card: AnswerCardData }) {
           {card.dado.destaque}
         </p>
         {card.dado.sub && (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{card.dado.sub}</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">{card.dado.sub}</p>
         )}
 
-        <div className="my-3 border-t border-border" />
+        <div className="my-4 border-t border-border" />
 
         {/* Slot 2 — Resposta */}
         <p className="text-[15px] leading-relaxed text-[var(--slate-700)]">{card.resposta}</p>
 
-        <div className="my-3 border-t border-border" />
+        <div className="my-4 border-t border-border" />
 
         {/* Slot 3 — Fonte */}
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -681,7 +681,7 @@ function AnswerCard({ card }: { card: AnswerCardData }) {
 
 function PendingBubble() {
   return (
-    <div className="mb-10 flex gap-4">
+    <div className="mb-12 flex gap-4">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
         <CfoupLogo showWordmark={false} size={32} />
       </div>
