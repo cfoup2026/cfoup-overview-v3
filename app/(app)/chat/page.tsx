@@ -102,16 +102,16 @@ const PRELOADED_EXAMPLE: Message[] = [
     card: {
       dado: { destaque: "R$ 244,8k no caixa hoje", sub: "Custo: R$ 7,1k" },
       resposta:
-        "Antecipar 40% dos recebíveis de 30–60d coloca cerca de R$ 244,8k no caixa hoje, ao custo de R$ 7,1k. " +
-        "Só faz sentido se o dinheiro tem destino claro — estoque, dívida cara ou venda travada. " +
-        "Sem destino, é custo que sai do resultado e não compra nada.",
+        "Dá pra colocar R$ 244,8k no caixa hoje se antecipar 40% do que tem pra entrar nos próximos 30–60 dias. " +
+        "Custa R$ 7,1k. Vale se você tem fornecedor pressionando, folha chegando ou estoque pra repor. " +
+        "Se não tem nenhum aperto, é dinheiro que sai do bolso e não volta.",
       fonte: {
         periodo: "Recebíveis 30–60d",
         base: "Adquirente · taxa 2,9%/mês",
-        premissa: "40% da carteira disponível para antecipação",
+        premissa: "40% da carteira disponível",
       },
-      risco: "Antecipar recebíveis sem destino definido reduz margem sem resolver gargalo operacional",
-      acao: "Definir destino do recurso antes de acionar o adquirente",
+      risco: "Antecipar sem ter pra quê resolve o problema de hoje e cria o do mês que vem",
+      acao: "Antes de antecipar, ver se é emergência ou se dá pra segurar",
     },
   },
 ]
@@ -142,16 +142,16 @@ function fallbackFor(question: string): AnswerCardData {
     return {
       dado: { destaque: "8 meses de fôlego", sub: "Caixa atual: R$ 1,284 mi" },
       resposta:
-        "Com a saída média de uns R$ 156k por mês entre folha, fornecedor e imposto, " +
-        "o caixa de hoje suporta cerca de 8 meses. Folga confortável. " +
-        "A pressão não está no caixa em si — está no PMR, que subiu de 28 pra 34 dias e segura dinheiro que já era seu.",
+        "Hoje você tem R$ 1,284 mi no banco. Com folha, fornecedor e imposto saindo todo mês (~R$ 156k), " +
+        "dá pra segurar uns 8 meses sem receita nova. Folga boa. " +
+        "O problema não é o caixa — é que tem dinheiro seu parado na rua: o cliente tá pagando mais devagar (34 dias em vez de 28).",
       fonte: {
         periodo: "Mês corrente",
         base: "Saldo bancário consolidado · saídas médias 90d",
-        premissa: "Sem grandes saídas atípicas no horizonte",
+        premissa: "Sem grande saída atípica no horizonte",
       },
-      risco: "Cada dia a mais no PMR é capital de giro travado que poderia estar pagando fornecedor ou comprando estoque",
-      acao: "Apertar régua de cobrança antes de pensar em antecipar recebível",
+      risco: "Cada dia a mais que o cliente demora pra pagar é dinheiro que não tá no seu caixa pra cobrir fornecedor ou repor estoque",
+      acao: "Cobrar mais rápido antes de pensar em antecipar",
     }
   }
 
@@ -160,16 +160,16 @@ function fallbackFor(question: string): AnswerCardData {
     return {
       dado: { destaque: "Linha B perdeu 2,1 p.p.", sub: "Margem caiu de 20,8% para 18,7%" },
       resposta:
-        "A queda da margem da Linha B vem quase toda de desconto comercial fora da política — " +
-        "não é custo subindo, é preço caindo na ponta. " +
-        "Corrigir a régua de desconto recupera cerca de R$ 18k por mês direto no resultado.",
+        "A Linha B tá sangrando margem — caiu de 20,8% pra 18,7% em 3 meses. " +
+        "Não é custo subindo, é vendedor dando desconto que não devia. " +
+        "Se você travar desconto no sistema, recupera uns R$ 18k por mês que hoje tá indo pro cliente de graça.",
       fonte: {
         periodo: "Últimos 90 dias",
         base: "Margem por linha · descontos aplicados",
-        premissa: "Volume mantido após reajuste",
+        premissa: "Volume mantido se ajustar desconto",
       },
-      risco: "Desconto fora da política vira hábito — quanto mais tempo passa, mais difícil reverter sem perder cliente",
-      acao: "Bloquear desconto acima do limite no sistema, não no manual do vendedor",
+      risco: "Desconto vira costume — quanto mais tempo passa, mais difícil tirar sem o cliente reclamar",
+      acao: "Travar desconto no sistema; se vendedor quiser mais, precisa de aprovação",
     }
   }
 
@@ -178,15 +178,15 @@ function fallbackFor(question: string): AnswerCardData {
     return {
       dado: { destaque: "R$ 164k a menos por mês", sub: "Um cliente vale 34% da receita" },
       resposta:
-        "Se o maior cliente sair, a receita cai R$ 164k/mês e o fôlego de caixa vai dos 8 meses atuais pra quase metade. " +
-        "Não é falência, mas o resultado vira no curto prazo. " +
-        "A defesa não é torcer pra ele ficar — é ter contrato médio pronto pra ocupar parte do espaço.",
+        "Se esse cliente sair, somem R$ 164k por mês e o fôlego de caixa cai de 8 meses pra 4. " +
+        "Não quebra, mas aperta muito. " +
+        "A saída não é torcer pra ele ficar — é fechar 2 ou 3 contratos médios antes da renovação dele, pra ter onde cair se precisar.",
       fonte: {
         periodo: "Receita últimos 90d",
         base: "Top clientes · participação consolidada",
-        premissa: "Custo variável proporcional ao cliente",
+        premissa: "Custo variável sai junto com o cliente",
       },
-      risco: "Cliente grande renegocia em posição de força quando percebe que ninguém ocupa o lugar dele",
+      risco: "Cliente grande sabe que você depende dele — e usa isso na hora de negociar preço",
       acao: "Fechar 2 ou 3 contratos médios antes da próxima renovação",
     }
   }
@@ -196,51 +196,52 @@ function fallbackFor(question: string): AnswerCardData {
     return {
       dado: { destaque: "R$ 20k a 25k este mês", sub: "Sem encostar na folga de caixa" },
       resposta:
-        "O resultado operacional dos últimos meses cobre retirada nessa faixa sem mexer na folga que você precisa pro fechamento trimestral. " +
-        "Acima disso, você começa a financiar a retirada com a folga, não com o lucro.",
+        "Dá pra tirar de R$ 20k a R$ 25k este mês sem apertar nada. " +
+        "É o que sobra depois de pagar tudo e manter a folga pro fechamento do trimestre. " +
+        "Acima disso, você começa a usar a reserva, não o lucro.",
       fonte: {
         periodo: "Resultado últimos 90d",
-        base: "Resultado médio mensal · necessidade trimestral de caixa",
+        base: "Resultado médio mensal · necessidade de caixa",
         premissa: "Faturamento estável no trimestre",
       },
-      risco: "Retirada acima do resultado parece confortável até o mês em que um cliente atrasa e o caixa não tem para onde recorrer",
-      acao: "Fixar teto de retirada como % do resultado do mês anterior, não em valor fixo",
+      risco: "Retirada alta parece tranquila até o mês em que um cliente atrasa e o caixa não tem de onde tirar",
+      acao: "Fixar teto de retirada como % do resultado do mês anterior",
     }
   }
 
   // 5. Contratar funcionário (Chip #1)
   if (/(contrata|funcionário|funcionario|head|vendedor|time comercial|mais um)/.test(q)) {
     return {
-      dado: { destaque: "Custo carregado ~R$ 28k/mês", sub: "Ponto de equilíbrio em ~4,5 meses" },
+      dado: { destaque: "Custo: ~R$ 28k/mês", sub: "Se paga em ~4,5 meses" },
       resposta:
-        "Um head comercial com encargos sai por uns R$ 28k/mês. " +
-        "Com ramp-up de 3 meses, ele precisa trazer R$ 40k de receita marginal pra pagar o próprio custo em 4,5 meses. " +
-        "Abaixo disso, vira despesa fixa que pesa no resultado.",
+        "Com salário e encargos, um comercial sênior sai por uns R$ 28k/mês. " +
+        "Leva uns 3 meses pra ele engatar. Pra se pagar em menos de 5 meses, precisa trazer R$ 40k de venda nova. " +
+        "Menos que isso, vira folha que não se paga.",
       fonte: {
         periodo: "Estimativa atual",
         base: "Custo CLT perfil sênior · encargos ~70%",
-        premissa: "Receita marginal incremental de R$ 40k/mês após ramp-up",
+        premissa: "Traz R$ 40k/mês de venda nova depois de 3 meses",
       },
-      risco: "Contratação que não bate meta de receita vira corte difícil 6 meses depois, com custo trabalhista",
-      acao: "Definir meta de receita marginal antes de abrir a vaga, não depois",
+      risco: "Contratação que não traz venda vira corte caro 6 meses depois",
+      acao: "Combinar a meta de venda antes de abrir a vaga",
     }
   }
 
   // 6. Cliente lucrativo (Chip #2)
   if (/(cliente.*lucr|lucro.*cliente|qual cliente|rentab.*cliente)/.test(q)) {
     return {
-      dado: { destaque: "Linha A · margem 38,2%", sub: "Receita recorrente, saudável" },
+      dado: { destaque: "Linha A: margem 38,2%", sub: "É onde sobra dinheiro de verdade" },
       resposta:
-        "Os clientes da Linha A sustentam o resultado: margem de 38,2% e receita recorrente. " +
-        "Linha B traz mais volume mas com margem de 18,7% — boa parte da receita aparente vira pouco lucro. " +
-        "Cliente bom não é o que paga mais; é o que paga com margem.",
+        "Os clientes da Linha A deixam 38,2% de margem — é o que sustenta o resultado. " +
+        "Linha B parece grande, mas com margem de 18,7% a maior parte da receita vira custo, não lucro. " +
+        "Cliente bom não é o que paga mais; é o que deixa margem.",
       fonte: {
         periodo: "Últimos 90 dias",
         base: "Margem por linha de receita",
-        premissa: "Custos diretos alocados corretamente por linha",
+        premissa: "Custos diretos alocados por linha",
       },
-      risco: "Vendedor que bate meta de receita bruta pode estar entregando volume na linha errada e drenando o resultado",
-      acao: "Comissionar por margem da linha, não por receita bruta",
+      risco: "Vendedor que bate meta de receita bruta pode estar trazendo volume na linha errada e afundando o resultado",
+      acao: "Comissionar por margem, não por receita bruta",
     }
   }
 
@@ -249,28 +250,28 @@ function fallbackFor(question: string): AnswerCardData {
     return {
       dado: { destaque: "R$ 244,8k no caixa hoje", sub: "Custo: R$ 7,1k" },
       resposta:
-        "Antecipar 40% dos recebíveis de 30–60d coloca cerca de R$ 244,8k no caixa hoje, ao custo de R$ 7,1k. " +
-        "Só faz sentido se o dinheiro tem destino claro — estoque, dívida cara ou venda travada. " +
-        "Sem destino, é custo que sai do resultado e não compra nada.",
+        "Dá pra colocar R$ 244,8k no caixa hoje se antecipar 40% do que tem pra entrar nos próximos 30–60 dias. " +
+        "Custa R$ 7,1k. Vale se você tem fornecedor pressionando, folha chegando ou estoque pra repor. " +
+        "Se não tem nenhum aperto, é dinheiro que sai do bolso e não volta.",
       fonte: {
         periodo: "Recebíveis 30–60d",
         base: "Adquirente · taxa 2,9%/mês",
-        premissa: "40% da carteira disponível para antecipação",
+        premissa: "40% da carteira disponível",
       },
-      risco: "Antecipar recebíveis sem destino definido reduz margem sem resolver gargalo operacional",
-      acao: "Definir destino do recurso antes de acionar o adquirente",
+      risco: "Antecipar sem ter pra quê resolve o problema de hoje e cria o do mês que vem",
+      acao: "Antes de antecipar, ver se é emergência ou se dá pra segurar",
     }
   }
 
   // Default — sem âncora suficiente
   return {
-    dado: { destaque: "Sem âncora suficiente" },
+    dado: { destaque: "Preciso de mais contexto" },
     resposta:
-      "Pra te dar leitura sólida, me passa um número, uma decisão ou um cenário concreto da Gregorutt — " +
-      "quanto, quando, o quê. Aí eu devolvo o impacto direto em caixa e resultado.",
+      "Pra te dar uma resposta que sirva pra alguma coisa, me passa um número, uma decisão ou um cenário concreto. " +
+      "Quanto? Quando? O quê? Aí eu te devolvo o impacto no caixa e no resultado.",
     fonte: { periodo: "—", base: "Dados conectados · mês corrente" },
-    risco: "Resposta genérica sobre finanças é exatamente o que o CFOup não faz — vira ruído, não decisão",
-    acao: "Reformular a pergunta com um valor ou uma decisão concreta",
+    risco: "Resposta genérica não ajuda ninguém — vira ruído, não decisão",
+    acao: "Refaz a pergunta com um valor ou uma decisão concreta",
   }
 }
 
