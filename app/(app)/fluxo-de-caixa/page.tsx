@@ -1703,6 +1703,9 @@ function DataRow({
               borderBottom={borderBottom}
               className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
               onClick={isClickable && rowId ? () => onCellClick?.(rowId, i) : undefined}
+              isExpanded={isCellExpanded}
+              rowId={rowId}
+              onEventoFromExpansion={onEventoFromExpansion}
             />
           )
         })}
@@ -1729,92 +1732,6 @@ function DataRow({
           className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
         />
       </tr>
-      {expandedWeekIdx !== null && expandedWeekIdx !== undefined && (() => {
-        const origem = getOrigem(rowId)
-        const SUB_BG = "rgba(21,103,200,0.03)"
-        const SUB_BG_ACTIVE = "rgba(21,103,200,0.06)"
-
-        if (origem === "documento") {
-          return EVENTOS_CELULA_MOCK.map((e, idx) => (
-            <tr
-              key={`${rowId}-sub-${idx}`}
-              className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
-              style={{ background: SUB_BG }}
-              onClick={onEventoFromExpansion}
-            >
-              <td
-                className="pl-12 pr-3 py-1.5 text-[11px] text-muted-foreground"
-                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
-              >
-                <span className="font-medium text-[var(--brand-navy)]">{e.data}</span>
-                <span className="mx-1.5">·</span>
-                {e.contraparte}
-                <span
-                  className="ml-2 text-[10px] font-semibold"
-                  style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
-                >
-                  {e.status}
-                </span>
-              </td>
-              {values.map((_, i) => (
-                <td
-                  key={i}
-                  className="py-1.5 text-right text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]"
-                  style={{ background: i === expandedWeekIdx ? SUB_BG_ACTIVE : SUB_BG, borderBottom }}
-                >
-                  {i === expandedWeekIdx ? `R$ ${e.valor.toLocaleString("pt-BR")}` : ""}
-                </td>
-              ))}
-              <td className="text-right py-1.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ background: SUB_BG, borderBottom }}>
-                R$ {e.valor.toLocaleString("pt-BR")}
-              </td>
-              <td style={{ background: SUB_BG, borderBottom }} />
-            </tr>
-          ))
-        }
-
-        if (origem === "estimativa") {
-          return (
-            <tr style={{ background: SUB_BG }}>
-              <td
-                colSpan={values.length + 3}
-                className="pl-12 py-2.5 text-[11px]"
-                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
-              >
-                <p className="font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
-                <p className="text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
-                <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
-              </td>
-            </tr>
-          )
-        }
-
-        if (origem === "manual") {
-          return (
-            <tr
-              className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
-              style={{ background: SUB_BG }}
-              onClick={onEventoFromExpansion}
-            >
-              <td
-                colSpan={values.length + 2}
-                className="pl-12 py-2.5 text-[11px]"
-                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
-              >
-                <p className="font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
-                <p className="text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
-                <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
-                {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
-              </td>
-              <td className="text-right pr-3 py-2.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ background: SUB_BG, borderBottom }}>
-                R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}
-              </td>
-            </tr>
-          )
-        }
-
-        return null
-      })()}
     </>
   )
 }
@@ -1833,6 +1750,9 @@ function NumericCell({
   isTotalCol = false,
   className,
   onClick,
+  isExpanded = false,
+  rowId,
+  onEventoFromExpansion,
 }: {
   value: number | null
   baseBg: string
@@ -1844,6 +1764,9 @@ function NumericCell({
   isTotalCol?: boolean
   className?: string
   onClick?: () => void
+  isExpanded?: boolean
+  rowId?: string
+  onEventoFromExpansion?: () => void
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
@@ -1859,9 +1782,62 @@ function NumericCell({
     color = isNegative ? "var(--brand-error-soft)" : "var(--foreground)"
   }
 
+  const origem = getOrigem(rowId)
+
+  const popoverContent = (
+    <div className="w-[280px] p-3">
+      {origem === "documento" && (
+        <>
+          <p className="text-[11px] font-semibold text-[var(--brand-navy)] mb-2">Eventos da célula</p>
+          <div className="flex flex-col gap-1">
+            {EVENTOS_CELULA_MOCK.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                onClick={onEventoFromExpansion}
+                className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition text-left"
+              >
+                <div>
+                  <span className="text-[11px] font-medium text-[var(--brand-navy)]">{e.data}</span>
+                  <span className="text-[11px] text-muted-foreground mx-1.5">·</span>
+                  <span className="text-[11px] text-muted-foreground">{e.contraparte}</span>
+                  <span
+                    className="ml-2 text-[10px] font-semibold"
+                    style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+                  >
+                    {e.status}
+                  </span>
+                </div>
+                <span className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]">
+                  R$ {e.valor.toLocaleString("pt-BR")}
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {origem === "estimativa" && (
+        <>
+          <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
+          <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
+        </>
+      )}
+      {origem === "manual" && (
+        <button type="button" onClick={onEventoFromExpansion} className="w-full text-left">
+          <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
+          <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
+          {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
+          <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}</p>
+        </button>
+      )}
+    </div>
+  )
+
   return (
     <td
-      className={["px-1.5 py-1.5 text-right", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
+      className={["px-1.5 py-1.5 text-right relative", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
       style={{
         background: baseBg,
         color,
@@ -1876,6 +1852,21 @@ function NumericCell({
       onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
     >
       {fmtCompact(isEmpty ? null : (value as number))}
+      {isExpanded && (
+        <Popover open={true}>
+          <PopoverTrigger asChild>
+            <span className="absolute inset-0" />
+          </PopoverTrigger>
+          <PopoverContent
+            side="right"
+            align="center"
+            sideOffset={4}
+            className="z-[60] bg-card border border-border shadow-lg rounded-lg p-0"
+          >
+            {popoverContent}
+          </PopoverContent>
+        </Popover>
+      )}
     </td>
   )
 }
