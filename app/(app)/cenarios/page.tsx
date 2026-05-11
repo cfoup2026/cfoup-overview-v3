@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { GitBranch, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
+import { GitBranch, ArrowUpRight, Target, TrendingDown, TrendingUp, ChevronRight } from "lucide-react"
 
 type Tone = "positive" | "negative" | "neutral"
 
@@ -29,6 +29,12 @@ type Decision = {
   defaultParam: string
   impactSummary: string
   states: Record<string, DecisionState>
+}
+
+function toneColor(tone: "positive" | "negative" | "neutral"): string {
+  if (tone === "positive") return "var(--brand-green-dark)"
+  if (tone === "negative") return "var(--brand-red)"
+  return "var(--brand-navy)"
 }
 
 const CAIXA_HOJE = "R$ 34,4k"
@@ -260,164 +266,242 @@ export default function CenariosPage() {
         </div>
       </header>
 
-      {/* Destaque — 4 blocos */}
-      <div className="mb-4 space-y-2">
-        {/* Bloco 1 — Decisão */}
-        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-            <Target className="h-3 w-3" />
-            Decisão em teste
-          </div>
-
-          <div className="mt-1.5 flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <h2
-                className="max-w-2xl text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {activeDecision.question}
-              </h2>
-              <p className="mt-1 max-w-2xl text-[11px] leading-snug text-muted-foreground">
-                {activeDecision.context}
-              </p>
+      {/* Grid 2 colunas: main + aside */}
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_280px]">
+        {/* Coluna principal (fluxo de decisão) */}
+        <div className="min-w-0 space-y-2">
+          {/* Card único: Decisão + Antes/Depois */}
+          <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
+            {/* Header: Decisão em teste */}
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
+              <Target className="h-3 w-3" />
+              Decisão em teste
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
-                {activeDecision.paramLabel}
-              </p>
-              <div className="flex gap-1">
-                {activeDecision.params.map((p) => {
-                  const active = activeParam === p.value
-                  return (
-                    <button
-                      key={p.value}
-                      type="button"
-                      onClick={() => setParam(p.value)}
-                      className={
-                        active
-                          ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition whitespace-nowrap"
-                          : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition whitespace-nowrap"
-                      }
-                      style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
-                    >
-                      {p.label}
-                    </button>
-                  )
-                })}
+            <div className="mt-1.5 flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h2
+                  className="max-w-2xl text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {activeDecision.question}
+                </h2>
+                <p className="mt-1 max-w-2xl text-[11px] leading-snug text-muted-foreground">
+                  {activeDecision.context}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
+                  {activeDecision.paramLabel}
+                </p>
+                <div className="flex gap-1">
+                  {activeDecision.params.map((p) => {
+                    const active = activeParam === p.value
+                    return (
+                      <button
+                        key={p.value}
+                        type="button"
+                        onClick={() => setParam(p.value)}
+                        className={
+                          active
+                            ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition whitespace-nowrap"
+                            : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition whitespace-nowrap"
+                        }
+                        style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
+                      >
+                        {p.label}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Bloco 2 — Caixa antes e depois */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-hero-gradient p-3 md:p-4">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
-            Caixa antes e depois
-          </h3>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <ImpactTile label="Caixa hoje" value={CAIXA_HOJE} tone="neutral" detail="saldo atual" />
-            <ImpactTile label="Sem agir" value={SEM_AGIR.value} tone="negative" detail={SEM_AGIR.sub} />
-            <ImpactTile
-              label="Com esta decisão"
-              value={currentState.caixaMinComDecisao.value}
-              tone={currentState.caixaMinComDecisao.tone}
-              detail={currentState.caixaMinComDecisao.delta}
-            />
-          </div>
-          <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
-            {currentState.reading}
-          </p>
-        </section>
+            {/* Separador */}
+            <div className="my-4 border-t border-border" />
 
-        {/* Bloco 3 — Consequência da decisão */}
-        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
-            Consequência da decisão
-          </h3>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <ImpactTile
-              label="Caixa agora"
-              value={currentState.consequences.caixa.value}
-              tone={currentState.consequences.caixa.tone}
-              detail={currentState.consequences.caixa.detail}
-            />
-            <ImpactTile
-              label="Custo da decisão"
-              value={currentState.consequences.custo.value}
-              tone={currentState.consequences.custo.tone}
-              detail={currentState.consequences.custo.detail}
-            />
-            <ImpactTile
-              label="Fôlego de caixa"
-              value={currentState.consequences.folego.value}
-              tone={currentState.consequences.folego.tone}
-              detail={currentState.consequences.folego.detail}
-            />
-          </div>
-        </section>
-
-        {/* Bloco 4 — Trajetória do caixa */}
-        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
-              Trajetória do caixa · 13 semanas
-            </h3>
-            <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em]">
-              <span className="inline-flex items-center gap-1.5" style={{ color: "var(--brand-red)" }}>
-                <span className="inline-block h-0.5 w-3" style={{ background: "var(--brand-red)" }} />
-                Sem agir
-              </span>
-              <span className="inline-flex items-center gap-1.5" style={{ color: "var(--brand-green-dark)" }}>
-                <span className="inline-block h-0.5 w-3" style={{ background: "var(--brand-green-dark)" }} />
-                Com decisão
-              </span>
+            {/* Hero antes/depois */}
+            <div className="mt-2 grid gap-2 md:grid-cols-3">
+              <ImpactTile label="Caixa hoje" value={CAIXA_HOJE} tone="neutral" detail="saldo atual" />
+              <ImpactTile label="Sem agir" value={SEM_AGIR.value} tone="negative" detail={SEM_AGIR.sub} />
+              <ImpactTile
+                label="Com esta decisão"
+                value={currentState.caixaMinComDecisao.value}
+                tone={currentState.caixaMinComDecisao.tone}
+                detail={currentState.caixaMinComDecisao.delta}
+              />
             </div>
+            <p className="mt-3 text-[12px] leading-snug text-[var(--slate-700)]">
+              {currentState.reading}
+            </p>
+          </section>
+
+          {/* Card: Consequência + Trajetória ladeados */}
+          <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,220px)_1fr]">
+              {/* Coluna A — Consequência (KPIs verticais tabulares) */}
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Consequência
+                </p>
+                <div className="mt-2 flex flex-col gap-1.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
+                      Caixa
+                    </span>
+                    <span
+                      className="text-[13px] font-extrabold tabular-nums"
+                      style={{ color: toneColor(currentState.consequences.caixa.tone) }}
+                    >
+                      {currentState.consequences.caixa.value}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
+                      Custo
+                    </span>
+                    <span
+                      className="text-[13px] font-extrabold tabular-nums"
+                      style={{ color: toneColor(currentState.consequences.custo.tone) }}
+                    >
+                      {currentState.consequences.custo.value}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
+                      Fôlego
+                    </span>
+                    <span
+                      className="text-[13px] font-extrabold tabular-nums"
+                      style={{ color: toneColor(currentState.consequences.folego.tone) }}
+                    >
+                      {currentState.consequences.folego.value}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divisor vertical sutil (desktop only) */}
+              <div className="relative">
+                <span aria-hidden className="hidden md:block absolute -left-2 top-0 h-full w-px bg-border" />
+
+                {/* Coluna B — Trajetória 13 semanas (sparkline compacta) */}
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    Trajetória · 13 sem
+                  </p>
+                  <div className="flex items-center gap-3 text-[9.5px] font-semibold uppercase tracking-[0.10em]">
+                    <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-red)" }}>
+                      <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-red)" }} />
+                      Sem agir
+                    </span>
+                    <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-green-dark)" }}>
+                      <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-green-dark)" }} />
+                      Com decisão
+                    </span>
+                  </div>
+                </div>
+                <Sparkline
+                  weeks={WEEKS_LABELS}
+                  semAgir={TRAJECTORY_SEM_AGIR}
+                  comDecisao={currentState.trajectoryComDecisao}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Link textual pequeno */}
+          <div className="flex justify-end">
+            <Link
+              href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
+            >
+              Discutir com o CFOup
+              <ArrowUpRight className="h-3 w-3" />
+            </Link>
           </div>
-
-          <Sparkline
-            weeks={WEEKS_LABELS}
-            semAgir={TRAJECTORY_SEM_AGIR}
-            comDecisao={currentState.trajectoryComDecisao}
-          />
-
-          <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
-            {currentState.reading}
-          </p>
-        </section>
-
-        {/* Link textual pequeno */}
-        <div className="flex justify-end">
-          <Link
-            href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
-            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
-          >
-            Discutir com o CFOup
-            <ArrowUpRight className="h-3 w-3" />
-          </Link>
         </div>
+
+        {/* Coluna lateral (navegação) */}
+        <aside className="lg:sticky lg:top-3 lg:self-start">
+          <div className="rounded-2xl border border-border bg-card">
+            <div className="border-b border-border px-3 py-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Decisões
+              </p>
+              <p className="mt-0.5 text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                Em teste e alternativas
+              </p>
+            </div>
+
+            <ul className="divide-y divide-border">
+              {DECISIONS.map((d) => {
+                const isActive = d.id === activeId
+                const paramValue = paramByDecision[d.id]
+                const paramLabel = d.params.find((p) => p.value === paramValue)?.label ?? ""
+
+                if (isActive) {
+                  return (
+                    <li
+                      key={d.id}
+                      className="border-l-2 px-3 py-2.5"
+                      style={{
+                        borderLeftColor: "var(--brand-blue)",
+                        background: "rgba(21,103,200,0.05)",
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className="text-[9.5px] font-bold uppercase tracking-[0.18em]"
+                          style={{ color: "var(--brand-blue)" }}
+                        >
+                          Em teste
+                        </span>
+                        <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">
+                          {paramLabel}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                        {d.alavanca}
+                      </p>
+                      <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
+                        {d.shortSummary}
+                      </p>
+                    </li>
+                  )
+                }
+
+                return (
+                  <li key={d.id}>
+                    <button
+                      type="button"
+                      onClick={() => activateDecision(d.id)}
+                      className="group w-full px-3 py-2.5 text-left transition hover:bg-[rgba(21,103,200,0.04)]"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p
+                          className="text-[12px] font-semibold transition group-hover:text-[var(--brand-blue)]"
+                          style={{ color: "var(--brand-navy)" }}
+                        >
+                          {d.alavanca}
+                        </p>
+                        <ChevronRight className="h-3 w-3 text-muted-foreground transition group-hover:text-[var(--brand-blue)]" />
+                      </div>
+                      <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
+                        {d.shortSummary}
+                      </p>
+                      <p className="mt-1 text-[10px] font-semibold tabular-nums text-muted-foreground">
+                        {d.impactSummary}
+                      </p>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </aside>
       </div>
-
-      {/* Lista de cenários */}
-      <section aria-labelledby="cenarios-list" className="rounded-2xl border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border px-3 md:px-4 py-2">
-          <h3 id="cenarios-list" className="text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
-            Outras decisões para testar
-          </h3>
-          <p className="text-[11px] text-muted-foreground">{DECISIONS.length - 1} prontas pra testar</p>
-        </div>
-        <ul className="divide-y divide-border">
-          {DECISIONS.filter((d) => d.id !== activeId).map((d) => (
-            <ScenarioRow
-              key={d.id}
-              title={d.alavanca}
-              summary={d.shortSummary}
-              impact={d.impactSummary}
-              onTest={() => activateDecision(d.id)}
-            />
-          ))}
-        </ul>
-      </section>
     </>
   )
 }
@@ -432,37 +516,27 @@ function Sparkline({
   comDecisao: number[]
 }) {
   const W = 520
-  const H = 80
+  const H = 56
   const all = [...semAgir, ...comDecisao, 0]
   const min = Math.min(...all)
   const max = Math.max(...all)
-  const range = max - min || 1
-  const padding = range * 0.10
-  const yMin = min - padding
-  const yMax = max + padding
-  const yRange = yMax - yMin
+  const yMin = min - (max - min) * 0.10
+  const yMax = max + (max - min) * 0.10
+  const yRange = yMax - yMin || 1
 
   const xOf = (i: number) => (i / (weeks.length - 1)) * W
   const yOf = (v: number) => H - ((v - yMin) / yRange) * H
-
   const pts = (vals: number[]) => vals.map((v, i) => `${xOf(i)},${yOf(v)}`).join(" ")
   const zeroY = yOf(0)
   const ruptureX = xOf(2)
 
   return (
-    <div className="mt-3">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-20" preserveAspectRatio="none">
-        <line x1="0" y1={zeroY} x2={W} y2={zeroY} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
-        <line x1={ruptureX} y1="0" x2={ruptureX} y2={H} stroke="var(--brand-red)" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
-        <polyline points={pts(semAgir)} fill="none" stroke="var(--brand-red)" strokeWidth="2" opacity="0.85" />
-        <polyline points={pts(comDecisao)} fill="none" stroke="var(--brand-green-dark)" strokeWidth="2" />
-      </svg>
-      <div className="mt-1 flex justify-between text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {weeks.map((w, i) => (
-          <span key={w} style={{ color: i === 2 ? "var(--brand-red)" : undefined }}>{w}</span>
-        ))}
-      </div>
-    </div>
+    <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 w-full" style={{ height: 56 }} preserveAspectRatio="none">
+      <line x1="0" y1={zeroY} x2={W} y2={zeroY} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
+      <line x1={ruptureX} y1="0" x2={ruptureX} y2={H} stroke="var(--brand-red)" strokeWidth="1" strokeDasharray="2 2" opacity="0.30" />
+      <polyline points={pts(semAgir)} fill="none" stroke="var(--brand-red)" strokeWidth="1.5" opacity="0.85" />
+      <polyline points={pts(comDecisao)} fill="none" stroke="var(--brand-green-dark)" strokeWidth="1.75" />
+    </svg>
   )
 }
 
@@ -486,28 +560,4 @@ function ImpactTile({ label, value, tone, detail }: { label: string; value: stri
   )
 }
 
-function ScenarioRow({ title, summary, impact, onTest }: { title: string; summary: string; impact: string; onTest: () => void }) {
-  return (
-    <li className="flex flex-col gap-1 px-3 md:px-4 py-2 md:flex-row md:items-center md:justify-between">
-      <div className="min-w-0 md:max-w-[58%]">
-        <span className="text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
-          {title}
-        </span>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{summary}</p>
-      </div>
-      <div className="flex items-center justify-between gap-2 md:justify-end">
-        <span className="text-[12px] font-semibold tabular-nums" style={{ color: "var(--brand-navy)" }}>
-          {impact}
-        </span>
-        <button
-          type="button"
-          onClick={onTest}
-          className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
-        >
-          Testar
-          <ArrowUpRight className="h-3 w-3" />
-        </button>
-      </div>
-    </li>
-  )
-}
+
