@@ -20,6 +20,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 import {
   Select,
   SelectContent,
@@ -37,6 +38,24 @@ import {
 } from "@/components/ui/command"
 
 const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
+
+// ---------------------------------------------------------------------
+// LightSheetContent — backdrop transparente para drill-downs contextuais
+// ---------------------------------------------------------------------
+function LightSheetContent({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <SheetPrimitive.Portal>
+      <SheetPrimitive.Content
+        className={`fixed inset-y-0 right-0 z-50 w-[320px] bg-background border-l border-border shadow-[0_8px_32px_-12px_rgba(7,29,59,0.25)] p-[14px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right ${className ?? ""}`}
+      >
+        <SheetPrimitive.Close className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground hover:bg-[rgba(7,29,59,0.04)] hover:text-[var(--brand-navy)] transition">
+          <X className="h-3.5 w-3.5" />
+        </SheetPrimitive.Close>
+        {children}
+      </SheetPrimitive.Content>
+    </SheetPrimitive.Portal>
+  )
+}
 
 // ---------------------------------------------------------------------
 // Mocks para Pendências (unificado)
@@ -309,10 +328,14 @@ export default function FluxoDeCaixa13Semanas() {
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
   const [openEvento, setOpenEvento] = useState(false)
-  const [openComposicao, setOpenComposicao] = useState(false)
   const [openSemana, setOpenSemana] = useState(false)
   const [pendencias, setPendencias] = useState<Problema[]>(PROBLEMAS_INITIAL)
   const [openSaldo, setOpenSaldo] = useState(false)
+  // Highlight states
+  const [highlightedRowId, setHighlightedRowId] = useState<string | null>(null)
+  const [highlightedWeekIdx, setHighlightedWeekIdx] = useState<number | null>(null)
+  // Inline expansion
+  const [expandedCell, setExpandedCell] = useState<{ rowId: string; weekIdx: number } | null>(null)
 
   const handleAction = (problemaId: string, action: AcaoProblema) => {
     setPendencias(prev => prev.filter(p => p.id !== problemaId))
@@ -321,21 +344,22 @@ export default function FluxoDeCaixa13Semanas() {
     else console.log("Ação:", action.label)
   }
 
-  const handleRowClick = () => {
+  const handleRowClick = (rowId: string) => {
+    setHighlightedRowId(rowId)
     setSelectedEvento(EVENTO_MOCK)
     setOpenEvento(true)
   }
 
-  const handleCellClick = () => {
-    setOpenComposicao(true)
+  const handleCellClick = (rowId: string, weekIdx: number) => {
+    setExpandedCell(prev => prev?.rowId === rowId && prev?.weekIdx === weekIdx ? null : { rowId, weekIdx })
   }
 
-  const handleWeekClick = () => {
+  const handleWeekClick = (weekIdx: number) => {
+    setHighlightedWeekIdx(weekIdx)
     setOpenSemana(true)
   }
 
-  const handleEventoFromComposicao = () => {
-    setOpenComposicao(false)
+  const handleEventoFromExpansion = () => {
     setSelectedEvento(EVENTO_MOCK)
     setOpenEvento(true)
   }
@@ -344,10 +368,17 @@ export default function FluxoDeCaixa13Semanas() {
   <>
   <Zone1Header unidade={unidade} setUnidade={setUnidade} />
   <Zone2Kpis pendencias={pendencias} onAction={handleAction} />
-  <Zone3Grid onRowClick={handleRowClick} onCellClick={handleCellClick} onWeekClick={handleWeekClick} />
-  <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={setOpenEvento} />
-  <ComposicaoSheet open={openComposicao} onOpenChange={setOpenComposicao} onEventoClick={handleEventoFromComposicao} />
-  <SemanaSheet open={openSemana} onOpenChange={setOpenSemana} />
+  <Zone3Grid
+    onRowClick={handleRowClick}
+    onCellClick={handleCellClick}
+    onWeekClick={handleWeekClick}
+    highlightedRowId={highlightedRowId}
+    highlightedWeekIdx={highlightedWeekIdx}
+    expandedCell={expandedCell}
+    onEventoFromExpansion={handleEventoFromExpansion}
+  />
+  <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={(o) => { setOpenEvento(o); if (!o) setHighlightedRowId(null) }} />
+  <SemanaSheet open={openSemana} onOpenChange={(o) => { setOpenSemana(o); if (!o) setHighlightedWeekIdx(null) }} />
   <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
   </>
   )
@@ -664,9 +695,9 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[360px] p-[14px]">
+      <LightSheetContent className="w-[320px]">
         {/* Eyebrow */}
-        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
             EVENTO · CF13
           </span>
@@ -718,70 +749,7 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
             </button>
           ))}
         </div>
-      </SheetContent>
-    </Sheet>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Composição Sheet — lista de eventos que somam o valor da célula
-// ---------------------------------------------------------------------
-function ComposicaoSheet({ open, onOpenChange, onEventoClick }: { open: boolean; onOpenChange: (v: boolean) => void; onEventoClick: () => void }) {
-  const total = EVENTOS_CELULA_MOCK.reduce((acc, e) => acc + e.valor, 0)
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[360px] p-[14px]">
-        {/* Eyebrow */}
-        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
-            COMPOSIÇÃO · S1 · CR A RECEBER
-          </span>
-        </div>
-
-        {/* Bloco resumo */}
-        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          <p className="text-[20px] font-extrabold tabular-nums text-[var(--brand-navy)]">
-            R$ {total.toLocaleString("pt-BR")}
-          </p>
-          <p className="text-[11px] text-muted-foreground mt-1">
-            {EVENTOS_CELULA_MOCK.length} eventos · entrada
-          </p>
-        </div>
-
-        {/* Lista de eventos */}
-        <div className="flex flex-col gap-0.5">
-          {EVENTOS_CELULA_MOCK.map((e) => {
-            const statusStyle = e.status === "confirmado"
-              ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
-              : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
-            return (
-              <button
-                key={e.id}
-                type="button"
-                onClick={onEventoClick}
-                className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">
-                    {e.data} · {e.contraparte}
-                  </p>
-                  <span
-                    className={`inline-flex items-center mt-1 h-4 px-1.5 text-[10px] font-semibold rounded-full ${statusStyle}`}
-                    style={{ borderWidth: "0.5px" }}
-                  >
-                    {e.status === "confirmado" ? "Confirmado" : "Estimado"}
-                  </span>
-                </div>
-                <span className="text-[12px] font-bold tabular-nums text-[var(--brand-navy)]">
-                  R$ {e.valor.toLocaleString("pt-BR")}
-                </span>
-                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-              </button>
-            )
-          })}
-        </div>
-      </SheetContent>
+      </LightSheetContent>
     </Sheet>
   )
 }
@@ -808,9 +776,9 @@ function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[380px] p-[14px]">
+      <LightSheetContent className="w-[320px]">
         {/* Eyebrow */}
-        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
             SEMANA · S{s.numero} · {s.dateRange.toUpperCase()}
           </span>
@@ -873,7 +841,7 @@ function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: 
             <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
           </button>
         </div>
-      </SheetContent>
+      </LightSheetContent>
     </Sheet>
   )
 }
@@ -1041,7 +1009,23 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
 const SECTION_KEYS: (keyof OpenState)[] = ["op", "fin", "inv", "ic"]
 const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
 
-  function Zone3Grid({ onRowClick, onCellClick, onWeekClick }: { onRowClick?: () => void; onCellClick?: () => void; onWeekClick?: () => void }) {
+  function Zone3Grid({
+    onRowClick,
+    onCellClick,
+    onWeekClick,
+    highlightedRowId,
+    highlightedWeekIdx,
+    expandedCell,
+    onEventoFromExpansion,
+  }: {
+    onRowClick?: (rowId: string) => void
+    onCellClick?: (rowId: string, weekIdx: number) => void
+    onWeekClick?: (weekIdx: number) => void
+    highlightedRowId?: string | null
+    highlightedWeekIdx?: number | null
+    expandedCell?: { rowId: string; weekIdx: number } | null
+    onEventoFromExpansion?: () => void
+  }) {
   const [nivel, setNivel] = useState<1 | 2 | 3>(2)
   const [open, setOpen] = useState<OpenState>({
   op: true,
@@ -1139,13 +1123,13 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                 <th
                   key={i}
                   scope="col"
-                  className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
+                  className={`px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)] ${highlightedWeekIdx === i ? "!bg-[rgba(21,103,200,0.10)]" : ""}`}
                   style={{
                     position: "sticky",
                     top: 0,
                     zIndex: 3,
-                    background: HEADER_GRADIENT,
-                    color: "var(--muted-foreground)",
+                    background: highlightedWeekIdx === i ? "rgba(21,103,200,0.10)" : HEADER_GRADIENT,
+                    color: highlightedWeekIdx === i ? "var(--brand-navy)" : "var(--muted-foreground)",
                     fontSize: 10,
                     fontWeight: 700,
                     letterSpacing: "0.02em",
@@ -1153,7 +1137,7 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                     borderBottom: "1px solid var(--brand-navy)",
                     cursor: "pointer",
                   }}
-                  onClick={onWeekClick}
+                  onClick={() => onWeekClick?.(i)}
                 >
                   <div className="flex flex-col items-end leading-tight">
                     <span>{w.label}</span>
@@ -1239,22 +1223,32 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                 {open.op_rec && (
                   <>
                     <DataRow
+                      rowId="op_rec-cr_receber"
                       label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CR_RECEBER}
                       total={sum(CR_RECEBER)}
                       beyond={BEYOND_CR_RECEBER}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_rec-cr_receber"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_receber" ? expandedCell.weekIdx : null}
+                      onEventoFromExpansion={onEventoFromExpansion}
                     />
                     <DataRow
+                      rowId="op_rec-cr_recuperacao"
                       label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
                       values={CR_RECUPERACAO}
                       total={sum(CR_RECUPERACAO)}
                       beyond={0}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_rec-cr_recuperacao"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_recuperacao" ? expandedCell.weekIdx : null}
+                      onEventoFromExpansion={onEventoFromExpansion}
                     />
-                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                    <DataRow rowId="op_rec-outras" label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_rec-outras"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
                   </>
                 )}
 
@@ -1270,25 +1264,35 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                 {open.op_sai && (
                   <>
                     <DataRow
+                      rowId="op_sai-cp_pagar"
                       label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CP_A_PAGAR}
                       total={sum(CP_A_PAGAR)}
                       beyond={BEYOND_CP_A_PAGAR}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-cp_pagar"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_pagar" ? expandedCell.weekIdx : null}
+                      onEventoFromExpansion={onEventoFromExpansion}
                     />
                     <DataRow
+                      rowId="op_sai-cp_vencidos"
                       label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
                       values={CP_VENCIDOS}
                       total={sum(CP_VENCIDOS)}
                       beyond={0}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-cp_vencidos"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_vencidos" ? expandedCell.weekIdx : null}
+                      onEventoFromExpansion={onEventoFromExpansion}
                     />
-                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                    <DataRow rowId="op_sai-folha" label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-folha"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                    <DataRow rowId="op_sai-tributos" label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-tributos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                    <DataRow rowId="op_sai-encargos" label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-encargos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                    <DataRow rowId="op_sai-despesas" label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-despesas"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
                   </>
                 )}
               </>
@@ -1307,18 +1311,23 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow rowId="fin-emprest_novos" label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_novos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="fin-aporte" label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-aporte"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="fin-emprest_fin" label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_fin"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
                 <DataRow
+                  rowId="fin-tarifas"
                   label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
                   values={TARIFAS_IOF}
                   total={sum(TARIFAS_IOF)}
                   beyond={0}
                   onClickRow={onRowClick}
                   onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-tarifas"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-tarifas" ? expandedCell.weekIdx : null}
+                  onEventoFromExpansion={onEventoFromExpansion}
                 />
-                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow rowId="fin-retirada" label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-retirada"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
               </>
             )}
             <DataRow
@@ -1333,8 +1342,8 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow rowId="inv-venda" label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-venda"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="inv-compra" label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-compra"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
               </>
             )}
             <DataRow
@@ -1349,8 +1358,8 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
-                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow rowId="ic-receb" label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-receb"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="ic-pagto" label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-pagto"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
               </>
             )}
             <DataRow
@@ -1561,6 +1570,11 @@ function DataRow({
   isLast = false,
   onClickRow,
   onCellClick,
+  rowId,
+  isHighlighted = false,
+  highlightedWeekIdx,
+  expandedWeekIdx,
+  onEventoFromExpansion,
 }: {
   label: ReactNode
   values: number[]
@@ -1569,8 +1583,13 @@ function DataRow({
   variant?: RowVariant
   upperLabel?: boolean
   isLast?: boolean
-  onClickRow?: () => void
-  onCellClick?: () => void
+  onClickRow?: (rowId: string) => void
+  onCellClick?: (rowId: string, weekIdx: number) => void
+  rowId?: string
+  isHighlighted?: boolean
+  highlightedWeekIdx?: number | null
+  expandedWeekIdx?: number | null
+  onEventoFromExpansion?: () => void
 }) {
   const borderBottom = isLast ? "none" : "1px solid var(--border)"
   const isClickable = variant === "default"
@@ -1601,64 +1620,112 @@ function DataRow({
       colorRule = "default"
   }
 
+  const highlightBg = "rgba(21,103,200,0.10)"
+
   return (
-    <tr className={isClickable ? "group cursor-pointer transition-colors" : undefined} onClick={isClickable ? onClickRow : undefined}>
-      <th
-        scope="row"
-        className={`px-3 py-1.5 text-left${isClickable ? " transition group-hover:!bg-[rgba(21,103,200,0.05)]" : ""}`}
-        style={{
-          position: "sticky",
-          left: 0,
-          zIndex: 1,
-          background: rowBg,
-          color: labelColor,
-          fontSize: 11,
-          fontWeight: labelWeight,
-          fontStyle: italic ? "italic" : "normal",
-          textTransform: upperLabel ? "uppercase" : "none",
-          letterSpacing: upperLabel ? "0.04em" : "normal",
-          borderBottom,
-        }}
+    <>
+      <tr
+        className={isClickable ? "group cursor-pointer transition-colors" : undefined}
+        onClick={isClickable && rowId ? () => onClickRow?.(rowId) : undefined}
       >
-        {label}
-      </th>
-      {values.map((v, i) => (
+        <th
+          scope="row"
+          className={`px-3 py-1.5 text-left${isClickable ? " transition group-hover:!bg-[rgba(21,103,200,0.05)]" : ""}`}
+          style={{
+            position: "sticky",
+            left: 0,
+            zIndex: 1,
+            background: isHighlighted ? highlightBg : rowBg,
+            color: labelColor,
+            fontSize: 11,
+            fontWeight: labelWeight,
+            fontStyle: italic ? "italic" : "normal",
+            textTransform: upperLabel ? "uppercase" : "none",
+            letterSpacing: upperLabel ? "0.04em" : "normal",
+            borderBottom,
+          }}
+        >
+          {label}
+        </th>
+        {values.map((v, i) => {
+          const isCellExpanded = expandedWeekIdx === i
+          const isCellHighlighted = highlightedWeekIdx === i
+          const cellBg = isHighlighted ? highlightBg : isCellExpanded ? "rgba(21,103,200,0.12)" : isCellHighlighted ? "rgba(21,103,200,0.04)" : rowBg
+          return (
+            <NumericCell
+              key={i}
+              value={v}
+              baseBg={cellBg}
+              fontWeight={valueWeight}
+              italic={italic}
+              colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
+              colorRule={colorRule}
+              borderBottom={borderBottom}
+              className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
+              onClick={isClickable && rowId ? () => onCellClick?.(rowId, i) : undefined}
+            />
+          )
+        })}
         <NumericCell
-          key={i}
-          value={v}
-          baseBg={rowBg}
-          fontWeight={valueWeight}
+          value={total}
+          baseBg={isHighlighted ? highlightBg : rowBg}
+          fontWeight={Math.max(valueWeight, 600) as 600 | 700}
           italic={italic}
           colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
           colorRule={colorRule}
           borderBottom={borderBottom}
+          isTotalCol
           className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
-          onClick={isClickable ? onCellClick : undefined}
         />
+        <NumericCell
+          value={beyond}
+          baseBg={isHighlighted ? highlightBg : rowBg}
+          fontWeight={Math.max(valueWeight, 600) as 600 | 700}
+          italic={italic}
+          colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
+          colorRule={colorRule}
+          borderBottom={borderBottom}
+          isTotalCol
+          className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
+        />
+      </tr>
+      {expandedWeekIdx !== null && expandedWeekIdx !== undefined && EVENTOS_CELULA_MOCK.map((e, idx) => (
+        <tr
+          key={`${rowId}-sub-${idx}`}
+          className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
+          style={{ background: "rgba(21,103,200,0.03)" }}
+          onClick={onEventoFromExpansion}
+        >
+          <td
+            className="pl-8 pr-3 py-1.5 text-[11px] text-muted-foreground"
+            style={{ position: "sticky", left: 0, zIndex: 1, background: "rgba(21,103,200,0.03)", borderBottom }}
+          >
+            <span className="font-medium text-[var(--brand-navy)]">{e.data}</span>
+            <span className="mx-1.5">·</span>
+            {e.contraparte}
+            <span
+              className="ml-2 text-[10px] font-semibold"
+              style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+            >
+              {e.status}
+            </span>
+          </td>
+          {values.map((_, i) => (
+            <td
+              key={i}
+              className="py-1.5 text-right text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]"
+              style={{ background: i === expandedWeekIdx ? "rgba(21,103,200,0.06)" : "rgba(21,103,200,0.03)", borderBottom }}
+            >
+              {i === expandedWeekIdx ? `R$ ${e.valor.toLocaleString("pt-BR")}` : ""}
+            </td>
+          ))}
+          <td className="text-right py-1.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ borderBottom }}>
+            R$ {e.valor.toLocaleString("pt-BR")}
+          </td>
+          <td style={{ borderBottom }} />
+        </tr>
       ))}
-      <NumericCell
-        value={total}
-        baseBg={rowBg}
-        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
-        italic={italic}
-        colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
-        colorRule={colorRule}
-        borderBottom={borderBottom}
-        isTotalCol
-        className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
-      />
-      <NumericCell
-        value={beyond}
-        baseBg={rowBg}
-        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
-        italic={italic}
-        colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
-        colorRule={colorRule}
-        borderBottom={borderBottom}
-        isTotalCol
-        className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
-      />
-    </tr>
+    </>
   )
 }
 
