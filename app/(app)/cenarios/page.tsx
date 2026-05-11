@@ -15,7 +15,12 @@ type ScenarioData = {
   weeks: WeekEffect[]
   leitura: string
   chatQuery: string
+  caixaMinComDecisao: { value: string; sub: string; tone: "positive" | "negative" }
+  antesDepoisReading: string
 }
+
+const CAIXA_HOJE = "R$ 34,4k"
+const CAIXA_MIN_SEM_AGIR = { value: "−R$ 25,6k", sub: "na S3" }
 
 const SCENARIO_DATA: Record<Pct, ScenarioData> = {
   20: {
@@ -40,6 +45,8 @@ const SCENARIO_DATA: Record<Pct, ScenarioData> = {
     ],
     leitura: "Antecipação leve — alivia sem gastar muito, mas se o aperto for maior o caixa não aguenta.",
     chatQuery: "Analisa o cenário de antecipar 20% dos recebíveis (R$ 122,4k de caixa, R$ 3,5k de custo). Vale agora?",
+    caixaMinComDecisao: { value: "R$ 12,4k", sub: "na S3", tone: "positive" },
+    antesDepoisReading: "Ajuda, mas ainda deixa pouco espaço se entrar atraso.",
   },
   40: {
     caixa: "+ R$ 244,8k",
@@ -63,6 +70,8 @@ const SCENARIO_DATA: Record<Pct, ScenarioData> = {
     ],
     leitura: "Esse cenário compra fôlego agora, mas custa R$ 7,1k e não corrige a causa se o aperto voltar no mês seguinte.",
     chatQuery: "Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale agora?",
+    caixaMinComDecisao: { value: "R$ 78,9k", sub: "na S3", tone: "positive" },
+    antesDepoisReading: "Resolve agosto com folga, mas custa R$ 7,1k.",
   },
   60: {
     caixa: "+ R$ 367,2k",
@@ -86,6 +95,8 @@ const SCENARIO_DATA: Record<Pct, ScenarioData> = {
     ],
     leitura: "Antecipação forte — fôlego de sobra, mas o custo de R$ 10,6k machuca se não tiver destino certo pro dinheiro.",
     chatQuery: "Analisa o cenário de antecipar 60% dos recebíveis (R$ 367,2k de caixa, R$ 10,6k de custo). Vale agora?",
+    caixaMinComDecisao: { value: "R$ 142,3k", sub: "na S3", tone: "positive" },
+    antesDepoisReading: "Dá bastante caixa agora, mas custa caro e pode virar dependência.",
   },
 }
 
@@ -138,7 +149,71 @@ export default function CenariosPage() {
           ))}
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {/* Faixa: Caixa antes e depois */}
+        <div className="mt-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Caixa antes e depois
+          </p>
+
+          <div className="mt-2 flex flex-wrap items-stretch gap-x-6 gap-y-3">
+            {/* Caixa hoje */}
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Caixa hoje
+              </span>
+              <div className="mt-0.5 flex items-baseline gap-1.5">
+                <span
+                  className="text-[1.35rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  {CAIXA_HOJE}
+                </span>
+              </div>
+            </div>
+
+            <span aria-hidden className="hidden w-px bg-border md:block" />
+
+            {/* Quebra sem agir */}
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Quebra sem agir
+              </span>
+              <div className="mt-0.5 flex items-baseline gap-1.5">
+                <span
+                  className="text-[1.35rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: "var(--brand-red)" }}
+                >
+                  {CAIXA_MIN_SEM_AGIR.value}
+                </span>
+                <span className="text-[11px] text-muted-foreground">{CAIXA_MIN_SEM_AGIR.sub}</span>
+              </div>
+            </div>
+
+            <span aria-hidden className="hidden w-px bg-border md:block" />
+
+            {/* Com esta decisão */}
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Com esta decisão
+              </span>
+              <div className="mt-0.5 flex items-baseline gap-1.5">
+                <span
+                  className="text-[1.35rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: data.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark)" : "var(--brand-red)" }}
+                >
+                  {data.caixaMinComDecisao.value}
+                </span>
+                <span className="text-[11px] text-muted-foreground">{data.caixaMinComDecisao.sub}</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
+            {data.antesDepoisReading}
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
           <ImpactTile label="Caixa agora" value={data.caixa} tone="positive" detail="entra em até 2 dias" />
           <ImpactTile label="Custo da decisão" value={data.custo} tone="negative" detail="sai do resultado do mês" />
           <ImpactTile label="Fôlego de caixa" value={data.folego} tone="neutral" detail={data.folegoDetail} />
