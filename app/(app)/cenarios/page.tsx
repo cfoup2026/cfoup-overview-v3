@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Target, ChevronRight } from "lucide-react"
+import { MessageCircle, Clock, DollarSign, MoveHorizontal, TrendingUp, Check, Lightbulb } from "lucide-react"
 
 type Tone = "positive" | "negative" | "neutral"
 
@@ -32,8 +32,8 @@ type Decision = {
 }
 
 function toneColor(tone: "positive" | "negative" | "neutral"): string {
-  if (tone === "positive") return "var(--brand-green-dark)"
-  if (tone === "negative") return "var(--brand-red)"
+  if (tone === "positive") return "var(--brand-green-dark, #0F7A33)"
+  if (tone === "negative") return "var(--brand-red, #D14343)"
   return "var(--brand-navy)"
 }
 
@@ -249,370 +249,495 @@ export default function CenariosPage() {
 
   return (
     <>
-      <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+      {/* Header de página */}
+      <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Planejamento
           </p>
           <h1
-            className="mt-0.5 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+            className="mt-1 font-serif text-[30px] font-medium leading-tight tracking-tight"
             style={{ color: "var(--brand-navy)" }}
           >
             Cenários
           </h1>
-          <p className="mt-0.5 text-[12px] text-muted-foreground">
+          <p className="mt-1.5 text-[14px] text-muted-foreground">
             Teste impacto no caixa antes de decidir.
           </p>
         </div>
+
+        <Link
+          href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
+          className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-white px-4 py-2.5 text-[13px] font-semibold transition hover:border-[var(--brand-cyan)]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          <MessageCircle className="h-4 w-4" />
+          Discutir com CFOup
+        </Link>
       </header>
 
-      {/* Grid 2 colunas: main + aside */}
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_280px]">
-        {/* Coluna principal */}
-        <div className="min-w-0 space-y-3">
-          {/* Linha 1: Decisão + Impacto Principal */}
-          <div className="grid gap-3 lg:grid-cols-2">
-            {/* Bloco DECISÃO */}
-            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-                <Target className="h-3 w-3" />
-                Decisão em teste
-              </div>
-
-              <h2
-                className="mt-2 text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                {activeDecision.question}
-              </h2>
-
-              <p className="mt-1.5 text-[12px] leading-snug text-muted-foreground">
-                {activeDecision.context}
-              </p>
-
-              <div className="mt-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {activeDecision.paramLabel}
-                </p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {activeDecision.params.map((p) => {
-                    const active = activeParam === p.value
-                    return (
-                      <button
-                        key={p.value}
-                        type="button"
-                        onClick={() => setParam(p.value)}
-                        className={
-                          active
-                            ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition whitespace-nowrap"
-                            : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition whitespace-nowrap"
-                        }
-                        style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
-                      >
-                        {p.label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </section>
-
-            {/* Bloco IMPACTO PRINCIPAL */}
-            <section className="overflow-hidden rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Impacto principal
-                </p>
-                <Link
-                  href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
-                  className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
-                >
-                  Discutir
-                  <ArrowUpRight className="h-3 w-3" />
-                </Link>
-              </div>
-
-              <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <p
-                  className="text-[2.5rem] md:text-[2.75rem] font-extrabold leading-none tabular-nums"
-                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
-                >
-                  {currentState.caixaMinComDecisao.value}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  menor caixa · {currentState.caixaMinComDecisao.sub}
-                </p>
-              </div>
-
-              <p className="mt-2 text-[12px] font-semibold" style={{ color: "var(--brand-green-dark)" }}>
-                {currentState.caixaMinComDecisao.delta}
-              </p>
-
-              <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
-                {currentState.reading}
-              </p>
-            </section>
+      {/* Linha 1: grid 3 colunas */}
+      <div className="grid gap-[18px] lg:grid-cols-[1.06fr_1.7fr_0.96fr] mt-3">
+        {/* Card DECISÃO */}
+        <section className="rounded-[14px] border border-border bg-card p-5">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-blue)" }}>
+            <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
+            Decisão em teste
           </div>
 
-          {/* Linha 2: Caixa antes e depois — full-width */}
-          <section className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
-            <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Caixa antes e depois
-            </h3>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
-              {/* Sem agir */}
-              <div
-                className="rounded-xl border p-4"
-                style={{ background: "rgba(209,67,67,0.06)", borderColor: "rgba(209,67,67,0.25)" }}
-              >
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-red)" }}>
-                  Sem agir
-                </p>
-                <p className="mt-2 text-[1.85rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-red)" }}>
-                  {SEM_AGIR.value}
-                </p>
-                <p className="mt-1.5 text-[11px] font-semibold" style={{ color: "var(--brand-red)" }}>
-                  {SEM_AGIR.sub}
-                </p>
-              </div>
+          <h2
+            className="mt-3 text-[17px] font-bold leading-tight tracking-tight"
+            style={{ color: "var(--brand-navy)" }}
+          >
+            {activeDecision.question}
+          </h2>
+          <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+            {activeDecision.context}
+          </p>
 
-              {/* Com esta decisão */}
-              <div
-                className="rounded-xl border p-4"
+          <p className="mt-5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            {activeDecision.paramLabel}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {activeDecision.params.map((p) => {
+              const active = activeParam === p.value
+              return (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setParam(p.value)}
+                  className={
+                    active
+                      ? "rounded-lg px-3.5 py-2 text-[12px] font-semibold whitespace-nowrap transition"
+                      : "rounded-lg border border-border bg-white px-3.5 py-2 text-[12px] font-semibold text-muted-foreground whitespace-nowrap transition hover:border-[var(--brand-cyan)]"
+                  }
+                  style={
+                    active
+                      ? {
+                          background: "rgba(21,103,200,0.08)",
+                          border: "1px solid var(--brand-blue)",
+                          color: "var(--brand-blue)",
+                        }
+                      : undefined
+                  }
+                >
+                  {p.label}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-5 border-t border-[#EEF3F8] pt-4 space-y-3">
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+                <Clock className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+              <span>Caixa: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.caixa.value}</strong></span>
+            </div>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+                <DollarSign className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+              <span>Custo: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.custo.value}</strong></span>
+            </div>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+                <MoveHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+              <span>Fôlego: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.folego.value}</strong></span>
+            </div>
+          </div>
+        </section>
+
+        {/* Card IMPACTO */}
+        <section className="rounded-[14px] border border-border bg-card p-5">
+          <div className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-blue)" }}>
+            Impacto no caixa
+          </div>
+
+          <div className="mt-4 grid items-center" style={{ gridTemplateColumns: "1fr 48px 1fr" }}>
+            {/* Sem agir */}
+            <div
+              className="rounded-xl border p-5"
+              style={{ background: "#FFF5F5", borderColor: "#F2CACA", minHeight: "168px" }}
+            >
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.16em]" style={{ color: "var(--brand-red, #D14343)" }}>
+                Sem agir
+              </p>
+              <p className="mt-2.5 text-[12px]" style={{ color: "#3D4D66" }}>
+                menor caixa na S3
+              </p>
+              <p
+                className="mt-3 text-[34px] font-extrabold tabular-nums leading-none tracking-tight"
+                style={{ color: "var(--brand-red, #D14343)" }}
+              >
+                {SEM_AGIR.value}
+              </p>
+              <p
+                className="mt-3 text-[12px] font-semibold"
+                style={{ color: "var(--brand-red, #D14343)" }}
+              >
+                ponto de ruptura na S3
+              </p>
+            </div>
+
+            {/* Círculo "vs" */}
+            <div
+              className="z-10 grid h-[42px] w-[42px] place-items-center rounded-full border border-border bg-white text-[10.5px] font-extrabold uppercase tracking-[0.08em]"
+              style={{
+                color: "var(--brand-navy)",
+                marginLeft: "-10px",
+                marginRight: "-10px",
+                boxShadow: "0 2px 8px rgba(7,29,59,0.06)",
+              }}
+            >
+              vs
+            </div>
+
+            {/* Com esta decisão */}
+            <div
+              className="rounded-xl border p-5"
+              style={{
+                background: currentState.caixaMinComDecisao.tone === "positive" ? "#F0FAF3" : "#FFF5F5",
+                borderColor: currentState.caixaMinComDecisao.tone === "positive" ? "#CFEAD7" : "#F2CACA",
+                minHeight: "168px",
+              }}
+            >
+              <p
+                className="text-[10.5px] font-bold uppercase tracking-[0.16em]"
                 style={{
-                  background: currentState.caixaMinComDecisao.tone === "positive" ? "rgba(54,186,88,0.06)" : "rgba(209,67,67,0.06)",
-                  borderColor: currentState.caixaMinComDecisao.tone === "positive" ? "rgba(54,186,88,0.30)" : "rgba(209,67,67,0.25)",
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
                 }}
               >
-                <p
-                  className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
-                >
-                  Com esta decisão
-                </p>
-                <p
-                  className="mt-2 text-[1.85rem] font-extrabold leading-none tabular-nums"
-                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
-                >
-                  {currentState.caixaMinComDecisao.value}
-                </p>
-                <p
-                  className="mt-1.5 text-[11px] font-semibold"
-                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
-                >
-                  {currentState.caixaMinComDecisao.delta}
-                </p>
-              </div>
-
-              {/* Caixa hoje */}
-              <div className="rounded-xl border border-border bg-white/85 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Caixa hoje
-                </p>
-                <p className="mt-2 text-[1.3rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-navy)" }}>
-                  {CAIXA_HOJE}
-                </p>
-                <p className="mt-1 text-[10.5px] text-muted-foreground">saldo atual</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Linha 3: Consequência + Trajetória */}
-          <div className="grid gap-3 lg:grid-cols-2">
-            {/* Bloco CONSEQUÊNCIA OPERACIONAL */}
-            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-              <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Consequência operacional
-              </h3>
-              <div className="mt-3 flex flex-col gap-2.5">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
-                      Caixa
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.caixa.detail}</span>
-                  </div>
-                  <span
-                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
-                    style={{ color: toneColor(currentState.consequences.caixa.tone) }}
-                  >
-                    {currentState.consequences.caixa.value}
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
-                      Custo
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.custo.detail}</span>
-                  </div>
-                  <span
-                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
-                    style={{ color: toneColor(currentState.consequences.custo.tone) }}
-                  >
-                    {currentState.consequences.custo.value}
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
-                      Fôlego
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.folego.detail}</span>
-                  </div>
-                  <span
-                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
-                    style={{ color: toneColor(currentState.consequences.folego.tone) }}
-                  >
-                    {currentState.consequences.folego.value}
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            {/* Bloco TRAJETÓRIA DO CAIXA · 13 SEM */}
-            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Trajetória do caixa · 13 sem
-                </h3>
-                <div className="flex items-center gap-3 text-[9.5px] font-semibold uppercase tracking-[0.10em]">
-                  <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-red)" }}>
-                    <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-red)" }} />
-                    Sem agir
-                  </span>
-                  <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-green-dark)" }}>
-                    <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-green-dark)" }} />
-                    Com decisão
-                  </span>
-                </div>
-              </div>
-              <Sparkline
-                weeks={WEEKS_LABELS}
-                semAgir={TRAJECTORY_SEM_AGIR}
-                comDecisao={currentState.trajectoryComDecisao}
-              />
-            </section>
-          </div>
-        </div>
-
-        {/* Coluna lateral (navegação) */}
-        <aside className="lg:sticky lg:top-3 lg:self-start">
-          <div className="rounded-2xl border border-border bg-card">
-            <div className="border-b border-border px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Decisões
+                Com esta decisão
               </p>
-              <p className="mt-0.5 text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                Em teste e alternativas
+              <p className="mt-2.5 text-[12px]" style={{ color: "#3D4D66" }}>
+                menor caixa na S3
+              </p>
+              <p
+                className="mt-3 text-[34px] font-extrabold tabular-nums leading-none tracking-tight"
+                style={{
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
+                }}
+              >
+                {currentState.caixaMinComDecisao.value}
+              </p>
+              <p
+                className="mt-3 text-[12px] font-semibold"
+                style={{
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
+                }}
+              >
+                {currentState.caixaMinComDecisao.delta}
               </p>
             </div>
-
-            <ul className="divide-y divide-border">
-              {DECISIONS.map((d) => {
-                const isActive = d.id === activeId
-                const paramValue = paramByDecision[d.id]
-                const paramLabel = d.params.find((p) => p.value === paramValue)?.label ?? ""
-
-                if (isActive) {
-                  return (
-                    <li
-                      key={d.id}
-                      className="border-l-2 px-3 py-2.5"
-                      style={{
-                        borderLeftColor: "var(--brand-blue)",
-                        background: "rgba(21,103,200,0.05)",
-                      }}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span
-                          className="text-[9.5px] font-bold uppercase tracking-[0.18em]"
-                          style={{ color: "var(--brand-blue)" }}
-                        >
-                          Em teste
-                        </span>
-                        <span className="text-[10px] font-semibold tabular-nums text-muted-foreground">
-                          {paramLabel}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                        {d.alavanca}
-                      </p>
-                      <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
-                        {d.shortSummary}
-                      </p>
-                    </li>
-                  )
-                }
-
-                return (
-                  <li key={d.id}>
-                    <button
-                      type="button"
-                      onClick={() => activateDecision(d.id)}
-                      className="group w-full px-3 py-2.5 text-left transition hover:bg-[rgba(21,103,200,0.04)]"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p
-                          className="text-[12px] font-semibold transition group-hover:text-[var(--brand-blue)]"
-                          style={{ color: "var(--brand-navy)" }}
-                        >
-                          {d.alavanca}
-                        </p>
-                        <ChevronRight className="h-3 w-3 text-muted-foreground transition group-hover:text-[var(--brand-blue)]" />
-                      </div>
-                      <p className="mt-0.5 text-[10.5px] leading-snug text-muted-foreground">
-                        {d.shortSummary}
-                      </p>
-                      <p className="mt-1 text-[10px] font-semibold tabular-nums text-muted-foreground">
-                        {d.impactSummary}
-                      </p>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
           </div>
+
+          <p className="mt-4 px-3 text-center text-[12.5px] italic" style={{ color: "#3D4D66" }}>
+            {currentState.reading}
+          </p>
+
+          <div
+            className="mt-4 grid grid-cols-3 rounded-[10px] border border-border"
+            style={{ background: "#FAFBFD" }}
+          >
+            <div className="p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Caixa hoje
+              </p>
+              <p
+                className="mt-1.5 text-[18px] font-extrabold tabular-nums tracking-tight"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {CAIXA_HOJE}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">saldo atual</p>
+            </div>
+            <div className="border-l border-border p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Diferença
+              </p>
+              <p
+                className="mt-1.5 text-[18px] font-extrabold tabular-nums tracking-tight"
+                style={{ color: "var(--brand-green-dark, #0F7A33)" }}
+              >
+                {currentState.caixaMinComDecisao.delta.replace(" vs sem agir", "")}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">melhora no menor caixa</p>
+            </div>
+            <div className="border-l border-border p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Fôlego
+              </p>
+              <p
+                className="mt-1.5 text-[18px] font-extrabold tabular-nums tracking-tight"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {currentState.consequences.folego.value}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {currentState.consequences.folego.detail}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Card MESA DE DECISÕES */}
+        <aside className="rounded-[14px] border border-border bg-card p-5">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-green-dark, #0F7A33)" }}>
+            <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
+            Mesa de decisões
+          </div>
+
+          <h3 className="mt-4 text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+            Em teste
+          </h3>
+          <div
+            className="mt-2 flex items-center gap-2.5 rounded-lg border p-3"
+            style={{
+              background: "rgba(54,186,88,0.08)",
+              borderColor: "rgba(54,186,88,0.25)",
+              borderLeftWidth: "3px",
+              borderLeftColor: "var(--brand-green, #36BA58)",
+            }}
+          >
+            <span aria-hidden className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--brand-green, #36BA58)" }} />
+            <span className="text-[13px] font-bold" style={{ color: "var(--brand-green-dark, #0F7A33)" }}>
+              {activeDecision.alavanca}
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground">
+              ({activeDecision.params.find((p) => p.value === activeParam)?.label})
+            </span>
+          </div>
+
+          <h3 className="mt-5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+            Alternativas
+          </h3>
+          <div className="mt-2 space-y-0.5">
+            {DECISIONS.filter((d) => d.id !== activeId).map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => activateDecision(d.id)}
+                className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-2 text-left text-[13px] transition hover:bg-[rgba(21,103,200,0.04)]"
+                style={{ color: "#3D4D66" }}
+              >
+                <span aria-hidden className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border-[1.5px] border-muted-foreground" />
+                <span>{d.alavanca}</span>
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-5 border-t border-[#EEF3F8] pt-3.5 text-[11.5px] leading-snug text-muted-foreground">
+            Clique em uma decisão para testar o cenário inteiro.
+          </p>
         </aside>
+      </div>
+
+      {/* Linha 2: grid 2 colunas */}
+      <div className="grid gap-[18px] lg:grid-cols-[1fr_0.42fr] mt-3">
+        {/* Card TRAJETÓRIA */}
+        <section className="rounded-[14px] border border-border bg-card p-5">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-navy)" }}>
+              Trajetória do caixa · 13 semanas
+            </p>
+            <div className="flex items-center gap-3.5 text-[11px] font-semibold">
+              <span style={{ color: "var(--brand-red, #D14343)" }}>── Sem agir</span>
+              <span style={{ color: "var(--brand-green-dark, #0F7A33)" }}>── Com esta decisão</span>
+            </div>
+          </div>
+
+          <div className="relative mt-3.5" style={{ height: "220px" }}>
+            <TrajetoriaChart semAgir={TRAJECTORY_SEM_AGIR} comDecisao={currentState.trajectoryComDecisao} />
+            <div
+              className="absolute rounded-md border bg-white px-2.5 py-1.5 text-[10.5px] font-semibold leading-tight"
+              style={{
+                color: "var(--brand-red, #D14343)",
+                borderColor: "#F2CACA",
+                boxShadow: "0 2px 8px rgba(7,29,59,0.05)",
+                left: "165px",
+                top: "10px",
+              }}
+            >
+              Ponto de ruptura<br />sem agir na S3
+            </div>
+          </div>
+        </section>
+
+        {/* Card CONSEQUÊNCIA */}
+        <section className="rounded-[14px] border border-border bg-card p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-navy)" }}>
+            Consequência operacional
+          </p>
+
+          <div className="mt-3.5 space-y-3.5">
+            <div className="grid items-center gap-3" style={{ gridTemplateColumns: "36px 1fr auto" }}>
+              <span
+                className="grid h-8 w-8 place-items-center rounded-lg"
+                style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark, #0F7A33)" }}
+              >
+                <TrendingUp className="h-4 w-4" strokeWidth={2} />
+              </span>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">Caixa</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{currentState.consequences.caixa.detail}</p>
+              </div>
+              <span
+                className="text-[14px] font-bold tabular-nums whitespace-nowrap"
+                style={{ color: toneColor(currentState.consequences.caixa.tone) }}
+              >
+                {currentState.consequences.caixa.value}
+              </span>
+            </div>
+
+            <div className="grid items-center gap-3" style={{ gridTemplateColumns: "36px 1fr auto" }}>
+              <span
+                className="grid h-8 w-8 place-items-center rounded-lg"
+                style={{ background: "rgba(209,67,67,0.10)", color: "var(--brand-red, #D14343)" }}
+              >
+                <DollarSign className="h-4 w-4" strokeWidth={2} />
+              </span>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">Custo</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{currentState.consequences.custo.detail}</p>
+              </div>
+              <span
+                className="text-[14px] font-bold tabular-nums whitespace-nowrap"
+                style={{ color: toneColor(currentState.consequences.custo.tone) }}
+              >
+                {currentState.consequences.custo.value}
+              </span>
+            </div>
+
+            <div className="grid items-center gap-3" style={{ gridTemplateColumns: "36px 1fr auto" }}>
+              <span
+                className="grid h-8 w-8 place-items-center rounded-lg"
+                style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
+              >
+                <Check className="h-4 w-4" strokeWidth={2} />
+              </span>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">Fôlego</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{currentState.consequences.folego.detail}</p>
+              </div>
+              <span
+                className="text-[14px] font-bold tabular-nums whitespace-nowrap"
+                style={{ color: toneColor(currentState.consequences.folego.tone) }}
+              >
+                {currentState.consequences.folego.value}
+              </span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Leitura Rápida (rodapé full-width) */}
+      <div
+        className="mt-3 flex items-start gap-3.5 rounded-[10px] border border-border p-4"
+        style={{
+          background: "#FAFBFD",
+          borderLeftWidth: "3px",
+          borderLeftColor: "var(--brand-cyan, #38B8E8)",
+        }}
+      >
+        <span
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
+          style={{ background: "rgba(56,184,232,0.15)", color: "var(--brand-blue)" }}
+        >
+          <Lightbulb className="h-4 w-4" strokeWidth={2} />
+        </span>
+        <div>
+          <p
+            className="text-[10.5px] font-bold uppercase tracking-[0.18em]"
+            style={{ color: "var(--brand-blue)" }}
+          >
+            Leitura rápida
+          </p>
+          <p className="mt-1 text-[13px] leading-snug" style={{ color: "#0F1B2D" }}>
+            {currentState.reading}
+          </p>
+        </div>
       </div>
     </>
   )
 }
 
-function Sparkline({
-  weeks,
+function TrajetoriaChart({
   semAgir,
   comDecisao,
 }: {
-  weeks: string[]
   semAgir: number[]
   comDecisao: number[]
 }) {
-  const W = 520
-  const H = 56
-  const all = [...semAgir, ...comDecisao, 0]
-  const min = Math.min(...all)
-  const max = Math.max(...all)
-  const yMin = min - (max - min) * 0.10
-  const yMax = max + (max - min) * 0.10
-  const yRange = yMax - yMin || 1
+  const W = 800
+  const H = 220
+  const xLeft = 50
+  const xRight = 780
+  const yTop = 10
+  const yBottom = 194
 
-  const xOf = (i: number) => (i / (weeks.length - 1)) * W
-  const yOf = (v: number) => H - ((v - yMin) / yRange) * H
-  const pts = (vals: number[]) => vals.map((v, i) => `${xOf(i)},${yOf(v)}`).join(" ")
-  const zeroY = yOf(0)
-  const ruptureX = xOf(2)
+  // Y range fixo: -60k a +60k
+  const yMin = -60
+  const yMax = 60
+  const yRange = yMax - yMin
+  const innerH = yBottom - yTop
+
+  const xOf = (i: number) => xLeft + (i / (WEEKS_LABELS.length - 1)) * (xRight - xLeft)
+  const yOf = (v: number) => yTop + ((yMax - v) / yRange) * innerH
+
+  const pointsStr = (vals: number[]) => vals.map((v, i) => `${xOf(i)},${yOf(v)}`).join(" ")
+
+  // S3 band: rect cobrindo a coluna da semana 3
+  const s3Center = xOf(2)
+  const s3Width = 55
+  const s3X = s3Center - s3Width / 2
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 w-full" style={{ height: 56 }} preserveAspectRatio="none">
-      <line x1="0" y1={zeroY} x2={W} y2={zeroY} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
-      <line x1={ruptureX} y1="0" x2={ruptureX} y2={H} stroke="var(--brand-red)" strokeWidth="1" strokeDasharray="2 2" opacity="0.30" />
-      <polyline points={pts(semAgir)} fill="none" stroke="var(--brand-red)" strokeWidth="1.5" opacity="0.85" />
-      <polyline points={pts(comDecisao)} fill="none" stroke="var(--brand-green-dark)" strokeWidth="1.75" />
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: "block", width: "100%", height: "100%" }}>
+      {/* Y axis labels */}
+      <text x="0" y="14" style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 500 }}>R$ 60k</text>
+      <text x="0" y="60" style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 500 }}>R$ 30k</text>
+      <text x="20" y="106" style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 500 }}>R$ 0</text>
+      <text x="0" y="152" style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 500 }}>−R$ 30k</text>
+      <text x="0" y="198" style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 500 }}>−R$ 60k</text>
+
+      {/* Grid horizontal */}
+      <line x1={xLeft} y1="10" x2={xRight} y2="10" stroke="#EEF3F8" strokeWidth="1" />
+      <line x1={xLeft} y1="56" x2={xRight} y2="56" stroke="#EEF3F8" strokeWidth="1" />
+      <line x1={xLeft} y1="102" x2={xRight} y2="102" stroke="var(--border)" strokeDasharray="3 3" strokeWidth="1" />
+      <line x1={xLeft} y1="148" x2={xRight} y2="148" stroke="#EEF3F8" strokeWidth="1" />
+      <line x1={xLeft} y1="194" x2={xRight} y2="194" stroke="#EEF3F8" strokeWidth="1" />
+
+      {/* S3 band */}
+      <rect x={s3X} y="5" width={s3Width} height="195" rx="4" style={{ fill: "rgba(209,67,67,0.06)" }} />
+
+      {/* Linhas */}
+      <polyline points={pointsStr(semAgir)} fill="none" stroke="var(--brand-red, #D14343)" strokeWidth="2" />
+      <polyline points={pointsStr(comDecisao)} fill="none" stroke="var(--brand-green, #36BA58)" strokeWidth="2.25" />
+
+      {/* Pontos sem agir */}
+      {semAgir.map((v, i) => (
+        <circle key={`r${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-red, #D14343)" }} />
+      ))}
+
+      {/* Pontos com decisão */}
+      {comDecisao.map((v, i) => (
+        <circle key={`g${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-green, #36BA58)" }} />
+      ))}
+
+      {/* Labels eixo X (S1...S13) */}
+      {WEEKS_LABELS.map((label, i) => (
+        <text
+          key={label}
+          x={xOf(i)}
+          y="215"
+          textAnchor="middle"
+          style={{ fill: "#5B6B82", fontSize: "10px", fontWeight: 600 }}
+        >
+          {label}
+        </text>
+      ))}
     </svg>
   )
 }
-
-
-
-
