@@ -13,6 +13,11 @@ import {
   PieChart,
   Users,
   Loader2,
+  Clock,
+  Tag,
+  TrendingDown,
+  TrendingUp,
+  RefreshCcw,
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { cn } from "@/lib/utils"
@@ -88,6 +93,63 @@ type Thread = {
   preview: string
   when: string
   messages: Message[]
+}
+
+type ChipIconKey = "wallet" | "users" | "piechart" | "clock" | "tag" | "trending-down" | "trending-up" | "refresh"
+type Chip = { label: string; question: string; icon: ChipIconKey }
+
+const ChipIconMap: Record<ChipIconKey, React.ReactNode> = {
+  wallet: <Wallet className="h-3.5 w-3.5" />,
+  users: <Users className="h-3.5 w-3.5" />,
+  piechart: <PieChart className="h-3.5 w-3.5" />,
+  clock: <Clock className="h-3.5 w-3.5" />,
+  tag: <Tag className="h-3.5 w-3.5" />,
+  "trending-down": <TrendingDown className="h-3.5 w-3.5" />,
+  "trending-up": <TrendingUp className="h-3.5 w-3.5" />,
+  refresh: <RefreshCcw className="h-3.5 w-3.5" />,
+}
+
+function chipSetFor(lastUserText: string | null): Chip[] {
+  const q = (lastUserText ?? "").toLowerCase()
+
+  if (/(caixa.*negativ|negativ.*caixa|s\d+.*negativ|semana.*negativ|aperto|cobrir.*caixa|falta.*caixa|buraco)/.test(q)) {
+    return [
+      { label: "Antecipar recebível ajuda?", question: "Vale antecipar recebível pra cobrir o caixa?", icon: "wallet" },
+      { label: "Posso adiar fornecedor?", question: "Posso adiar pagamento de fornecedor sem queimar a relação?", icon: "clock" },
+      { label: "Vale renegociar dívida?", question: "Vale renegociar dívida pra ganhar fôlego de caixa?", icon: "refresh" },
+    ]
+  }
+
+  if (/(margem|desconto|rentab|preço|preco|perdendo)/.test(q)) {
+    return [
+      { label: "Qual cliente me dá lucro?", question: "Qual cliente realmente me dá lucro?", icon: "piechart" },
+      { label: "Onde tô perdendo dinheiro?", question: "Onde estou perdendo dinheiro no negócio?", icon: "trending-down" },
+      { label: "Desconto descontrolado?", question: "Meus vendedores estão dando desconto demais?", icon: "tag" },
+    ]
+  }
+
+  if (/(funcionário|funcionario|contrata|folha|vendedor|head|comercial|salário|salario|equipe)/.test(q)) {
+    return [
+      { label: "Posso contratar agora?", question: "Posso contratar mais um funcionário agora?", icon: "users" },
+      { label: "Quanto custa de verdade?", question: "Quanto custa de verdade um funcionário pra empresa?", icon: "wallet" },
+      { label: "Em quanto se paga?", question: "Em quanto tempo a contratação se paga?", icon: "trending-up" },
+    ]
+  }
+
+  if (/(receb|antecip|adquir|cartão|cartao|atras)/.test(q)) {
+    return [
+      { label: "Quanto custa antecipar?", question: "Quanto custa antecipar 40% dos recebíveis?", icon: "wallet" },
+      { label: "Tem alternativa?", question: "Tem alternativa mais barata que antecipar recebível?", icon: "refresh" },
+      { label: "Quem tá atrasando?", question: "Quem está me devendo há mais de 30 dias?", icon: "clock" },
+    ]
+  }
+
+  // Default — sem contexto ou pergunta neutra
+  return [
+    { label: "Posso contratar mais um funcionário agora?", question: "Posso contratar mais um funcionário agora?", icon: "users" },
+    { label: "Qual cliente realmente me dá lucro?", question: "Qual cliente realmente me dá lucro?", icon: "piechart" },
+    { label: "Vale antecipar recebível pra cobrir o caixa?", question: "Vale antecipar recebível pra cobrir o caixa?", icon: "wallet" },
+  ]
 }
 
 const PRELOADED_EXAMPLE: Message[] = [
@@ -265,13 +327,14 @@ function fallbackFor(question: string): AnswerCardData {
 
   // Default — sem âncora suficiente
   return {
-    dado: { destaque: "Preciso de mais contexto" },
+    dado: { destaque: "Posso ajudar — me dá uma âncora" },
     resposta:
-      "Pra te dar uma resposta que sirva pra alguma coisa, me passa um número, uma decisão ou um cenário concreto. " +
-      "Quanto? Quando? O quê? Aí eu te devolvo o impacto no caixa e no resultado.",
+      "Consigo te ajudar com isso, mas preciso de algo concreto pra calcular o impacto: um valor, um prazo ou uma decisão. " +
+      "Exemplo: quanto falta, em qual semana e qual alternativa você tá considerando. " +
+      "Aí eu te devolvo o efeito direto em caixa e resultado.",
     fonte: { periodo: "—", base: "Dados conectados · mês corrente" },
-    risco: "Resposta genérica não ajuda ninguém — vira ruído, não decisão",
-    acao: "Refaz a pergunta com um valor ou uma decisão concreta",
+    risco: "Sem âncora, qualquer resposta é palpite — e palpite não decide nada",
+    acao: "Reescrever a pergunta com um valor, um prazo ou uma decisão concreta",
   }
 }
 
@@ -330,18 +393,24 @@ function ChatInner() {
 
       const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text }
 
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.id === tid
-            ? {
-                ...t,
-                preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
-                when: "Agora",
-                messages: [...t.messages, userMsg],
-              }
-            : t,
-        ),
-      )
+      setThreads((prev) => {
+        const targetIdx = prev.findIndex((t) => t.id === tid)
+        if (targetIdx === -1) return prev
+        const target = prev[targetIdx]
+        const isFirstMessage = target.messages.length === 0 || target.title === "Nova conversa"
+        const newTitle = isFirstMessage
+          ? (text.length > 52 ? text.slice(0, 52) + "…" : text)
+          : target.title
+        const updated: Thread = {
+          ...target,
+          title: newTitle,
+          preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
+          when: "Agora",
+          messages: [...target.messages, userMsg],
+        }
+        const others = prev.filter((t) => t.id !== tid)
+        return [updated, ...others]
+      })
       setDraft("")
       setPending(true)
 
@@ -522,21 +591,18 @@ function ChatInner() {
           <div className="border-t border-border bg-background px-5 py-5 md:px-8 md:py-6">
             <div className="mx-auto w-full max-w-3xl">
               <div className="mb-3 flex flex-wrap gap-2">
-                <SuggestionChip
-                  icon={<Users className="h-3.5 w-3.5" />}
-                  label="Posso contratar mais um funcionário agora?"
-                  onClick={() => submit("Posso contratar mais um funcionário agora?")}
-                />
-                <SuggestionChip
-                  icon={<PieChart className="h-3.5 w-3.5" />}
-                  label="Qual cliente realmente me dá lucro?"
-                  onClick={() => submit("Qual cliente realmente me dá lucro?")}
-                />
-                <SuggestionChip
-                  icon={<Wallet className="h-3.5 w-3.5" />}
-                  label="Vale antecipar recebível pra cobrir o caixa?"
-                  onClick={() => submit("Vale antecipar recebível pra cobrir o caixa?")}
-                />
+                {(() => {
+                  const lastUser = [...active.messages].reverse().find((m) => m.role === "user") as { role: "user"; text: string } | undefined
+                  const chips = chipSetFor(lastUser?.text ?? null)
+                  return chips.map((c) => (
+                    <SuggestionChip
+                      key={c.question}
+                      icon={ChipIconMap[c.icon]}
+                      label={c.label}
+                      onClick={() => submit(c.question)}
+                    />
+                  ))
+                })()}
               </div>
 
               <form
