@@ -14,6 +14,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  PopoverAnchor,
 } from "@/components/ui/popover"
 import {
   Sheet,
@@ -1853,15 +1854,14 @@ function NumericCell({
     >
       {fmtCompact(isEmpty ? null : (value as number))}
       {isExpanded && (
-        <Popover open={true}>
-          <PopoverTrigger asChild>
-            <span className="absolute inset-0" />
-          </PopoverTrigger>
+        <Popover open={true} modal={false}>
+          <PopoverAnchor className="absolute inset-0" />
           <PopoverContent
             side="right"
             align="center"
-            sideOffset={4}
-            className="z-[60] bg-card border border-border shadow-lg rounded-lg p-0"
+            sideOffset={8}
+            avoidCollisions={false}
+            className="z-[9999] bg-card border border-border shadow-xl rounded-lg p-0"
           >
             {popoverContent}
           </PopoverContent>
