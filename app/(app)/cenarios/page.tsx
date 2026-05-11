@@ -29,10 +29,13 @@ export default function CenariosPage() {
         </h2>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <ImpactTile label="Caixa imediato" value="+ R$ 244,8k" tone="positive" detail="em D+2" />
-          <ImpactTile label="Resultado do mês" value="− R$ 7,1k" tone="negative" detail="custo da antecipação" />
-          <ImpactTile label="Fôlego de caixa" value="9,1 meses" tone="neutral" detail="vs. 8,2 atuais" />
+          <ImpactTile label="Caixa agora" value="+ R$ 244,8k" tone="positive" detail="entra em até 2 dias" />
+          <ImpactTile label="Custo da decisão" value="− R$ 7,1k" tone="negative" detail="sai do resultado do mês" />
+          <ImpactTile label="Fôlego de caixa" value="9,1 meses" tone="neutral" detail="vs. 8,2 sem o cenário" />
         </div>
+
+        {/* Impacto 13 semanas */}
+        <WeeksImpactBlock />
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
@@ -54,38 +57,116 @@ export default function CenariosPage() {
       <section aria-labelledby="cenarios-list" className="rounded-2xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-4 md:px-5 py-3">
           <h3 id="cenarios-list" className="text-[13px] font-bold" style={{ color: "var(--brand-navy)" }}>
-            Todos os cenários
+            Decisões em simulação
           </h3>
-          <p className="text-[11px] text-muted-foreground">4 rascunhos · 2 salvos</p>
+          <p className="text-[11px] text-muted-foreground">4 em análise · 2 salvas</p>
         </div>
         <ul className="divide-y divide-border">
           <ScenarioRow
-            title="Antecipação de recebíveis"
-            summary="Liberar caixa para reforçar estoque antes do pico de vendas"
+            title="Antecipar 40% dos recebíveis"
+            summary="Cobrir aperto de caixa antes do pico de venda"
             status="Em análise"
             impact="+R$ 244,8k caixa / −R$ 7,1k resultado"
           />
           <ScenarioRow
-            title="Contratação de novo head comercial"
-            summary="Ponto de equilíbrio em 4,5 meses considerando ramp-up"
+            title="Contratar mais um vendedor sênior"
+            summary="Aumentar venda nova sem sobrecarregar o time atual"
             status="Rascunho"
-            impact="−R$ 28k / mês até break-even"
+            impact="−R$ 28k/mês até se pagar"
           />
           <ScenarioRow
-            title="Reajuste de preço da Linha B"
-            summary="+3% em clientes recorrentes, churn estimado abaixo de 2%"
+            title="Reajustar preço da Linha B"
+            summary="Recuperar margem que vem caindo por desconto"
             status="Salvo"
-            impact="+R$ 18,4k / mês projetados"
+            impact="+R$ 18,4k/mês"
           />
           <ScenarioRow
-            title="Renegociação de fornecedor crítico"
-            summary="Alongar pagamento de 30 para 45 dias"
+            title="Renegociar prazo com fornecedor"
+            summary="Ganhar fôlego de pagamento sem queimar relação"
             status="Salvo"
-            impact="+R$ 62k em capital de giro"
+            impact="+R$ 62k de fôlego"
           />
         </ul>
       </section>
     </>
+  )
+}
+
+type WeekEffect =
+  | { label: string; kind: "positive" | "negative"; value: string }
+  | { label: string; kind: "qualitative"; text: string }
+  | { label: string; kind: "empty" }
+
+const WEEKS_IMPACT: WeekEffect[] = [
+  { label: "S1", kind: "positive", value: "+R$ 244,8k" },
+  { label: "S2", kind: "empty" },
+  { label: "S3", kind: "qualitative", text: "evita aperto" },
+  { label: "S4", kind: "negative", value: "−R$ 7,1k" },
+  { label: "S5", kind: "empty" },
+  { label: "S6", kind: "empty" },
+  { label: "S7", kind: "empty" },
+  { label: "S8", kind: "empty" },
+  { label: "S9", kind: "empty" },
+  { label: "S10", kind: "empty" },
+  { label: "S11", kind: "empty" },
+  { label: "S12", kind: "empty" },
+  { label: "S13", kind: "empty" },
+]
+
+function WeeksImpactBlock() {
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-white/80 p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Impacto nas próximas 13 semanas
+      </p>
+
+      <div className="mt-3 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1">
+        {WEEKS_IMPACT.map((w) => (
+          <div
+            key={w.label}
+            className="flex min-h-[48px] flex-col items-center justify-start gap-1 rounded py-1.5"
+            style={{
+              background: w.kind === "empty" ? "transparent" : "rgba(21,103,200,0.04)",
+            }}
+          >
+            <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {w.label}
+            </span>
+            {w.kind === "positive" && (
+              <span
+                className="text-[10px] font-bold leading-none tabular-nums"
+                style={{ color: "var(--brand-green-dark)" }}
+              >
+                {w.value}
+              </span>
+            )}
+            {w.kind === "negative" && (
+              <span
+                className="text-[10px] font-bold leading-none tabular-nums"
+                style={{ color: "var(--brand-red)" }}
+              >
+                {w.value}
+              </span>
+            )}
+            {w.kind === "qualitative" && (
+              <span
+                className="text-center text-[9px] font-semibold uppercase leading-tight tracking-[0.06em]"
+                style={{ color: "var(--brand-cyan)" }}
+              >
+                {w.text}
+              </span>
+            )}
+            {w.kind === "empty" && (
+              <span className="text-[10px] leading-none text-muted-foreground">—</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
+        Esse cenário compra fôlego agora, mas custa R$ 7,1k e não corrige a causa se o aperto voltar no mês seguinte.
+      </p>
+    </div>
   )
 }
 
