@@ -16,6 +16,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   Sheet,
   SheetContent,
   SheetTrigger,
@@ -256,20 +261,24 @@ const GLOSSARY: Record<GlossaryKey, { title: string; body: string }> = {
 function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNode }) {
   const entry = GLOSSARY[term]
   return (
-    <span className="group relative inline-block">
-      <span className="cursor-help border-b border-dotted border-muted-foreground/50" aria-describedby={`gloss-${term}`}>
-        {children}
-      </span>
-      <span
-        id={`gloss-${term}`}
-        role="tooltip"
-        className="pointer-events-none invisible absolute left-0 top-full z-[60] mt-1.5 w-64 rounded-md bg-[var(--brand-navy)] px-3 py-2 text-[12px] font-normal normal-case leading-snug text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100"
-        style={{ boxShadow: "0 8px 20px -6px rgba(7,29,59,0.35)" }}
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        <span className="cursor-help border-b border-dotted border-muted-foreground/50">
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent
+        side="right"
+        align="start"
+        sideOffset={8}
+        collisionPadding={16}
+        className="z-[60] max-w-[260px] border bg-popover px-3 py-2 text-[11px] text-popover-foreground"
+        style={{ boxShadow: "0 8px 24px -12px rgba(7,29,59,0.20)", borderWidth: "0.5px", borderColor: "var(--border)" }}
       >
-        <strong className="block text-[12px] font-semibold">{entry.title}</strong>
-        <span className="mt-0.5 block opacity-90">{entry.body}</span>
-      </span>
-    </span>
+        <strong className="block text-[11px] font-semibold text-[var(--brand-navy)]">{entry.title}</strong>
+        <span className="mt-0.5 block text-[11px] text-[var(--brand-navy)] opacity-80">{entry.body}</span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
