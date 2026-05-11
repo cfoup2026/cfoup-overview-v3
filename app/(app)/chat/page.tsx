@@ -4,8 +4,6 @@ import { useState, useRef, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   ArrowUp,
-  Plus,
-  History,
   Paperclip,
   Wallet,
   PieChart,
@@ -18,7 +16,6 @@ import {
   RefreshCcw,
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
-import { cn } from "@/lib/utils"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
@@ -85,14 +82,6 @@ type Message =
   | { id: string; role: "user"; text: string }
   | { id: string; role: "cfoup"; card: AnswerCardData }
 
-type Thread = {
-  id: string
-  title: string
-  preview: string
-  when: string
-  messages: Message[]
-}
-
 type ChipIconKey = "wallet" | "users" | "piechart" | "clock" | "tag" | "trending-down" | "trending-up" | "refresh"
 type Chip = { label: string; question: string; icon: ChipIconKey }
 
@@ -150,39 +139,88 @@ function chipSetFor(lastUserText: string | null): Chip[] {
   ]
 }
 
-const PRELOADED_EXAMPLE: Message[] = [
-  {
-    id: "m1",
-    role: "user",
-    text: "Qual o impacto se eu antecipar 40% dos recebíveis este mês?",
-  },
-  {
-    id: "m2",
-    role: "cfoup",
-    card: {
-      dado: { destaque: "R$ 244,8k no caixa hoje", sub: "Custo: R$ 7,1k" },
-      resposta:
-        "Dá pra colocar R$ 244,8k no caixa hoje se antecipar 40% do que tem pra entrar nos próximos 30–60 dias. " +
-        "Custa R$ 7,1k. Vale se você tem fornecedor pressionando, folha chegando ou estoque pra repor. " +
-        "Se não tem nenhum aperto, é dinheiro que sai do bolso e não volta.",
-      fonte: {
-        periodo: "Recebíveis 30–60d",
-        base: "Adquirente · taxa 2,9%/mês",
-        premissa: "40% da carteira disponível",
-      },
-      risco: "Antecipar sem ter pra quê resolve o problema de hoje e cria o do mês que vem",
-      acao: "Antes de antecipar, ver se é emergência ou se dá pra segurar",
-    },
-  },
-]
+function relatedQuestionsFor(lastUserText: string | null): string[] {
+  const q = (lastUserText ?? "").toLowerCase()
 
-const MOCK_THREADS: Omit<Thread, "messages">[] = [
-  { id: "t1", title: "Antecipação de recebíveis · agosto", preview: "Impacto no caixa e na margem", when: "Agora" },
-  { id: "t2", title: "Onde tô perdendo margem?", preview: "Diagnóstico por linha de receita", when: "Ontem" },
-  { id: "t3", title: "Contratar mais um vendedor?", preview: "Break-even do novo contratado", when: "3 dias" },
-  { id: "t4", title: "Reajuste de preço da Linha B", preview: "Elasticidade e margem-alvo", when: "Semana passada" },
-  { id: "t5", title: "Preciso me preocupar com o PMR?", preview: "Concentração e atraso", when: "Mês passado" },
-]
+  // Caixa / fôlego / aperto
+  if (/(caixa.*negativ|negativ.*caixa|s\d+.*negativ|semana.*negativ|aperto|cobrir.*caixa|falta.*caixa|buraco|fôlego|folego|quanto tempo|caixa aguent|operar com o caixa)/.test(q)) {
+    return [
+      "Vale antecipar recebível pra cobrir o caixa?",
+      "Posso adiar pagamento de fornecedor sem queimar a relação?",
+      "Quem está me devendo há mais de 30 dias?",
+      "Vale renegociar dívida pra ganhar fôlego?",
+      "A folha do mês cabe no caixa?",
+      "Em qual semana o caixa fica mais apertado?",
+    ]
+  }
+
+  // Margem / rentabilidade
+  if (/(margem|desconto|rentab|preço|preco|perdendo|onde.*perd|lucr.*produto|lucr.*linha)/.test(q)) {
+    return [
+      "Qual cliente realmente me dá lucro?",
+      "Qual linha de produto sustenta o resultado?",
+      "Meus vendedores estão dando desconto demais?",
+      "Que custo cresceu mais nos últimos meses?",
+      "Tenho margem pra aumentar preço sem perder cliente?",
+      "Onde o resultado vai sangrando sem ninguém perceber?",
+    ]
+  }
+
+  // Contratação / folha
+  if (/(funcionário|funcionario|contrata|folha|vendedor|head|comercial|salário|salario|equipe|admit|demit)/.test(q)) {
+    return [
+      "Posso contratar mais um funcionário agora?",
+      "Quanto custa de verdade um funcionário pra empresa?",
+      "Em quanto tempo a contratação se paga?",
+      "Qual o impacto da contratação no caixa do trimestre?",
+      "Qual o ponto de equilíbrio de uma vaga nova?",
+      "Vale CLT ou PJ pra esse perfil?",
+    ]
+  }
+
+  // Recebíveis / cobrança / antecipação
+  if (/(receb|antecip|adquir|cartão|cartao|atras|inadimpl|cliente.*pag|cobrar|cobrança|cobranca)/.test(q)) {
+    return [
+      "Quanto custa antecipar 40% dos recebíveis?",
+      "Tem alternativa mais barata que antecipar?",
+      "Quem está me devendo há mais de 30 dias?",
+      "Qual minha taxa real de inadimplência?",
+      "Posso oferecer desconto pra pagamento antecipado?",
+      "Que cliente concentra mais recebível em atraso?",
+    ]
+  }
+
+  // Concentração / perda de cliente
+  if (/(concentra|cliente.*(sair|perd)|dependênc|dependenc|maior cliente|perder.*cliente)/.test(q)) {
+    return [
+      "O que acontece se eu perder meu maior cliente?",
+      "Estou dependente demais de poucos clientes?",
+      "Qual cliente realmente me dá lucro?",
+      "Quanto tempo eu sobreviveria sem o cliente top?",
+      "Que contratos médios fechar antes da próxima renovação?",
+    ]
+  }
+
+  // Retirada / dividendos / sócios
+  if (/(retirada|pro[- ]?labore|sócio|socio|distribuir|dividend|quanto.*retirar|prejudicar.*negócio)/.test(q)) {
+    return [
+      "Quanto posso retirar este mês sem prejudicar o negócio?",
+      "Quanto devo deixar de reserva no caixa da empresa?",
+      "Estou tirando do lucro ou da reserva?",
+      "Vale aumentar a retirada agora ou esperar fechar o trimestre?",
+    ]
+  }
+
+  // Default — sem contexto ainda
+  return [
+    "Quanto tempo minha empresa consegue operar com o caixa atual?",
+    "Onde estou perdendo dinheiro no negócio?",
+    "O que acontece se eu perder meu maior cliente?",
+    "Quanto posso retirar da empresa sem prejudicar o negócio?",
+    "Posso contratar mais um funcionário agora?",
+    "Vale antecipar recebível pra cobrir o caixa?",
+  ]
+}
 
 function buildPrompt(history: Message[]): string {
   const transcript = history
@@ -362,83 +400,42 @@ function ChatInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [threads, setThreads] = useState<Thread[]>(() =>
-    MOCK_THREADS.map((t) => ({
-      ...t,
-      messages: t.id === "t1" ? PRELOADED_EXAMPLE : [],
-    })),
-  )
-  const [activeId, setActiveId] = useState<string | null>("t1")
+  const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState("")
   const [pending, setPending] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
   const handledQuery = useRef(false)
 
-  const active = activeId ? threads.find((t) => t.id === activeId) ?? null : null
+  // Derivar lastUser e related uma vez
+  const lastUser = [...messages].reverse().find((m) => m.role === "user") as
+    | { id: string; role: "user"; text: string }
+    | undefined
+  const related = relatedQuestionsFor(lastUser?.text ?? null)
+  const chips = chipSetFor(lastUser?.text ?? null)
 
   useEffect(() => {
     if (scroller.current) {
       scroller.current.scrollTop = scroller.current.scrollHeight
     }
-  }, [active?.messages.length, pending])
+  }, [messages.length, pending])
 
   const submit = useCallback(
-    async (raw: string, targetId?: string) => {
+    async (raw: string) => {
       const text = raw.trim()
       if (!text || pending) return
 
-      let tid = targetId ?? activeId
-      const isCreatingFromDraft = !tid
-
-      if (isCreatingFromDraft) {
-        tid = `t-${Date.now()}`
-        const derived = text.length > 52 ? text.slice(0, 52) + "…" : text
-        const fresh: Thread = {
-          id: tid,
-          title: derived,
-          preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
-          when: "Agora",
-          messages: [],
-        }
-        setThreads((prev) => [fresh, ...prev])
-        setActiveId(tid)
-      }
-
       const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text }
-
-      setThreads((prev) => {
-        const idx = prev.findIndex((t) => t.id === tid)
-        if (idx === -1) return prev
-        const target = prev[idx]
-        const isFirstMessage = target.messages.length === 0 || target.title === "Nova conversa"
-        const newTitle = isFirstMessage
-          ? (text.length > 52 ? text.slice(0, 52) + "…" : text)
-          : target.title
-        const updated: Thread = {
-          ...target,
-          title: newTitle,
-          preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
-          when: "Agora",
-          messages: [...target.messages, userMsg],
-        }
-        const others = prev.filter((t) => t.id !== tid)
-        return [updated, ...others]
-      })
+      setMessages((prev) => [...prev, userMsg])
       setDraft("")
       setPending(true)
 
-      const current = threads.find((t) => t.id === tid)
-      const historyForCall = [...(current?.messages ?? []), userMsg]
-
-      const card = await askClaude(historyForCall)
+      const card = await askClaude([...messages, userMsg])
       const cfoupMsg: Message = { id: `c-${Date.now()}`, role: "cfoup", card }
-      setThreads((prev) =>
-        prev.map((t) => (t.id === tid ? { ...t, messages: [...t.messages, cfoupMsg] } : t)),
-      )
+      setMessages((prev) => [...prev, cfoupMsg])
       setPending(false)
     },
-    [activeId, pending, threads],
+    [messages, pending],
   )
 
   // Trata ?q=...&auto=1
@@ -448,26 +445,10 @@ function ChatInner() {
     const auto = searchParams.get("auto")
     if (!q) return
     handledQuery.current = true
-
-    const newId = `t-${Date.now()}`
-    const newThread: Thread = {
-      id: newId,
-      title: q.length > 52 ? q.slice(0, 52) + "…" : q,
-      preview: "Agora",
-      when: "Agora",
-      messages: [],
-    }
-    setThreads((prev) => [newThread, ...prev])
-    setActiveId(newId)
-
-    // Limpa a URL
     router.replace("/chat", { scroll: false })
 
     if (auto === "1") {
-      // Dispara automaticamente
-      setTimeout(() => {
-        submit(q, newId)
-      }, 50)
+      setTimeout(() => submit(q), 50)
     } else {
       setDraft(q)
       setTimeout(() => textarea.current?.focus(), 50)
@@ -475,101 +456,55 @@ function ChatInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function startNewConversation() {
-    setActiveId(null)
-    setDraft("")
-    setTimeout(() => textarea.current?.focus(), 50)
-  }
-
   return (
     <div>
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr]">
-        {/* Histórico de conversas */}
+        {/* Perguntas relacionadas */}
         <aside
-          aria-label="Histórico de conversas"
+          aria-label="Perguntas relacionadas"
           className="hidden border-r border-border bg-muted/40 lg:flex lg:flex-col"
         >
-          <div className="px-6 pb-4 pt-10">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Chat CFOup
-            </p>
-            <h1 className="mt-2 text-xl font-extrabold tracking-tight" style={{ color: "var(--brand-navy)" }}>
-              Suas conversas
-            </h1>
-          </div>
-          <div className="px-4">
-            <button
-              type="button"
-              onClick={startNewConversation}
-              className="flex w-full items-center gap-2 rounded-xl border border-border bg-white px-3.5 py-2.5 text-left text-sm font-semibold text-[var(--brand-navy)] shadow-sm transition hover:border-[var(--brand-blue)]/40"
+          <div className="mb-3 px-6 pt-10">
+            <h2
+              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              style={{ color: "var(--brand-navy)" }}
             >
-              <Plus className="h-4 w-4" strokeWidth={2.2} />
-              Nova conversa
-            </button>
+              Continue a decisão
+            </h2>
           </div>
-
-          <div className="mt-6 flex-1 overflow-y-auto px-3 pb-6">
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Recentes
-            </p>
-            <ul className="space-y-0.5">
-              {threads.map((t) => {
-                const isActive = t.id === activeId
-                return (
-                  <li key={t.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveId(t.id)}
-                      className={cn(
-                        "flex w-full flex-col items-start gap-1 rounded-lg px-3 py-2.5 text-left transition",
-                        isActive ? "bg-white shadow-sm ring-1 ring-border" : "hover:bg-white/70",
-                      )}
-                    >
-                      <span
-                        className="line-clamp-1 text-[13px] font-semibold leading-tight"
-                        style={{ color: isActive ? "var(--brand-navy)" : "var(--slate-700)" }}
-                      >
-                        {t.title}
-                      </span>
-                      <span className="line-clamp-1 text-xs text-muted-foreground">{t.preview}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                        {t.when}
-                      </span>
-                    </button>
-                  </li>
-                )
-              })}
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
+            <ul className="space-y-1">
+              {related.map((q) => (
+                <li key={q}>
+                  <button
+                    type="button"
+                    onClick={() => submit(q)}
+                    className="w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-[var(--slate-700)] transition hover:bg-white/70 hover:text-[var(--brand-navy)]"
+                  >
+                    {q}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         </aside>
 
         {/* Área principal */}
         <div className="flex flex-col bg-background">
-          <header className="mb-3 flex flex-wrap items-start justify-between gap-3 px-6 md:px-10 lg:px-12">
-            <div>
-              <h1
-                className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                Chat CFOup
-              </h1>
-            </div>
-
-            <button
-              type="button"
-              onClick={startNewConversation}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)] lg:hidden"
+          <header className="mb-3 px-6 md:px-10 lg:px-12">
+            <h1
+              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              style={{ color: "var(--brand-navy)" }}
             >
-              <History className="h-4 w-4" />
-              Nova conversa
-            </button>
+              Chat CFOup
+            </h1>
           </header>
 
           {/* Mensagens */}
           <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>
             <div className="mx-auto w-full max-w-3xl px-5 py-10 md:py-12 md:px-8">
-              {(!active || (active.messages.length === 0 && !pending)) && <EmptyState onPick={(q) => submit(q)} />}
-              {active?.messages.map((m) =>
+              {messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
+              {messages.map((m) =>
                 m.role === "user" ? <UserBubble key={m.id} text={m.text} /> : <AnswerCard key={m.id} card={m.card} />,
               )}
               {pending && <PendingBubble />}
@@ -580,20 +515,14 @@ function ChatInner() {
           <div className="border-t border-border bg-background px-5 py-5 md:px-8 md:py-6">
             <div className="mx-auto w-full max-w-3xl">
               <div className="mb-3 flex flex-wrap gap-2">
-                {(() => {
-                  const lastUser = active
-                    ? [...active.messages].reverse().find((m) => m.role === "user") as { role: "user"; text: string } | undefined
-                    : undefined
-                  const chips = chipSetFor(lastUser?.text ?? null)
-                  return chips.map((c) => (
-                    <SuggestionChip
-                      key={c.question}
-                      icon={ChipIconMap[c.icon]}
-                      label={c.label}
-                      onClick={() => submit(c.question)}
-                    />
-                  ))
-                })()}
+                {chips.map((c) => (
+                  <SuggestionChip
+                    key={c.question}
+                    icon={ChipIconMap[c.icon]}
+                    label={c.label}
+                    onClick={() => submit(c.question)}
+                  />
+                ))}
               </div>
 
               <form
