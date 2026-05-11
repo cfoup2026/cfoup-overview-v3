@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { GitBranch, Plus, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
-import { PageHeader } from "@/components/page-header"
 
 type Pct = 20 | 40 | 60
 
@@ -105,69 +104,86 @@ export default function CenariosPage() {
   const data = SCENARIO_DATA[pct]
   return (
     <>
-      <PageHeader
-        eyebrow="Planejamento"
-        title="Cenários"
-        description="Compare decisões antes de tomar. Impacto direto em caixa, margem e fôlego de caixa."
-        actions={
-          <button className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-bold text-white transition hover:brightness-110">
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Novo cenário
-          </button>
-        }
-      />
-
-      {/* Destaque — 4 blocos */}
-      <div className="mb-6 space-y-3">
-        {/* Bloco 1 — Decisão */}
-        <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-            <Target className="h-3.5 w-3.5" />
-            Decisão em teste
-          </div>
-          <h2
-            className="mt-2 max-w-2xl text-balance text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+      <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Planejamento
+          </p>
+          <h1
+            className="mt-0.5 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
             style={{ color: "var(--brand-navy)" }}
           >
-            Antecipar recebíveis segura agosto?
-          </h2>
-          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[var(--slate-700)]">
-            Entra caixa agora, mas a decisão custa margem e pode virar hábito se o aperto voltar.
+            Cenários
+          </h1>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">
+            Teste impacto no caixa antes de decidir.
           </p>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-[11px] font-semibold text-[var(--brand-navy)] hover:border-[var(--brand-blue)]/40"
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
+          Novo cenário
+        </button>
+      </header>
 
-          <div className="mt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Quanto antecipar?
-            </p>
-            <div className="mt-1.5 flex gap-1.5">
-              {([20, 40, 60] as Pct[]).map((v) => {
-                const active = pct === v
-                return (
-                  <button
-                    key={v}
-                    type="button"
-                    onClick={() => setPct(v)}
-                    className={
-                      active
-                        ? "h-7 px-3 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition"
-                        : "h-7 px-3 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition"
-                    }
-                    style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
-                  >
-                    {v}%
-                  </button>
-                )
-              })}
+      {/* Destaque — 4 blocos */}
+      <div className="mb-4 space-y-2">
+        {/* Bloco 1 — Decisão */}
+        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
+            <Target className="h-3 w-3" />
+            Decisão em teste
+          </div>
+
+          <div className="mt-1.5 flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h2
+                className="max-w-2xl text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                Antecipar recebíveis segura agosto?
+              </h2>
+              <p className="mt-1 max-w-2xl text-[12px] leading-snug text-[var(--slate-700)]">
+                Entra caixa agora, mas a decisão custa margem e pode virar hábito se o aperto voltar.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
+                Quanto antecipar?
+              </p>
+              <div className="flex gap-1">
+                {([20, 40, 60] as Pct[]).map((v) => {
+                  const active = pct === v
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setPct(v)}
+                      className={
+                        active
+                          ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition"
+                          : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition"
+                      }
+                      style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
+                    >
+                      {v}%
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </section>
 
         {/* Bloco 2 — Caixa antes e depois */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
-          <h3 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        <section className="overflow-hidden rounded-2xl border border-border bg-hero-gradient p-3 md:p-4">
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
             Caixa antes e depois
           </h3>
-          <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <div className="mt-2 grid gap-2 md:grid-cols-3">
             <ImpactTile label="Caixa hoje" value={CAIXA_HOJE} tone="neutral" detail="saldo atual" />
             <ImpactTile label="Sem agir" value={CAIXA_MIN_SEM_AGIR.value} tone="negative" detail={CAIXA_MIN_SEM_AGIR.sub} />
             <ImpactTile
@@ -177,17 +193,17 @@ export default function CenariosPage() {
               detail={data.caixaMinComDecisao.sub}
             />
           </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
+          <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
             {data.antesDepoisReading}
           </p>
         </section>
 
         {/* Bloco 3 — Consequência da decisão */}
-        <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-          <h3 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
             Consequência da decisão
           </h3>
-          <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <div className="mt-2 grid gap-2 md:grid-cols-3">
             <ImpactTile label="Caixa agora" value={data.caixa} tone="positive" detail="entra em até 2 dias" />
             <ImpactTile label="Custo da decisão" value={data.custo} tone="negative" detail="sai do resultado do mês" />
             <ImpactTile label="Fôlego de caixa" value={data.folego} tone="neutral" detail={data.folegoDetail} />
@@ -195,11 +211,11 @@ export default function CenariosPage() {
         </section>
 
         {/* Bloco 4 — Próximas 13 semanas */}
-        <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-          <h3 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
             Próximas 13 semanas
           </h3>
-          <div className="mt-3 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1">
+          <div className="mt-2 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-0.5">
             {data.weeks.map((w) => {
               const color =
                 w.tone === "positive" ? "var(--brand-green-dark)" :
@@ -210,36 +226,34 @@ export default function CenariosPage() {
               return (
                 <div
                   key={w.label}
-                  className="flex min-h-[48px] flex-col items-center justify-start gap-1 rounded py-1.5"
-                  style={{ background: hasEffect ? "rgba(21,103,200,0.04)" : "transparent" }}
+                  className="flex min-h-[36px] flex-col items-center justify-center gap-0.5 rounded py-1"
+                  style={{ background: hasEffect ? "rgba(21,103,200,0.10)" : "transparent" }}
                 >
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
                     {w.label}
                   </span>
-                  {hasEffect ? (
+                  {hasEffect && (
                     <span
-                      className="text-[9px] font-semibold uppercase leading-tight tracking-[0.06em] text-center"
+                      className="text-[9px] font-semibold uppercase leading-none tracking-[0.04em] text-center px-0.5"
                       style={{ color }}
                     >
                       {(w as Exclude<WeekEffect, { tone: "empty" }>).text}
                     </span>
-                  ) : (
-                    <span className="text-[10px] leading-none text-muted-foreground">—</span>
                   )}
                 </div>
               )
             })}
           </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
+          <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
             {data.leitura}
           </p>
         </section>
 
         {/* Link textual pequeno */}
-        <div className="flex justify-end pt-1">
+        <div className="flex justify-end">
           <Link
             href={`/chat?q=${encodeURIComponent(data.chatQuery)}&auto=1`}
-            className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand-blue)] hover:underline"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
           >
             Discutir com o CFOup
             <ArrowUpRight className="h-3 w-3" />
@@ -249,8 +263,8 @@ export default function CenariosPage() {
 
       {/* Lista de cenários */}
       <section aria-labelledby="cenarios-list" className="rounded-2xl border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border px-4 md:px-5 py-3">
-          <h3 id="cenarios-list" className="text-[13px] font-bold" style={{ color: "var(--brand-navy)" }}>
+        <div className="flex items-center justify-between border-b border-border px-3 md:px-4 py-2">
+          <h3 id="cenarios-list" className="text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
             Outras decisões para testar
           </h3>
           <p className="text-[11px] text-muted-foreground">3 prontas pra testar</p>
@@ -281,65 +295,45 @@ type WeekEffect =
   | { label: string; tone: "positive" | "negative" | "neutral"; text: string }
   | { label: string; tone: "empty" }
 
-function ImpactTile({
-  label,
-  value,
-  tone,
-  detail,
-}: {
-  label: string
-  value: string
-  tone: "positive" | "negative" | "neutral"
-  detail: string
-}) {
+function ImpactTile({ label, value, tone, detail }: { label: string; value: string; tone: "positive" | "negative" | "neutral"; detail: string }) {
   const color =
-    tone === "positive"
-      ? "var(--brand-green-dark)"
-      : tone === "negative"
-        ? "var(--brand-red)"
-        : "var(--brand-navy)"
+    tone === "positive" ? "var(--brand-green-dark)" :
+    tone === "negative" ? "var(--brand-red)" :
+    "var(--brand-navy)"
   const Icon = tone === "positive" ? TrendingUp : tone === "negative" ? TrendingDown : GitBranch
   return (
-    <div className="rounded-xl border border-border bg-white/80 p-4">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" />
+    <div className="rounded-xl border border-border bg-white/85 p-3">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <Icon className="h-3 w-3" />
         {label}
       </div>
-      <p className="mt-2 text-[1.35rem] md:text-[1.45rem] font-extrabold leading-none tabular-nums" style={{ color }}>
+      <p className="mt-1.5 text-[1.35rem] font-extrabold leading-none tabular-nums" style={{ color }}>
         {value}
       </p>
-      <p className="mt-1.5 text-[11px] text-muted-foreground">{detail}</p>
+      <p className="mt-1 text-[10.5px] text-muted-foreground">{detail}</p>
     </div>
   )
 }
 
-function ScenarioRow({
-  title,
-  summary,
-  impact,
-}: {
-  title: string
-  summary: string
-  impact: string
-}) {
+function ScenarioRow({ title, summary, impact }: { title: string; summary: string; impact: string }) {
   return (
-    <li className="flex flex-col gap-2 px-4 md:px-5 py-3 md:flex-row md:items-center md:justify-between">
+    <li className="flex flex-col gap-1 px-3 md:px-4 py-2 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0 md:max-w-[58%]">
-        <span className="text-[13px] font-bold" style={{ color: "var(--brand-navy)" }}>
+        <span className="text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
           {title}
         </span>
-        <p className="mt-0.5 text-[12px] text-muted-foreground">{summary}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{summary}</p>
       </div>
-      <div className="flex items-center justify-between gap-3 md:justify-end">
-        <span className="text-[13px] font-semibold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+      <div className="flex items-center justify-between gap-2 md:justify-end">
+        <span className="text-[12px] font-semibold tabular-nums" style={{ color: "var(--brand-navy)" }}>
           {impact}
         </span>
         <button
-          className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--brand-blue)] hover:underline"
+          className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
           type="button"
         >
           Testar
-          <ArrowUpRight className="h-3.5 w-3.5" />
+          <ArrowUpRight className="h-3 w-3" />
         </button>
       </div>
     </li>
