@@ -307,6 +307,46 @@ const EVENTOS_CELULA_MOCK: EventoCelula[] = [
   { id: "e3", data: "10/05", contraparte: "Cliente GHI", valor: 10187, status: "estimado" },
 ]
 
+// ---------------------------------------------------------------------
+// Tipos de origem de dados e mocks
+// ---------------------------------------------------------------------
+type CelulaOrigem = "documento" | "estimativa" | "manual"
+
+const ROW_ORIGEM: Record<string, CelulaOrigem> = {
+  "cr_receber": "documento",
+  "cr_recuperacao": "documento",
+  "cp_pagar": "documento",
+  "cp_vencidos": "documento",
+  "folha": "estimativa",
+  "tributos": "estimativa",
+  "encargos": "estimativa",
+  "despesas": "estimativa",
+  "outras": "manual",
+}
+
+const ESTIMATIVA_MOCK = {
+  metodo: "Padrão recorrente dos últimos 3 anos",
+  periodo: "2023–2025",
+  confianca: "Média" as const,
+}
+
+const MANUAL_MOCK = {
+  data: "15/05/2026",
+  contraparte: "Cliente ABC Ltda",
+  valor: 61000,
+  status: "estimado" as const,
+  confianca: "Média" as const,
+  obs: "Cliente confirmou pagamento via WhatsApp",
+}
+
+function getOrigem(rowId: string | undefined): CelulaOrigem {
+  if (!rowId) return "estimativa"
+  for (const [k, v] of Object.entries(ROW_ORIGEM)) {
+    if (rowId.includes(k)) return v
+  }
+  return "estimativa"
+}
+
 type Semana = { numero: number; dateRange: string; caixaInicial: number; caixaFinal: number; minimo: number; totalEntradas: number; totalSaidas: number; liquido: number }
 const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -76600, caixaFinal: -103819, minimo: -110000, totalEntradas: 0, totalSaidas: 15018, liquido: -15018 }
 
@@ -1689,42 +1729,92 @@ function DataRow({
           className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
         />
       </tr>
-      {expandedWeekIdx !== null && expandedWeekIdx !== undefined && EVENTOS_CELULA_MOCK.map((e, idx) => (
-        <tr
-          key={`${rowId}-sub-${idx}`}
-          className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
-          style={{ background: "rgba(21,103,200,0.03)" }}
-          onClick={onEventoFromExpansion}
-        >
-          <td
-            className="pl-8 pr-3 py-1.5 text-[11px] text-muted-foreground"
-            style={{ position: "sticky", left: 0, zIndex: 1, background: "rgba(21,103,200,0.03)", borderBottom }}
-          >
-            <span className="font-medium text-[var(--brand-navy)]">{e.data}</span>
-            <span className="mx-1.5">·</span>
-            {e.contraparte}
-            <span
-              className="ml-2 text-[10px] font-semibold"
-              style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+      {expandedWeekIdx !== null && expandedWeekIdx !== undefined && (() => {
+        const origem = getOrigem(rowId)
+        const SUB_BG = "rgba(21,103,200,0.03)"
+        const SUB_BG_ACTIVE = "rgba(21,103,200,0.06)"
+
+        if (origem === "documento") {
+          return EVENTOS_CELULA_MOCK.map((e, idx) => (
+            <tr
+              key={`${rowId}-sub-${idx}`}
+              className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
+              style={{ background: SUB_BG }}
+              onClick={onEventoFromExpansion}
             >
-              {e.status}
-            </span>
-          </td>
-          {values.map((_, i) => (
-            <td
-              key={i}
-              className="py-1.5 text-right text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]"
-              style={{ background: i === expandedWeekIdx ? "rgba(21,103,200,0.06)" : "rgba(21,103,200,0.03)", borderBottom }}
+              <td
+                className="pl-12 pr-3 py-1.5 text-[11px] text-muted-foreground"
+                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
+              >
+                <span className="font-medium text-[var(--brand-navy)]">{e.data}</span>
+                <span className="mx-1.5">·</span>
+                {e.contraparte}
+                <span
+                  className="ml-2 text-[10px] font-semibold"
+                  style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+                >
+                  {e.status}
+                </span>
+              </td>
+              {values.map((_, i) => (
+                <td
+                  key={i}
+                  className="py-1.5 text-right text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]"
+                  style={{ background: i === expandedWeekIdx ? SUB_BG_ACTIVE : SUB_BG, borderBottom }}
+                >
+                  {i === expandedWeekIdx ? `R$ ${e.valor.toLocaleString("pt-BR")}` : ""}
+                </td>
+              ))}
+              <td className="text-right py-1.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ background: SUB_BG, borderBottom }}>
+                R$ {e.valor.toLocaleString("pt-BR")}
+              </td>
+              <td style={{ background: SUB_BG, borderBottom }} />
+            </tr>
+          ))
+        }
+
+        if (origem === "estimativa") {
+          return (
+            <tr style={{ background: SUB_BG }}>
+              <td
+                colSpan={values.length + 3}
+                className="pl-12 py-2.5 text-[11px]"
+                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
+              >
+                <p className="font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
+                <p className="text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
+                <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
+              </td>
+            </tr>
+          )
+        }
+
+        if (origem === "manual") {
+          return (
+            <tr
+              className="cursor-pointer hover:bg-[rgba(21,103,200,0.05)] transition"
+              style={{ background: SUB_BG }}
+              onClick={onEventoFromExpansion}
             >
-              {i === expandedWeekIdx ? `R$ ${e.valor.toLocaleString("pt-BR")}` : ""}
-            </td>
-          ))}
-          <td className="text-right py-1.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ borderBottom }}>
-            R$ {e.valor.toLocaleString("pt-BR")}
-          </td>
-          <td style={{ borderBottom }} />
-        </tr>
-      ))}
+              <td
+                colSpan={values.length + 2}
+                className="pl-12 py-2.5 text-[11px]"
+                style={{ position: "sticky", left: 0, zIndex: 1, background: SUB_BG, borderBottom }}
+              >
+                <p className="font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
+                <p className="text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
+                <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
+                {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
+              </td>
+              <td className="text-right pr-3 py-2.5 text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]" style={{ background: SUB_BG, borderBottom }}>
+                R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}
+              </td>
+            </tr>
+          )
+        }
+
+        return null
+      })()}
     </>
   )
 }
