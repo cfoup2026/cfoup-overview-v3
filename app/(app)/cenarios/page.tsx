@@ -2,106 +2,245 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { GitBranch, Plus, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
+import { GitBranch, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
 
-type Pct = 20 | 40 | 60
+type Tone = "positive" | "negative" | "neutral"
 
-type ScenarioData = {
-  caixa: string
-  custo: string
-  folego: string
-  folegoDetail: string
-  weeks: WeekEffect[]
-  leitura: string
-  chatQuery: string
-  caixaMinComDecisao: { value: string; sub: string; tone: "positive" | "negative" }
-  antesDepoisReading: string
+type DecisionState = {
+  caixaMinComDecisao: { value: string; sub: string; tone: "positive" | "negative"; delta: string }
+  consequences: {
+    caixa:  { value: string; detail: string; tone: Tone }
+    custo:  { value: string; detail: string; tone: Tone }
+    folego: { value: string; detail: string; tone: Tone }
+  }
+  trajectoryComDecisao: number[]
+  reading: string
+  chatPrompt: string
+}
+
+type Decision = {
+  id: string
+  alavanca: string
+  question: string
+  context: string
+  shortSummary: string
+  paramLabel: string
+  params: { label: string; value: string }[]
+  defaultParam: string
+  impactSummary: string
+  states: Record<string, DecisionState>
 }
 
 const CAIXA_HOJE = "R$ 34,4k"
-const CAIXA_MIN_SEM_AGIR = { value: "−R$ 25,6k", sub: "na S3" }
+const SEM_AGIR = { value: "−R$ 25,6k", sub: "ponto de ruptura · S3" }
+const TRAJECTORY_SEM_AGIR = [30, 25, -25.6, -30, -45, -52, -60, -70, -75, -80, -85, -88, -92]
+const WEEKS_LABELS = ["S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13"]
 
-const SCENARIO_DATA: Record<Pct, ScenarioData> = {
-  20: {
-    caixa: "+ R$ 122,4k",
-    custo: "− R$ 3,5k",
-    folego: "8,6 meses",
-    folegoDetail: "ganha umas 2 semanas",
-    weeks: [
-      { label: "S1",  tone: "positive", text: "entra caixa" },
-      { label: "S2",  tone: "empty" },
-      { label: "S3",  tone: "neutral",  text: "alivia" },
-      { label: "S4",  tone: "negative", text: "custo aparece" },
-      { label: "S5",  tone: "empty" },
-      { label: "S6",  tone: "empty" },
-      { label: "S7",  tone: "empty" },
-      { label: "S8",  tone: "empty" },
-      { label: "S9",  tone: "empty" },
-      { label: "S10", tone: "empty" },
-      { label: "S11", tone: "empty" },
-      { label: "S12", tone: "empty" },
-      { label: "S13", tone: "empty" },
-    ],
-    leitura: "Antecipação leve — alivia sem gastar muito, mas se o aperto for maior o caixa não aguenta.",
-    chatQuery: "Analisa o cenário de antecipar 20% dos recebíveis (R$ 122,4k de caixa, R$ 3,5k de custo). Vale agora?",
-    caixaMinComDecisao: { value: "R$ 12,4k", sub: "na S3", tone: "positive" },
-    antesDepoisReading: "Ajuda, mas ainda deixa pouco espaço se entrar atraso.",
+const DECISIONS: Decision[] = [
+  {
+    id: "antecipar-recebiveis",
+    alavanca: "Antecipar recebíveis",
+    question: "Antecipar recebíveis segura agosto?",
+    context: "Entra caixa agora, mas a decisão custa margem e pode virar hábito se o aperto voltar.",
+    shortSummary: "Cobrir aperto de caixa antes do pico de venda",
+    paramLabel: "Quanto antecipar?",
+    params: [{ label: "20%", value: "20" }, { label: "40%", value: "40" }, { label: "60%", value: "60" }],
+    defaultParam: "40",
+    impactSummary: "+R$ 244,8k caixa / −R$ 7,1k custo",
+    states: {
+      "20": {
+        caixaMinComDecisao: { value: "R$ 12,4k", sub: "na S3", tone: "positive", delta: "+R$ 38k vs sem agir" },
+        consequences: {
+          caixa:  { value: "+ R$ 122,4k", detail: "entra em até 2 dias",       tone: "positive" },
+          custo:  { value: "− R$ 3,6k",   detail: "sai do resultado do mês",   tone: "negative" },
+          folego: { value: "8,7 meses",   detail: "ganha cerca de 2 semanas",  tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, 12.4, 5, -5, -10, -15, -25, -30, -40, -45, -55, -65],
+        reading: "Ajuda, mas ainda deixa pouco espaço se entrar atraso.",
+        chatPrompt: "Analisa antecipar 20% dos recebíveis (R$ 122,4k caixa, R$ 3,6k custo). Vale agora?",
+      },
+      "40": {
+        caixaMinComDecisao: { value: "R$ 78,9k", sub: "na S3", tone: "positive", delta: "+R$ 104,5k vs sem agir" },
+        consequences: {
+          caixa:  { value: "+ R$ 244,8k", detail: "entra em até 2 dias",     tone: "positive" },
+          custo:  { value: "− R$ 7,1k",   detail: "sai do resultado do mês", tone: "negative" },
+          folego: { value: "9,1 meses",   detail: "ganha quase 1 mês",       tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, 78.9, 71, 60, 50, 40, 30, 20, 10, 0, -10, -20],
+        reading: "Resolve agosto com folga, mas custa R$ 7,1k.",
+        chatPrompt: "Analisa antecipar 40% dos recebíveis (R$ 244,8k caixa, R$ 7,1k custo). Vale agora?",
+      },
+      "60": {
+        caixaMinComDecisao: { value: "R$ 142,3k", sub: "na S3", tone: "positive", delta: "+R$ 167,9k vs sem agir" },
+        consequences: {
+          caixa:  { value: "+ R$ 367,2k", detail: "entra em até 2 dias",          tone: "positive" },
+          custo:  { value: "− R$ 10,6k",  detail: "sai do resultado do mês",      tone: "negative" },
+          folego: { value: "9,5 meses",   detail: "resolve agosto, aperta set.",  tone: "negative" },
+        },
+        trajectoryComDecisao: [30, 25, 142.3, 135, 120, 100, 80, 50, 30, 10, -10, -25, -40],
+        reading: "Resolve agosto, mas drena setembro porque você puxou pra frente o que entraria depois.",
+        chatPrompt: "Analisa antecipar 60% dos recebíveis (R$ 367,2k caixa, R$ 10,6k custo). Vale agora?",
+      },
+    },
   },
-  40: {
-    caixa: "+ R$ 244,8k",
-    custo: "− R$ 7,1k",
-    folego: "9,1 meses",
-    folegoDetail: "ganha quase 1 mês",
-    weeks: [
-      { label: "S1",  tone: "positive", text: "entra caixa" },
-      { label: "S2",  tone: "empty" },
-      { label: "S3",  tone: "neutral",  text: "evita aperto" },
-      { label: "S4",  tone: "negative", text: "custo aparece" },
-      { label: "S5",  tone: "empty" },
-      { label: "S6",  tone: "empty" },
-      { label: "S7",  tone: "empty" },
-      { label: "S8",  tone: "empty" },
-      { label: "S9",  tone: "empty" },
-      { label: "S10", tone: "empty" },
-      { label: "S11", tone: "empty" },
-      { label: "S12", tone: "empty" },
-      { label: "S13", tone: "empty" },
-    ],
-    leitura: "Esse cenário compra fôlego agora, mas custa R$ 7,1k e não corrige a causa se o aperto voltar no mês seguinte.",
-    chatQuery: "Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale agora?",
-    caixaMinComDecisao: { value: "R$ 78,9k", sub: "na S3", tone: "positive" },
-    antesDepoisReading: "Resolve agosto com folga, mas custa R$ 7,1k.",
+  {
+    id: "adiar-fornecedor",
+    alavanca: "Adiar fornecedor",
+    question: "Adiar fornecedor segura agosto?",
+    context: "Não custa juros, mas mexe na relação com quem te abastece.",
+    shortSummary: "Postergar pagamento sem queimar a relação",
+    paramLabel: "Adiar quantos dias?",
+    params: [{ label: "7 dias", value: "7" }, { label: "15 dias", value: "15" }, { label: "30 dias", value: "30" }],
+    defaultParam: "15",
+    impactSummary: "Sem custo direto / risco relacional",
+    states: {
+      "7": {
+        caixaMinComDecisao: { value: "−R$ 8,2k", sub: "na S3", tone: "negative", delta: "+R$ 17,4k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0",       detail: "não entra caixa novo",  tone: "neutral"  },
+          custo:  { value: "sem juros",  detail: "fornecedor não cobra",  tone: "positive" },
+          folego: { value: "8,3 meses",  detail: "ganha 1 semana",        tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -8.2, -12, -25, -35, -45, -55, -65, -75, -80, -85, -90],
+        reading: "Adia o aperto em uma semana. Pode não bastar se outro pagamento aparecer.",
+        chatPrompt: "Vale adiar 7 dias o pagamento do fornecedor pra cobrir o aperto da S3?",
+      },
+      "15": {
+        caixaMinComDecisao: { value: "R$ 12,8k", sub: "na S3", tone: "positive", delta: "+R$ 38,4k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0",       detail: "não entra caixa novo",  tone: "neutral"  },
+          custo:  { value: "sem juros",  detail: "fornecedor não cobra",  tone: "positive" },
+          folego: { value: "8,7 meses",  detail: "ganha 2 semanas",       tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, 12.8, 5, -10, -25, -40, -50, -60, -70, -78, -85, -90],
+        reading: "Adiar 15 dias resolve agosto. Confirmar com o fornecedor antes pra não pegar de surpresa.",
+        chatPrompt: "Vale adiar 15 dias o pagamento do fornecedor?",
+      },
+      "30": {
+        caixaMinComDecisao: { value: "R$ 56,2k", sub: "na S3", tone: "positive", delta: "+R$ 81,8k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0",            detail: "não entra caixa novo",      tone: "neutral"  },
+          custo:  { value: "risco relacional", detail: "fornecedor pode reagir",   tone: "negative" },
+          folego: { value: "9,0 meses",       detail: "ganha 1 mês",               tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, 56.2, 50, 40, 25, 10, -5, -20, -40, -55, -70, -85],
+        reading: "30 dias dá fôlego, mas pode queimar a relação. Avaliar se vale o custo invisível.",
+        chatPrompt: "Adiar 30 dias o fornecedor crítico — vale o risco relacional?",
+      },
+    },
   },
-  60: {
-    caixa: "+ R$ 367,2k",
-    custo: "− R$ 10,6k",
-    folego: "9,8 meses",
-    folegoDetail: "ganha quase 2 meses",
-    weeks: [
-      { label: "S1",  tone: "positive", text: "entra caixa" },
-      { label: "S2",  tone: "empty" },
-      { label: "S3",  tone: "neutral",  text: "sobra folga" },
-      { label: "S4",  tone: "negative", text: "custo alto" },
-      { label: "S5",  tone: "empty" },
-      { label: "S6",  tone: "empty" },
-      { label: "S7",  tone: "empty" },
-      { label: "S8",  tone: "empty" },
-      { label: "S9",  tone: "empty" },
-      { label: "S10", tone: "empty" },
-      { label: "S11", tone: "empty" },
-      { label: "S12", tone: "empty" },
-      { label: "S13", tone: "empty" },
-    ],
-    leitura: "Antecipação forte — fôlego de sobra, mas o custo de R$ 10,6k machuca se não tiver destino certo pro dinheiro.",
-    chatQuery: "Analisa o cenário de antecipar 60% dos recebíveis (R$ 367,2k de caixa, R$ 10,6k de custo). Vale agora?",
-    caixaMinComDecisao: { value: "R$ 142,3k", sub: "na S3", tone: "positive" },
-    antesDepoisReading: "Dá bastante caixa agora, mas custa caro e pode virar dependência.",
+  {
+    id: "reajustar-linha-b",
+    alavanca: "Reajustar preço da Linha B",
+    question: "Reajustar Linha B salva o resultado?",
+    context: "Recupera margem, mas o efeito no caixa demora a aparecer.",
+    shortSummary: "Corrigir margem sem perder cliente bom",
+    paramLabel: "Qual reajuste?",
+    params: [{ label: "+3%", value: "3" }, { label: "+5%", value: "5" }, { label: "+8%", value: "8" }],
+    defaultParam: "5",
+    impactSummary: "+R$ 18,4k/mês se volume segurar",
+    states: {
+      "3": {
+        caixaMinComDecisao: { value: "−R$ 14,2k", sub: "na S3", tone: "negative", delta: "+R$ 11,4k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0 agora",  detail: "efeito a partir da S6",   tone: "neutral"  },
+          custo:  { value: "risco baixo", detail: "cliente quase não reage", tone: "positive" },
+          folego: { value: "8,4 meses",   detail: "ganha 1 semana",          tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -14.2, -18, -28, -32, -38, -45, -50, -58, -62, -68, -72],
+        reading: "Aumento modesto. Segura cliente, mas o caixa só sente o efeito daqui a 30-45 dias.",
+        chatPrompt: "Reajustar a Linha B em 3% — vale pra recuperar margem sem espantar cliente?",
+      },
+      "5": {
+        caixaMinComDecisao: { value: "−R$ 3,5k", sub: "na S3", tone: "negative", delta: "+R$ 22,1k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0 agora",  detail: "efeito a partir da S5",    tone: "neutral"  },
+          custo:  { value: "risco médio", detail: "alguns podem reclamar",    tone: "negative" },
+          folego: { value: "8,6 meses",   detail: "ganha 2 semanas",          tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -3.5, -6, -15, -18, -22, -26, -30, -36, -40, -45, -50],
+        reading: "Cresce margem sem espantar volume. O caixa começa a sentir na S5.",
+        chatPrompt: "Reajustar a Linha B em 5% — qual o risco de perder cliente?",
+      },
+      "8": {
+        caixaMinComDecisao: { value: "R$ 14,8k", sub: "na S3", tone: "positive", delta: "+R$ 40,4k vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0 agora",   detail: "efeito a partir da S4",      tone: "neutral"  },
+          custo:  { value: "risco alto",   detail: "cliente médio pode sair",    tone: "negative" },
+          folego: { value: "8,8 meses",    detail: "ganha 3 semanas",            tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, 14.8, 11, 3, -2, -8, -10, -12, -15, -18, -22, -25],
+        reading: "Recupera margem rápido, mas pode perder cliente médio. Avaliar antes quem aguenta o repasse.",
+        chatPrompt: "Reajustar a Linha B em 8% — qual o impacto se perder 1-2 clientes médios?",
+      },
+    },
   },
-}
+  {
+    id: "reduzir-retirada",
+    alavanca: "Reduzir retirada",
+    question: "Reduzir retirada cobre o mês?",
+    context: "Alívio no caixa, mas pesa direto no seu bolso.",
+    shortSummary: "Segurar pró-labore pra dar fôlego ao caixa",
+    paramLabel: "Quanto reduzir?",
+    params: [{ label: "Manter", value: "manter" }, { label: "Cortar 50%", value: "metade" }, { label: "Suspender", value: "zero" }],
+    defaultParam: "metade",
+    impactSummary: "+R$ 12,5k a +R$ 25k de fôlego direto",
+    states: {
+      "manter": {
+        caixaMinComDecisao: { value: "−R$ 25,6k", sub: "na S3", tone: "negative", delta: "0 vs sem agir" },
+        consequences: {
+          caixa:  { value: "R$ 0",       detail: "nada muda",        tone: "neutral"  },
+          custo:  { value: "renda intacta", detail: "você mantém os R$ 25k", tone: "positive" },
+          folego: { value: "8,2 meses",  detail: "sem mudança",      tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -25.6, -30, -45, -52, -60, -70, -75, -80, -85, -88, -92],
+        reading: "Sem mudança. O caixa quebra do mesmo jeito.",
+        chatPrompt: "Mantendo a retirada como está, o que muda no mês?",
+      },
+      "metade": {
+        caixaMinComDecisao: { value: "−R$ 13,1k", sub: "na S3", tone: "negative", delta: "+R$ 12,5k vs sem agir" },
+        consequences: {
+          caixa:  { value: "+R$ 12,5k", detail: "fica na empresa",   tone: "positive" },
+          custo:  { value: "renda menor", detail: "você recebe metade", tone: "negative" },
+          folego: { value: "8,4 meses",  detail: "ganha 1 semana",   tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -13.1, -17, -30, -38, -45, -55, -62, -70, -75, -80, -85],
+        reading: "Alivia o caixa, mas pesa no bolso. Solução de um mês, não de hábito.",
+        chatPrompt: "Reduzir retirada pela metade este mês — vale a pena?",
+      },
+      "zero": {
+        caixaMinComDecisao: { value: "−R$ 0,6k", sub: "na S3", tone: "negative", delta: "+R$ 25k vs sem agir" },
+        consequences: {
+          caixa:  { value: "+R$ 25k",   detail: "fica todo na empresa",  tone: "positive" },
+          custo:  { value: "renda zero", detail: "você não recebe este mês", tone: "negative" },
+          folego: { value: "8,7 meses", detail: "ganha 3 semanas",      tone: "neutral"  },
+        },
+        trajectoryComDecisao: [30, 25, -0.6, -4, -15, -23, -32, -42, -50, -58, -65, -72, -78],
+        reading: "Resolve o aperto sem custo financeiro, mas você fica sem renda este mês.",
+        chatPrompt: "Suspender retirada este mês — vale o sacrifício?",
+      },
+    },
+  },
+]
 
 export default function CenariosPage() {
-  const [pct, setPct] = useState<Pct>(40)
-  const data = SCENARIO_DATA[pct]
+  const [activeId, setActiveId] = useState<string>("antecipar-recebiveis")
+  const [paramByDecision, setParamByDecision] = useState<Record<string, string>>(
+    Object.fromEntries(DECISIONS.map((d) => [d.id, d.defaultParam]))
+  )
+
+  const activeDecision = DECISIONS.find((d) => d.id === activeId)!
+  const activeParam = paramByDecision[activeId]
+  const currentState = activeDecision.states[activeParam]
+
+  function setParam(value: string) {
+    setParamByDecision((prev) => ({ ...prev, [activeId]: value }))
+  }
+
+  function activateDecision(id: string) {
+    setActiveId(id)
+  }
+
   return (
     <>
       <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -119,13 +258,6 @@ export default function CenariosPage() {
             Teste impacto no caixa antes de decidir.
           </p>
         </div>
-        <button
-          type="button"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-[11px] font-semibold text-[var(--brand-navy)] hover:border-[var(--brand-blue)]/40"
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={2.2} />
-          Novo cenário
-        </button>
       </header>
 
       {/* Destaque — 4 blocos */}
@@ -143,33 +275,33 @@ export default function CenariosPage() {
                 className="max-w-2xl text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
                 style={{ color: "var(--brand-navy)" }}
               >
-                Antecipar recebíveis segura agosto?
+                {activeDecision.question}
               </h2>
-              <p className="mt-1 max-w-2xl text-[12px] leading-snug text-[var(--slate-700)]">
-                Entra caixa agora, mas a decisão custa margem e pode virar hábito se o aperto voltar.
+              <p className="mt-1 max-w-2xl text-[11px] leading-snug text-muted-foreground">
+                {activeDecision.context}
               </p>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
-                Quanto antecipar?
+                {activeDecision.paramLabel}
               </p>
               <div className="flex gap-1">
-                {([20, 40, 60] as Pct[]).map((v) => {
-                  const active = pct === v
+                {activeDecision.params.map((p) => {
+                  const active = activeParam === p.value
                   return (
                     <button
-                      key={v}
+                      key={p.value}
                       type="button"
-                      onClick={() => setPct(v)}
+                      onClick={() => setParam(p.value)}
                       className={
                         active
-                          ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition"
-                          : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition"
+                          ? "h-6 px-2.5 text-[11px] font-semibold rounded-full bg-[rgba(21,103,200,0.10)] text-[var(--brand-blue)] transition whitespace-nowrap"
+                          : "h-6 px-2.5 text-[11px] font-semibold rounded-full border border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)] transition whitespace-nowrap"
                       }
                       style={active ? { border: "0.5px solid rgba(21,103,200,0.40)" } : { borderWidth: "0.5px" }}
                     >
-                      {v}%
+                      {p.label}
                     </button>
                   )
                 })}
@@ -185,16 +317,16 @@ export default function CenariosPage() {
           </h3>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
             <ImpactTile label="Caixa hoje" value={CAIXA_HOJE} tone="neutral" detail="saldo atual" />
-            <ImpactTile label="Sem agir" value={CAIXA_MIN_SEM_AGIR.value} tone="negative" detail={CAIXA_MIN_SEM_AGIR.sub} />
+            <ImpactTile label="Sem agir" value={SEM_AGIR.value} tone="negative" detail={SEM_AGIR.sub} />
             <ImpactTile
               label="Com esta decisão"
-              value={data.caixaMinComDecisao.value}
-              tone={data.caixaMinComDecisao.tone}
-              detail={data.caixaMinComDecisao.sub}
+              value={currentState.caixaMinComDecisao.value}
+              tone={currentState.caixaMinComDecisao.tone}
+              detail={currentState.caixaMinComDecisao.delta}
             />
           </div>
           <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
-            {data.antesDepoisReading}
+            {currentState.reading}
           </p>
         </section>
 
@@ -204,55 +336,60 @@ export default function CenariosPage() {
             Consequência da decisão
           </h3>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <ImpactTile label="Caixa agora" value={data.caixa} tone="positive" detail="entra em até 2 dias" />
-            <ImpactTile label="Custo da decisão" value={data.custo} tone="negative" detail="sai do resultado do mês" />
-            <ImpactTile label="Fôlego de caixa" value={data.folego} tone="neutral" detail={data.folegoDetail} />
+            <ImpactTile
+              label="Caixa agora"
+              value={currentState.consequences.caixa.value}
+              tone={currentState.consequences.caixa.tone}
+              detail={currentState.consequences.caixa.detail}
+            />
+            <ImpactTile
+              label="Custo da decisão"
+              value={currentState.consequences.custo.value}
+              tone={currentState.consequences.custo.tone}
+              detail={currentState.consequences.custo.detail}
+            />
+            <ImpactTile
+              label="Fôlego de caixa"
+              value={currentState.consequences.folego.value}
+              tone={currentState.consequences.folego.tone}
+              detail={currentState.consequences.folego.detail}
+            />
           </div>
         </section>
 
-        {/* Bloco 4 — Próximas 13 semanas */}
+        {/* Bloco 4 — Trajetória do caixa */}
         <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
-            Próximas 13 semanas
-          </h3>
-          <div className="mt-2 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-0.5">
-            {data.weeks.map((w) => {
-              const color =
-                w.tone === "positive" ? "var(--brand-green-dark)" :
-                w.tone === "negative" ? "var(--brand-red)" :
-                w.tone === "neutral"  ? "var(--brand-cyan)" :
-                "var(--muted-foreground)"
-              const hasEffect = w.tone !== "empty"
-              return (
-                <div
-                  key={w.label}
-                  className="flex min-h-[36px] flex-col items-center justify-center gap-0.5 rounded py-1"
-                  style={{ background: hasEffect ? "rgba(21,103,200,0.10)" : "transparent" }}
-                >
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
-                    {w.label}
-                  </span>
-                  {hasEffect && (
-                    <span
-                      className="text-[9px] font-semibold uppercase leading-none tracking-[0.04em] text-center px-0.5"
-                      style={{ color }}
-                    >
-                      {(w as Exclude<WeekEffect, { tone: "empty" }>).text}
-                    </span>
-                  )}
-                </div>
-              )
-            })}
+          <div className="flex items-center justify-between">
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-navy)" }}>
+              Trajetória do caixa · 13 semanas
+            </h3>
+            <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.12em]">
+              <span className="inline-flex items-center gap-1.5" style={{ color: "var(--brand-red)" }}>
+                <span className="inline-block h-0.5 w-3" style={{ background: "var(--brand-red)" }} />
+                Sem agir
+              </span>
+              <span className="inline-flex items-center gap-1.5" style={{ color: "var(--brand-green-dark)" }}>
+                <span className="inline-block h-0.5 w-3" style={{ background: "var(--brand-green-dark)" }} />
+                Com decisão
+              </span>
+            </div>
           </div>
+
+          <Sparkline
+            weeks={WEEKS_LABELS}
+            semAgir={TRAJECTORY_SEM_AGIR}
+            comDecisao={currentState.trajectoryComDecisao}
+          />
+
           <p className="mt-2 text-[11px] leading-snug text-[var(--slate-700)]">
-            {data.leitura}
+            {currentState.reading}
           </p>
         </section>
 
         {/* Link textual pequeno */}
         <div className="flex justify-end">
           <Link
-            href={`/chat?q=${encodeURIComponent(data.chatQuery)}&auto=1`}
+            href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
             className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
           >
             Discutir com o CFOup
@@ -267,33 +404,67 @@ export default function CenariosPage() {
           <h3 id="cenarios-list" className="text-[12px] font-bold" style={{ color: "var(--brand-navy)" }}>
             Outras decisões para testar
           </h3>
-          <p className="text-[11px] text-muted-foreground">3 prontas pra testar</p>
+          <p className="text-[11px] text-muted-foreground">{DECISIONS.length - 1} prontas pra testar</p>
         </div>
         <ul className="divide-y divide-border">
-          <ScenarioRow
-            title="Contratar mais um vendedor"
-            summary="Aumentar venda nova sem sobrecarregar o time"
-            impact="−R$ 28k/mês até começar a se pagar"
-          />
-          <ScenarioRow
-            title="Reajustar preço da Linha B"
-            summary="Corrigir margem sem perder cliente bom"
-            impact="+R$ 18,4k/mês se volume segurar"
-          />
-          <ScenarioRow
-            title="Renegociar prazo com fornecedor"
-            summary="Ganhar fôlego de pagamento sem queimar relação"
-            impact="+R$ 62k de fôlego se prazo virar 45 dias"
-          />
+          {DECISIONS.filter((d) => d.id !== activeId).map((d) => (
+            <ScenarioRow
+              key={d.id}
+              title={d.alavanca}
+              summary={d.shortSummary}
+              impact={d.impactSummary}
+              onTest={() => activateDecision(d.id)}
+            />
+          ))}
         </ul>
       </section>
     </>
   )
 }
 
-type WeekEffect =
-  | { label: string; tone: "positive" | "negative" | "neutral"; text: string }
-  | { label: string; tone: "empty" }
+function Sparkline({
+  weeks,
+  semAgir,
+  comDecisao,
+}: {
+  weeks: string[]
+  semAgir: number[]
+  comDecisao: number[]
+}) {
+  const W = 520
+  const H = 80
+  const all = [...semAgir, ...comDecisao, 0]
+  const min = Math.min(...all)
+  const max = Math.max(...all)
+  const range = max - min || 1
+  const padding = range * 0.10
+  const yMin = min - padding
+  const yMax = max + padding
+  const yRange = yMax - yMin
+
+  const xOf = (i: number) => (i / (weeks.length - 1)) * W
+  const yOf = (v: number) => H - ((v - yMin) / yRange) * H
+
+  const pts = (vals: number[]) => vals.map((v, i) => `${xOf(i)},${yOf(v)}`).join(" ")
+  const zeroY = yOf(0)
+  const ruptureX = xOf(2)
+
+  return (
+    <div className="mt-3">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-20" preserveAspectRatio="none">
+        <line x1="0" y1={zeroY} x2={W} y2={zeroY} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
+        <line x1={ruptureX} y1="0" x2={ruptureX} y2={H} stroke="var(--brand-red)" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
+        <polyline points={pts(semAgir)} fill="none" stroke="var(--brand-red)" strokeWidth="2" opacity="0.85" />
+        <polyline points={pts(comDecisao)} fill="none" stroke="var(--brand-green-dark)" strokeWidth="2" />
+      </svg>
+      <div className="mt-1 flex justify-between text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {weeks.map((w, i) => (
+          <span key={w} style={{ color: i === 2 ? "var(--brand-red)" : undefined }}>{w}</span>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function ImpactTile({ label, value, tone, detail }: { label: string; value: string; tone: "positive" | "negative" | "neutral"; detail: string }) {
   const color =
@@ -315,7 +486,7 @@ function ImpactTile({ label, value, tone, detail }: { label: string; value: stri
   )
 }
 
-function ScenarioRow({ title, summary, impact }: { title: string; summary: string; impact: string }) {
+function ScenarioRow({ title, summary, impact, onTest }: { title: string; summary: string; impact: string; onTest: () => void }) {
   return (
     <li className="flex flex-col gap-1 px-3 md:px-4 py-2 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0 md:max-w-[58%]">
@@ -329,8 +500,9 @@ function ScenarioRow({ title, summary, impact }: { title: string; summary: strin
           {impact}
         </span>
         <button
-          className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
           type="button"
+          onClick={onTest}
+          className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
         >
           Testar
           <ArrowUpRight className="h-3 w-3" />
