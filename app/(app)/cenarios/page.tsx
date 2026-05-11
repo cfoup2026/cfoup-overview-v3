@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { GitBranch, ArrowUpRight, Target, TrendingDown, TrendingUp, ChevronRight } from "lucide-react"
+import { ArrowUpRight, Target, ChevronRight } from "lucide-react"
 
 type Tone = "positive" | "negative" | "neutral"
 
@@ -268,34 +268,33 @@ export default function CenariosPage() {
 
       {/* Grid 2 colunas: main + aside */}
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_280px]">
-        {/* Coluna principal (fluxo de decisão) */}
-        <div className="min-w-0 space-y-2">
-          {/* Card único: Decisão + Antes/Depois */}
-          <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
-            {/* Header: Decisão em teste */}
-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-              <Target className="h-3 w-3" />
-              Decisão em teste
-            </div>
-
-            <div className="mt-1.5 flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <h2
-                  className="max-w-2xl text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
-                  style={{ color: "var(--brand-navy)" }}
-                >
-                  {activeDecision.question}
-                </h2>
-                <p className="mt-1 max-w-2xl text-[11px] leading-snug text-muted-foreground">
-                  {activeDecision.context}
-                </p>
+        {/* Coluna principal */}
+        <div className="min-w-0 space-y-3">
+          {/* Linha 1: Decisão + Impacto Principal */}
+          <div className="grid gap-3 lg:grid-cols-2">
+            {/* Bloco DECISÃO */}
+            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
+                <Target className="h-3 w-3" />
+                Decisão em teste
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground whitespace-nowrap">
+              <h2
+                className="mt-2 text-balance text-base md:text-[1.1rem] font-extrabold leading-tight tracking-tight"
+                style={{ color: "var(--brand-navy)" }}
+              >
+                {activeDecision.question}
+              </h2>
+
+              <p className="mt-1.5 text-[12px] leading-snug text-muted-foreground">
+                {activeDecision.context}
+              </p>
+
+              <div className="mt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {activeDecision.paramLabel}
                 </p>
-                <div className="flex gap-1">
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {activeDecision.params.map((p) => {
                     const active = activeParam === p.value
                     return (
@@ -316,110 +315,184 @@ export default function CenariosPage() {
                   })}
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Separador */}
-            <div className="my-4 border-t border-border" />
+            {/* Bloco IMPACTO PRINCIPAL */}
+            <section className="overflow-hidden rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Impacto principal
+                </p>
+                <Link
+                  href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
+                  className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
+                >
+                  Discutir
+                  <ArrowUpRight className="h-3 w-3" />
+                </Link>
+              </div>
 
-            {/* Hero antes/depois */}
-            <div className="mt-2 grid gap-2 md:grid-cols-3">
-              <ImpactTile label="Caixa hoje" value={CAIXA_HOJE} tone="neutral" detail="saldo atual" />
-              <ImpactTile label="Sem agir" value={SEM_AGIR.value} tone="negative" detail={SEM_AGIR.sub} />
-              <ImpactTile
-                label="Com esta decisão"
-                value={currentState.caixaMinComDecisao.value}
-                tone={currentState.caixaMinComDecisao.tone}
-                detail={currentState.caixaMinComDecisao.delta}
-              />
+              <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p
+                  className="text-[2.5rem] md:text-[2.75rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
+                >
+                  {currentState.caixaMinComDecisao.value}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  menor caixa · {currentState.caixaMinComDecisao.sub}
+                </p>
+              </div>
+
+              <p className="mt-2 text-[12px] font-semibold" style={{ color: "var(--brand-green-dark)" }}>
+                {currentState.caixaMinComDecisao.delta}
+              </p>
+
+              <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
+                {currentState.reading}
+              </p>
+            </section>
+          </div>
+
+          {/* Linha 2: Caixa antes e depois — full-width */}
+          <section className="overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+            <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Caixa antes e depois
+            </h3>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              {/* Sem agir */}
+              <div
+                className="rounded-xl border p-4"
+                style={{ background: "rgba(209,67,67,0.06)", borderColor: "rgba(209,67,67,0.25)" }}
+              >
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-red)" }}>
+                  Sem agir
+                </p>
+                <p className="mt-2 text-[1.85rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-red)" }}>
+                  {SEM_AGIR.value}
+                </p>
+                <p className="mt-1.5 text-[11px] font-semibold" style={{ color: "var(--brand-red)" }}>
+                  {SEM_AGIR.sub}
+                </p>
+              </div>
+
+              {/* Com esta decisão */}
+              <div
+                className="rounded-xl border p-4"
+                style={{
+                  background: currentState.caixaMinComDecisao.tone === "positive" ? "rgba(54,186,88,0.06)" : "rgba(209,67,67,0.06)",
+                  borderColor: currentState.caixaMinComDecisao.tone === "positive" ? "rgba(54,186,88,0.30)" : "rgba(209,67,67,0.25)",
+                }}
+              >
+                <p
+                  className="text-[10px] font-bold uppercase tracking-[0.18em]"
+                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
+                >
+                  Com esta decisão
+                </p>
+                <p
+                  className="mt-2 text-[1.85rem] font-extrabold leading-none tabular-nums"
+                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
+                >
+                  {currentState.caixaMinComDecisao.value}
+                </p>
+                <p
+                  className="mt-1.5 text-[11px] font-semibold"
+                  style={{ color: toneColor(currentState.caixaMinComDecisao.tone) }}
+                >
+                  {currentState.caixaMinComDecisao.delta}
+                </p>
+              </div>
+
+              {/* Caixa hoje */}
+              <div className="rounded-xl border border-border bg-white/85 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Caixa hoje
+                </p>
+                <p className="mt-2 text-[1.3rem] font-extrabold leading-none tabular-nums" style={{ color: "var(--brand-navy)" }}>
+                  {CAIXA_HOJE}
+                </p>
+                <p className="mt-1 text-[10.5px] text-muted-foreground">saldo atual</p>
+              </div>
             </div>
-            <p className="mt-3 text-[12px] leading-snug text-[var(--slate-700)]">
-              {currentState.reading}
-            </p>
           </section>
 
-          {/* Card: Consequência + Trajetória ladeados */}
-          <section className="rounded-2xl border border-border bg-card p-3 md:p-4">
-            <div className="grid gap-4 md:grid-cols-[minmax(0,220px)_1fr]">
-              {/* Coluna A — Consequência (KPIs verticais tabulares) */}
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Consequência
-                </p>
-                <div className="mt-2 flex flex-col gap-1.5">
-                  <div className="flex items-baseline justify-between gap-2">
+          {/* Linha 3: Consequência + Trajetória */}
+          <div className="grid gap-3 lg:grid-cols-2">
+            {/* Bloco CONSEQUÊNCIA OPERACIONAL */}
+            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
+              <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Consequência operacional
+              </h3>
+              <div className="mt-3 flex flex-col gap-2.5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex flex-col">
                     <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
                       Caixa
                     </span>
-                    <span
-                      className="text-[13px] font-extrabold tabular-nums"
-                      style={{ color: toneColor(currentState.consequences.caixa.tone) }}
-                    >
-                      {currentState.consequences.caixa.value}
-                    </span>
+                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.caixa.detail}</span>
                   </div>
-                  <div className="flex items-baseline justify-between gap-2">
+                  <span
+                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
+                    style={{ color: toneColor(currentState.consequences.caixa.tone) }}
+                  >
+                    {currentState.consequences.caixa.value}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex flex-col">
                     <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
                       Custo
                     </span>
-                    <span
-                      className="text-[13px] font-extrabold tabular-nums"
-                      style={{ color: toneColor(currentState.consequences.custo.tone) }}
-                    >
-                      {currentState.consequences.custo.value}
-                    </span>
+                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.custo.detail}</span>
                   </div>
-                  <div className="flex items-baseline justify-between gap-2">
+                  <span
+                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
+                    style={{ color: toneColor(currentState.consequences.custo.tone) }}
+                  >
+                    {currentState.consequences.custo.value}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex flex-col">
                     <span className="text-[10.5px] font-semibold uppercase tracking-[0.10em] text-muted-foreground">
                       Fôlego
                     </span>
-                    <span
-                      className="text-[13px] font-extrabold tabular-nums"
-                      style={{ color: toneColor(currentState.consequences.folego.tone) }}
-                    >
-                      {currentState.consequences.folego.value}
-                    </span>
+                    <span className="text-[10px] text-muted-foreground">{currentState.consequences.folego.detail}</span>
                   </div>
+                  <span
+                    className="text-[15px] font-extrabold tabular-nums whitespace-nowrap"
+                    style={{ color: toneColor(currentState.consequences.folego.tone) }}
+                  >
+                    {currentState.consequences.folego.value}
+                  </span>
                 </div>
               </div>
+            </section>
 
-              {/* Divisor vertical sutil (desktop only) */}
-              <div className="relative">
-                <span aria-hidden className="hidden md:block absolute -left-2 top-0 h-full w-px bg-border" />
-
-                {/* Coluna B — Trajetória 13 semanas (sparkline compacta) */}
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    Trajetória · 13 sem
-                  </p>
-                  <div className="flex items-center gap-3 text-[9.5px] font-semibold uppercase tracking-[0.10em]">
-                    <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-red)" }}>
-                      <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-red)" }} />
-                      Sem agir
-                    </span>
-                    <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-green-dark)" }}>
-                      <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-green-dark)" }} />
-                      Com decisão
-                    </span>
-                  </div>
+            {/* Bloco TRAJETÓRIA DO CAIXA · 13 SEM */}
+            <section className="rounded-2xl border border-border bg-card p-4 md:p-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Trajetória do caixa · 13 sem
+                </h3>
+                <div className="flex items-center gap-3 text-[9.5px] font-semibold uppercase tracking-[0.10em]">
+                  <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-red)" }}>
+                    <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-red)" }} />
+                    Sem agir
+                  </span>
+                  <span className="inline-flex items-center gap-1" style={{ color: "var(--brand-green-dark)" }}>
+                    <span aria-hidden className="inline-block h-0.5 w-2.5" style={{ background: "var(--brand-green-dark)" }} />
+                    Com decisão
+                  </span>
                 </div>
-                <Sparkline
-                  weeks={WEEKS_LABELS}
-                  semAgir={TRAJECTORY_SEM_AGIR}
-                  comDecisao={currentState.trajectoryComDecisao}
-                />
               </div>
-            </div>
-          </section>
-
-          {/* Link textual pequeno */}
-          <div className="flex justify-end">
-            <Link
-              href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--brand-blue)] hover:underline"
-            >
-              Discutir com o CFOup
-              <ArrowUpRight className="h-3 w-3" />
-            </Link>
+              <Sparkline
+                weeks={WEEKS_LABELS}
+                semAgir={TRAJECTORY_SEM_AGIR}
+                comDecisao={currentState.trajectoryComDecisao}
+              />
+            </section>
           </div>
         </div>
 
@@ -540,24 +613,6 @@ function Sparkline({
   )
 }
 
-function ImpactTile({ label, value, tone, detail }: { label: string; value: string; tone: "positive" | "negative" | "neutral"; detail: string }) {
-  const color =
-    tone === "positive" ? "var(--brand-green-dark)" :
-    tone === "negative" ? "var(--brand-red)" :
-    "var(--brand-navy)"
-  const Icon = tone === "positive" ? TrendingUp : tone === "negative" ? TrendingDown : GitBranch
-  return (
-    <div className="rounded-xl border border-border bg-white/85 p-3">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        <Icon className="h-3 w-3" />
-        {label}
-      </div>
-      <p className="mt-1.5 text-[1.35rem] font-extrabold leading-none tabular-nums" style={{ color }}>
-        {value}
-      </p>
-      <p className="mt-1 text-[10.5px] text-muted-foreground">{detail}</p>
-    </div>
-  )
-}
+
 
 
