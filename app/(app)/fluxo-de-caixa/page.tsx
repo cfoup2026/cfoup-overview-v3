@@ -2,7 +2,30 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, ChevronsUp, ChevronsDown, RefreshCw } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X, Check } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 import {
   Select,
   SelectContent,
@@ -10,6 +33,77 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandEmpty,
+  CommandGroup,
+} from "@/components/ui/command"
+
+const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
+
+// ---------------------------------------------------------------------
+// LightSheetContent — backdrop transparente para drill-downs contextuais
+// ---------------------------------------------------------------------
+function LightSheetContent({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <SheetPrimitive.Portal>
+      <SheetPrimitive.Content
+        className={`fixed inset-y-0 right-0 z-50 w-[320px] bg-background border-l border-border shadow-[0_8px_32px_-12px_rgba(7,29,59,0.25)] p-[14px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right ${className ?? ""}`}
+      >
+        <SheetPrimitive.Close className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground hover:bg-[rgba(7,29,59,0.04)] hover:text-[var(--brand-navy)] transition">
+          <X className="h-3.5 w-3.5" />
+        </SheetPrimitive.Close>
+        {children}
+      </SheetPrimitive.Content>
+    </SheetPrimitive.Portal>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Mocks para Pendências (unificado)
+// ---------------------------------------------------------------------
+type AcaoProblema = { label: string; route?: string; opensSaldoSheet?: boolean }
+type Problema = { id: string; title: string; detail: string; impact: string; actions: AcaoProblema[] }
+const PROBLEMAS_INITIAL: Problema[] = [
+  { id: "p1", title: "Saldo de abertura ausente", detail: "Filial 2 · CEF Conta Corrente", impact: "Sem saldo inicial não há projeção", actions: [{ label: "Conectar banco", route: "/conexoes" }, { label: "Informar manual", opensSaldoSheet: true }] },
+  { id: "p2", title: "Conta sem atualização há 14 dias", detail: "CEF · ag 1234-5", impact: "Realizado pode estar incompleto", actions: [{ label: "Reconectar", route: "/conexoes" }] },
+  { id: "p3", title: "3 eventos sem classificação", detail: "R$ 89.421 · últimos 7 dias", impact: "Inflam linha de outros, distorcem análise", actions: [{ label: "Revisar eventos", route: "/pendencias-setup" }] },
+  { id: "p4", title: "Folha S6 sem evento confirmado", detail: "esperada R$ 10.864", impact: "Risco de subestimar saída de R$ 10.864", actions: [{ label: "Confirmar evento", route: "/pendencias-setup?filtro=folha" }] },
+]
+
+// ---------------------------------------------------------------------
+// Masks (reutilizadas por QuickAddForecastSheet e InformarSaldoSheet)
+// ---------------------------------------------------------------------
+function maskValor(v: string): string {
+  const digits = v.replace(/\D/g, "")
+  if (!digits) return ""
+  return (parseInt(digits, 10) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+function maskData(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return d.slice(0, 2) + "/" + d.slice(2)
+  return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4)
+}
+
+// ---------------------------------------------------------------------
+// Mocks para QuickAddForecastSheet
+// ---------------------------------------------------------------------
+const CATEGORIAS_ENTRADA = ["CR a receber", "CR vencidos", "Empréstimo recebido", "Aporte", "Outras entradas"]
+const CATEGORIAS_SAIDA = ["Folha", "Fornecedores", "Tributos", "Empréstimo · pagamento", "Despesas operacionais", "Outras saídas"]
+
+type Contraparte = { id: string; nome: string; tipo: "cliente" | "fornecedor" }
+const CONTRAPARTES: Contraparte[] = [
+  { id: "c1", nome: "Cliente ABC Ltda", tipo: "cliente" },
+  { id: "c2", nome: "Cliente DEF Ltda", tipo: "cliente" },
+  { id: "c3", nome: "Cliente GHI Ltda", tipo: "cliente" },
+  { id: "f1", nome: "Fornecedor XYZ", tipo: "fornecedor" },
+  { id: "f2", nome: "Fornecedor WWW", tipo: "fornecedor" },
+  { id: "t1", nome: "Receita Federal", tipo: "fornecedor" },
+]
 
 /**
  * /fluxo-de-caixa
@@ -25,20 +119,9 @@ import {
  */
 
 // =====================================================================
-// Tokens
+// Subtotal background (kept as const for table cells)
 // =====================================================================
-const NAVY = "#071D3B"
-const BLUE = "#1567C8"
-const CYAN = "#38B8E8"
-const GREEN = "#36BA58"
-const NEG = "#D14343"
-const WARN = "#E08B00"
-const INK = "#0F1B2D"
-const MUTED = "#5B6B82"
-const LINE = "#E5EBF2"
-const BG = "#F7F9FC"
-// (1) Cor única dos subtotais e linhas de saldo: azul claro #DCE7F5 com texto navy bold.
-const SUBTOTAL_BG = "#DCE7F5"
+const SUBTOTAL_BG = "rgba(21,103,200,0.08)"
 
 // =====================================================================
 // Janela de 13 semanas (sempre segunda → domingo)
@@ -151,15 +234,15 @@ function fmtBRL(v: number | null | undefined): string {
 // =====================================================================
 // Veredito
 // =====================================================================
-type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES"
-const VEREDITO_ATUAL: Veredito = "DADOS_INSUFICIENTES"
-const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string }> = {
-  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: GREEN },
-  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: WARN },
-  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "#B86D00" },
-  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: NEG },
-  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "#EEF1F5", fg: MUTED },
-}
+type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES" | "OK"
+  const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string; dotColor: string }> = {
+  LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
+  ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
+  ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
+  CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)", dotColor: "var(--brand-error-soft)" },
+  DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "var(--muted)", fg: "var(--muted-foreground)", dotColor: "var(--muted-foreground)" },
+  OK: { label: "TUDO VERIFICADO", bg: "rgba(54,186,88,0.10)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
+  }
 
 // =====================================================================
 // Glossário inline (tooltip on hover)
@@ -178,22 +261,103 @@ const GLOSSARY: Record<GlossaryKey, { title: string; body: string }> = {
 function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNode }) {
   const entry = GLOSSARY[term]
   return (
-    <span className="group relative inline-block">
-      <span className="cursor-help border-b border-dotted" style={{ borderColor: "rgba(91,107,130,0.55)" }} aria-describedby={`gloss-${term}`}>
-        {children}
-      </span>
-      <span
-        id={`gloss-${term}`}
-        role="tooltip"
-        className="pointer-events-none invisible absolute left-0 top-full z-[60] mt-1.5 w-64 rounded-md px-3 py-2 text-[12px] font-normal normal-case leading-snug opacity-0 shadow-lg transition-opacity duration-150 group-hover:visible group-hover:opacity-100"
-        style={{ background: NAVY, color: "#FFFFFF", letterSpacing: "normal", fontFamily: "var(--font-sans)", boxShadow: "0 8px 20px -6px rgba(7,29,59,0.35)" }}
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        <span className="cursor-help border-b border-dotted border-muted-foreground/50">
+          {children}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent
+        side="right"
+        align="start"
+        sideOffset={8}
+        collisionPadding={16}
+        className="z-[60] max-w-[260px] border bg-popover px-3 py-2 text-[11px] text-popover-foreground"
+        style={{ boxShadow: "0 8px 24px -12px rgba(7,29,59,0.20)", borderWidth: "0.5px", borderColor: "var(--border)" }}
       >
-        <strong className="block text-[12px] font-semibold">{entry.title}</strong>
-        <span className="mt-0.5 block opacity-90">{entry.body}</span>
-      </span>
-    </span>
+        <strong className="block text-[11px] font-semibold text-[var(--brand-navy)]">{entry.title}</strong>
+        <span className="mt-0.5 block text-[11px] text-[var(--brand-navy)] opacity-80">{entry.body}</span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
+
+// =====================================================================
+// Evento Mock (placeholder para integração futura)
+// =====================================================================
+type Evento = {
+  id: string
+  direcao: "entrada" | "saida"
+  valor: number
+  data: string
+  categoria: string
+  contraparte: string
+  status: "confirmado" | "estimado"
+  confianca: "A" | "M" | "B"
+  observacao?: string
+  origem: "API" | "manual"
+}
+const EVENTO_MOCK: Evento = {
+  id: "ev1",
+  direcao: "entrada",
+  valor: 22488,
+  data: "12/05/2026",
+  categoria: "CR a receber",
+  contraparte: "Cliente ABC Ltda",
+  status: "estimado",
+  confianca: "M",
+  origem: "API",
+}
+
+type EventoCelula = { id: string; data: string; contraparte: string; valor: number; status: "confirmado" | "estimado" }
+const EVENTOS_CELULA_MOCK: EventoCelula[] = [
+  { id: "e1", data: "08/05", contraparte: "Cliente ABC", valor: 22488, status: "confirmado" },
+  { id: "e2", data: "09/05", contraparte: "Cliente DEF", valor: 12000, status: "estimado" },
+  { id: "e3", data: "10/05", contraparte: "Cliente GHI", valor: 10187, status: "estimado" },
+]
+
+// ---------------------------------------------------------------------
+// Tipos de origem de dados e mocks
+// ---------------------------------------------------------------------
+type CelulaOrigem = "documento" | "estimativa" | "manual"
+
+const ROW_ORIGEM: Record<string, CelulaOrigem> = {
+  "cr_receber": "documento",
+  "cr_recuperacao": "documento",
+  "cp_pagar": "documento",
+  "cp_vencidos": "documento",
+  "folha": "estimativa",
+  "tributos": "estimativa",
+  "encargos": "estimativa",
+  "despesas": "estimativa",
+  "outras": "manual",
+}
+
+const ESTIMATIVA_MOCK = {
+  metodo: "Padrão recorrente dos últimos 3 anos",
+  periodo: "2023–2025",
+  confianca: "Média" as const,
+}
+
+const MANUAL_MOCK = {
+  data: "15/05/2026",
+  contraparte: "Cliente ABC Ltda",
+  valor: 61000,
+  status: "estimado" as const,
+  confianca: "Média" as const,
+  obs: "Cliente confirmou pagamento via WhatsApp",
+}
+
+function getOrigem(rowId: string | undefined): CelulaOrigem {
+  if (!rowId) return "estimativa"
+  for (const [k, v] of Object.entries(ROW_ORIGEM)) {
+    if (rowId.includes(k)) return v
+  }
+  return "estimativa"
+}
+
+type Semana = { numero: number; dateRange: string; caixaInicial: number; caixaFinal: number; minimo: number; totalEntradas: number; totalSaidas: number; liquido: number }
+const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -76600, caixaFinal: -103819, minimo: -110000, totalEntradas: 0, totalSaidas: 15018, liquido: -15018 }
 
 // =====================================================================
 // Página
@@ -209,22 +373,65 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
+  const router = useRouter()
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
+  const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
+  const [openEvento, setOpenEvento] = useState(false)
+  const [openSemana, setOpenSemana] = useState(false)
+  const [pendencias, setPendencias] = useState<Problema[]>(PROBLEMAS_INITIAL)
+  const [openSaldo, setOpenSaldo] = useState(false)
+  // Highlight states
+  const [highlightedRowId, setHighlightedRowId] = useState<string | null>(null)
+  const [highlightedWeekIdx, setHighlightedWeekIdx] = useState<number | null>(null)
+  // Inline expansion
+  const [expandedCell, setExpandedCell] = useState<{ rowId: string; weekIdx: number } | null>(null)
 
+  const handleAction = (problemaId: string, action: AcaoProblema) => {
+    setPendencias(prev => prev.filter(p => p.id !== problemaId))
+    if (action.route) router.push(action.route)
+    else if (action.opensSaldoSheet) setOpenSaldo(true)
+    else console.log("Ação:", action.label)
+  }
+
+  const handleRowClick = (rowId: string) => {
+    setHighlightedRowId(rowId)
+    setSelectedEvento(EVENTO_MOCK)
+    setOpenEvento(true)
+  }
+
+  const handleCellClick = (rowId: string, weekIdx: number) => {
+    setExpandedCell(prev => prev?.rowId === rowId && prev?.weekIdx === weekIdx ? null : { rowId, weekIdx })
+  }
+
+  const handleWeekClick = (weekIdx: number) => {
+    setHighlightedWeekIdx(weekIdx)
+    setOpenSemana(true)
+  }
+
+  const handleEventoFromExpansion = () => {
+    setSelectedEvento(EVENTO_MOCK)
+    setOpenEvento(true)
+  }
+  
   return (
-    <div
-      className="-mx-8 -my-3 min-h-[calc(100vh-3rem)] px-8 py-8 md:-mx-10 md:px-10 lg:-mx-12 lg:-my-4 lg:px-12 lg:py-10"
-      style={{ background: BG, color: INK, fontFamily: "var(--font-sans)" }}
-    >
-      <div className="mx-auto w-full max-w-[1340px]">
-        <Zone1Header unidade={unidade} setUnidade={setUnidade} />
-        <Zone2Kpis />
-        <Zone3Grid />
-        <FooterPendencias />
-      </div>
-    </div>
+  <>
+  <Zone1Header unidade={unidade} setUnidade={setUnidade} />
+  <Zone2Kpis pendencias={pendencias} onAction={handleAction} />
+  <Zone3Grid
+    onRowClick={handleRowClick}
+    onCellClick={handleCellClick}
+    onWeekClick={handleWeekClick}
+    highlightedRowId={highlightedRowId}
+    highlightedWeekIdx={highlightedWeekIdx}
+    expandedCell={expandedCell}
+  />
+  <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={(o) => { setOpenEvento(o); if (!o) setHighlightedRowId(null) }} />
+  <SemanaSheet open={openSemana} onOpenChange={(o) => { setOpenSemana(o); if (!o) setHighlightedWeekIdx(null) }} />
+  <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
+  <CellDrillSheet expandedCell={expandedCell} onOpenChange={(o) => { if (!o) setExpandedCell(null) }} onEventoClick={handleEventoFromExpansion} />
+  </>
   )
-}
+  }
 
 // ---------------------------------------------------------------------
 // Zona 1 — Header (dropdown de unidades)
@@ -254,112 +461,663 @@ function Zone1Header({
   unidade: UnidadeId
   setUnidade: (v: UnidadeId) => void
 }) {
+  const activeLabel = UNIDADES.find((u) => u.id === unidade)?.label ?? "Consolidado"
+  const [sheetOpen, setSheetOpen] = useState(false)
   return (
-    <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h1
-          className="text-[28px] font-semibold leading-tight tracking-tight"
-          style={{ color: NAVY, fontFamily: "var(--font-serif)" }}
-        >
-          Fluxo de Caixa
-        </h1>
-        <p className="mt-1.5 text-[13px]" style={{ color: MUTED }}>
-          Atualizado em 06/05 às 14:23
-        </p>
+    <header className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <h1 className="text-[13px] font-bold leading-none text-[var(--brand-navy)] tracking-tight">Fluxo de Caixa 13 Semanas</h1>
+        <span className="text-[11px] text-muted-foreground">· há 2 min</span>
       </div>
-
-      {/* Selector de unidade. Label "Unidade:" fica fora do controle, à esquerda.
-          Dropdown único — escala para qualquer nº de unidades do tenant.
-          Mock: selecionar muda apenas o estado visual; valores da grid não mudam. */}
-      <div className="inline-flex items-center gap-3" style={{ fontFamily: "var(--font-sans)" }}>
-        <span
-          className="text-[11px] font-semibold uppercase"
-          style={{ color: NAVY, letterSpacing: "0.06em" }}
-        >
-          Unidade:
-        </span>
-        <Select value={unidade} onValueChange={setUnidade}>
-          <SelectTrigger
-            aria-label="Unidade"
-            className="h-auto min-w-[180px] gap-2 rounded-md border bg-white px-3 py-2 text-[13px] font-semibold focus:ring-0 focus:ring-offset-0"
-            style={{ borderColor: LINE, color: NAVY }}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent
-            className="border bg-white"
-            style={{ borderColor: LINE, color: NAVY, fontFamily: "var(--font-sans)" }}
-          >
+      <div className="flex items-center gap-0.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger className={GHOST_BTN}>
+            <Building2 className="h-3 w-3 text-muted-foreground" />{activeLabel}<ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[180px]">
             {UNIDADES.map((u) => (
-              <SelectItem
-                key={u.id}
-                value={u.id}
-                className="text-[13px] font-semibold"
-                style={{ color: NAVY }}
-              >
-                {u.label}
-              </SelectItem>
+              <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px] flex items-center justify-between gap-2">
+                <span>{u.label}</span>
+                {unidade === u.id && <Check className="h-3 w-3 text-[var(--brand-blue)] shrink-0" />}
+              </DropdownMenuItem>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <button type="button" className={GHOST_BTN}>
+          <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
+        </button>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <button type="button" className={GHOST_BTN}>
+              <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
+            </button>
+          </SheetTrigger>
+          <QuickAddForecastSheet onClose={() => setSheetOpen(false)} />
+        </Sheet>
       </div>
-
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[13px] font-semibold transition-colors hover:opacity-90"
-        style={{ borderColor: NAVY, color: NAVY }}
-      >
-        <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
-        Atualizar
-      </button>
     </header>
   )
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs
+// Quick Add Sheet — evento futuro (inline component)
 // ---------------------------------------------------------------------
-function Zone2Kpis() {
-  const veredito = VEREDITO_STYLES[VEREDITO_ATUAL]
+function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
+  const [valor, setValor] = useState("")
+  const [direcao, setDirecao] = useState<"entrada" | "saida">("entrada")
+  const [data, setData] = useState("")
+  const [categoria, setCategoria] = useState("")
+  const [contraparte, setContraparte] = useState("")
+  const [status, setStatus] = useState<"confirmado" | "estimado">("estimado")
+  const [confianca, setConfianca] = useState<"Alta" | "Média" | "Baixa">("Média")
+  const [obs, setObs] = useState("")
+  const [showObs, setShowObs] = useState(false)
+  const [contraparteOpen, setContraparteOpen] = useState(false)
+
+  const handleDirecaoChange = (dir: "entrada" | "saida") => {
+    setDirecao(dir)
+    setCategoria("")
+  }
+
+  const handleStatusChange = (s: "confirmado" | "estimado") => {
+    setStatus(s)
+    if (s === "confirmado") setConfianca("Alta")
+    else setConfianca("Média")
+  }
+
+  const handleSubmit = () => {
+    console.log({ valor, direcao, data, categoria, contraparte, status, confianca, obs })
+    onClose()
+  }
+
+  const PILL = "h-6 px-3 text-[11px] font-semibold rounded-full border transition"
+  const PILL_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
+  const PILL_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
+  const DIR_BTN = "flex-1 h-8 flex items-center justify-center gap-1.5 border rounded-md transition text-[10px] font-semibold"
+  const DIR_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
+  const DIR_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
+  const LABEL = "text-[10px] font-semibold text-muted-foreground"
+  const INPUT_BASE = "w-full border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60"
+
+  const valorColor = direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
+
   return (
-    <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard label="Caixa Atual" value={fmtBRL(34_494)} sub="Hoje · 05/05" />
-      <KpiCard label="Caixa Mínimo da Janela" value={fmtBRL(-251_633)} valueColor={NEG} sub="em 28/07 (S13)" />
-      <KpiCard label="Caixa Médio Projetado" value={fmtBRL(-121_566)} valueColor={NEG} sub="Média das 13 semanas" />
-      <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
-        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
-        <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>Veredito</p>
-        <div className="mt-2 flex items-center">
-          <span
-            className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide"
-            style={{ background: veredito.bg, color: veredito.fg }}
+    <SheetContent side="right" className="w-[340px] p-[14px]">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+        <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
+        <button type="button" onClick={onClose} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+          <X className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Linha 1: Direção */}
+      <div className="flex gap-1 mb-3">
+        <button
+          type="button"
+          onClick={() => handleDirecaoChange("entrada")}
+          className={`${DIR_BTN} ${direcao === "entrada" ? DIR_ACTIVE : DIR_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          <ArrowDownRight className="h-3 w-3" strokeWidth={2} />
+          Entrada
+        </button>
+        <button
+          type="button"
+          onClick={() => handleDirecaoChange("saida")}
+          className={`${DIR_BTN} ${direcao === "saida" ? DIR_ACTIVE : DIR_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          <ArrowUpRight className="h-3 w-3" strokeWidth={2} />
+          Saída
+        </button>
+      </div>
+
+      {/* Linha 2: Valor */}
+      <div className="mb-3">
+        <label className={LABEL}>Valor</label>
+        <input
+          type="text"
+          value={valor}
+          onChange={(e) => setValor(maskValor(e.target.value))}
+          placeholder="R$ 0,00"
+          className={`${INPUT_BASE} h-8 text-[18px] font-extrabold tabular-nums mt-0.5`}
+          style={{ color: valorColor }}
+        />
+      </div>
+
+      {/* Linha 3: Data + Categoria */}
+      <div className="flex gap-2 mb-3">
+        <div className="w-[120px]">
+          <label className={LABEL}>Data esperada</label>
+          <input
+            type="text"
+            value={data}
+            onChange={(e) => setData(maskData(e.target.value))}
+            placeholder="DD/MM/AAAA"
+            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
+          />
+        </div>
+        <div className="flex-1">
+          <label className={LABEL}>Categoria</label>
+          <Select value={categoria} onValueChange={setCategoria}>
+            <SelectTrigger className="h-6 text-[13px] font-semibold border-0 border-b border-border bg-transparent rounded-none px-1 focus:ring-0 focus:border-[var(--brand-blue)] mt-0.5">
+              <SelectValue placeholder="escolha a categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              {(direcao === "entrada" ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((c) => (
+                <SelectItem key={c} value={c} className="text-[12px]">{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Linha 4: Cliente ou fornecedor */}
+      <div className="mb-3">
+        <label className={LABEL}>Cliente ou fornecedor</label>
+        <Popover open={contraparteOpen} onOpenChange={setContraparteOpen}>
+          <PopoverTrigger className="w-full h-6 text-[13px] font-semibold text-[var(--brand-navy)] border-0 border-b border-border bg-transparent rounded-none px-1 text-left flex items-center justify-between hover:border-[var(--brand-blue)] transition mt-0.5">
+            <span className={contraparte ? "" : "text-muted-foreground font-medium"}>{contraparte || "buscar cliente ou fornecedor"}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </PopoverTrigger>
+          <PopoverContent className="w-[260px] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="buscar..." className="text-[12px] h-9" />
+              <CommandList>
+                <CommandEmpty className="text-[11px] py-3 px-3 text-muted-foreground text-center">nenhum resultado</CommandEmpty>
+                <CommandGroup>
+                  {CONTRAPARTES.map((cp) => (
+                    <CommandItem key={cp.id} value={cp.nome} onSelect={() => { setContraparte(cp.nome); setContraparteOpen(false) }} className="text-[12px] flex items-center justify-between">
+                      <span>{cp.nome}</span>
+                      <span className="text-[10px] text-muted-foreground capitalize">{cp.tipo}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Linha 5: Status */}
+      <div className="flex items-center gap-2 mb-2">
+        <span className={LABEL}>Status</span>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("estimado")}
+          className={`${PILL} ${status === "estimado" ? PILL_ACTIVE : PILL_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          Estimado
+        </button>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("confirmado")}
+          className={`${PILL} ${status === "confirmado" ? PILL_ACTIVE : PILL_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          Confirmado
+        </button>
+      </div>
+
+      {/* Linha 6: Confiança */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className={LABEL}>Confiança</span>
+        {(["Alta", "Média", "Baixa"] as const).map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setConfianca(c)}
+            className={`${PILL} ${confianca === c ? PILL_ACTIVE : PILL_INACTIVE}`}
+            style={{ borderWidth: "0.5px" }}
           >
-            {veredito.label}
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* Linha 7: Observação */}
+      <div className="mb-3">
+        <button
+          type="button"
+          onClick={() => setShowObs(!showObs)}
+          className="text-[11px] text-muted-foreground hover:text-[var(--brand-blue)] transition"
+        >
+          + Observação
+        </button>
+        {showObs && (
+          <textarea
+            rows={2}
+            value={obs}
+            onChange={(e) => setObs(e.target.value)}
+            placeholder="anotação livre"
+            className="w-full mt-2 p-2 text-[12px] border rounded-md bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 resize-none"
+            style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
+          />
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="pt-2 border-t border-border">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="w-full h-8 bg-[var(--brand-navy)] text-white text-[12px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
+        >
+          Adicionar previsão
+        </button>
+      </div>
+    </SheetContent>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Evento Sheet — detalhes + 5 ações de revisão
+// ---------------------------------------------------------------------
+function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+  if (!evento) return null
+
+  const DirIcon = evento.direcao === "entrada" ? ArrowDownRight : ArrowUpRight
+  const dirColor = evento.direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
+  const OrigemIcon = evento.origem === "API" ? Wifi : Hand
+  const origemText = evento.origem === "API" ? "Importado · Pluggy CEF" : "Manual · adicionado por você"
+
+  const statusStyles = evento.status === "confirmado"
+    ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
+    : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
+
+  const handleAction = (action: string) => {
+    console.log("Ação:", action, "evento:", evento.id)
+    onOpenChange(false)
+  }
+
+  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+
+  const actions = [
+    { icon: CheckCircle2, title: "Confirmar como firme", sub: "marcar como documentado · confiança alta" },
+    { icon: PencilLine, title: "Editar valor ou data", sub: "ajustar projeção" },
+    { icon: Tags, title: "Reclassificar", sub: "mudar categoria ou bucket" },
+    { icon: Gauge, title: "Ajustar confiança", sub: "alta · média · baixa" },
+    { icon: MessageSquare, title: "Adicionar observação", sub: "anotação livre" },
+  ]
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <LightSheetContent className="w-[320px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            EVENTO · CF13
           </span>
         </div>
-        <p className="mt-1.5 text-[11px]" style={{ color: MUTED }}>Aguardando ingestão completa</p>
-      </article>
+
+        {/* Bloco identidade */}
+        <div className="mb-3">
+          <div className="flex items-baseline gap-2">
+            <DirIcon className="h-4 w-4 shrink-0" style={{ color: dirColor }} />
+            <span className="text-[20px] font-extrabold tabular-nums" style={{ color: dirColor }}>
+              R$ {evento.valor.toLocaleString("pt-BR")}
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {evento.data} · {evento.categoria} · {evento.contraparte}
+          </p>
+          <p className="text-[10.5px] text-muted-foreground mt-1.5 flex items-center gap-1">
+            <OrigemIcon className="h-2.5 w-2.5" />
+            {origemText}
+          </p>
+        </div>
+
+        {/* Bloco status atual */}
+        <div className="flex items-center gap-1.5 mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span
+            className={`h-5 px-2 rounded-full text-[10.5px] font-semibold inline-flex items-center ${statusStyles}`}
+            style={{ borderWidth: "0.5px" }}
+          >
+            {evento.status === "confirmado" ? "Confirmado" : "Estimado"}
+          </span>
+          <span
+            className="h-5 px-2 rounded-full text-[10.5px] font-semibold text-muted-foreground inline-flex items-center"
+            style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
+          >
+            Confiança {evento.confianca}
+          </span>
+        </div>
+
+        {/* 5 ações verticais */}
+        <div className="flex flex-col gap-0.5">
+          {actions.map((a) => (
+            <button key={a.title} type="button" className={ACTION_ROW} onClick={() => handleAction(a.title)}>
+              <a.icon className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">{a.title}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{a.sub}</p>
+              </div>
+              <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+            </button>
+          ))}
+        </div>
+      </LightSheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Cell Drill Sheet — drill-down de célula (documento/estimativa/manual)
+// ---------------------------------------------------------------------
+function CellDrillSheet({
+  expandedCell,
+  onOpenChange,
+  onEventoClick,
+}: {
+  expandedCell: { rowId: string; weekIdx: number } | null
+  onOpenChange: (open: boolean) => void
+  onEventoClick: () => void
+}) {
+  const origem = getOrigem(expandedCell?.rowId)
+
+  return (
+    <Sheet open={expandedCell !== null} onOpenChange={onOpenChange}>
+      <LightSheetContent className="w-[320px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            COMPOSIÇÃO · S{(expandedCell?.weekIdx ?? 0) + 1}
+          </span>
+        </div>
+
+        {origem === "documento" && (
+          <>
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)] mb-2">Eventos da célula</p>
+            <div className="flex flex-col gap-0.5">
+              {EVENTOS_CELULA_MOCK.map((e) => (
+                <button
+                  key={e.id}
+                  type="button"
+                  onClick={onEventoClick}
+                  className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition text-left"
+                >
+                  <div>
+                    <span className="text-[11px] font-medium text-[var(--brand-navy)]">{e.data}</span>
+                    <span className="text-[11px] text-muted-foreground mx-1.5">·</span>
+                    <span className="text-[11px] text-muted-foreground">{e.contraparte}</span>
+                    <span
+                      className="ml-2 text-[10px] font-semibold"
+                      style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+                    >
+                      {e.status}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]">
+                    R$ {e.valor.toLocaleString("pt-BR")}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {origem === "estimativa" && (
+          <div className="py-2">
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
+          </div>
+        )}
+
+        {origem === "manual" && (
+          <button type="button" onClick={onEventoClick} className="w-full text-left py-2">
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
+            {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
+            <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}</p>
+          </button>
+        )}
+      </LightSheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Semana Sheet — visão consolidada da semana
+// ---------------------------------------------------------------------
+function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const s = SEMANA_MOCK
+
+  const fmtVal = (v: number) => {
+    const abs = Math.abs(v)
+    const formatted = abs >= 1000 ? `${(abs / 1000).toFixed(0)}k` : abs.toLocaleString("pt-BR")
+    return v < 0 ? `-R$ ${formatted}` : `R$ ${formatted}`
+  }
+  const colorFor = (v: number) => v < 0 ? "var(--brand-error-soft)" : "var(--brand-navy)"
+
+  const handleAction = (action: string) => {
+    console.log("Ação semana:", action)
+    onOpenChange(false)
+  }
+
+  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <LightSheetContent className="w-[320px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            SEMANA · S{s.numero} · {s.dateRange.toUpperCase()}
+          </span>
+        </div>
+
+        {/* Bloco saldo */}
+        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          {[
+            { label: "Caixa inicial", value: s.caixaInicial },
+            { label: "Caixa final", value: s.caixaFinal },
+            { label: "Mínimo da semana", value: s.minimo },
+          ].map((item) => (
+            <div key={item.label} className="flex items-baseline gap-1.5 py-1">
+              <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
+              <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(item.value) }}>
+                {fmtVal(item.value)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Bloco totais */}
+        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Entradas</span>
+            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-navy)]">
+              {fmtVal(s.totalEntradas)}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Saídas</span>
+            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-error-soft)]">
+              {fmtVal(s.totalSaidas)}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Líquido</span>
+            <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(s.liquido) }}>
+              {fmtVal(s.liquido)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ações */}
+        <div className="flex flex-col gap-0.5">
+          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Ver todos eventos da semana")}>
+            <Eye className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Ver todos eventos da semana</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">lista completa de entradas e saídas</p>
+            </div>
+            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+          </button>
+          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Comparar Forecast vs Actual")}>
+            <BarChart3 className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Comparar Forecast vs Actual</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">previsto contra realizado</p>
+            </div>
+            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      </LightSheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Informar Saldo Manual Sheet
+// ---------------------------------------------------------------------
+const UNIDADES_SALDO = ["Consolidado", "Filial 1", "Filial 2"]
+
+function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const [unidadeSaldo, setUnidadeSaldo] = useState("Filial 2")
+  const [valorSaldo, setValorSaldo] = useState("")
+  const [dataSaldo, setDataSaldo] = useState("")
+
+  const handleSave = () => {
+    console.log("Saldo salvo:", { unidade: unidadeSaldo, valor: valorSaldo, data: dataSaldo })
+    onOpenChange(false)
+  }
+
+  const LABEL = "text-[10px] font-semibold text-muted-foreground"
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[340px] p-[14px]">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
+          <button type="button" onClick={() => onOpenChange(false)} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Campos */}
+        <div className="flex flex-col gap-3">
+          <div>
+            <label className={LABEL}>Unidade</label>
+            <Select value={unidadeSaldo} onValueChange={setUnidadeSaldo}>
+              <SelectTrigger className="h-7 text-[13px] font-semibold border-0 border-b border-border bg-transparent rounded-none px-1 focus:ring-0 focus:border-[var(--brand-blue)] mt-0.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {UNIDADES_SALDO.map((u) => (
+                  <SelectItem key={u} value={u} className="text-[12px]">{u}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className={LABEL}>Valor</label>
+            <input
+              type="text"
+              value={valorSaldo}
+              onChange={(e) => setValorSaldo(maskValor(e.target.value))}
+              placeholder="R$ 0,00"
+              className="w-full h-8 text-[18px] font-extrabold tabular-nums border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 mt-0.5 text-[var(--brand-navy)]"
+            />
+          </div>
+          <div>
+            <label className={LABEL}>Data de referência</label>
+            <input
+              type="text"
+              value={dataSaldo}
+              onChange={(e) => setDataSaldo(maskData(e.target.value))}
+              placeholder="DD/MM/AAAA"
+              className="w-full h-6 text-[13px] border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 mt-0.5"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="w-full h-8 bg-[var(--brand-navy)] text-white text-[12px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
+          >
+            Salvar saldo
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Zona 2 — KPIs (linha tipográfica compacta)
+// ---------------------------------------------------------------------
+function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction: (id: string, action: AcaoProblema) => void }) {
+  const verdictKey: Veredito = pendencias.length === 0 ? "OK" : "DADOS_INSUFICIENTES"
+  const veredito = VEREDITO_STYLES[verdictKey]
+  return (
+    <section className="mb-3 flex flex-wrap items-baseline border-y border-border py-2 px-1">
+      <KpiInline label="Caixa hoje" value="R$ 34.494" />
+      <KpiInline label="Mínimo" value="-R$ 251.633" valueColor="var(--brand-error-soft)" meta="S12 · 20/jul" />
+      <KpiInline label="Médio" value="-R$ 121.566" valueColor="var(--brand-error-soft)" meta="13 sem" />
+      <div className="inline-flex items-baseline gap-2 px-4">
+        <Popover>
+          <PopoverTrigger className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition" style={{ color: veredito.fg }}>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: veredito.dotColor }} />
+            {veredito.label}
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-[320px] p-3 text-[12px]">
+            {pendencias.length === 0 ? (
+              <div className="py-4 text-center">
+                <CheckCircle2 className="h-6 w-6 mx-auto text-[var(--brand-green)]" />
+                <p className="text-[11px] text-muted-foreground mt-2">Tudo verificado · nenhuma pendência</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
+                  <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
+                  <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">{pendencias.length}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  {pendencias.map((it) => (
+                    <div key={it.id} className="rounded-md p-2 hover:bg-[rgba(7,29,59,0.03)] transition">
+                      <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
+                      <p className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{it.detail}</p>
+                      <p className="text-[10px] text-muted-foreground/80 leading-tight mt-0.5 italic">{it.impact}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {it.actions.map((a, i) => (
+                          <button key={i} type="button" onClick={() => onAction(it.id, a)} className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition">
+                            {a.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </PopoverContent>
+        </Popover>
+        {pendencias.length > 0 && (
+          <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
+            <AlertTriangle className="h-3 w-3" />{pendencias.length} críticas
+          </button>
+        )}
+      </div>
     </section>
   )
 }
 
-function KpiCard({ label, value, sub, valueColor }: { label: string; value: string; sub: string; valueColor?: string }) {
+function KpiInline({ label, value, valueColor, meta }: { label: string; value: string; valueColor?: string; meta?: string }) {
   return (
-    <article className="relative overflow-hidden rounded-lg border bg-white p-3" style={{ borderColor: LINE }}>
-      <span aria-hidden className="absolute inset-y-0 left-0 w-[3px]" style={{ background: CYAN }} />
-      <p className="text-[10px] font-semibold uppercase" style={{ color: MUTED, letterSpacing: "0.1em" }}>
-        {label}
-      </p>
-      <p
-        className="mt-1.5 text-[18px] font-semibold leading-tight tabular-nums"
-        style={{ color: valueColor ?? NAVY, fontVariantNumeric: "tabular-nums" }}
-      >
-        {value}
-      </p>
-      <p className="mt-1 text-[11px]" style={{ color: MUTED }}>
-        {sub}
-      </p>
-    </article>
+    <div className="inline-flex items-baseline gap-1.5 px-4 first:pl-1 border-r last:border-r-0 border-border rounded-md hover:bg-[rgba(7,29,59,0.04)] transition">
+      <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
+      <span className="text-[13px] font-bold tabular-nums" style={{ color: valueColor ?? "var(--brand-navy)" }}>{value}</span>
+      {meta && <span className="text-[11px] text-muted-foreground font-normal">{meta}</span>}
+    </div>
   )
 }
 
@@ -370,56 +1128,78 @@ const FIRST_COL_WIDTH = 220
 const WEEK_COL_WIDTH = 65
 const TOTAL_COL_WIDTH = 95
 const BEYOND_COL_WIDTH = 95
-const TOTAL_BORDER_LEFT = `4px solid ${LINE}`
-const HEADER_GRADIENT = `linear-gradient(180deg, ${NAVY} 0%, #0a2853 100%)`
+const TOTAL_BORDER_LEFT = "4px solid var(--border)"
+const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
-const ALL_KEYS: (keyof OpenState)[] = ["op", "op_rec", "op_sai", "fin", "inv", "ic"]
+const SECTION_KEYS: (keyof OpenState)[] = ["op", "fin", "inv", "ic"]
+const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
 
-function Zone3Grid() {
+  function Zone3Grid({
+    onRowClick,
+    onCellClick,
+    onWeekClick,
+    highlightedRowId,
+    highlightedWeekIdx,
+    expandedCell,
+  }: {
+    onRowClick?: (rowId: string) => void
+    onCellClick?: (rowId: string, weekIdx: number) => void
+    onWeekClick?: (weekIdx: number) => void
+    highlightedRowId?: string | null
+    highlightedWeekIdx?: number | null
+    expandedCell?: { rowId: string; weekIdx: number } | null
+  }) {
+  const [nivel, setNivel] = useState<1 | 2 | 3>(2)
   const [open, setOpen] = useState<OpenState>({
-    op: true,
-    op_rec: false,
-    op_sai: false,
-    fin: false,
-    inv: false,
-    ic: false,
+  op: true,
+  op_rec: false,
+  op_sai: false,
+  fin: false,
+  inv: false,
+  ic: false,
   })
   const toggle = (k: keyof OpenState) => setOpen((p) => ({ ...p, [k]: !p[k] }))
-  // (4) Recolher / Expandir tudo — mexe nos 6 chevrons de uma vez.
-  const expandAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: true }), {} as OpenState))
-  const collapseAll = () => setOpen(ALL_KEYS.reduce((acc, k) => ({ ...acc, [k]: false }), {} as OpenState))
+
+  const applyNivel = (n: 1 | 2 | 3) => {
+    setNivel(n)
+    if (n === 1) {
+      // Sintético: tudo colapsado
+      setOpen({ op: false, op_rec: false, op_sai: false, fin: false, inv: false, ic: false })
+    } else if (n === 2) {
+      // Grupos: seções abertas, sub-grupos fechados
+      setOpen({ op: true, op_rec: false, op_sai: false, fin: true, inv: true, ic: true })
+    } else {
+      // Detalhado: tudo aberto
+      setOpen({ op: true, op_rec: true, op_sai: true, fin: true, inv: true, ic: true })
+    }
+  }
 
   return (
-    <section className="rounded-lg border bg-white" style={{ borderColor: LINE }} aria-label="Grade de fluxo de caixa em 13 semanas">
-      {/* Sub-header da tabela: rótulo + botões expandir/recolher tudo */}
-      <div
-        className="flex items-center justify-between gap-2 border-b px-4 py-2"
-        style={{ borderColor: LINE }}
-      >
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUTED }}>
-          Valores em R$
-        </span>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={collapseAll}
-            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
-            style={{ borderColor: LINE, color: NAVY }}
-          >
-            <ChevronsUp className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
-            Recolher tudo
-          </button>
-          <button
-            type="button"
-            onClick={expandAll}
-            className="inline-flex items-center gap-1.5 rounded-md border bg-white px-2.5 py-1 text-[12px] font-semibold transition-colors hover:bg-slate-50"
-            style={{ borderColor: LINE, color: NAVY }}
-          >
-            <ChevronsDown className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden />
-            Expandir tudo
-          </button>
-        </div>
+  <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
+
+      {/* Controle de nível */}
+      <div className="flex items-center justify-end px-3 py-1.5 border-b border-border">
+        {[
+          { value: 1 as const, label: "sintético" },
+          { value: 2 as const, label: "grupos" },
+          { value: 3 as const, label: "detalhado" },
+        ].map((n, i) => (
+          <span key={n.value} className="flex items-center">
+            {i > 0 && <span className="text-[10px] text-muted-foreground/40 mx-1.5">·</span>}
+            <button
+              type="button"
+              onClick={() => applyNivel(n.value)}
+              className={
+                nivel === n.value
+                  ? "text-[10px] font-semibold text-[var(--brand-navy)] underline underline-offset-4 decoration-[var(--brand-blue)] decoration-1 transition"
+                  : "text-[10px] font-medium text-muted-foreground hover:text-[var(--brand-navy)] transition"
+              }
+            >
+              {n.label}
+            </button>
+          </span>
+        ))}
       </div>
 
       {/* Wrapper com scrollbars sempre visíveis. */}
@@ -453,11 +1233,12 @@ function Zone3Grid() {
                   top: 0,
                   zIndex: 4,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--brand-navy)",
                   fontSize: 11,
                   fontWeight: 700,
-                  letterSpacing: "0.06em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
+                  borderBottom: "1px solid var(--brand-navy)",
                 }}
               >
                 Categoria
@@ -466,18 +1247,21 @@ function Zone3Grid() {
                 <th
                   key={i}
                   scope="col"
-                  className="px-1.5 py-2 text-right"
+                  className={`px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)] ${highlightedWeekIdx === i ? "!bg-[rgba(21,103,200,0.10)]" : ""}`}
                   style={{
                     position: "sticky",
                     top: 0,
                     zIndex: 3,
-                    background: HEADER_GRADIENT,
-                    color: "#FFFFFF",
+                    background: highlightedWeekIdx === i ? "rgba(21,103,200,0.10)" : HEADER_GRADIENT,
+                    color: highlightedWeekIdx === i ? "var(--brand-navy)" : "var(--muted-foreground)",
                     fontSize: 10,
                     fontWeight: 700,
-                    letterSpacing: "0.04em",
+                    letterSpacing: "0.02em",
                     textTransform: "uppercase",
+                    borderBottom: "1px solid var(--brand-navy)",
+                    cursor: "pointer",
                   }}
+                  onClick={() => onWeekClick?.(i)}
                 >
                   <div className="flex flex-col items-end leading-tight">
                     <span>{w.label}</span>
@@ -489,18 +1273,20 @@ function Zone3Grid() {
               ))}
               <th
                 scope="col"
-                className="px-1.5 py-2 text-right"
+                className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
                 style={{
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--muted-foreground)",
                   fontSize: 10,
                   fontWeight: 700,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
                   borderLeft: TOTAL_BORDER_LEFT,
+                  borderBottom: "1px solid var(--brand-navy)",
+                  cursor: "pointer",
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
@@ -510,17 +1296,19 @@ function Zone3Grid() {
               </th>
               <th
                 scope="col"
-                className="px-1.5 py-2 text-right"
+                className="px-1.5 py-2 text-right transition hover:!bg-[rgba(21,103,200,0.08)] hover:!text-[var(--brand-navy)]"
                 style={{
                   position: "sticky",
                   top: 0,
                   zIndex: 3,
                   background: HEADER_GRADIENT,
-                  color: "#FFFFFF",
+                  color: "var(--muted-foreground)",
                   fontSize: 10,
                   fontWeight: 700,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.02em",
                   textTransform: "uppercase",
+                  borderBottom: "1px solid var(--brand-navy)",
+                  cursor: "pointer",
                 }}
               >
                 <div className="flex flex-col items-end leading-tight">
@@ -559,18 +1347,32 @@ function Zone3Grid() {
                 {open.op_rec && (
                   <>
                     <DataRow
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span style={{ color: MUTED }}>(vencimentos)</span></>}
+                      rowId="op_rec-cr_receber"
+                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CR_RECEBER}
                       total={sum(CR_RECEBER)}
                       beyond={BEYOND_CR_RECEBER}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_rec-cr_receber"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_receber" ? expandedCell.weekIdx : null}
+                     
                     />
                     <DataRow
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span style={{ color: MUTED }}>- recuperação</span></>}
+                      rowId="op_rec-cr_recuperacao"
+                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
                       values={CR_RECUPERACAO}
                       total={sum(CR_RECUPERACAO)}
                       beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_rec-cr_recuperacao"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_recuperacao" ? expandedCell.weekIdx : null}
+                     
                     />
-                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} />
+                    <DataRow rowId="op_rec-outras" label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_rec-outras"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null} />
                   </>
                 )}
 
@@ -586,21 +1388,35 @@ function Zone3Grid() {
                 {open.op_sai && (
                   <>
                     <DataRow
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span style={{ color: MUTED }}>(vencimentos)</span></>}
+                      rowId="op_sai-cp_pagar"
+                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span className="text-muted-foreground">(vencimentos)</span></>}
                       values={CP_A_PAGAR}
                       total={sum(CP_A_PAGAR)}
                       beyond={BEYOND_CP_A_PAGAR}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-cp_pagar"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_pagar" ? expandedCell.weekIdx : null}
+                     
                     />
                     <DataRow
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span style={{ color: MUTED }}>- renegociação</span></>}
+                      rowId="op_sai-cp_vencidos"
+                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
                       values={CP_VENCIDOS}
                       total={sum(CP_VENCIDOS)}
                       beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-cp_vencidos"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_vencidos" ? expandedCell.weekIdx : null}
+                     
                     />
-                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} />
-                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} />
-                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} />
-                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} />
+                    <DataRow rowId="op_sai-folha" label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-folha"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-tributos" label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-tributos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-encargos" label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-encargos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-despesas" label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-despesas"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null} />
                   </>
                 )}
               </>
@@ -619,16 +1435,23 @@ function Zone3Grid() {
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} />
-                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} />
-                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} />
+                <DataRow rowId="fin-emprest_novos" label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_novos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="fin-aporte" label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-aporte"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="fin-emprest_fin" label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_fin"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null} />
                 <DataRow
+                  rowId="fin-tarifas"
                   label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
                   values={TARIFAS_IOF}
                   total={sum(TARIFAS_IOF)}
                   beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-tarifas"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-tarifas" ? expandedCell.weekIdx : null}
+                 
                 />
-                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} />
+                <DataRow rowId="fin-retirada" label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-retirada"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -643,8 +1466,8 @@ function Zone3Grid() {
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} />
-                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} />
+                <DataRow rowId="inv-venda" label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-venda"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="inv-compra" label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-compra"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -659,8 +1482,8 @@ function Zone3Grid() {
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} />
-                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} />
+                <DataRow rowId="ic-receb" label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-receb"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="ic-pagto" label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-pagto"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -728,46 +1551,43 @@ function SectionHeader({
           onToggle()
         }
       }}
-      style={{ cursor: "pointer" }}
+      className="group cursor-pointer transition-colors"
     >
       <th
         scope="row"
-        className="px-3 text-left"
+        className="px-3 text-left text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--brand-navy)] transition group-hover:!bg-[rgba(21,103,200,0.06)]"
         style={{
           position: "sticky",
           left: 0,
           zIndex: 1,
-          background: "#FFFFFF",
-          color: NAVY,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
+          background: "var(--card)",
           paddingTop: 8,
           paddingBottom: 6,
-          borderBottom: `1px solid ${LINE}`,
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
+          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
           {label}
         </span>
       </th>
       {Array.from({ length: 13 }).map((_, i) => (
         <td
           key={i}
-          style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }}
+          className="transition group-hover:!bg-[rgba(21,103,200,0.06)]"
+          style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }}
         />
       ))}
       <td
+        className="transition group-hover:!bg-[rgba(21,103,200,0.06)]"
         style={{
-          background: "#FFFFFF",
-          borderBottom: `1px solid ${LINE}`,
+          background: "var(--card)",
+          borderBottom: "1px solid var(--border)",
           borderLeft: TOTAL_BORDER_LEFT,
           height: 26,
         }}
       />
-      <td style={{ background: "#FFFFFF", borderBottom: `1px solid ${LINE}`, height: 26 }} />
+      <td className="transition group-hover:!bg-[rgba(21,103,200,0.06)]" style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }} />
     </tr>
   )
 }
@@ -805,24 +1625,21 @@ function SubGroupHeader({
           onToggle()
         }
       }}
-      style={{ cursor: "pointer" }}
+      className="group cursor-pointer transition-colors"
     >
       <th
         scope="row"
-        className="px-3 py-1.5 text-left"
+        className="px-3 py-1.5 text-left text-[11px] font-bold text-[var(--brand-navy)] transition group-hover:!bg-[rgba(21,103,200,0.10)]"
         style={{
           position: "sticky",
           left: 0,
           zIndex: 1,
           background: SUBTOTAL_BG,
-          color: NAVY,
-          fontSize: 11,
-          fontWeight: 700,
-          borderBottom: `1px solid ${LINE}`,
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3" strokeWidth={2.4} aria-hidden style={{ color: NAVY }} />
+          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
           {label}
         </span>
       </th>
@@ -833,7 +1650,8 @@ function SubGroupHeader({
           baseBg={SUBTOTAL_BG}
           fontWeight={700}
           colorRule="signed"
-          borderBottom={`1px solid ${LINE}`}
+          borderBottom="1px solid var(--border)"
+          className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
         />
       ))}
       <NumericCell
@@ -841,16 +1659,18 @@ function SubGroupHeader({
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom={`1px solid ${LINE}`}
+        borderBottom="1px solid var(--border)"
         isTotalCol
+        className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
       />
       <NumericCell
         value={subtotalBeyond}
         baseBg={SUBTOTAL_BG}
         fontWeight={700}
         colorRule="signed"
-        borderBottom={`1px solid ${LINE}`}
+        borderBottom="1px solid var(--border)"
         isTotalCol
+        className="transition group-hover:!bg-[rgba(21,103,200,0.10)]"
       />
     </tr>
   )
@@ -872,6 +1692,12 @@ function DataRow({
   variant = "default",
   upperLabel = false,
   isLast = false,
+  onClickRow,
+  onCellClick,
+  rowId,
+  isHighlighted = false,
+  highlightedWeekIdx,
+  expandedWeekIdx,
 }: {
   label: ReactNode
   values: number[]
@@ -880,15 +1706,22 @@ function DataRow({
   variant?: RowVariant
   upperLabel?: boolean
   isLast?: boolean
+  onClickRow?: (rowId: string) => void
+  onCellClick?: (rowId: string, weekIdx: number) => void
+  rowId?: string
+  isHighlighted?: boolean
+  highlightedWeekIdx?: number | null
+  expandedWeekIdx?: number | null
 }) {
-  const borderBottom = isLast ? "none" : `1px solid ${LINE}`
+  const borderBottom = isLast ? "none" : "1px solid var(--border)"
+  const isClickable = variant === "default"
 
-  let labelColor = NAVY
+  let labelColor = "var(--brand-navy)"
   let valueWeight: 400 | 500 | 600 | 700 = 500
   let labelWeight: 400 | 500 | 600 | 700 = 500
   let italic = false
   let colorRule: "default" | "signed" = "default"
-  let rowBg = "#FFFFFF"
+  let rowBg = "var(--card)"
 
   switch (variant) {
     case "subtotal":
@@ -898,7 +1731,7 @@ function DataRow({
       rowBg = SUBTOTAL_BG
       break
     case "muted":
-      labelColor = MUTED
+      labelColor = "var(--muted-foreground)"
       labelWeight = 400
       valueWeight = 400
       italic = true
@@ -909,60 +1742,76 @@ function DataRow({
       colorRule = "default"
   }
 
+  const highlightBg = "rgba(21,103,200,0.10)"
+
   return (
-    <tr>
-      <th
-        scope="row"
-        className="px-3 py-1.5 text-left"
-        style={{
-          position: "sticky",
-          left: 0,
-          zIndex: 1,
-          background: rowBg,
-          color: labelColor,
-          fontSize: 11,
-          fontWeight: labelWeight,
-          fontStyle: italic ? "italic" : "normal",
-          textTransform: upperLabel ? "uppercase" : "none",
-          letterSpacing: upperLabel ? "0.04em" : "normal",
-          borderBottom,
-        }}
+    <>
+      <tr
+        className={isClickable ? "group cursor-pointer transition-colors" : undefined}
+        onClick={isClickable && rowId ? () => onClickRow?.(rowId) : undefined}
       >
-        {label}
-      </th>
-      {values.map((v, i) => (
+        <th
+          scope="row"
+          className={`px-3 py-1.5 text-left${isClickable ? " transition group-hover:!bg-[rgba(21,103,200,0.05)]" : ""}`}
+          style={{
+            position: "sticky",
+            left: 0,
+            zIndex: 1,
+            background: isHighlighted ? highlightBg : rowBg,
+            color: labelColor,
+            fontSize: 11,
+            fontWeight: labelWeight,
+            fontStyle: italic ? "italic" : "normal",
+            textTransform: upperLabel ? "uppercase" : "none",
+            letterSpacing: upperLabel ? "0.04em" : "normal",
+            borderBottom,
+          }}
+        >
+          {label}
+        </th>
+        {values.map((v, i) => {
+          const isCellExpanded = expandedWeekIdx === i
+          const isCellHighlighted = highlightedWeekIdx === i
+          const cellBg = isHighlighted ? highlightBg : isCellExpanded ? "rgba(21,103,200,0.12)" : isCellHighlighted ? "rgba(21,103,200,0.04)" : rowBg
+          return (
+            <NumericCell
+              key={i}
+              value={v}
+              baseBg={cellBg}
+              fontWeight={valueWeight}
+              italic={italic}
+              colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
+              colorRule={colorRule}
+              borderBottom={borderBottom}
+              className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
+              onClick={isClickable && rowId ? () => onCellClick?.(rowId, i) : undefined}
+            />
+          )
+        })}
         <NumericCell
-          key={i}
-          value={v}
-          baseBg={rowBg}
-          fontWeight={valueWeight}
+          value={total}
+          baseBg={isHighlighted ? highlightBg : rowBg}
+          fontWeight={Math.max(valueWeight, 600) as 600 | 700}
           italic={italic}
-          colorOverride={variant === "muted" ? MUTED : undefined}
+          colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
           colorRule={colorRule}
           borderBottom={borderBottom}
+          isTotalCol
+          className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
         />
-      ))}
-      <NumericCell
-        value={total}
-        baseBg={rowBg}
-        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
-        italic={italic}
-        colorOverride={variant === "muted" ? MUTED : undefined}
-        colorRule={colorRule}
-        borderBottom={borderBottom}
-        isTotalCol
-      />
-      <NumericCell
-        value={beyond}
-        baseBg={rowBg}
-        fontWeight={Math.max(valueWeight, 600) as 600 | 700}
-        italic={italic}
-        colorOverride={variant === "muted" ? MUTED : undefined}
-        colorRule={colorRule}
-        borderBottom={borderBottom}
-        isTotalCol
-      />
-    </tr>
+        <NumericCell
+          value={beyond}
+          baseBg={isHighlighted ? highlightBg : rowBg}
+          fontWeight={Math.max(valueWeight, 600) as 600 | 700}
+          italic={italic}
+          colorOverride={variant === "muted" ? "var(--muted-foreground)" : undefined}
+          colorRule={colorRule}
+          borderBottom={borderBottom}
+          isTotalCol
+          className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
+        />
+      </tr>
+    </>
   )
 }
 
@@ -978,6 +1827,8 @@ function NumericCell({
   colorRule = "default",
   borderBottom,
   isTotalCol = false,
+  className,
+  onClick,
 }: {
   value: number | null
   baseBg: string
@@ -987,24 +1838,26 @@ function NumericCell({
   colorRule?: "default" | "signed"
   borderBottom: string
   isTotalCol?: boolean
+  className?: string
+  onClick?: () => void
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
 
   let color: string
   if (isEmpty) {
-    color = MUTED
+    color = "var(--muted-foreground)"
   } else if (colorOverride) {
     color = colorOverride
   } else if (colorRule === "signed") {
-    color = isNegative ? NEG : NAVY
+    color = isNegative ? "var(--brand-error-soft)" : "var(--brand-navy)"
   } else {
-    color = isNegative ? NEG : INK
+    color = isNegative ? "var(--brand-error-soft)" : "var(--foreground)"
   }
 
   return (
     <td
-      className="px-1.5 py-1.5 text-right"
+      className={["px-1.5 py-1.5 text-right", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
       style={{
         background: baseBg,
         color,
@@ -1016,28 +1869,10 @@ function NumericCell({
         borderLeft: isTotalCol ? TOTAL_BORDER_LEFT : undefined,
         whiteSpace: "nowrap",
       }}
+      onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
     >
       {fmtCompact(isEmpty ? null : (value as number))}
     </td>
   )
 }
 
-// ---------------------------------------------------------------------
-// Footer pendências
-// ---------------------------------------------------------------------
-function FooterPendencias() {
-  return (
-    <footer className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]" style={{ color: MUTED }}>
-      <span>Pendências críticas:</span>
-      <button type="button" className="font-semibold underline-offset-2 hover:underline" style={{ color: BLUE }}>
-        1
-      </button>
-      <span>(Banco sem dado recente)</span>
-      <span aria-hidden style={{ color: MUTED }}>·</span>
-      <span>Pendências laterais:</span>
-      <button type="button" className="font-semibold underline-offset-2 hover:underline" style={{ color: BLUE }}>
-        0
-      </button>
-    </footer>
-  )
-}

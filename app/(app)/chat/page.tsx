@@ -4,18 +4,18 @@ import { useState, useRef, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   ArrowUp,
-  Sparkles,
-  Plus,
-  History,
   Paperclip,
-  BookOpen,
-  TrendingUp,
   Wallet,
   PieChart,
+  Users,
   Loader2,
+  Clock,
+  Tag,
+  TrendingDown,
+  TrendingUp,
+  RefreshCcw,
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
-import { cn } from "@/lib/utils"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
@@ -70,127 +70,318 @@ Exemplo: "Regime tributário é com seu contador. Se você me disser quanto econ
 ## Formato
 Texto corrido. Nada de cabeçalhos em negrito, nada de bullet list longa. Parece uma conversa por whatsapp com um CFO bom.`
 
-type Message = {
-  id: string
-  role: "user" | "cfoup"
-  content: string
-  sources?: string[]
+type AnswerCardData = {
+  dado: { destaque: string; sub?: string }
+  resposta: string
+  fonte: { periodo: string; base: string; premissa?: string }
+  risco: string
+  acao: string
 }
 
-type Thread = {
-  id: string
-  title: string
-  preview: string
-  when: string
-  messages: Message[]
+type Message =
+  | { id: string; role: "user"; text: string }
+  | { id: string; role: "cfoup"; card: AnswerCardData }
+
+type ChipIconKey = "wallet" | "users" | "piechart" | "clock" | "tag" | "trending-down" | "trending-up" | "refresh"
+type Chip = { label: string; question: string; icon: ChipIconKey }
+
+const ChipIconMap: Record<ChipIconKey, React.ReactNode> = {
+  wallet: <Wallet className="h-3.5 w-3.5" />,
+  users: <Users className="h-3.5 w-3.5" />,
+  piechart: <PieChart className="h-3.5 w-3.5" />,
+  clock: <Clock className="h-3.5 w-3.5" />,
+  tag: <Tag className="h-3.5 w-3.5" />,
+  "trending-down": <TrendingDown className="h-3.5 w-3.5" />,
+  "trending-up": <TrendingUp className="h-3.5 w-3.5" />,
+  refresh: <RefreshCcw className="h-3.5 w-3.5" />,
 }
 
-const PRELOADED_EXAMPLE: Message[] = [
-  {
-    id: "m1",
-    role: "user",
-    content: "Qual o impacto se eu antecipar 40% dos recebíveis este mês?",
-  },
-  {
-    id: "m2",
-    role: "cfoup",
-    content:
-      "Considerando R$ 612k em recebíveis nos próximos 30 a 60 dias, antecipar 40% coloca cerca de R$ 244,8k no caixa hoje. O adquirente cobra 2,9% ao mês, então o custo fica em R$ 7,1k.",
-    sources: ["Banco PJ · Adquirente", "Recebíveis · 30–60d"],
-  },
-  {
-    id: "m3",
-    role: "cfoup",
-    content:
-      "A Gregorutt já opera com 8 meses de caixa e a margem em 14,9%. Só faz sentido antecipar se você tiver destino claro pra esse dinheiro — estoque, pagar uma dívida cara ou fechar uma venda grande. Sem isso, os R$ 7,1k viram custo sem retorno.",
-    sources: ["Visão Geral · Caixa", "Margens · 90d"],
-  },
-]
+function chipSetFor(lastUserText: string | null): Chip[] {
+  const q = (lastUserText ?? "").toLowerCase()
 
-const MOCK_THREADS: Omit<Thread, "messages">[] = [
-  { id: "t1", title: "Antecipação de recebíveis · agosto", preview: "Impacto no caixa e na margem", when: "Agora" },
-  { id: "t2", title: "Onde tô perdendo margem?", preview: "Diagnóstico por linha de receita", when: "Ontem" },
-  { id: "t3", title: "Contratar mais um vendedor?", preview: "Break-even do novo contratado", when: "3 dias" },
-  { id: "t4", title: "Reajuste de preço da Linha B", preview: "Elasticidade e margem-alvo", when: "Semana passada" },
-  { id: "t5", title: "Preciso me preocupar com o PMR?", preview: "Concentração e atraso", when: "Mês passado" },
-]
+  if (/(caixa.*negativ|negativ.*caixa|s\d+.*negativ|semana.*negativ|aperto|cobrir.*caixa|falta.*caixa|buraco)/.test(q)) {
+    return [
+      { label: "Antecipar recebível ajuda?", question: "Vale antecipar recebível pra cobrir o caixa?", icon: "wallet" },
+      { label: "Posso adiar fornecedor?", question: "Posso adiar pagamento de fornecedor sem queimar a relação?", icon: "clock" },
+      { label: "Vale renegociar dívida?", question: "Vale renegociar dívida pra ganhar fôlego de caixa?", icon: "refresh" },
+    ]
+  }
+
+  if (/(margem|desconto|rentab|preço|preco|perdendo)/.test(q)) {
+    return [
+      { label: "Qual cliente me dá lucro?", question: "Qual cliente realmente me dá lucro?", icon: "piechart" },
+      { label: "Onde tô perdendo dinheiro?", question: "Onde estou perdendo dinheiro no negócio?", icon: "trending-down" },
+      { label: "Desconto descontrolado?", question: "Meus vendedores estão dando desconto demais?", icon: "tag" },
+    ]
+  }
+
+  if (/(funcionário|funcionario|contrata|folha|vendedor|head|comercial|salário|salario|equipe)/.test(q)) {
+    return [
+      { label: "Posso contratar agora?", question: "Posso contratar mais um funcionário agora?", icon: "users" },
+      { label: "Quanto custa de verdade?", question: "Quanto custa de verdade um funcionário pra empresa?", icon: "wallet" },
+      { label: "Em quanto se paga?", question: "Em quanto tempo a contratação se paga?", icon: "trending-up" },
+    ]
+  }
+
+  if (/(receb|antecip|adquir|cartão|cartao|atras)/.test(q)) {
+    return [
+      { label: "Quanto custa antecipar?", question: "Quanto custa antecipar 40% dos recebíveis?", icon: "wallet" },
+      { label: "Tem alternativa?", question: "Tem alternativa mais barata que antecipar recebível?", icon: "refresh" },
+      { label: "Quem tá atrasando?", question: "Quem está me devendo há mais de 30 dias?", icon: "clock" },
+    ]
+  }
+
+  // Default — sem contexto ou pergunta neutra
+  return [
+    { label: "Posso contratar mais um funcionário agora?", question: "Posso contratar mais um funcionário agora?", icon: "users" },
+    { label: "Qual cliente realmente me dá lucro?", question: "Qual cliente realmente me dá lucro?", icon: "piechart" },
+    { label: "Vale antecipar recebível pra cobrir o caixa?", question: "Vale antecipar recebível pra cobrir o caixa?", icon: "wallet" },
+  ]
+}
+
+function relatedQuestionsFor(lastUserText: string | null): string[] {
+  const q = (lastUserText ?? "").toLowerCase()
+
+  // Caixa / fôlego / aperto
+  if (/(caixa.*negativ|negativ.*caixa|s\d+.*negativ|semana.*negativ|aperto|cobrir.*caixa|falta.*caixa|buraco|fôlego|folego|quanto tempo|caixa aguent|operar com o caixa)/.test(q)) {
+    return [
+      "Vale antecipar recebível pra cobrir o caixa?",
+      "Posso adiar pagamento de fornecedor sem queimar a relação?",
+      "Quem está me devendo há mais de 30 dias?",
+      "Vale renegociar dívida pra ganhar fôlego?",
+      "A folha do mês cabe no caixa?",
+      "Em qual semana o caixa fica mais apertado?",
+    ]
+  }
+
+  // Margem / rentabilidade
+  if (/(margem|desconto|rentab|preço|preco|perdendo|onde.*perd|lucr.*produto|lucr.*linha)/.test(q)) {
+    return [
+      "Qual cliente realmente me dá lucro?",
+      "Qual linha de produto sustenta o resultado?",
+      "Meus vendedores estão dando desconto demais?",
+      "Que custo cresceu mais nos últimos meses?",
+      "Tenho margem pra aumentar preço sem perder cliente?",
+      "Onde o resultado vai sangrando sem ninguém perceber?",
+    ]
+  }
+
+  // Contratação / folha
+  if (/(funcionário|funcionario|contrata|folha|vendedor|head|comercial|salário|salario|equipe|admit|demit)/.test(q)) {
+    return [
+      "Posso contratar mais um funcionário agora?",
+      "Quanto custa de verdade um funcionário pra empresa?",
+      "Em quanto tempo a contratação se paga?",
+      "Qual o impacto da contratação no caixa do trimestre?",
+      "Qual o ponto de equilíbrio de uma vaga nova?",
+      "Vale CLT ou PJ pra esse perfil?",
+    ]
+  }
+
+  // Recebíveis / cobrança / antecipação
+  if (/(receb|antecip|adquir|cartão|cartao|atras|inadimpl|cliente.*pag|cobrar|cobrança|cobranca)/.test(q)) {
+    return [
+      "Quanto custa antecipar 40% dos recebíveis?",
+      "Tem alternativa mais barata que antecipar?",
+      "Quem está me devendo há mais de 30 dias?",
+      "Qual minha taxa real de inadimplência?",
+      "Posso oferecer desconto pra pagamento antecipado?",
+      "Que cliente concentra mais recebível em atraso?",
+    ]
+  }
+
+  // Concentração / perda de cliente
+  if (/(concentra|cliente.*(sair|perd)|dependênc|dependenc|maior cliente|perder.*cliente)/.test(q)) {
+    return [
+      "O que acontece se eu perder meu maior cliente?",
+      "Estou dependente demais de poucos clientes?",
+      "Qual cliente realmente me dá lucro?",
+      "Quanto tempo eu sobreviveria sem o cliente top?",
+      "Que contratos médios fechar antes da próxima renovação?",
+    ]
+  }
+
+  // Retirada / dividendos / sócios
+  if (/(retirada|pro[- ]?labore|sócio|socio|distribuir|dividend|quanto.*retirar|prejudicar.*negócio)/.test(q)) {
+    return [
+      "Quanto posso retirar este mês sem prejudicar o negócio?",
+      "Quanto devo deixar de reserva no caixa da empresa?",
+      "Estou tirando do lucro ou da reserva?",
+      "Vale aumentar a retirada agora ou esperar fechar o trimestre?",
+    ]
+  }
+
+  // Default — sem contexto ainda
+  return [
+    "Quanto tempo minha empresa consegue operar com o caixa atual?",
+    "Onde estou perdendo dinheiro no negócio?",
+    "O que acontece se eu perder meu maior cliente?",
+    "Quanto posso retirar da empresa sem prejudicar o negócio?",
+    "Posso contratar mais um funcionário agora?",
+    "Vale antecipar recebível pra cobrir o caixa?",
+  ]
+}
 
 function buildPrompt(history: Message[]): string {
   const transcript = history
-    .map((m) => `${m.role === "cfoup" ? "CFOup" : "Rafael"}: ${m.content}`)
+    .map((m) => {
+      if (m.role === "user") return `Rafael: ${m.text}`
+      return `CFOup: ${m.card.resposta}`
+    })
     .join("\n\n")
   return `${buildSystemPrompt()}\n\n## Conversa até agora\n${transcript}\n\nCFOup:`
 }
 
-function fallbackFor(question: string): string {
+function fallbackFor(question: string): AnswerCardData {
   const q = question.toLowerCase()
 
-  // Fora do escopo
-  if (/(imposto|tributa|fiscal|regime tribut|deduç|deducao|declaraç|declaracao|darf|nota fiscal)/.test(q)) {
-    return "Tributário e fiscal é com seu contador, não posso entrar no mérito. Mas se você me disser o valor envolvido, eu mostro em 1 minuto como isso mexe no caixa dos próximos 90 dias."
-  }
-  if (/(contrato|juridic|jurídic|processo|advogad|societ|litig|cláusula|clausula)/.test(q)) {
-    return "Jurídico é com o escritório de vocês. O que eu consigo é traduzir o cenário em impacto financeiro — me passa os números em jogo e eu te devolvo a leitura."
-  }
-  if (/(regulaç|regulac|anvisa|cvm|bacen|compliance|lei ger|lgpd)/.test(q)) {
-    return "Regulatório foge do meu papel. Se tiver custo envolvido na decisão, me passa os valores e eu te mostro o efeito em caixa e margem."
-  }
-
-  // No escopo
-  if (/antecip/.test(q)) {
-    return "Antecipar 40% coloca ~R$ 244,8k no caixa hoje. Custa R$ 7,1k (2,9% ao mês do adquirente). Só vale se você já tem destino pro dinheiro — estoque, dívida cara ou oportunidade comercial. Senão, é custo sem retorno."
-  }
-  if (/(runway|caixa aguent|quanto tempo|fôlego|folego)/.test(q)) {
-    return `No ritmo de hoje, a ${clienteAtual.empresa.nomeCurto} aguenta cerca de 8 meses de caixa. Folga confortável. A dor aqui não é liquidez — é o PMR subindo, que já trava ~R$ 48k de capital de giro.`
-  }
-  if (/(margem|perdendo|rentabil)/.test(q)) {
-    return "A bruta subiu pra 42,6%. Quem tá puxando pra baixo é a Linha B: caiu 2,1 p.p. no trimestre por desconto fora da política. Corrigir a régua de desconto recupera uns R$ 18k por mês direto no resultado."
-  }
-  if (/(retirada|pro[- ]?labore|sócio|socio|distribuir|dividend)/.test(q)) {
-    return "Dá pra aumentar em R$ 20 a 25k este mês sem tocar no runway — o operacional tá cobrindo tudo. Mais que isso começa a comer a folga que você precisa pro fechamento trimestral."
-  }
-  if (/(concentra|cliente.*(sair|perd)|dependênc|dependenc)/.test(q)) {
-    return "Um cliente vale 34% da sua receita. Se ele sair, some ~R$ 164k/mês e o runway cai pra quase metade. O caminho é fechar 2 ou 3 contratos médios antes da próxima renovação."
-  }
-  if (/(pmr|prazo|receb|cobrança|cobranca)/.test(q)) {
-    return "Com o PMR indo de 28 pra 34 dias, você trava ~R$ 48k de capital de giro. As saídas são três: apertar a cobrança, dar desconto pra pagamento antecipado, ou antecipar recebíveis (e aí é 2,9% ao mês de custo)."
-  }
-  if (/(concilia|classific|lançamento|lancamento)/.test(q)) {
-    return "Os 7 lançamentos do Banco PJ sem categoria provavelmente são o que tá fazendo a Linha B parecer pior do que é. Classifica hoje e a leitura muda — aposto que a margem de B sobe uns 1,5 p.p."
-  }
-  if (/(duplicad|pagamento.*repet)/.test(q)) {
-    return "Tem duas entradas idênticas em 12/08. Antes de pagar de novo, confirma com o fornecedor. Se for duplicidade real, tem ~R$ 9,5k pra recuperar. Pro próximo ciclo, ativa alerta de pagamento repetido."
-  }
-  if (/(vendedor|contrata|head|time comercial)/.test(q)) {
-    return "Novo head comercial custa ~R$ 28k/mês carregado. Com ramp-up de 3 meses, o break-even fica em 4,5 meses se ele trouxer R$ 40k de receita marginal. Se a meta for mais baixa que isso, segura."
-  }
-  if (/(relatori|fechament|resumo|como.*saúde|como.*saude)/.test(q)) {
-    return "Mês fechou saudável: R$ 482k de receita, R$ 71,8k de resultado, margem 14,9%. Dois pontos pra observar — concentração em 34% e PMR subindo. Nenhum dos dois é emergência."
-  }
-  if (/(estoque|capital de giro)/.test(q)) {
-    return "Capital de giro hoje tá apertando por dois motivos: PMR em 34 dias e fornecedores em 30. Se você antecipasse R$ 200k de recebíveis e destinasse a estoque, ganharia 2 a 3 semanas de fôlego operacional."
-  }
-  if (/(compet|concorr|mercad)/.test(q)) {
-    return `Comparação com o mercado não é minha praia — não vejo os concorrentes. O que vejo é ${clienteAtual.empresa.nomeCurto}: sua margem bruta de 42,6% é forte, e a Linha B é onde você tá deixando dinheiro na mesa.`
-  }
-
-  return `Pra te dar leitura sólida, me ancora nos números reais da ${clienteAtual.empresa.nomeCurto}. Me diz qual valor, qual decisão ou qual cenário — eu devolvo o impacto direto em caixa e margem.`
-}
-
-async function askClaude(history: Message[]): Promise<string> {
-  const prompt = buildPrompt(history)
-  if (typeof window !== "undefined" && window.claude?.complete) {
-    try {
-      const out = await window.claude.complete(prompt)
-      if (typeof out === "string" && out.trim().length > 0) return out.trim()
-    } catch (err) {
-      console.error("[v0] window.claude.complete falhou:", err)
+  // 1. Caixa / quanto tempo / fôlego (EmptyState #1)
+  if (/(caixa aguent|quanto tempo|fôlego|folego|operar com o caixa)/.test(q)) {
+    return {
+      dado: { destaque: "8 meses de fôlego", sub: "Caixa atual: R$ 1,284 mi" },
+      resposta:
+        "Hoje você tem R$ 1,284 mi no banco. Com folha, fornecedor e imposto saindo todo mês (~R$ 156k), " +
+        "dá pra segurar uns 8 meses sem receita nova. Folga boa. " +
+        "O problema não é o caixa — é que tem dinheiro seu parado na rua: o cliente tá pagando mais devagar (34 dias em vez de 28).",
+      fonte: {
+        periodo: "Mês corrente",
+        base: "Saldo bancário consolidado · saídas médias 90d",
+        premissa: "Sem grande saída atípica no horizonte",
+      },
+      risco: "Cada dia a mais que o cliente demora pra pagar é dinheiro que não tá no seu caixa pra cobrir fornecedor ou repor estoque",
+      acao: "Cobrar mais rápido antes de pensar em antecipar",
     }
   }
-  // Fallback — simula latência curta para UX mais realista
+
+  // 2. Margem / perdendo dinheiro (EmptyState #2)
+  if (/(margem|perdendo|rentabil|onde.*perd)/.test(q)) {
+    return {
+      dado: { destaque: "Linha B perdeu 2,1 p.p.", sub: "Margem caiu de 20,8% para 18,7%" },
+      resposta:
+        "A Linha B tá sangrando margem — caiu de 20,8% pra 18,7% em 3 meses. " +
+        "Não é custo subindo, é vendedor dando desconto que não devia. " +
+        "Se você travar desconto no sistema, recupera uns R$ 18k por mês que hoje tá indo pro cliente de graça.",
+      fonte: {
+        periodo: "Últimos 90 dias",
+        base: "Margem por linha · descontos aplicados",
+        premissa: "Volume mantido se ajustar desconto",
+      },
+      risco: "Desconto vira costume — quanto mais tempo passa, mais difícil tirar sem o cliente reclamar",
+      acao: "Travar desconto no sistema; se vendedor quiser mais, precisa de aprovação",
+    }
+  }
+
+  // 3. Concentração / perder cliente (EmptyState #3)
+  if (/(concentra|cliente.*(sair|perd)|dependênc|dependenc|maior cliente|perder.*cliente)/.test(q)) {
+    return {
+      dado: { destaque: "R$ 164k a menos por mês", sub: "Um cliente vale 34% da receita" },
+      resposta:
+        "Se esse cliente sair, somem R$ 164k por mês e o fôlego de caixa cai de 8 meses pra 4. " +
+        "Não quebra, mas aperta muito. " +
+        "A saída não é torcer pra ele ficar — é fechar 2 ou 3 contratos médios antes da renovação dele, pra ter onde cair se precisar.",
+      fonte: {
+        periodo: "Receita últimos 90d",
+        base: "Top clientes · participação consolidada",
+        premissa: "Custo variável sai junto com o cliente",
+      },
+      risco: "Cliente grande sabe que você depende dele — e usa isso na hora de negociar preço",
+      acao: "Fechar 2 ou 3 contratos médios antes da próxima renovação",
+    }
+  }
+
+  // 4. Retirada / pró-labore (EmptyState #4)
+  if (/(retirada|pro[- ]?labore|sócio|socio|distribuir|dividend|quanto.*retirar|prejudicar.*negócio)/.test(q)) {
+    return {
+      dado: { destaque: "R$ 20k a 25k este mês", sub: "Sem encostar na folga de caixa" },
+      resposta:
+        "Dá pra tirar de R$ 20k a R$ 25k este mês sem apertar nada. " +
+        "É o que sobra depois de pagar tudo e manter a folga pro fechamento do trimestre. " +
+        "Acima disso, você começa a usar a reserva, não o lucro.",
+      fonte: {
+        periodo: "Resultado últimos 90d",
+        base: "Resultado médio mensal · necessidade de caixa",
+        premissa: "Faturamento estável no trimestre",
+      },
+      risco: "Retirada alta parece tranquila até o mês em que um cliente atrasa e o caixa não tem de onde tirar",
+      acao: "Fixar teto de retirada como % do resultado do mês anterior",
+    }
+  }
+
+  // 5. Contratar funcionário (Chip #1)
+  if (/(contrata|funcionário|funcionario|head|vendedor|time comercial|mais um)/.test(q)) {
+    return {
+      dado: { destaque: "Custo: ~R$ 28k/mês", sub: "Se paga em ~4,5 meses" },
+      resposta:
+        "Com salário e encargos, um comercial sênior sai por uns R$ 28k/mês. " +
+        "Leva uns 3 meses pra ele engatar. Pra se pagar em menos de 5 meses, precisa trazer R$ 40k de venda nova. " +
+        "Menos que isso, vira folha que não se paga.",
+      fonte: {
+        periodo: "Estimativa atual",
+        base: "Custo CLT perfil sênior · encargos ~70%",
+        premissa: "Traz R$ 40k/mês de venda nova depois de 3 meses",
+      },
+      risco: "Contratação que não traz venda vira corte caro 6 meses depois",
+      acao: "Combinar a meta de venda antes de abrir a vaga",
+    }
+  }
+
+  // 6. Cliente lucrativo (Chip #2)
+  if (/(cliente.*lucr|lucro.*cliente|qual cliente|rentab.*cliente)/.test(q)) {
+    return {
+      dado: { destaque: "Linha A: margem 38,2%", sub: "É onde sobra dinheiro de verdade" },
+      resposta:
+        "Os clientes da Linha A deixam 38,2% de margem — é o que sustenta o resultado. " +
+        "Linha B parece grande, mas com margem de 18,7% a maior parte da receita vira custo, não lucro. " +
+        "Cliente bom não é o que paga mais; é o que deixa margem.",
+      fonte: {
+        periodo: "Últimos 90 dias",
+        base: "Margem por linha de receita",
+        premissa: "Custos diretos alocados por linha",
+      },
+      risco: "Vendedor que bate meta de receita bruta pode estar trazendo volume na linha errada e afundando o resultado",
+      acao: "Comissionar por margem, não por receita bruta",
+    }
+  }
+
+  // 7. Antecipar recebível (Chip #3)
+  if (/antecip/.test(q)) {
+    return {
+      dado: { destaque: "R$ 244,8k no caixa hoje", sub: "Custo: R$ 7,1k" },
+      resposta:
+        "Dá pra colocar R$ 244,8k no caixa hoje se antecipar 40% do que tem pra entrar nos próximos 30–60 dias. " +
+        "Custa R$ 7,1k. Vale se você tem fornecedor pressionando, folha chegando ou estoque pra repor. " +
+        "Se não tem nenhum aperto, é dinheiro que sai do bolso e não volta.",
+      fonte: {
+        periodo: "Recebíveis 30–60d",
+        base: "Adquirente · taxa 2,9%/mês",
+        premissa: "40% da carteira disponível",
+      },
+      risco: "Antecipar sem ter pra quê resolve o problema de hoje e cria o do mês que vem",
+      acao: "Antes de antecipar, ver se é emergência ou se dá pra segurar",
+    }
+  }
+
+  // Default — sem âncora suficiente
+  return {
+    dado: { destaque: "Posso ajudar — me dá uma âncora" },
+    resposta:
+      "Consigo te ajudar com isso, mas preciso de algo concreto pra calcular o impacto: um valor, um prazo ou uma decisão. " +
+      "Exemplo: quanto falta, em qual semana e qual alternativa você tá considerando. " +
+      "Aí eu te devolvo o efeito direto em caixa e resultado.",
+    fonte: { periodo: "—", base: "Dados conectados · mês corrente" },
+    risco: "Sem âncora, qualquer resposta é palpite — e palpite não decide nada",
+    acao: "Reescrever a pergunta com um valor, um prazo ou uma decisão concreta",
+  }
+}
+
+// LLM real entra em round seguinte com prompt que pede JSON dos 5 campos.
+// Por ora, render é sempre via fallback determinístico — garante que nenhuma
+// resposta seja texto inventado.
+async function askClaude(history: Message[]): Promise<AnswerCardData> {
   await new Promise((r) => setTimeout(r, 700))
   const last = history[history.length - 1]
-  return fallbackFor(last?.content ?? "")
+  const text = last && last.role === "user" ? last.text : ""
+  return fallbackFor(text)
 }
 
 /* ============================================================================ *
@@ -209,66 +400,42 @@ function ChatInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [threads, setThreads] = useState<Thread[]>(() =>
-    MOCK_THREADS.map((t) => ({
-      ...t,
-      messages: t.id === "t1" ? PRELOADED_EXAMPLE : [],
-    })),
-  )
-  const [activeId, setActiveId] = useState<string>("t1")
+  const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState("")
   const [pending, setPending] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
   const handledQuery = useRef(false)
 
-  const active = threads.find((t) => t.id === activeId) ?? threads[0]
+  // Derivar lastUser e related uma vez
+  const lastUser = [...messages].reverse().find((m) => m.role === "user") as
+    | { id: string; role: "user"; text: string }
+    | undefined
+  const related = relatedQuestionsFor(lastUser?.text ?? null)
+  const chips = chipSetFor(lastUser?.text ?? null)
 
   useEffect(() => {
     if (scroller.current) {
       scroller.current.scrollTop = scroller.current.scrollHeight
     }
-  }, [active?.messages.length, pending])
+  }, [messages.length, pending])
 
   const submit = useCallback(
-    async (raw: string, targetId?: string) => {
+    async (raw: string) => {
       const text = raw.trim()
       if (!text || pending) return
-      const tid = targetId ?? activeId
 
-      const userMsg: Message = { id: `u-${Date.now()}`, role: "user", content: text }
-
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.id === tid
-            ? {
-                ...t,
-                preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
-                when: "Agora",
-                messages: [...t.messages, userMsg],
-              }
-            : t,
-        ),
-      )
+      const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text }
+      setMessages((prev) => [...prev, userMsg])
       setDraft("")
       setPending(true)
 
-      const current = threads.find((t) => t.id === tid)
-      const historyForCall = [...(current?.messages ?? []), userMsg]
-
-      const reply = await askClaude(historyForCall)
-      const cfoupMsg: Message = {
-        id: `c-${Date.now()}`,
-        role: "cfoup",
-        content: reply,
-        sources: [`Dados de ${clienteAtual.empresa.nomeCurto} · mês corrente`],
-      }
-      setThreads((prev) =>
-        prev.map((t) => (t.id === tid ? { ...t, messages: [...t.messages, cfoupMsg] } : t)),
-      )
+      const card = await askClaude([...messages, userMsg])
+      const cfoupMsg: Message = { id: `c-${Date.now()}`, role: "cfoup", card }
+      setMessages((prev) => [...prev, cfoupMsg])
       setPending(false)
     },
-    [activeId, pending, threads],
+    [messages, pending],
   )
 
   // Trata ?q=...&auto=1
@@ -278,26 +445,10 @@ function ChatInner() {
     const auto = searchParams.get("auto")
     if (!q) return
     handledQuery.current = true
-
-    const newId = `t-${Date.now()}`
-    const newThread: Thread = {
-      id: newId,
-      title: q.length > 52 ? q.slice(0, 52) + "…" : q,
-      preview: "Agora",
-      when: "Agora",
-      messages: [],
-    }
-    setThreads((prev) => [newThread, ...prev])
-    setActiveId(newId)
-
-    // Limpa a URL
     router.replace("/chat", { scroll: false })
 
     if (auto === "1") {
-      // Dispara automaticamente
-      setTimeout(() => {
-        submit(q, newId)
-      }, 50)
+      setTimeout(() => submit(q), 50)
     } else {
       setDraft(q)
       setTimeout(() => textarea.current?.focus(), 50)
@@ -305,127 +456,56 @@ function ChatInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function startNewConversation() {
-    const newId = `t-${Date.now()}`
-    setThreads((prev) => [
-      {
-        id: newId,
-        title: "Nova conversa",
-        preview: "Pergunta o que precisar",
-        when: "Agora",
-        messages: [],
-      },
-      ...prev,
-    ])
-    setActiveId(newId)
-    setDraft("")
-    setTimeout(() => textarea.current?.focus(), 50)
-  }
-
   return (
-    <div className="-mx-5 -my-8 md:-mx-10 lg:-mx-12 lg:-my-12">
-      <div className="grid min-h-[calc(100vh-4rem)] grid-cols-1 lg:min-h-screen lg:grid-cols-[320px_1fr]">
-        {/* Histórico de conversas */}
+    <div>
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr]">
+        {/* Perguntas relacionadas */}
         <aside
-          aria-label="Histórico de conversas"
+          aria-label="Perguntas relacionadas"
           className="hidden border-r border-border bg-muted/40 lg:flex lg:flex-col"
         >
-          <div className="px-6 pb-4 pt-10">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Chat CFOup
-            </p>
-            <h1 className="mt-2 text-xl font-extrabold tracking-tight" style={{ color: "var(--brand-navy)" }}>
-              Suas conversas
-            </h1>
-          </div>
-          <div className="px-4">
-            <button
-              type="button"
-              onClick={startNewConversation}
-              className="flex w-full items-center gap-2 rounded-xl border border-border bg-white px-3.5 py-2.5 text-left text-sm font-semibold text-[var(--brand-navy)] shadow-sm transition hover:border-[var(--brand-blue)]/40"
+          <div className="mb-3 px-6 pt-10">
+            <h2
+              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              style={{ color: "var(--brand-navy)" }}
             >
-              <Plus className="h-4 w-4" strokeWidth={2.2} />
-              Nova conversa
-            </button>
+              Continue a decisão
+            </h2>
           </div>
-
-          <div className="mt-6 flex-1 overflow-y-auto px-3 pb-6">
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Recentes
-            </p>
-            <ul className="space-y-0.5">
-              {threads.map((t) => {
-                const isActive = t.id === activeId
-                return (
-                  <li key={t.id}>
-                    <button
-                      type="button"
-                      onClick={() => setActiveId(t.id)}
-                      className={cn(
-                        "flex w-full flex-col items-start gap-1 rounded-lg px-3 py-2.5 text-left transition",
-                        isActive ? "bg-white shadow-sm ring-1 ring-border" : "hover:bg-white/70",
-                      )}
-                    >
-                      <span
-                        className="line-clamp-1 text-[13px] font-semibold leading-tight"
-                        style={{ color: isActive ? "var(--brand-navy)" : "var(--slate-700)" }}
-                      >
-                        {t.title}
-                      </span>
-                      <span className="line-clamp-1 text-xs text-muted-foreground">{t.preview}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                        {t.when}
-                      </span>
-                    </button>
-                  </li>
-                )
-              })}
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
+            <ul className="space-y-1">
+              {related.map((q) => (
+                <li key={q}>
+                  <button
+                    type="button"
+                    onClick={() => submit(q)}
+                    className="w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-[var(--slate-700)] transition hover:bg-white/70 hover:text-[var(--brand-navy)]"
+                  >
+                    {q}
+                  </button>
+                </li>
+              ))}
             </ul>
-          </div>
-
-          <div className="border-t border-border bg-white/70 px-5 py-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <BookOpen className="h-3.5 w-3.5" />
-              Respostas com base nos dados conectados da {clienteAtual.empresa.nomeCurto}.
-            </div>
           </div>
         </aside>
 
         {/* Área principal */}
-        <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-background lg:min-h-screen">
-          <header className="border-b border-border px-6 py-5 md:px-10 lg:px-12">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white">
-                  <Sparkles className="h-4 w-4" strokeWidth={2.2} />
-                </span>
-                <div>
-                  <h1 className="text-[1.35rem] font-extrabold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                    Chat CFOup
-                  </h1>
-                  <p className="text-[13px] text-muted-foreground">
-                    Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={startNewConversation}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)]"
-              >
-                <History className="h-4 w-4" />
-                Nova conversa
-              </button>
-            </div>
+        <div className="flex flex-col bg-background">
+          <header className="mb-3 px-6 md:px-10 lg:px-12">
+            <h1
+              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              style={{ color: "var(--brand-navy)" }}
+            >
+              Chat CFOup
+            </h1>
           </header>
 
           {/* Mensagens */}
-          <div ref={scroller} className="flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-3xl px-5 py-10 md:px-8">
-              {active.messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
-              {active.messages.map((m) =>
-                m.role === "user" ? <UserBubble key={m.id} text={m.content} /> : <CfoupBubble key={m.id} message={m} />,
+          <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>
+            <div className="mx-auto w-full max-w-3xl px-5 py-10 md:py-12 md:px-8">
+              {messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
+              {messages.map((m) =>
+                m.role === "user" ? <UserBubble key={m.id} text={m.text} /> : <AnswerCard key={m.id} card={m.card} />,
               )}
               {pending && <PendingBubble />}
             </div>
@@ -435,21 +515,14 @@ function ChatInner() {
           <div className="border-t border-border bg-background px-5 py-5 md:px-8 md:py-6">
             <div className="mx-auto w-full max-w-3xl">
               <div className="mb-3 flex flex-wrap gap-2">
-                <SuggestionChip
-                  icon={<Wallet className="h-3.5 w-3.5" />}
-                  label="Como tá o caixa hoje?"
-                  onClick={() => submit(`Como tá o caixa da ${clienteAtual.empresa.nomeCurto} hoje e quanto de fôlego eu tenho?`)}
-                />
-                <SuggestionChip
-                  icon={<PieChart className="h-3.5 w-3.5" />}
-                  label="Onde estou perdendo margem?"
-                  onClick={() => submit(`Onde a ${clienteAtual.empresa.nomeCurto} tá perdendo margem nos últimos 60 dias?`)}
-                />
-                <SuggestionChip
-                  icon={<TrendingUp className="h-3.5 w-3.5" />}
-                  label="Posso aumentar minha retirada?"
-                  onClick={() => submit("Posso aumentar minha retirada este mês sem comprometer o caixa?")}
-                />
+                {chips.map((c) => (
+                  <SuggestionChip
+                    key={c.question}
+                    icon={ChipIconMap[c.icon]}
+                    label={c.label}
+                    onClick={() => submit(c.question)}
+                  />
+                ))}
               </div>
 
               <form
@@ -475,7 +548,7 @@ function ChatInner() {
                   }}
                   rows={2}
                   placeholder="Pergunte sobre caixa, margens, recebíveis, clientes, cenários…"
-                  className="block w-full resize-none rounded-2xl bg-transparent px-5 pb-14 pt-4 text-[15px] leading-relaxed text-[var(--brand-navy)] placeholder:text-muted-foreground focus:outline-none"
+                  className="block w-full resize-none rounded-2xl bg-transparent px-5 pb-14 pt-4 text-[14px] leading-relaxed text-[var(--brand-navy)] placeholder:text-muted-foreground focus:outline-none"
                 />
                 <div className="absolute inset-x-3 bottom-3 flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -506,9 +579,6 @@ function ChatInner() {
                   </button>
                 </div>
               </form>
-              <p className="mt-3 text-[11px] text-muted-foreground">
-                Respostas baseadas nos dados conectados da {clienteAtual.empresa.nomeCurto}. Revise antes de decidir.
-              </p>
             </div>
           </div>
         </div>
@@ -521,9 +591,9 @@ function ChatInner() {
 
 function UserBubble({ text }: { text: string }) {
   return (
-    <div className="mb-8 flex justify-end">
+    <div className="mb-10 flex justify-end">
       <div
-        className="max-w-[85%] rounded-2xl rounded-tr-md px-4 py-3 text-[15px] leading-relaxed"
+        className="max-w-[85%] rounded-2xl rounded-tr-md px-4 py-3 text-[14px] leading-relaxed"
         style={{
           background: "var(--slate-100)",
           color: "var(--brand-navy)",
@@ -535,14 +605,14 @@ function UserBubble({ text }: { text: string }) {
   )
 }
 
-function CfoupBubble({ message }: { message: Message }) {
+function AnswerCard({ card }: { card: AnswerCardData }) {
   return (
-    <div className="mb-10 flex gap-4">
+    <div className="mb-12 flex gap-4">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
         <CfoupLogo showWordmark={false} size={32} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mb-1.5 flex items-baseline gap-2">
+        <div className="mb-3 flex items-baseline gap-2">
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
@@ -550,24 +620,39 @@ function CfoupBubble({ message }: { message: Message }) {
             Mesa de decisão
           </span>
         </div>
-        <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[var(--slate-700)]">{message.content}</p>
-        {message.sources && message.sources.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {message.sources.map((s) => (
-              <span
-                key={s}
-                className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
-              >
-                <span
-                  aria-hidden
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ backgroundColor: "var(--brand-cyan)" }}
-                />
-                {s}
-              </span>
-            ))}
-          </div>
+
+        {/* Slot 1 — Dado */}
+        <p className="text-[22px] font-extrabold leading-tight" style={{ color: "var(--brand-navy)" }}>
+          {card.dado.destaque}
+        </p>
+        {card.dado.sub && (
+          <p className="mt-1 text-[11px] text-muted-foreground">{card.dado.sub}</p>
         )}
+
+        <div className="my-4 border-t border-border" />
+
+        {/* Slot 2 — Resposta */}
+        <p className="text-[14px] leading-relaxed text-[var(--slate-700)]">{card.resposta}</p>
+
+        <div className="my-4 border-t border-border" />
+
+        {/* Slot 3 — Fonte */}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          FONTE · {card.fonte.periodo} • {card.fonte.base}
+          {card.fonte.premissa && ` • premissa: ${card.fonte.premissa}`}
+        </p>
+
+        {/* Slot 4 — Risco */}
+        <p className="mt-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700/80">RISCO</span>
+          <span className="ml-2 text-[13px] text-[var(--slate-700)]">{card.risco}</span>
+        </p>
+
+        {/* Slot 5 — Ação */}
+        <p className="mt-1">
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-cyan)" }}>AÇÃO</span>
+          <span className="ml-2 text-[13px] text-[var(--slate-700)]">{card.acao}</span>
+        </p>
       </div>
     </div>
   )
@@ -575,7 +660,7 @@ function CfoupBubble({ message }: { message: Message }) {
 
 function PendingBubble() {
   return (
-    <div className="mb-10 flex gap-4">
+    <div className="mb-12 flex gap-4">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
         <CfoupLogo showWordmark={false} size={32} />
       </div>
@@ -606,30 +691,23 @@ function PendingBubble() {
 
 function EmptyState({ onPick }: { onPick: (q: string) => void }) {
   const examples = [
-    "Devo antecipar 40% dos recebíveis este mês?",
-    "Onde tô perdendo margem nos últimos 60 dias?",
-    "Se meu maior cliente sair, quanto eu sobrevivo?",
-    "Posso aumentar minha retirada esse mês?",
+    "Quanto tempo minha empresa consegue operar com o caixa atual?",
+    "Onde estou perdendo dinheiro no negócio?",
+    "O que acontece se eu perder meu maior cliente?",
+    "Quanto posso retirar da empresa sem prejudicar o negócio?",
   ]
   return (
-    <div className="mb-10 rounded-2xl border border-border bg-card p-8">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <Sparkles className="h-3.5 w-3.5" />
-        Comece por aqui
-      </div>
-      <h2 className="mt-2 text-xl font-extrabold" style={{ color: "var(--brand-navy)" }}>
-        O que você quer saber sobre a {clienteAtual.empresa.nomeCurto}?
+    <div className="mb-10 rounded-2xl border border-border bg-card p-6 md:p-7">
+      <h2 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        Pergunte sobre caixa, margem, clientes, fornecedores ou cenários.
       </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Responde em poucas frases, com os números do mês corrente. Quanto mais específica a pergunta, melhor a leitura.
-      </p>
-      <ul className="mt-5 grid gap-2 md:grid-cols-2">
+      <ul className="mt-4 grid gap-2 md:grid-cols-2">
         {examples.map((ex) => (
           <li key={ex}>
             <button
               type="button"
               onClick={() => onPick(ex)}
-              className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-left text-[13px] font-medium text-[var(--slate-700)] transition hover:border-[var(--brand-blue)]/40 hover:text-[var(--brand-navy)]"
+              className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-left text-[13px] font-semibold text-[var(--slate-700)] transition hover:border-[var(--brand-blue)]/40 hover:text-[var(--brand-navy)]"
             >
               {ex}
             </button>
@@ -653,7 +731,7 @@ function SuggestionChip({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-[12.5px] font-medium text-[var(--slate-700)] transition hover:border-[var(--brand-blue)]/40 hover:text-[var(--brand-navy)]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-[12px] font-semibold text-[var(--slate-700)] transition hover:border-[var(--brand-blue)]/40 hover:text-[var(--brand-navy)]"
     >
       <span className="text-[var(--brand-blue)]">{icon}</span>
       {label}
