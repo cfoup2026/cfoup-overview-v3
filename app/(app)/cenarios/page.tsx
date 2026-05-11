@@ -489,47 +489,52 @@ export default function CenariosPage() {
             Mesa de decisões
           </div>
 
-          <h3 className="mt-4 text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-            Em teste
-          </h3>
-          <div
-            className="mt-2 flex items-center gap-2.5 rounded-lg border p-3"
-            style={{
-              background: "rgba(54,186,88,0.08)",
-              borderColor: "rgba(54,186,88,0.25)",
-              borderLeftWidth: "3px",
-              borderLeftColor: "var(--brand-green, #36BA58)",
-            }}
-          >
-            <span aria-hidden className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--brand-green, #36BA58)" }} />
-            <span className="text-[13px] font-bold" style={{ color: "var(--brand-green-dark, #0F7A33)" }}>
-              {activeDecision.alavanca}
-            </span>
-            <span className="text-[11px] font-medium text-muted-foreground">
-              ({activeDecision.params.find((p) => p.value === activeParam)?.label})
-            </span>
+          <div className="mt-4 space-y-1">
+            {DECISIONS.map((d) => {
+              const isActive = d.id === activeId
+              const paramValue = paramByDecision[d.id]
+              const paramLabel = d.params.find((p) => p.value === paramValue)?.label ?? ""
+
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => activateDecision(d.id)}
+                  disabled={isActive}
+                  className={
+                    isActive
+                      ? "flex w-full items-baseline justify-between gap-2 rounded-lg border px-3 py-2.5 text-left cursor-default"
+                      : "flex w-full items-baseline justify-between gap-2 rounded-lg px-3 py-2.5 text-left transition hover:bg-[rgba(21,103,200,0.04)]"
+                  }
+                  style={
+                    isActive
+                      ? {
+                          background: "rgba(54,186,88,0.08)",
+                          borderColor: "rgba(54,186,88,0.25)",
+                          borderLeftWidth: "3px",
+                          borderLeftColor: "var(--brand-green, #36BA58)",
+                        }
+                      : undefined
+                  }
+                >
+                  <span
+                    className="text-[13px] font-semibold"
+                    style={{ color: isActive ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-ink-muted, #3D4D66)" }}
+                  >
+                    {d.alavanca}
+                  </span>
+                  {isActive && (
+                    <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                      {paramLabel}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
-          <h3 className="mt-5 text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-            Alternativas
-          </h3>
-          <div className="mt-2 space-y-0.5">
-            {DECISIONS.filter((d) => d.id !== activeId).map((d) => (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => activateDecision(d.id)}
-                className="flex w-full items-center gap-2.5 rounded-md px-1.5 py-2 text-left text-[13px] transition hover:bg-[rgba(21,103,200,0.04)]"
-                style={{ color: "#3D4D66" }}
-              >
-                <span aria-hidden className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border-[1.5px] border-muted-foreground" />
-                <span>{d.alavanca}</span>
-              </button>
-            ))}
-          </div>
-
-          <p className="mt-5 border-t border-[#EEF3F8] pt-3.5 text-[11.5px] leading-snug text-muted-foreground">
-            Clique em uma decisão para testar o cenário inteiro.
+          <p className="mt-5 border-t border-[var(--brand-line-soft,#EEF3F8)] pt-3.5 text-[11.5px] leading-snug text-muted-foreground">
+            Clique em uma decisão para testar.
           </p>
         </aside>
       </div>
