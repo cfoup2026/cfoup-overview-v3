@@ -4,11 +4,9 @@ import { useState, useRef, useEffect, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import {
   ArrowUp,
-  Sparkles,
   Plus,
   History,
   Paperclip,
-  BookOpen,
   Wallet,
   PieChart,
   Users,
@@ -370,14 +368,14 @@ function ChatInner() {
       messages: t.id === "t1" ? PRELOADED_EXAMPLE : [],
     })),
   )
-  const [activeId, setActiveId] = useState<string>("t1")
+  const [activeId, setActiveId] = useState<string | null>("t1")
   const [draft, setDraft] = useState("")
   const [pending, setPending] = useState(false)
   const scroller = useRef<HTMLDivElement>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
   const handledQuery = useRef(false)
 
-  const active = threads.find((t) => t.id === activeId) ?? threads[0]
+  const active = activeId ? threads.find((t) => t.id === activeId) ?? null : null
 
   useEffect(() => {
     if (scroller.current) {
@@ -389,14 +387,30 @@ function ChatInner() {
     async (raw: string, targetId?: string) => {
       const text = raw.trim()
       if (!text || pending) return
-      const tid = targetId ?? activeId
+
+      let tid = targetId ?? activeId
+      const isCreatingFromDraft = !tid
+
+      if (isCreatingFromDraft) {
+        tid = `t-${Date.now()}`
+        const derived = text.length > 52 ? text.slice(0, 52) + "…" : text
+        const fresh: Thread = {
+          id: tid,
+          title: derived,
+          preview: text.length > 60 ? text.slice(0, 60) + "…" : text,
+          when: "Agora",
+          messages: [],
+        }
+        setThreads((prev) => [fresh, ...prev])
+        setActiveId(tid)
+      }
 
       const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text }
 
       setThreads((prev) => {
-        const targetIdx = prev.findIndex((t) => t.id === tid)
-        if (targetIdx === -1) return prev
-        const target = prev[targetIdx]
+        const idx = prev.findIndex((t) => t.id === tid)
+        if (idx === -1) return prev
+        const target = prev[idx]
         const isFirstMessage = target.messages.length === 0 || target.title === "Nova conversa"
         const newTitle = isFirstMessage
           ? (text.length > 52 ? text.slice(0, 52) + "…" : text)
@@ -418,11 +432,7 @@ function ChatInner() {
       const historyForCall = [...(current?.messages ?? []), userMsg]
 
       const card = await askClaude(historyForCall)
-      const cfoupMsg: Message = {
-        id: `c-${Date.now()}`,
-        role: "cfoup",
-        card,
-      }
+      const cfoupMsg: Message = { id: `c-${Date.now()}`, role: "cfoup", card }
       setThreads((prev) =>
         prev.map((t) => (t.id === tid ? { ...t, messages: [...t.messages, cfoupMsg] } : t)),
       )
@@ -466,18 +476,7 @@ function ChatInner() {
   }, [])
 
   function startNewConversation() {
-    const newId = `t-${Date.now()}`
-    setThreads((prev) => [
-      {
-        id: newId,
-        title: "Nova conversa",
-        preview: "Pergunta o que precisar",
-        when: "Agora",
-        messages: [],
-      },
-      ...prev,
-    ])
-    setActiveId(newId)
+    setActiveId(null)
     setDraft("")
     setTimeout(() => textarea.current?.focus(), 50)
   }
@@ -542,13 +541,6 @@ function ChatInner() {
               })}
             </ul>
           </div>
-
-          <div className="border-t border-border bg-white/70 px-5 py-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <BookOpen className="h-3.5 w-3.5" />
-              Respostas com base nos dados conectados da {clienteAtual.empresa.nomeCurto}.
-            </div>
-          </div>
         </aside>
 
         {/* Área principal */}
@@ -561,9 +553,6 @@ function ChatInner() {
               >
                 Chat CFOup
               </h1>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
-              </p>
             </div>
 
             <button
@@ -579,8 +568,8 @@ function ChatInner() {
           {/* Mensagens */}
           <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>
             <div className="mx-auto w-full max-w-3xl px-5 py-10 md:py-12 md:px-8">
-              {active.messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
-              {active.messages.map((m) =>
+              {(!active || (active.messages.length === 0 && !pending)) && <EmptyState onPick={(q) => submit(q)} />}
+              {active?.messages.map((m) =>
                 m.role === "user" ? <UserBubble key={m.id} text={m.text} /> : <AnswerCard key={m.id} card={m.card} />,
               )}
               {pending && <PendingBubble />}
@@ -592,7 +581,9 @@ function ChatInner() {
             <div className="mx-auto w-full max-w-3xl">
               <div className="mb-3 flex flex-wrap gap-2">
                 {(() => {
-                  const lastUser = [...active.messages].reverse().find((m) => m.role === "user") as { role: "user"; text: string } | undefined
+                  const lastUser = active
+                    ? [...active.messages].reverse().find((m) => m.role === "user") as { role: "user"; text: string } | undefined
+                    : undefined
                   const chips = chipSetFor(lastUser?.text ?? null)
                   return chips.map((c) => (
                     <SuggestionChip
@@ -659,9 +650,6 @@ function ChatInner() {
                   </button>
                 </div>
               </form>
-              <p className="mt-3 text-[11px] text-muted-foreground">
-                Respostas baseadas nos dados conectados da {clienteAtual.empresa.nomeCurto}. Revise antes de decidir.
-              </p>
             </div>
           </div>
         </div>
@@ -781,17 +769,10 @@ function EmptyState({ onPick }: { onPick: (q: string) => void }) {
   ]
   return (
     <div className="mb-10 rounded-2xl border border-border bg-card p-6 md:p-7">
-      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <Sparkles className="h-3.5 w-3.5" />
-        Comece por aqui
-      </div>
-      <h2 className="mt-2 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-        O que você quer saber sobre a {clienteAtual.empresa.nomeCurto}?
+      <h2 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        Pergunte sobre caixa, margem, clientes, fornecedores ou cenários.
       </h2>
-      <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-        Responde em poucas frases, com os números do mês corrente. Quanto mais específica a pergunta, melhor a leitura.
-      </p>
-      <ul className="mt-5 grid gap-2 md:grid-cols-2">
+      <ul className="mt-4 grid gap-2 md:grid-cols-2">
         {examples.map((ex) => (
           <li key={ex}>
             <button
