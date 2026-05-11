@@ -1,8 +1,97 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { GitBranch, Plus, ArrowUpRight, Target, TrendingDown, TrendingUp } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 
+type Pct = 20 | 40 | 60
+
+type ScenarioData = {
+  caixa: string
+  custo: string
+  folego: string
+  folegoDetail: string
+  weeks: WeekEffect[]
+  leitura: string
+  chatQuery: string
+}
+
+const SCENARIO_DATA: Record<Pct, ScenarioData> = {
+  20: {
+    caixa: "+ R$ 122,4k",
+    custo: "− R$ 3,5k",
+    folego: "8,6 meses",
+    folegoDetail: "ganha umas 2 semanas",
+    weeks: [
+      { label: "S1",  tone: "positive", text: "entra caixa" },
+      { label: "S2",  tone: "empty" },
+      { label: "S3",  tone: "neutral",  text: "alivia" },
+      { label: "S4",  tone: "negative", text: "custo aparece" },
+      { label: "S5",  tone: "empty" },
+      { label: "S6",  tone: "empty" },
+      { label: "S7",  tone: "empty" },
+      { label: "S8",  tone: "empty" },
+      { label: "S9",  tone: "empty" },
+      { label: "S10", tone: "empty" },
+      { label: "S11", tone: "empty" },
+      { label: "S12", tone: "empty" },
+      { label: "S13", tone: "empty" },
+    ],
+    leitura: "Antecipação leve — alivia sem gastar muito, mas se o aperto for maior o caixa não aguenta.",
+    chatQuery: "Analisa o cenário de antecipar 20% dos recebíveis (R$ 122,4k de caixa, R$ 3,5k de custo). Vale agora?",
+  },
+  40: {
+    caixa: "+ R$ 244,8k",
+    custo: "− R$ 7,1k",
+    folego: "9,1 meses",
+    folegoDetail: "ganha quase 1 mês",
+    weeks: [
+      { label: "S1",  tone: "positive", text: "entra caixa" },
+      { label: "S2",  tone: "empty" },
+      { label: "S3",  tone: "neutral",  text: "evita aperto" },
+      { label: "S4",  tone: "negative", text: "custo aparece" },
+      { label: "S5",  tone: "empty" },
+      { label: "S6",  tone: "empty" },
+      { label: "S7",  tone: "empty" },
+      { label: "S8",  tone: "empty" },
+      { label: "S9",  tone: "empty" },
+      { label: "S10", tone: "empty" },
+      { label: "S11", tone: "empty" },
+      { label: "S12", tone: "empty" },
+      { label: "S13", tone: "empty" },
+    ],
+    leitura: "Esse cenário compra fôlego agora, mas custa R$ 7,1k e não corrige a causa se o aperto voltar no mês seguinte.",
+    chatQuery: "Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale agora?",
+  },
+  60: {
+    caixa: "+ R$ 367,2k",
+    custo: "− R$ 10,6k",
+    folego: "9,8 meses",
+    folegoDetail: "ganha quase 2 meses",
+    weeks: [
+      { label: "S1",  tone: "positive", text: "entra caixa" },
+      { label: "S2",  tone: "empty" },
+      { label: "S3",  tone: "neutral",  text: "sobra folga" },
+      { label: "S4",  tone: "negative", text: "custo alto" },
+      { label: "S5",  tone: "empty" },
+      { label: "S6",  tone: "empty" },
+      { label: "S7",  tone: "empty" },
+      { label: "S8",  tone: "empty" },
+      { label: "S9",  tone: "empty" },
+      { label: "S10", tone: "empty" },
+      { label: "S11", tone: "empty" },
+      { label: "S12", tone: "empty" },
+      { label: "S13", tone: "empty" },
+    ],
+    leitura: "Antecipação forte — fôlego de sobra, mas o custo de R$ 10,6k machuca se não tiver destino certo pro dinheiro.",
+    chatQuery: "Analisa o cenário de antecipar 60% dos recebíveis (R$ 367,2k de caixa, R$ 10,6k de custo). Vale agora?",
+  },
+}
+
 export default function CenariosPage() {
+  const [pct, setPct] = useState<Pct>(40)
+  const data = SCENARIO_DATA[pct]
   return (
     <>
       <PageHeader
@@ -30,20 +119,37 @@ export default function CenariosPage() {
           Entra caixa agora, mas a decisão custa margem e pode virar hábito se o aperto voltar.
         </p>
 
+        {/* Pills */}
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-[11px] font-semibold text-muted-foreground">Quanto antecipar?</span>
+          {([20, 40, 60] as Pct[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPct(p)}
+              className={`rounded-full px-3 py-1 text-[12px] font-semibold transition ${
+                pct === p
+                  ? "bg-[var(--brand-navy)] text-white"
+                  : "border border-border bg-white text-[var(--slate-700)] hover:border-[var(--brand-blue)]/40"
+              }`}
+            >
+              {p}%
+            </button>
+          ))}
+        </div>
+
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <ImpactTile label="Caixa agora" value="+ R$ 244,8k" tone="positive" detail="entra em até 2 dias" />
-          <ImpactTile label="Custo da decisão" value="− R$ 7,1k" tone="negative" detail="sai do resultado do mês" />
-          <ImpactTile label="Fôlego de caixa" value="9,1 meses" tone="neutral" detail="ganha quase 1 mês" />
+          <ImpactTile label="Caixa agora" value={data.caixa} tone="positive" detail="entra em até 2 dias" />
+          <ImpactTile label="Custo da decisão" value={data.custo} tone="negative" detail="sai do resultado do mês" />
+          <ImpactTile label="Fôlego de caixa" value={data.folego} tone="neutral" detail={data.folegoDetail} />
         </div>
 
         {/* Impacto 13 semanas */}
-        <WeeksImpactBlock />
+        <WeeksImpactBlock weeks={data.weeks} leitura={data.leitura} />
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
-            href={`/chat?q=${encodeURIComponent(
-              `Analisa o cenário de antecipar 40% dos recebíveis (R$ 244,8k de caixa, R$ 7,1k de custo). Vale agora?`,
-            )}&auto=1`}
+            href={`/chat?q=${encodeURIComponent(data.chatQuery)}&auto=1`}
             className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-white px-3.5 py-2 text-xs font-semibold text-[var(--brand-navy)] hover:border-[var(--brand-blue)]/40"
           >
             Discutir com o CFOup
@@ -86,23 +192,7 @@ type WeekEffect =
   | { label: string; tone: "positive" | "negative" | "neutral"; text: string }
   | { label: string; tone: "empty" }
 
-const WEEKS_IMPACT: WeekEffect[] = [
-  { label: "S1",  tone: "positive", text: "entra caixa" },
-  { label: "S2",  tone: "empty" },
-  { label: "S3",  tone: "neutral",  text: "evita aperto" },
-  { label: "S4",  tone: "negative", text: "custo aparece" },
-  { label: "S5",  tone: "empty" },
-  { label: "S6",  tone: "empty" },
-  { label: "S7",  tone: "empty" },
-  { label: "S8",  tone: "empty" },
-  { label: "S9",  tone: "empty" },
-  { label: "S10", tone: "empty" },
-  { label: "S11", tone: "empty" },
-  { label: "S12", tone: "empty" },
-  { label: "S13", tone: "empty" },
-]
-
-function WeeksImpactBlock() {
+function WeeksImpactBlock({ weeks, leitura }: { weeks: WeekEffect[]; leitura: string }) {
   return (
     <div className="mt-4 rounded-xl border border-border bg-white/80 p-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -110,7 +200,7 @@ function WeeksImpactBlock() {
       </p>
 
       <div className="mt-3 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1">
-        {WEEKS_IMPACT.map((w) => {
+        {weeks.map((w) => {
           const color =
             w.tone === "positive" ? "var(--brand-green-dark)" :
             w.tone === "negative" ? "var(--brand-red)" :
@@ -144,7 +234,7 @@ function WeeksImpactBlock() {
       </div>
 
       <p className="mt-3 text-[12px] leading-relaxed text-[var(--slate-700)]">
-        Esse cenário compra fôlego agora, mas custa R$ 7,1k e não corrige a causa se o aperto voltar no mês seguinte.
+        {leitura}
       </p>
     </div>
   )
