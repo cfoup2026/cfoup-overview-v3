@@ -1,5 +1,90 @@
+import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
+
+type Status = "saudavel" | "pressionando" | "risco" | "estavel"
+
+const STATUS_STYLES: Record<Status, { color: string; bg: string }> = {
+  saudavel: { color: "var(--brand-green)", bg: "rgba(54,186,88,0.10)" },
+  pressionando: { color: "var(--brand-warning)", bg: "rgba(224,139,0,0.12)" },
+  risco: { color: "var(--brand-error-soft)", bg: "rgba(209,67,67,0.10)" },
+  estavel: { color: "var(--brand-cyan)", bg: "rgba(56,184,232,0.10)" },
+}
+
+const STATUS_LABELS: Record<Status, string> = {
+  saudavel: "Saudável",
+  pressionando: "Pressionando",
+  risco: "Risco",
+  estavel: "Estável",
+}
+
+type Indicator = {
+  label: string
+  value: string
+  delta: string
+  refText: string
+  status: Status
+  leitura: string
+}
+
+const INDICADORES: Indicator[] = [
+  {
+    label: "Margem operacional",
+    value: "9,8%",
+    delta: "−0,4 p.p.",
+    refText: "pressão em despesa fixa",
+    status: "pressionando",
+    leitura: "Resultado pressionado em R$ 14k/mês.",
+  },
+  {
+    label: "Prazo médio de estoque",
+    value: "54 dias",
+    delta: "+6 dias",
+    refText: "giro caiu",
+    status: "risco",
+    leitura: "R$ 92k a mais presos do que em janeiro.",
+  },
+  {
+    label: "Margem bruta",
+    value: "32,4%",
+    delta: "+1,1 p.p.",
+    refText: "vs. ano anterior",
+    status: "saudavel",
+    leitura: "Mantém o fôlego pra absorver pressão.",
+  },
+  {
+    label: "Prazo médio de recebimento",
+    value: "38 dias",
+    delta: "−3 dias",
+    refText: "melhor desde jan",
+    status: "saudavel",
+    leitura: "Cliente pagando mais rápido.",
+  },
+  {
+    label: "Margem líquida",
+    value: "7,2%",
+    delta: "+0,2 p.p.",
+    refText: "mês fechado",
+    status: "saudavel",
+    leitura: "No azul, dentro da meta.",
+  },
+  {
+    label: "Prazo médio de pagamento",
+    value: "26 dias",
+    delta: "+1 dia",
+    refText: "dentro da política",
+    status: "estavel",
+    leitura: "Sem mudança relevante.",
+  },
+  {
+    label: "Ponto de equilíbrio",
+    value: "R$ 248k/mês",
+    delta: "+R$ 64k",
+    refText: "receita R$ 312k",
+    status: "saudavel",
+    leitura: "R$ 64k acima do ponto.",
+  },
+]
 
 export default function IndicadoresPage() {
   return (
@@ -7,106 +92,89 @@ export default function IndicadoresPage() {
       <PageHeader
         eyebrow="Mesa de decisão"
         title="Indicadores"
-        description={`Onde a ${clienteAtual.empresa.nomeCurto} está saudável, onde está pressionando e o que merece atenção agora.`}
+        description={`Sinais que o dono da ${clienteAtual.empresa.nomeCurto} olha antes de decidir. Margens, ciclo financeiro e ponto de equilíbrio.`}
       />
 
-      {/* Leitura do CFOup — ELEMENTO PRINCIPAL */}
+      {/* Leitura do CFOup — destaque navy no topo */}
       <section className="mb-6 rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-7 md:p-9 text-white">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Leitura do CFOup</p>
         <h2 className="mt-3 max-w-3xl text-balance text-[1.5rem] md:text-[1.75rem] font-extrabold leading-tight">
           Margem operacional pressiona o resultado em R$ 14k/mês. Caixa segura outros 6 meses no ritmo atual.
         </h2>
         <p className="mt-3 max-w-2xl text-white/85 text-[14px] leading-relaxed">
-          O fôlego da margem bruta segura a operação, mas a despesa fixa está absorvendo demais. Próxima decisão: revisar custo fixo no fechamento de junho.
+          Margem bruta e recebimento mantêm o fôlego. Estoque crescendo prende caixa.
         </p>
       </section>
 
-      {/* Bloco A — SAUDÁVEL */}
-      <section className="mb-3 relative rounded-2xl border border-border bg-card p-5 md:p-6 pl-7">
-        <span
-          aria-hidden
-          className="absolute left-0 top-0 h-full w-[4px] rounded-l-2xl"
-          style={{ background: "var(--brand-green)" }}
-        />
-        <span
-          className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
-          style={{ background: "rgba(54,186,88,0.10)", color: "var(--brand-green)" }}
-        >
-          Saudável
-        </span>
-        <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Margem bruta em <strong>32,4%</strong> mantém o fôlego, +1,1 p.p. vs ano anterior.
-        </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Recebimento em <strong>38 dias</strong> — melhorou 3 dias desde janeiro.
-        </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Receita do mês <strong>R$ 312k</strong>, R$ 64k acima do ponto de equilíbrio.
-        </p>
+      {/* Grid de indicadores — 3 colunas */}
+      <section className="mb-3 grid gap-4 md:grid-cols-3">
+        {INDICADORES.map((ind) => (
+          <IndicatorCard key={ind.label} {...ind} />
+        ))}
       </section>
 
-      {/* Bloco B — PRESSIONANDO */}
-      <section className="mb-3 relative rounded-2xl border border-border bg-card p-5 md:p-6 pl-7">
+      {/* Bloco final — Atenção agora */}
+      <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
         <span
-          aria-hidden
-          className="absolute left-0 top-0 h-full w-[4px] rounded-l-2xl"
-          style={{ background: "var(--brand-warning)" }}
-        />
-        <span
-          className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
-          style={{ background: "rgba(224,139,0,0.12)", color: "var(--brand-warning)" }}
-        >
-          Pressionando
-        </span>
-        <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Margem operacional caiu 0,4 p.p. — está em <strong>9,8%</strong>.
-        </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Despesa fixa absorvendo mais do que deveria. Resultado pressionado em <strong>R$ 14k/mês</strong>.
-        </p>
-      </section>
-
-      {/* Bloco C — RISCO */}
-      <section className="mb-3 relative rounded-2xl border border-border bg-card p-5 md:p-6 pl-7">
-        <span
-          aria-hidden
-          className="absolute left-0 top-0 h-full w-[4px] rounded-l-2xl"
-          style={{ background: "var(--brand-error-soft)" }}
-        />
-        <span
-          className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
-          style={{ background: "rgba(209,67,67,0.10)", color: "var(--brand-error-soft)" }}
-        >
-          Risco
-        </span>
-        <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Prazo médio de estoque subiu 6 dias, está em <strong>54 dias</strong>.
-        </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          <strong>R$ 92k</strong> a mais presos no estoque do que em janeiro.
-        </p>
-      </section>
-
-      {/* Bloco D — ATENÇÃO AGORA */}
-      <section className="mb-3 relative rounded-2xl border border-border bg-card p-5 md:p-6 pl-7">
-        <span
-          aria-hidden
-          className="absolute left-0 top-0 h-full w-[4px] rounded-l-2xl"
-          style={{ background: "var(--brand-blue)" }}
-        />
-        <span
-          className="inline-block text-[10px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded mb-3"
+          className="mb-3 inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em]"
           style={{ background: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }}
         >
           Atenção agora
         </span>
-        <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Revisar custo fixo no próximo fechamento.
-        </p>
-        <p className="mt-1.5 text-[14.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Olhar Prazo médio de estoque por linha de produto.
-        </p>
+        <ul className="space-y-2 text-[13.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+          <li>Revisar custo fixo no próximo fechamento.</li>
+          <li>Olhar Prazo médio de estoque por linha de produto.</li>
+        </ul>
       </section>
     </>
+  )
+}
+
+function IndicatorCard({ label, value, delta, refText, status, leitura }: Indicator) {
+  const styles = STATUS_STYLES[status]
+  const statusLabel = STATUS_LABELS[status]
+
+  const IconComponent = delta.startsWith("+") ? TrendingUp : delta.startsWith("−") || delta.startsWith("-") ? TrendingDown : Minus
+
+  const deltaColor =
+    status === "saudavel" ? "var(--brand-green-dark)" :
+    status === "pressionando" ? "var(--brand-warning)" :
+    status === "risco" ? "var(--brand-error-soft)" :
+    "var(--brand-cyan)"
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: styles.color }}
+      />
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+        <span
+          className="shrink-0 rounded px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.12em]"
+          style={{ background: styles.bg, color: styles.color }}
+        >
+          {statusLabel}
+        </span>
+      </div>
+      <p
+        className="text-[1.5rem] font-extrabold leading-none tabular-nums"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        {value}
+      </p>
+      <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold" style={{ color: deltaColor }}>
+        <IconComponent className="h-3.5 w-3.5" />
+        {delta}
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">{refText}</p>
+      <p
+        className="mt-3 border-t border-border pt-3 text-[12.5px] leading-relaxed"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        {leitura}
+      </p>
+    </div>
   )
 }
