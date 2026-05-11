@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2 } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -222,6 +222,16 @@ const EVENTO_MOCK: Evento = {
   origem: "API",
 }
 
+type EventoCelula = { id: string; data: string; contraparte: string; valor: number; status: "confirmado" | "estimado" }
+const EVENTOS_CELULA_MOCK: EventoCelula[] = [
+  { id: "e1", data: "08/05", contraparte: "Cliente ABC", valor: 22488, status: "confirmado" },
+  { id: "e2", data: "09/05", contraparte: "Cliente DEF", valor: 12000, status: "estimado" },
+  { id: "e3", data: "10/05", contraparte: "Cliente GHI", valor: 10187, status: "estimado" },
+]
+
+type Semana = { numero: number; dateRange: string; caixaInicial: number; caixaFinal: number; minimo: number; totalEntradas: number; totalSaidas: number; liquido: number }
+const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -76600, caixaFinal: -103819, minimo: -110000, totalEntradas: 0, totalSaidas: 15018, liquido: -15018 }
+
 // =====================================================================
 // Página
 // =====================================================================
@@ -239,8 +249,24 @@ export default function FluxoDeCaixa13Semanas() {
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
   const [openEvento, setOpenEvento] = useState(false)
+  const [openComposicao, setOpenComposicao] = useState(false)
+  const [openSemana, setOpenSemana] = useState(false)
 
   const handleRowClick = () => {
+    setSelectedEvento(EVENTO_MOCK)
+    setOpenEvento(true)
+  }
+
+  const handleCellClick = () => {
+    setOpenComposicao(true)
+  }
+
+  const handleWeekClick = () => {
+    setOpenSemana(true)
+  }
+
+  const handleEventoFromComposicao = () => {
+    setOpenComposicao(false)
     setSelectedEvento(EVENTO_MOCK)
     setOpenEvento(true)
   }
@@ -249,8 +275,10 @@ export default function FluxoDeCaixa13Semanas() {
   <>
   <Zone1Header unidade={unidade} setUnidade={setUnidade} />
   <Zone2Kpis />
-  <Zone3Grid onRowClick={handleRowClick} />
+  <Zone3Grid onRowClick={handleRowClick} onCellClick={handleCellClick} onWeekClick={handleWeekClick} />
   <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={setOpenEvento} />
+  <ComposicaoSheet open={openComposicao} onOpenChange={setOpenComposicao} onEventoClick={handleEventoFromComposicao} />
+  <SemanaSheet open={openSemana} onOpenChange={setOpenSemana} />
   </>
   )
   }
@@ -592,6 +620,161 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
 }
 
 // ---------------------------------------------------------------------
+// Composição Sheet — lista de eventos que somam o valor da célula
+// ---------------------------------------------------------------------
+function ComposicaoSheet({ open, onOpenChange, onEventoClick }: { open: boolean; onOpenChange: (v: boolean) => void; onEventoClick: () => void }) {
+  const total = EVENTOS_CELULA_MOCK.reduce((acc, e) => acc + e.valor, 0)
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[360px] p-[14px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            COMPOSIÇÃO · S1 · CR A RECEBER
+          </span>
+        </div>
+
+        {/* Bloco resumo */}
+        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <p className="text-[20px] font-extrabold tabular-nums text-[var(--brand-navy)]">
+            R$ {total.toLocaleString("pt-BR")}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {EVENTOS_CELULA_MOCK.length} eventos · entrada
+          </p>
+        </div>
+
+        {/* Lista de eventos */}
+        <div className="flex flex-col gap-0.5">
+          {EVENTOS_CELULA_MOCK.map((e) => {
+            const statusStyle = e.status === "confirmado"
+              ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
+              : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
+            return (
+              <button
+                key={e.id}
+                type="button"
+                onClick={onEventoClick}
+                className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">
+                    {e.data} · {e.contraparte}
+                  </p>
+                  <span
+                    className={`inline-flex items-center mt-1 h-4 px-1.5 text-[10px] font-semibold rounded-full ${statusStyle}`}
+                    style={{ borderWidth: "0.5px" }}
+                  >
+                    {e.status === "confirmado" ? "Confirmado" : "Estimado"}
+                  </span>
+                </div>
+                <span className="text-[12px] font-bold tabular-nums text-[var(--brand-navy)]">
+                  R$ {e.valor.toLocaleString("pt-BR")}
+                </span>
+                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              </button>
+            )
+          })}
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Semana Sheet — visão consolidada da semana
+// ---------------------------------------------------------------------
+function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const s = SEMANA_MOCK
+
+  const fmtVal = (v: number) => {
+    const abs = Math.abs(v)
+    const formatted = abs >= 1000 ? `${(abs / 1000).toFixed(0)}k` : abs.toLocaleString("pt-BR")
+    return v < 0 ? `-R$ ${formatted}` : `R$ ${formatted}`
+  }
+  const colorFor = (v: number) => v < 0 ? "var(--brand-error-soft)" : "var(--brand-navy)"
+
+  const handleAction = (action: string) => {
+    console.log("Ação semana:", action)
+    onOpenChange(false)
+  }
+
+  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-[380px] p-[14px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            SEMANA · S{s.numero} · {s.dateRange.toUpperCase()}
+          </span>
+        </div>
+
+        {/* Bloco saldo */}
+        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          {[
+            { label: "Caixa inicial", value: s.caixaInicial },
+            { label: "Caixa final", value: s.caixaFinal },
+            { label: "Mínimo da semana", value: s.minimo },
+          ].map((item) => (
+            <div key={item.label} className="flex items-baseline gap-1.5 py-1">
+              <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
+              <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(item.value) }}>
+                {fmtVal(item.value)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Bloco totais */}
+        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Entradas</span>
+            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-navy)]">
+              {fmtVal(s.totalEntradas)}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Saídas</span>
+            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-error-soft)]">
+              {fmtVal(s.totalSaidas)}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5 py-1">
+            <span className="text-[11px] text-muted-foreground font-medium">Líquido</span>
+            <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(s.liquido) }}>
+              {fmtVal(s.liquido)}
+            </span>
+          </div>
+        </div>
+
+        {/* Ações */}
+        <div className="flex flex-col gap-0.5">
+          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Ver todos eventos da semana")}>
+            <Eye className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Ver todos eventos da semana</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">lista completa de entradas e saídas</p>
+            </div>
+            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+          </button>
+          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Comparar Forecast vs Actual")}>
+            <BarChart3 className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Comparar Forecast vs Actual</p>
+              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">previsto contra realizado</p>
+            </div>
+            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
 // Zona 2 — KPIs (linha tipográfica compacta)
 // ---------------------------------------------------------------------
 function Zone2Kpis() {
@@ -646,7 +829,7 @@ const TOTAL_BORDER_LEFT = "4px solid var(--border)"
 const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
-  function Zone3Grid({ onRowClick }: { onRowClick?: () => void }) {
+  function Zone3Grid({ onRowClick, onCellClick, onWeekClick }: { onRowClick?: () => void; onCellClick?: () => void; onWeekClick?: () => void }) {
   const [open, setOpen] = useState<OpenState>({
   op: true,
   op_rec: false,
@@ -719,6 +902,7 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                     borderBottom: "1px solid var(--brand-navy)",
                     cursor: "pointer",
                   }}
+                  onClick={onWeekClick}
                 >
                   <div className="flex flex-col items-end leading-tight">
                     <span>{w.label}</span>
@@ -809,6 +993,7 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       total={sum(CR_RECEBER)}
                       beyond={BEYOND_CR_RECEBER}
                       onClickRow={onRowClick}
+                      onCellClick={onCellClick}
                     />
                     <DataRow
                       label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
@@ -816,8 +1001,9 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       total={sum(CR_RECUPERACAO)}
                       beyond={0}
                       onClickRow={onRowClick}
+                      onCellClick={onCellClick}
                     />
-                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} />
+                    <DataRow label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
                   </>
                 )}
 
@@ -838,6 +1024,7 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       total={sum(CP_A_PAGAR)}
                       beyond={BEYOND_CP_A_PAGAR}
                       onClickRow={onRowClick}
+                      onCellClick={onCellClick}
                     />
                     <DataRow
                       label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
@@ -845,11 +1032,12 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
                       total={sum(CP_VENCIDOS)}
                       beyond={0}
                       onClickRow={onRowClick}
+                      onCellClick={onCellClick}
                     />
-                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} />
-                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} />
-                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} />
-                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} />
+                    <DataRow label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                    <DataRow label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                    <DataRow label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                    <DataRow label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
                   </>
                 )}
               </>
@@ -868,17 +1056,18 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} />
-                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} />
-                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} />
+                <DataRow label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} />
                 <DataRow
                   label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
                   values={TARIFAS_IOF}
                   total={sum(TARIFAS_IOF)}
                   beyond={0}
                   onClickRow={onRowClick}
+                  onCellClick={onCellClick}
                 />
-                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
               </>
             )}
             <DataRow
@@ -893,8 +1082,8 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} />
-                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
               </>
             )}
             <DataRow
@@ -909,8 +1098,8 @@ type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; 
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} />
-                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} />
+                <DataRow label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
+                <DataRow label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} />
               </>
             )}
             <DataRow
@@ -1120,6 +1309,7 @@ function DataRow({
   upperLabel = false,
   isLast = false,
   onClickRow,
+  onCellClick,
 }: {
   label: ReactNode
   values: number[]
@@ -1129,6 +1319,7 @@ function DataRow({
   upperLabel?: boolean
   isLast?: boolean
   onClickRow?: () => void
+  onCellClick?: () => void
 }) {
   const borderBottom = isLast ? "none" : "1px solid var(--border)"
   const isClickable = variant === "default"
@@ -1191,6 +1382,7 @@ function DataRow({
           colorRule={colorRule}
           borderBottom={borderBottom}
           className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
+          onClick={isClickable ? onCellClick : undefined}
         />
       ))}
       <NumericCell
@@ -1232,6 +1424,7 @@ function NumericCell({
   borderBottom,
   isTotalCol = false,
   className,
+  onClick,
 }: {
   value: number | null
   baseBg: string
@@ -1242,6 +1435,7 @@ function NumericCell({
   borderBottom: string
   isTotalCol?: boolean
   className?: string
+  onClick?: () => void
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
@@ -1259,7 +1453,7 @@ function NumericCell({
 
   return (
     <td
-      className={["px-1.5 py-1.5 text-right", className].filter(Boolean).join(" ")}
+      className={["px-1.5 py-1.5 text-right", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
       style={{
         background: baseBg,
         color,
@@ -1271,6 +1465,7 @@ function NumericCell({
         borderLeft: isTotalCol ? TOTAL_BORDER_LEFT : undefined,
         whiteSpace: "nowrap",
       }}
+      onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
     >
       {fmtCompact(isEmpty ? null : (value as number))}
     </td>
