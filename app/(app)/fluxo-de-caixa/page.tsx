@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3 } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,8 +19,39 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandEmpty,
+  CommandGroup,
+} from "@/components/ui/command"
 
 const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
+
+// ---------------------------------------------------------------------
+// Mocks para QuickAddForecastSheet
+// ---------------------------------------------------------------------
+const CATEGORIAS_ENTRADA = ["CR a receber", "CR vencidos", "Empréstimo recebido", "Aporte", "Outras entradas"]
+const CATEGORIAS_SAIDA = ["Folha", "Fornecedores", "Tributos", "Empréstimo · pagamento", "Despesas operacionais", "Outras saídas"]
+
+type Contraparte = { id: string; nome: string; tipo: "cliente" | "fornecedor" }
+const CONTRAPARTES: Contraparte[] = [
+  { id: "c1", nome: "Cliente ABC Ltda", tipo: "cliente" },
+  { id: "c2", nome: "Cliente DEF Ltda", tipo: "cliente" },
+  { id: "c3", nome: "Cliente GHI Ltda", tipo: "cliente" },
+  { id: "f1", nome: "Fornecedor XYZ", tipo: "fornecedor" },
+  { id: "f2", nome: "Fornecedor WWW", tipo: "fornecedor" },
+  { id: "t1", nome: "Receita Federal", tipo: "fornecedor" },
+]
 
 /**
  * /fluxo-de-caixa
@@ -358,14 +389,32 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
   const [categoria, setCategoria] = useState("")
   const [contraparte, setContraparte] = useState("")
   const [status, setStatus] = useState<"confirmado" | "estimado">("estimado")
-  const [confianca, setConfianca] = useState<"A" | "M" | "B">("M")
+  const [confianca, setConfianca] = useState<"Alta" | "Média" | "Baixa">("Média")
   const [obs, setObs] = useState("")
   const [showObs, setShowObs] = useState(false)
+  const [contraparteOpen, setContraparteOpen] = useState(false)
+
+  const maskValor = (v: string) => {
+    const digits = v.replace(/\D/g, "")
+    if (!digits) return ""
+    return (parseInt(digits, 10) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+  }
+  const maskData = (v: string) => {
+    const d = v.replace(/\D/g, "").slice(0, 8)
+    if (d.length <= 2) return d
+    if (d.length <= 4) return d.slice(0, 2) + "/" + d.slice(2)
+    return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4)
+  }
+
+  const handleDirecaoChange = (dir: "entrada" | "saida") => {
+    setDirecao(dir)
+    setCategoria("")
+  }
 
   const handleStatusChange = (s: "confirmado" | "estimado") => {
     setStatus(s)
-    if (s === "confirmado") setConfianca("A")
-    else setConfianca("M")
+    if (s === "confirmado") setConfianca("Alta")
+    else setConfianca("Média")
   }
 
   const handleSubmit = () => {
@@ -373,105 +422,119 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
     onClose()
   }
 
-  const PILL = "h-5 px-2 text-[10.5px] font-semibold rounded-full border transition"
+  const PILL = "h-6 px-3 text-[11px] font-semibold rounded-full border transition"
   const PILL_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
   const PILL_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
-  const MINI_PILL = `${PILL} min-w-[18px] px-1.5`
-  const DIR_BTN = "w-8 h-3.5 flex items-center justify-center border rounded-sm transition"
+  const DIR_BTN = "flex-1 h-8 flex items-center justify-center gap-1.5 border rounded-md transition text-[10px] font-semibold"
   const DIR_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
   const DIR_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
-  const LABEL = "text-[9px] uppercase text-muted-foreground tracking-[0.06em] font-medium"
+  const LABEL = "text-[10px] font-semibold text-muted-foreground"
   const INPUT_BASE = "w-full border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60"
+
+  const valorColor = direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
 
   return (
     <SheetContent side="right" className="w-[340px] p-[14px]">
-      {/* Eyebrow */}
-      <div className="border-b border-border pb-2 mb-2">
-        <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
-          Quick Add · Evento Futuro
-        </span>
+      {/* Header */}
+      <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+        <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
+        <button type="button" onClick={onClose} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+          <X className="h-4 w-4 text-muted-foreground" />
+        </button>
       </div>
 
-      {/* Linha 1: Valor + Direção */}
-      <div className="flex items-end gap-3 mb-3">
-        <div className="flex-1">
-          <label className={LABEL}>Valor</label>
-          <input
-            type="text"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            placeholder="R$ 0"
-            className={`${INPUT_BASE} h-7 text-[18px] font-extrabold tabular-nums mt-0.5`}
-          />
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <button
-            type="button"
-            onClick={() => setDirecao("entrada")}
-            className={`${DIR_BTN} ${direcao === "entrada" ? DIR_ACTIVE : DIR_INACTIVE}`}
-            style={{ borderWidth: "0.5px" }}
-          >
-            <ArrowDownRight className="h-2.5 w-2.5" strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setDirecao("saida")}
-            className={`${DIR_BTN} ${direcao === "saida" ? DIR_ACTIVE : DIR_INACTIVE}`}
-            style={{ borderWidth: "0.5px" }}
-          >
-            <ArrowUpRight className="h-2.5 w-2.5" strokeWidth={2} />
-          </button>
-        </div>
+      {/* Linha 1: Direção */}
+      <div className="flex gap-1 mb-3">
+        <button
+          type="button"
+          onClick={() => handleDirecaoChange("entrada")}
+          className={`${DIR_BTN} ${direcao === "entrada" ? DIR_ACTIVE : DIR_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          <ArrowDownRight className="h-3 w-3" strokeWidth={2} />
+          Entrada
+        </button>
+        <button
+          type="button"
+          onClick={() => handleDirecaoChange("saida")}
+          className={`${DIR_BTN} ${direcao === "saida" ? DIR_ACTIVE : DIR_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          <ArrowUpRight className="h-3 w-3" strokeWidth={2} />
+          Saída
+        </button>
       </div>
 
-      {/* Linha 2: Data + Categoria */}
-      <div className="flex gap-2 mb-3">
-        <div className="w-[80px]">
-          <label className={LABEL}>Data</label>
-          <input
-            type="text"
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-            placeholder="DD/MM"
-            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
-          />
-        </div>
-        <div className="flex-1 relative">
-          <label className={LABEL}>Categoria</label>
-          <input
-            type="text"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            placeholder="categoria"
-            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5 pr-5`}
-          />
-          <ChevronDown className="absolute right-0 bottom-1.5 h-3 w-3 text-muted-foreground pointer-events-none" />
-        </div>
-      </div>
-
-      {/* Linha 3: Contraparte */}
+      {/* Linha 2: Valor */}
       <div className="mb-3">
-        <label className={LABEL}>Contraparte</label>
+        <label className={LABEL}>Valor</label>
         <input
           type="text"
-          value={contraparte}
-          onChange={(e) => setContraparte(e.target.value)}
-          placeholder="cliente ou fornecedor"
-          className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
+          value={valor}
+          onChange={(e) => setValor(maskValor(e.target.value))}
+          placeholder="R$ 0,00"
+          className={`${INPUT_BASE} h-8 text-[18px] font-extrabold tabular-nums mt-0.5`}
+          style={{ color: valorColor }}
         />
       </div>
 
-      {/* Tag bar: Status + Confiança */}
-      <div className="flex items-center gap-1.5 flex-wrap py-1.5">
+      {/* Linha 3: Data + Categoria */}
+      <div className="flex gap-2 mb-3">
+        <div className="w-[120px]">
+          <label className={LABEL}>Data esperada</label>
+          <input
+            type="text"
+            value={data}
+            onChange={(e) => setData(maskData(e.target.value))}
+            placeholder="DD/MM/AAAA"
+            className={`${INPUT_BASE} h-6 text-[12px] mt-0.5`}
+          />
+        </div>
+        <div className="flex-1">
+          <label className={LABEL}>Categoria</label>
+          <Select value={categoria} onValueChange={setCategoria}>
+            <SelectTrigger className="h-6 text-[13px] font-semibold border-0 border-b border-border bg-transparent rounded-none px-1 focus:ring-0 focus:border-[var(--brand-blue)] mt-0.5">
+              <SelectValue placeholder="escolha a categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              {(direcao === "entrada" ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((c) => (
+                <SelectItem key={c} value={c} className="text-[12px]">{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Linha 4: Cliente ou fornecedor */}
+      <div className="mb-3">
+        <label className={LABEL}>Cliente ou fornecedor</label>
+        <Popover open={contraparteOpen} onOpenChange={setContraparteOpen}>
+          <PopoverTrigger className="w-full h-6 text-[13px] font-semibold text-[var(--brand-navy)] border-0 border-b border-border bg-transparent rounded-none px-1 text-left flex items-center justify-between hover:border-[var(--brand-blue)] transition mt-0.5">
+            <span className={contraparte ? "" : "text-muted-foreground font-medium"}>{contraparte || "buscar cliente ou fornecedor"}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </PopoverTrigger>
+          <PopoverContent className="w-[260px] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="buscar..." className="text-[12px] h-9" />
+              <CommandList>
+                <CommandEmpty className="text-[11px] py-3 px-3 text-muted-foreground text-center">nenhum resultado</CommandEmpty>
+                <CommandGroup>
+                  {CONTRAPARTES.map((cp) => (
+                    <CommandItem key={cp.id} value={cp.nome} onSelect={() => { setContraparte(cp.nome); setContraparteOpen(false) }} className="text-[12px] flex items-center justify-between">
+                      <span>{cp.nome}</span>
+                      <span className="text-[10px] text-muted-foreground capitalize">{cp.tipo}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Linha 5: Status */}
+      <div className="flex items-center gap-2 mb-2">
         <span className={LABEL}>Status</span>
-        <button
-          type="button"
-          onClick={() => handleStatusChange("confirmado")}
-          className={`${PILL} ${status === "confirmado" ? PILL_ACTIVE : PILL_INACTIVE}`}
-          style={{ borderWidth: "0.5px" }}
-        >
-          Confirmado
-        </button>
         <button
           type="button"
           onClick={() => handleStatusChange("estimado")}
@@ -480,14 +543,25 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         >
           Estimado
         </button>
-        <span className="text-[10px] text-[#C4CDD9]">·</span>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("confirmado")}
+          className={`${PILL} ${status === "confirmado" ? PILL_ACTIVE : PILL_INACTIVE}`}
+          style={{ borderWidth: "0.5px" }}
+        >
+          Confirmado
+        </button>
+      </div>
+
+      {/* Linha 6: Confiança */}
+      <div className="flex items-center gap-2 mb-3">
         <span className={LABEL}>Confiança</span>
-        {(["A", "M", "B"] as const).map((c) => (
+        {(["Alta", "Média", "Baixa"] as const).map((c) => (
           <button
             key={c}
             type="button"
             onClick={() => setConfianca(c)}
-            className={`${MINI_PILL} ${confianca === c ? PILL_ACTIVE : PILL_INACTIVE}`}
+            className={`${PILL} ${confianca === c ? PILL_ACTIVE : PILL_INACTIVE}`}
             style={{ borderWidth: "0.5px" }}
           >
             {c}
@@ -495,33 +569,35 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         ))}
       </div>
 
-      {/* Observação opcional */}
-      {showObs && (
-        <textarea
-          rows={2}
-          value={obs}
-          onChange={(e) => setObs(e.target.value)}
-          placeholder="anotação livre"
-          className="w-full mt-2 p-2 text-[12px] border rounded-md bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 resize-none"
-          style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
-        />
-      )}
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-border">
+      {/* Linha 7: Observação */}
+      <div className="mb-3">
         <button
           type="button"
           onClick={() => setShowObs(!showObs)}
           className="text-[11px] text-muted-foreground hover:text-[var(--brand-blue)] transition"
         >
-          + obs
+          + Observação
         </button>
+        {showObs && (
+          <textarea
+            rows={2}
+            value={obs}
+            onChange={(e) => setObs(e.target.value)}
+            placeholder="anotação livre"
+            className="w-full mt-2 p-2 text-[12px] border rounded-md bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60 resize-none"
+            style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
+          />
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="pt-2 border-t border-border">
         <button
           type="button"
           onClick={handleSubmit}
-          className="h-6 px-3 bg-[var(--brand-navy)] text-white text-[11px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
+          className="w-full h-8 bg-[var(--brand-navy)] text-white text-[12px] font-bold rounded-md hover:bg-[var(--brand-blue)] transition"
         >
-          Adicionar<span className="opacity-70 ml-0.5">↵</span>
+          Adicionar previsão
         </button>
       </div>
     </SheetContent>
