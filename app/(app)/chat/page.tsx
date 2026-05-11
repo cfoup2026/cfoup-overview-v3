@@ -414,8 +414,8 @@ function ChatInner() {
   }
 
   return (
-    <div className="-mx-5 -my-8 md:-mx-10 lg:-mx-12 lg:-my-12">
-      <div className="grid min-h-[calc(100vh-4rem)] grid-cols-1 lg:min-h-screen lg:grid-cols-[320px_1fr]">
+    <div>
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr]">
         {/* Histórico de conversas */}
         <aside
           aria-label="Histórico de conversas"
@@ -483,36 +483,32 @@ function ChatInner() {
         </aside>
 
         {/* Área principal */}
-        <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-background lg:min-h-screen">
-          <header className="border-b border-border px-6 py-6 md:px-10 lg:px-12">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-4">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-white">
-                  <Sparkles className="h-4 w-4" strokeWidth={2.2} />
-                </span>
-                <div>
-                  <h1 className="text-[1.3rem] font-extrabold leading-tight" style={{ color: "var(--brand-navy)" }}>
-                    Chat CFOup
-                  </h1>
-                  <p className="mt-1 text-[13px] text-muted-foreground">
-                    Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={startNewConversation}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)] lg:hidden"
+        <div className="flex flex-col bg-background">
+          <header className="mb-3 flex flex-wrap items-start justify-between gap-3 px-6 md:px-10 lg:px-12">
+            <div>
+              <h1
+                className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+                style={{ color: "var(--brand-navy)" }}
               >
-                <History className="h-4 w-4" />
-                Nova conversa
-              </button>
+                Chat CFOup
+              </h1>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Conversa sobre {clienteAtual.empresa.nomeCurto} · contexto conectado em tempo real
+              </p>
             </div>
+
+            <button
+              type="button"
+              onClick={startNewConversation}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-[var(--brand-navy)] lg:hidden"
+            >
+              <History className="h-4 w-4" />
+              Nova conversa
+            </button>
           </header>
 
           {/* Mensagens */}
-          <div ref={scroller} className="flex-1 overflow-y-auto">
+          <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>
             <div className="mx-auto w-full max-w-3xl px-5 py-10 md:py-12 md:px-8">
               {active.messages.length === 0 && !pending && <EmptyState onPick={(q) => submit(q)} />}
               {active.messages.map((m) =>
