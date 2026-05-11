@@ -14,7 +14,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  PopoverAnchor,
 } from "@/components/ui/popover"
 import {
   Sheet,
@@ -416,11 +415,11 @@ export default function FluxoDeCaixa13Semanas() {
     highlightedRowId={highlightedRowId}
     highlightedWeekIdx={highlightedWeekIdx}
     expandedCell={expandedCell}
-    onEventoFromExpansion={handleEventoFromExpansion}
   />
   <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={(o) => { setOpenEvento(o); if (!o) setHighlightedRowId(null) }} />
   <SemanaSheet open={openSemana} onOpenChange={(o) => { setOpenSemana(o); if (!o) setHighlightedWeekIdx(null) }} />
   <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
+  <CellDrillSheet expandedCell={expandedCell} onOpenChange={(o) => { if (!o) setExpandedCell(null) }} onEventoClick={handleEventoFromExpansion} />
   </>
   )
   }
@@ -796,6 +795,83 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
 }
 
 // ---------------------------------------------------------------------
+// Cell Drill Sheet — drill-down de célula (documento/estimativa/manual)
+// ---------------------------------------------------------------------
+function CellDrillSheet({
+  expandedCell,
+  onOpenChange,
+  onEventoClick,
+}: {
+  expandedCell: { rowId: string; weekIdx: number } | null
+  onOpenChange: (open: boolean) => void
+  onEventoClick: () => void
+}) {
+  const origem = getOrigem(expandedCell?.rowId)
+
+  return (
+    <Sheet open={expandedCell !== null} onOpenChange={onOpenChange}>
+      <LightSheetContent className="w-[320px]">
+        {/* Eyebrow */}
+        <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
+            COMPOSIÇÃO · S{(expandedCell?.weekIdx ?? 0) + 1}
+          </span>
+        </div>
+
+        {origem === "documento" && (
+          <>
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)] mb-2">Eventos da célula</p>
+            <div className="flex flex-col gap-0.5">
+              {EVENTOS_CELULA_MOCK.map((e) => (
+                <button
+                  key={e.id}
+                  type="button"
+                  onClick={onEventoClick}
+                  className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition text-left"
+                >
+                  <div>
+                    <span className="text-[11px] font-medium text-[var(--brand-navy)]">{e.data}</span>
+                    <span className="text-[11px] text-muted-foreground mx-1.5">·</span>
+                    <span className="text-[11px] text-muted-foreground">{e.contraparte}</span>
+                    <span
+                      className="ml-2 text-[10px] font-semibold"
+                      style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
+                    >
+                      {e.status}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]">
+                    R$ {e.valor.toLocaleString("pt-BR")}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {origem === "estimativa" && (
+          <div className="py-2">
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
+          </div>
+        )}
+
+        {origem === "manual" && (
+          <button type="button" onClick={onEventoClick} className="w-full text-left py-2">
+            <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
+            {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
+            <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}</p>
+          </button>
+        )}
+      </LightSheetContent>
+    </Sheet>
+  )
+}
+
+// ---------------------------------------------------------------------
 // Semana Sheet — visão consolidada da semana
 // ---------------------------------------------------------------------
 function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -1057,7 +1133,6 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
     highlightedRowId,
     highlightedWeekIdx,
     expandedCell,
-    onEventoFromExpansion,
   }: {
     onRowClick?: (rowId: string) => void
     onCellClick?: (rowId: string, weekIdx: number) => void
@@ -1065,7 +1140,6 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
     highlightedRowId?: string | null
     highlightedWeekIdx?: number | null
     expandedCell?: { rowId: string; weekIdx: number } | null
-    onEventoFromExpansion?: () => void
   }) {
   const [nivel, setNivel] = useState<1 | 2 | 3>(2)
   const [open, setOpen] = useState<OpenState>({
@@ -1274,7 +1348,7 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                       isHighlighted={highlightedRowId === "op_rec-cr_receber"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_receber" ? expandedCell.weekIdx : null}
-                      onEventoFromExpansion={onEventoFromExpansion}
+                     
                     />
                     <DataRow
                       rowId="op_rec-cr_recuperacao"
@@ -1287,9 +1361,9 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                       isHighlighted={highlightedRowId === "op_rec-cr_recuperacao"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_recuperacao" ? expandedCell.weekIdx : null}
-                      onEventoFromExpansion={onEventoFromExpansion}
+                     
                     />
-                    <DataRow rowId="op_rec-outras" label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_rec-outras"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                    <DataRow rowId="op_rec-outras" label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_rec-outras"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null} />
                   </>
                 )}
 
@@ -1315,7 +1389,7 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                       isHighlighted={highlightedRowId === "op_sai-cp_pagar"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_pagar" ? expandedCell.weekIdx : null}
-                      onEventoFromExpansion={onEventoFromExpansion}
+                     
                     />
                     <DataRow
                       rowId="op_sai-cp_vencidos"
@@ -1328,12 +1402,12 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                       isHighlighted={highlightedRowId === "op_sai-cp_vencidos"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_vencidos" ? expandedCell.weekIdx : null}
-                      onEventoFromExpansion={onEventoFromExpansion}
+                     
                     />
-                    <DataRow rowId="op_sai-folha" label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-folha"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                    <DataRow rowId="op_sai-tributos" label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-tributos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                    <DataRow rowId="op_sai-encargos" label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-encargos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                    <DataRow rowId="op_sai-despesas" label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-despesas"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                    <DataRow rowId="op_sai-folha" label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-folha"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-tributos" label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-tributos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-encargos" label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-encargos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null} />
+                    <DataRow rowId="op_sai-despesas" label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-despesas"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null} />
                   </>
                 )}
               </>
@@ -1352,9 +1426,9 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow rowId="fin-emprest_novos" label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_novos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                <DataRow rowId="fin-aporte" label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-aporte"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                <DataRow rowId="fin-emprest_fin" label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_fin"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="fin-emprest_novos" label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_novos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="fin-aporte" label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-aporte"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="fin-emprest_fin" label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_fin"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null} />
                 <DataRow
                   rowId="fin-tarifas"
                   label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
@@ -1366,9 +1440,9 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                   isHighlighted={highlightedRowId === "fin-tarifas"}
                   highlightedWeekIdx={highlightedWeekIdx}
                   expandedWeekIdx={expandedCell?.rowId === "fin-tarifas" ? expandedCell.weekIdx : null}
-                  onEventoFromExpansion={onEventoFromExpansion}
+                 
                 />
-                <DataRow rowId="fin-retirada" label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-retirada"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="fin-retirada" label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-retirada"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -1383,8 +1457,8 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow rowId="inv-venda" label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-venda"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                <DataRow rowId="inv-compra" label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-compra"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="inv-venda" label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-venda"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="inv-compra" label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-compra"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -1399,8 +1473,8 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow rowId="ic-receb" label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-receb"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
-                <DataRow rowId="ic-pagto" label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-pagto"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null} onEventoFromExpansion={onEventoFromExpansion} />
+                <DataRow rowId="ic-receb" label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-receb"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null} />
+                <DataRow rowId="ic-pagto" label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-pagto"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null} />
               </>
             )}
             <DataRow
@@ -1615,7 +1689,6 @@ function DataRow({
   isHighlighted = false,
   highlightedWeekIdx,
   expandedWeekIdx,
-  onEventoFromExpansion,
 }: {
   label: ReactNode
   values: number[]
@@ -1630,7 +1703,6 @@ function DataRow({
   isHighlighted?: boolean
   highlightedWeekIdx?: number | null
   expandedWeekIdx?: number | null
-  onEventoFromExpansion?: () => void
 }) {
   const borderBottom = isLast ? "none" : "1px solid var(--border)"
   const isClickable = variant === "default"
@@ -1704,9 +1776,6 @@ function DataRow({
               borderBottom={borderBottom}
               className={isClickable ? "transition group-hover:!bg-[rgba(21,103,200,0.05)]" : undefined}
               onClick={isClickable && rowId ? () => onCellClick?.(rowId, i) : undefined}
-              isExpanded={isCellExpanded}
-              rowId={rowId}
-              onEventoFromExpansion={onEventoFromExpansion}
             />
           )
         })}
@@ -1751,9 +1820,6 @@ function NumericCell({
   isTotalCol = false,
   className,
   onClick,
-  isExpanded = false,
-  rowId,
-  onEventoFromExpansion,
 }: {
   value: number | null
   baseBg: string
@@ -1765,9 +1831,6 @@ function NumericCell({
   isTotalCol?: boolean
   className?: string
   onClick?: () => void
-  isExpanded?: boolean
-  rowId?: string
-  onEventoFromExpansion?: () => void
 }) {
   const isEmpty = value === null || value === undefined
   const isNegative = !isEmpty && (value as number) < 0
@@ -1783,62 +1846,9 @@ function NumericCell({
     color = isNegative ? "var(--brand-error-soft)" : "var(--foreground)"
   }
 
-  const origem = getOrigem(rowId)
-
-  const popoverContent = (
-    <div className="w-[280px] p-3">
-      {origem === "documento" && (
-        <>
-          <p className="text-[11px] font-semibold text-[var(--brand-navy)] mb-2">Eventos da célula</p>
-          <div className="flex flex-col gap-1">
-            {EVENTOS_CELULA_MOCK.map((e) => (
-              <button
-                key={e.id}
-                type="button"
-                onClick={onEventoFromExpansion}
-                className="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition text-left"
-              >
-                <div>
-                  <span className="text-[11px] font-medium text-[var(--brand-navy)]">{e.data}</span>
-                  <span className="text-[11px] text-muted-foreground mx-1.5">·</span>
-                  <span className="text-[11px] text-muted-foreground">{e.contraparte}</span>
-                  <span
-                    className="ml-2 text-[10px] font-semibold"
-                    style={{ color: e.status === "confirmado" ? "var(--brand-green)" : "var(--brand-warning)" }}
-                  >
-                    {e.status}
-                  </span>
-                </div>
-                <span className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]">
-                  R$ {e.valor.toLocaleString("pt-BR")}
-                </span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-      {origem === "estimativa" && (
-        <>
-          <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
-          <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
-        </>
-      )}
-      {origem === "manual" && (
-        <button type="button" onClick={onEventoFromExpansion} className="w-full text-left">
-          <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
-          <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
-          {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
-          <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}</p>
-        </button>
-      )}
-    </div>
-  )
-
   return (
     <td
-      className={["px-1.5 py-1.5 text-right relative", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
+      className={["px-1.5 py-1.5 text-right", onClick ? "cursor-pointer" : undefined, className].filter(Boolean).join(" ")}
       style={{
         background: baseBg,
         color,
@@ -1853,20 +1863,6 @@ function NumericCell({
       onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
     >
       {fmtCompact(isEmpty ? null : (value as number))}
-      {isExpanded && (
-        <Popover open={true} modal={false}>
-          <PopoverAnchor className="absolute inset-0" />
-          <PopoverContent
-            side="right"
-            align="center"
-            sideOffset={8}
-            avoidCollisions={false}
-            className="z-[9999] bg-card border border-border shadow-xl rounded-lg p-0"
-          >
-            {popoverContent}
-          </PopoverContent>
-        </Popover>
-      )}
     </td>
   )
 }
