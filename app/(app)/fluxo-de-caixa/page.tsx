@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X } from "lucide-react"
+import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X, Check } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +36,18 @@ import {
 } from "@/components/ui/command"
 
 const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
+
+// ---------------------------------------------------------------------
+// Mocks para Popover Veredito (insuficiências)
+// ---------------------------------------------------------------------
+type AcaoInsuficiencia = { label: string }
+type Insuficiencia = { id: string; title: string; impact: string; actions: AcaoInsuficiencia[] }
+const INSUFICIENCIAS: Insuficiencia[] = [
+  { id: "i1", title: "Saldo de abertura ausente · Filial 2", impact: "Sem saldo inicial não há projeção", actions: [{ label: "Conectar banco" }, { label: "Informar manual" }] },
+  { id: "i2", title: "Conta CEF sem atualização há 14 dias", impact: "Realizado pode estar incompleto", actions: [{ label: "Reconectar" }] },
+  { id: "i3", title: "3 eventos sem classificação · R$ 89k", impact: "Inflam linha de outros, distorcem análise", actions: [{ label: "Revisar eventos" }] },
+  { id: "i4", title: "Folha S6 sem evento confirmado", impact: "Risco de subestimar saída de R$ 10.864", actions: [{ label: "Confirmar evento" }] },
+]
 
 // ---------------------------------------------------------------------
 // Mocks para QuickAddForecastSheet
@@ -357,8 +369,9 @@ function Zone1Header({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[180px]">
             {UNIDADES.map((u) => (
-              <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px]">
-                {u.label}
+              <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px] flex items-center justify-between gap-2">
+                <span>{u.label}</span>
+                {unidade === u.id && <Check className="h-3 w-3 text-[var(--brand-blue)] shrink-0" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -866,14 +879,26 @@ function Zone2Kpis() {
             <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
             {veredito.label}
           </PopoverTrigger>
-          <PopoverContent align="start" className="w-[280px] text-[12px]">
-            <p className="font-semibold mb-2 text-[var(--brand-navy)]">Por que dados insuficientes</p>
-            <ul className="space-y-1.5 text-muted-foreground">
-              <li>• Saldo de abertura ausente · Filial 2</li>
-              <li>• Conta CEF sem atualização há 14 dias</li>
-              <li>• 3 eventos sem classificação · R$ 89k</li>
-              <li>• Folha S6 sem evento confirmado</li>
-            </ul>
+          <PopoverContent align="start" className="w-[320px] p-3 text-[12px]">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
+              <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
+              <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">{INSUFICIENCIAS.length}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              {INSUFICIENCIAS.map((it) => (
+                <div key={it.id} className="rounded-md p-2 hover:bg-[rgba(7,29,59,0.03)] transition">
+                  <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
+                  <p className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{it.impact}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {it.actions.map((a, i) => (
+                      <button key={i} type="button" onClick={() => console.log("Insuficiência:", it.id, "ação:", a.label)} className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition">
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </PopoverContent>
         </Popover>
         <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
