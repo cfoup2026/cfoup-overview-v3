@@ -3,7 +3,29 @@
 import type { ReactNode } from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronDown, ChevronRight, RefreshCw, Plus, Building2, AlertTriangle, ArrowDownRight, ArrowUpRight, PencilLine, Tags, Gauge, MessageSquare, Wifi, Hand, CheckCircle2, Eye, BarChart3, X, Check } from "lucide-react"
+import Link from "next/link"
+import {
+  ChevronDown,
+  ChevronRight,
+  RefreshCw,
+  Plus,
+  Building2,
+  AlertTriangle,
+  ArrowDownRight,
+  ArrowUpRight,
+  PencilLine,
+  Tags,
+  Gauge,
+  MessageSquare,
+  Wifi,
+  Hand,
+  CheckCircle2,
+  Eye,
+  BarChart3,
+  X,
+  Check,
+  Plug,
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,8 +64,17 @@ import {
   CommandEmpty,
   CommandGroup,
 } from "@/components/ui/command"
+import {
+  useCashflow13w,
+  type Problema,
+  type AcaoProblema,
+  type Contraparte,
+  type WeekHeader,
+  type CashflowSnapshot,
+} from "@/lib/hooks/use-cashflow-13w"
 
-const GHOST_BTN = "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
+const GHOST_BTN =
+  "inline-flex items-center gap-1.5 h-7 px-2.5 text-[11px] font-medium text-muted-foreground rounded-md hover:bg-[rgba(7,29,59,0.06)] hover:text-[var(--brand-navy)] transition"
 
 // ---------------------------------------------------------------------
 // LightSheetContent — backdrop transparente para drill-downs contextuais
@@ -64,18 +95,6 @@ function LightSheetContent({ children, className }: { children: React.ReactNode;
 }
 
 // ---------------------------------------------------------------------
-// Mocks para Pendências (unificado)
-// ---------------------------------------------------------------------
-type AcaoProblema = { label: string; route?: string; opensSaldoSheet?: boolean }
-type Problema = { id: string; title: string; detail: string; impact: string; actions: AcaoProblema[] }
-const PROBLEMAS_INITIAL: Problema[] = [
-  { id: "p1", title: "Saldo de abertura ausente", detail: "Filial 2 · CEF Conta Corrente", impact: "Sem saldo inicial não há projeção", actions: [{ label: "Conectar banco", route: "/conexoes" }, { label: "Informar manual", opensSaldoSheet: true }] },
-  { id: "p2", title: "Conta sem atualização há 14 dias", detail: "CEF · ag 1234-5", impact: "Realizado pode estar incompleto", actions: [{ label: "Reconectar", route: "/conexoes" }] },
-  { id: "p3", title: "3 eventos sem classificação", detail: "R$ 89.421 · últimos 7 dias", impact: "Inflam linha de outros, distorcem análise", actions: [{ label: "Revisar eventos", route: "/pendencias-setup" }] },
-  { id: "p4", title: "Folha S6 sem evento confirmado", detail: "esperada R$ 10.864", impact: "Risco de subestimar saída de R$ 10.864", actions: [{ label: "Confirmar evento", route: "/pendencias-setup?filtro=folha" }] },
-]
-
-// ---------------------------------------------------------------------
 // Masks (reutilizadas por QuickAddForecastSheet e InformarSaldoSheet)
 // ---------------------------------------------------------------------
 function maskValor(v: string): string {
@@ -91,20 +110,10 @@ function maskData(v: string): string {
 }
 
 // ---------------------------------------------------------------------
-// Mocks para QuickAddForecastSheet
+// Taxonomia padrão de categorias — estrutura, não dado do cliente
 // ---------------------------------------------------------------------
 const CATEGORIAS_ENTRADA = ["CR a receber", "CR vencidos", "Empréstimo recebido", "Aporte", "Outras entradas"]
 const CATEGORIAS_SAIDA = ["Folha", "Fornecedores", "Tributos", "Empréstimo · pagamento", "Despesas operacionais", "Outras saídas"]
-
-type Contraparte = { id: string; nome: string; tipo: "cliente" | "fornecedor" }
-const CONTRAPARTES: Contraparte[] = [
-  { id: "c1", nome: "Cliente ABC Ltda", tipo: "cliente" },
-  { id: "c2", nome: "Cliente DEF Ltda", tipo: "cliente" },
-  { id: "c3", nome: "Cliente GHI Ltda", tipo: "cliente" },
-  { id: "f1", nome: "Fornecedor XYZ", tipo: "fornecedor" },
-  { id: "f2", nome: "Fornecedor WWW", tipo: "fornecedor" },
-  { id: "t1", nome: "Receita Federal", tipo: "fornecedor" },
-]
 
 /**
  * /fluxo-de-caixa
@@ -114,9 +123,8 @@ const CONTRAPARTES: Contraparte[] = [
  * fechando em uma linha "Líquido". Linhas de fechamento agregam Variação
  * Líquida e os saldos de Início/Final do período.
  *
- * DEMO visual. Quando o Núcleo de Dados for plugado, os arrays MOCK_*
- * abaixo são substituídos por um hook do tipo useCashflow13w(activeUnit)
- * que devolve a mesma forma.
+ * Os arrays de dado vêm do hook useCashflow13w(activeUnit) — quando sem
+ * conexão, snapshot é null e a UI mostra estado vazio honesto.
  */
 
 // =====================================================================
@@ -124,98 +132,9 @@ const CONTRAPARTES: Contraparte[] = [
 // =====================================================================
 const SUBTOTAL_BG = "rgba(21,103,200,0.08)"
 
-// =====================================================================
-// Janela de 13 semanas (sempre segunda → domingo)
-// =====================================================================
-type WeekHeader = { label: string; mondayLabel: string }
-const WEEKS: WeekHeader[] = [
-  { label: "S1",  mondayLabel: "04/Mai/26" },
-  { label: "S2",  mondayLabel: "11/Mai/26" },
-  { label: "S3",  mondayLabel: "18/Mai/26" },
-  { label: "S4",  mondayLabel: "25/Mai/26" },
-  { label: "S5",  mondayLabel: "01/Jun/26" },
-  { label: "S6",  mondayLabel: "08/Jun/26" },
-  { label: "S7",  mondayLabel: "15/Jun/26" },
-  { label: "S8",  mondayLabel: "22/Jun/26" },
-  { label: "S9",  mondayLabel: "29/Jun/26" },
-  { label: "S10", mondayLabel: "06/Jul/26" },
-  { label: "S11", mondayLabel: "13/Jul/26" },
-  { label: "S12", mondayLabel: "20/Jul/26" },
-  { label: "S13", mondayLabel: "27/Jul/26" },
-]
-
-// =====================================================================
-// Mocks cliente piloto (engenharia mínima em S13 = -251.633)
-// =====================================================================
-const CAIXA_MINIMO_OPERACIONAL = 25_000
-
-// REGRA CONTÁBIL — saldos não somam, fluxos somam.
-// Caixa Início e Caixa Final são SALDOS (snapshots no tempo), não fluxos:
-//   - Total das 13s   = snapshot da S1 (Início) ou S13 (Final), NÃO soma do array.
-//   - Depois da S13   = não aplicável → exibido como "—".
-// Já as linhas de fluxo (Receitas/Saídas, Líquidos por atividade,
-// Variação Líquida) somam matematicamente as 13 colunas no Total.
-// Invariante por semana: Caixa Final[i] = Caixa Início[i] + Variação Líquida[i].
-// Invariante de horizonte: Caixa Final[12] = Caixa Início[0] + Σ Variação Líquida.
-const CAIXA_INICIO = [34_494, 27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232]
-const CAIXA_FINAL  = [27_841, 30_745, -27_880, -46_758, -76_600, -103_819, -145_356, -151_348, -167_614, -173_855, -240_239, -246_232, -251_633]
-
-// --- OPERAÇÃO · Receitas (positivos) ---
-const CR_RECEBER       = [44_675, 48_543, 27_337, 18_034, 1_460, 0, 17_457, 0, 0, 0, 0, 0, 0]
-const CR_RECUPERACAO   = [22_488, 22_488, 22_488, 22_488, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-const OUTRAS_RECEITAS  = Array(13).fill(0)
-
-// --- OPERAÇÃO · Saídas (negativos) ---
-const CP_A_PAGAR       = [-27_721, -25_507, -20_002, -24_169, -15_037, -14_427, -375, -591, 0, -840, -375, -591, 0]
-const CP_VENCIDOS      = [-29_829, -29_829, -29_829, -29_829, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-const FOLHA            = Array.from({ length: 13 }, (_, i) => ([0, 2, 4, 6, 8, 10].includes(i) ? -10_864 : 0))
-const TRIBUTOS_VENDAS  = Array.from({ length: 13 }, (_, i) => ([2, 6, 10].includes(i) ? -42_353 : 0))
-const ENCARGOS_TRAB    = Array(13).fill(0)
-const DESPESAS_OPER    = Array(13).fill(-4_260)
-
-// --- FINANCIAMENTO ---
-const EMPRESTIMOS_NOVOS = Array(13).fill(0)
-const APORTE_SOCIOS    = Array(13).fill(0)
-const EMPRESTIMO_FIN   = Array.from({ length: 13 }, (_, i) => ([1, 5, 10].includes(i) ? -7_390 : 0))
-const TARIFAS_IOF      = Array(13).fill(-1_142)
-const RETIRADA_SOCIOS  = Array(13).fill(0)
-
-// --- INVESTIMENTO ---
-const VENDA_EQUIP      = Array(13).fill(0)
-const COMPRA_EQUIP     = Array(13).fill(0)
-
-// --- ENTRE COMPANHIAS ---
-const RECEB_INTERCO    = Array(13).fill(0)
-const PAGTO_INTERCO    = Array(13).fill(0)
-
-// --- "Depois da S13" (após S13) ---
-const BEYOND_CR_RECEBER = 18_520
-const BEYOND_CP_A_PAGAR = -12_430
-const BEYOND_EMPRESTIMO = -22_170
-
 const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0)
 const sumByWeek = (arrs: number[][]) =>
   Array.from({ length: 13 }, (_, i) => arrs.reduce((acc, a) => acc + a[i], 0))
-
-// --- Subtotais por sub-grupo (sempre visíveis, mesmo com sub-rows expandidas) ---
-const REC_OP_SUB_BY_WEEK = sumByWeek([CR_RECEBER, CR_RECUPERACAO, OUTRAS_RECEITAS])
-const SAI_OP_SUB_BY_WEEK = sumByWeek([CP_A_PAGAR, CP_VENCIDOS, FOLHA, TRIBUTOS_VENDAS, ENCARGOS_TRAB, DESPESAS_OPER])
-const REC_OP_BEYOND = BEYOND_CR_RECEBER + 0 + 0
-const SAI_OP_BEYOND = BEYOND_CP_A_PAGAR + 0 + 0 + 0 + 0 + 0
-
-// --- Líquidos por atividade ---
-const CL_OPERACAO = REC_OP_SUB_BY_WEEK.map((v, i) => v + SAI_OP_SUB_BY_WEEK[i])
-const CL_FINANCIAMENTO = sumByWeek([EMPRESTIMOS_NOVOS, APORTE_SOCIOS, EMPRESTIMO_FIN, TARIFAS_IOF, RETIRADA_SOCIOS])
-const CL_INVESTIMENTO = sumByWeek([VENDA_EQUIP, COMPRA_EQUIP])
-const CL_INTERCO = sumByWeek([RECEB_INTERCO, PAGTO_INTERCO])
-
-const CL_OPERACAO_BEYOND = REC_OP_BEYOND + SAI_OP_BEYOND
-const CL_FIN_BEYOND = 0 + 0 + BEYOND_EMPRESTIMO + 0 + 0
-const CL_INV_BEYOND = 0
-const CL_IC_BEYOND = 0
-
-const VARIACAO_LIQUIDA = CL_OPERACAO.map((_, i) => CL_OPERACAO[i] + CL_FINANCIAMENTO[i] + CL_INVESTIMENTO[i] + CL_INTERCO[i])
-const VARIACAO_BEYOND = CL_OPERACAO_BEYOND + CL_FIN_BEYOND + CL_INV_BEYOND + CL_IC_BEYOND
 
 // =====================================================================
 // Formatador compacto
@@ -226,7 +145,12 @@ function fmtCompact(v: number | null | undefined): string {
   const abs = Math.abs(v).toLocaleString("pt-BR", { maximumFractionDigits: 0 })
   return v < 0 ? `(${abs})` : abs
 }
-const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 })
+const BRL = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
 function fmtBRL(v: number | null | undefined): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "—"
   return BRL.format(v)
@@ -236,17 +160,17 @@ function fmtBRL(v: number | null | undefined): string {
 // Veredito
 // =====================================================================
 type Veredito = "LIMPO" | "ATENCAO" | "ALERTA" | "CRITICO" | "DADOS_INSUFICIENTES" | "OK"
-  const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string; dotColor: string }> = {
+const VEREDITO_STYLES: Record<Veredito, { label: string; bg: string; fg: string; dotColor: string }> = {
   LIMPO: { label: "LIMPO", bg: "rgba(54,186,88,0.14)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
   ATENCAO: { label: "ATENÇÃO", bg: "rgba(224,139,0,0.14)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
   ALERTA: { label: "ALERTA", bg: "rgba(224,139,0,0.18)", fg: "var(--brand-warning)", dotColor: "var(--brand-warning)" },
   CRITICO: { label: "CRÍTICO", bg: "rgba(209,67,67,0.14)", fg: "var(--brand-error-soft)", dotColor: "var(--brand-error-soft)" },
   DADOS_INSUFICIENTES: { label: "DADOS INSUFICIENTES", bg: "var(--muted)", fg: "var(--muted-foreground)", dotColor: "var(--muted-foreground)" },
   OK: { label: "TUDO VERIFICADO", bg: "rgba(54,186,88,0.10)", fg: "var(--brand-green)", dotColor: "var(--brand-green)" },
-  }
+}
 
 // =====================================================================
-// Glossário inline (tooltip on hover)
+// Glossário inline (tooltip on hover) — referência metodológica
 // =====================================================================
 type GlossaryKey = "CP" | "CR" | "DAS" | "ICMS" | "IOF" | "PMR" | "PMP"
 const GLOSSARY: Record<GlossaryKey, { title: string; body: string }> = {
@@ -264,9 +188,7 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
   return (
     <Tooltip delayDuration={300}>
       <TooltipTrigger asChild>
-        <span className="cursor-help border-b border-dotted border-muted-foreground/50">
-          {children}
-        </span>
+        <span className="cursor-help border-b border-dotted border-muted-foreground/50">{children}</span>
       </TooltipTrigger>
       <TooltipContent
         side="right"
@@ -284,7 +206,32 @@ function GlossaryTerm({ term, children }: { term: GlossaryKey; children: ReactNo
 }
 
 // =====================================================================
-// Evento Mock (placeholder para integração futura)
+// Tipos de origem de dados (taxonomia, não dado)
+// =====================================================================
+type CelulaOrigem = "documento" | "estimativa" | "manual"
+
+const ROW_ORIGEM: Record<string, CelulaOrigem> = {
+  cr_receber: "documento",
+  cr_recuperacao: "documento",
+  cp_pagar: "documento",
+  cp_vencidos: "documento",
+  folha: "estimativa",
+  tributos: "estimativa",
+  encargos: "estimativa",
+  despesas: "estimativa",
+  outras: "manual",
+}
+
+function getOrigem(rowId: string | undefined): CelulaOrigem {
+  if (!rowId) return "estimativa"
+  for (const [k, v] of Object.entries(ROW_ORIGEM)) {
+    if (rowId.includes(k)) return v
+  }
+  return "estimativa"
+}
+
+// =====================================================================
+// Tipos de Evento e dados ligados às drill-down sheets (sem mocks fixos)
 // =====================================================================
 type Evento = {
   id: string
@@ -298,67 +245,24 @@ type Evento = {
   observacao?: string
   origem: "API" | "manual"
 }
-const EVENTO_MOCK: Evento = {
-  id: "ev1",
-  direcao: "entrada",
-  valor: 22488,
-  data: "12/05/2026",
-  categoria: "CR a receber",
-  contraparte: "Cliente ABC Ltda",
-  status: "estimado",
-  confianca: "M",
-  origem: "API",
-}
 
 type EventoCelula = { id: string; data: string; contraparte: string; valor: number; status: "confirmado" | "estimado" }
-const EVENTOS_CELULA_MOCK: EventoCelula[] = [
-  { id: "e1", data: "08/05", contraparte: "Cliente ABC", valor: 22488, status: "confirmado" },
-  { id: "e2", data: "09/05", contraparte: "Cliente DEF", valor: 12000, status: "estimado" },
-  { id: "e3", data: "10/05", contraparte: "Cliente GHI", valor: 10187, status: "estimado" },
-]
 
-// ---------------------------------------------------------------------
-// Tipos de origem de dados e mocks
-// ---------------------------------------------------------------------
-type CelulaOrigem = "documento" | "estimativa" | "manual"
-
-const ROW_ORIGEM: Record<string, CelulaOrigem> = {
-  "cr_receber": "documento",
-  "cr_recuperacao": "documento",
-  "cp_pagar": "documento",
-  "cp_vencidos": "documento",
-  "folha": "estimativa",
-  "tributos": "estimativa",
-  "encargos": "estimativa",
-  "despesas": "estimativa",
-  "outras": "manual",
+type Semana = {
+  numero: number
+  dateRange: string
+  caixaInicial: number
+  caixaFinal: number
+  minimo: number
+  totalEntradas: number
+  totalSaidas: number
+  liquido: number
 }
 
-const ESTIMATIVA_MOCK = {
-  metodo: "Padrão recorrente dos últimos 3 anos",
-  periodo: "2023–2025",
-  confianca: "Média" as const,
-}
-
-const MANUAL_MOCK = {
-  data: "15/05/2026",
-  contraparte: "Cliente ABC Ltda",
-  valor: 61000,
-  status: "estimado" as const,
-  confianca: "Média" as const,
-  obs: "Cliente confirmou pagamento via WhatsApp",
-}
-
-function getOrigem(rowId: string | undefined): CelulaOrigem {
-  if (!rowId) return "estimativa"
-  for (const [k, v] of Object.entries(ROW_ORIGEM)) {
-    if (rowId.includes(k)) return v
-  }
-  return "estimativa"
-}
-
-type Semana = { numero: number; dateRange: string; caixaInicial: number; caixaFinal: number; minimo: number; totalEntradas: number; totalSaidas: number; liquido: number }
-const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -76600, caixaFinal: -103819, minimo: -110000, totalEntradas: 0, totalSaidas: 15018, liquido: -15018 }
+type CellDrillData =
+  | { origem: "documento"; eventos: EventoCelula[] }
+  | { origem: "estimativa"; metodo: string; periodo: string; confianca: "Alta" | "Média" | "Baixa" }
+  | { origem: "manual"; data: string; contraparte: string; valor: number; status: "estimado" | "confirmado"; confianca: "Alta" | "Média" | "Baixa"; obs?: string }
 
 // =====================================================================
 // Página
@@ -367,88 +271,119 @@ const SEMANA_MOCK: Semana = { numero: 6, dateRange: "17-23 jun", caixaInicial: -
 // (filiais, CNPJs, centros de custo) com nomes próprios vindos do source
 // system (ERP, contábil, Open Finance). O nome do cliente (tenant) NÃO
 // aparece nesta tela — vem do sidebar/header global do app.
-// Esta tela é cliente-agnostic: o header recebe um array dinâmico de unidades
-// e adiciona a opção "Consolidado" como PRIMEIRO item da lista (também o
-// default selecionado). Ver bloco de comentário acima de UNIDADES para o
-// shape esperado em produção.
 type UnidadeId = string
 
 export default function FluxoDeCaixa13Semanas() {
   const router = useRouter()
   const [unidade, setUnidade] = useState<UnidadeId>("consolidado")
+
+  const { hasConnections, weeks, snapshot, pendencias, contrapartes } = useCashflow13w(unidade)
+  const [pendenciasOverride, setPendenciasOverride] = useState<Problema[] | null>(null)
+  const pendenciasAtuais = pendenciasOverride ?? pendencias
+
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null)
   const [openEvento, setOpenEvento] = useState(false)
   const [openSemana, setOpenSemana] = useState(false)
-  const [pendencias, setPendencias] = useState<Problema[]>(PROBLEMAS_INITIAL)
+  const [selectedSemana, setSelectedSemana] = useState<Semana | null>(null)
   const [openSaldo, setOpenSaldo] = useState(false)
-  // Highlight states
   const [highlightedRowId, setHighlightedRowId] = useState<string | null>(null)
   const [highlightedWeekIdx, setHighlightedWeekIdx] = useState<number | null>(null)
-  // Inline expansion
   const [expandedCell, setExpandedCell] = useState<{ rowId: string; weekIdx: number } | null>(null)
+  const [cellDrillData, setCellDrillData] = useState<CellDrillData | null>(null)
 
   const handleAction = (problemaId: string, action: AcaoProblema) => {
-    setPendencias(prev => prev.filter(p => p.id !== problemaId))
+    setPendenciasOverride((prev) => (prev ?? pendencias).filter((p) => p.id !== problemaId))
     if (action.route) router.push(action.route)
     else if (action.opensSaldoSheet) setOpenSaldo(true)
-    else console.log("Ação:", action.label)
   }
 
   const handleRowClick = (rowId: string) => {
+    // Sem snapshot, não há evento real pra abrir. Handler é no-op.
+    if (!snapshot) return
     setHighlightedRowId(rowId)
-    setSelectedEvento(EVENTO_MOCK)
+    // TODO: quando hook tiver fetch real, buscar evento via API antes de abrir
     setOpenEvento(true)
   }
 
   const handleCellClick = (rowId: string, weekIdx: number) => {
-    setExpandedCell(prev => prev?.rowId === rowId && prev?.weekIdx === weekIdx ? null : { rowId, weekIdx })
+    if (!snapshot) return
+    setExpandedCell((prev) =>
+      prev?.rowId === rowId && prev?.weekIdx === weekIdx ? null : { rowId, weekIdx },
+    )
+    // TODO: quando hook tiver fetch real, buscar composição da célula via API
+    setCellDrillData(null)
   }
 
   const handleWeekClick = (weekIdx: number) => {
+    if (!snapshot) return
     setHighlightedWeekIdx(weekIdx)
+    // TODO: quando hook tiver fetch real, buscar agregado da semana via API
+    setSelectedSemana(null)
     setOpenSemana(true)
   }
 
   const handleEventoFromExpansion = () => {
-    setSelectedEvento(EVENTO_MOCK)
+    if (!snapshot) return
     setOpenEvento(true)
   }
-  
+
   return (
-  <>
-  <Zone1Header unidade={unidade} setUnidade={setUnidade} />
-  <Zone2Kpis pendencias={pendencias} onAction={handleAction} />
-  <Zone3Grid
-    onRowClick={handleRowClick}
-    onCellClick={handleCellClick}
-    onWeekClick={handleWeekClick}
-    highlightedRowId={highlightedRowId}
-    highlightedWeekIdx={highlightedWeekIdx}
-    expandedCell={expandedCell}
-  />
-  <EventoSheet evento={selectedEvento} open={openEvento} onOpenChange={(o) => { setOpenEvento(o); if (!o) setHighlightedRowId(null) }} />
-  <SemanaSheet open={openSemana} onOpenChange={(o) => { setOpenSemana(o); if (!o) setHighlightedWeekIdx(null) }} />
-  <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
-  <CellDrillSheet expandedCell={expandedCell} onOpenChange={(o) => { if (!o) setExpandedCell(null) }} onEventoClick={handleEventoFromExpansion} />
-  </>
+    <>
+      <Zone1Header unidade={unidade} setUnidade={setUnidade} contrapartes={contrapartes} />
+      <Zone2Kpis
+        hasConnections={hasConnections}
+        snapshot={snapshot}
+        pendencias={pendenciasAtuais}
+        onAction={handleAction}
+      />
+      <Zone3Grid
+        hasConnections={hasConnections}
+        snapshot={snapshot}
+        weeks={weeks}
+        onRowClick={handleRowClick}
+        onCellClick={handleCellClick}
+        onWeekClick={handleWeekClick}
+        highlightedRowId={highlightedRowId}
+        highlightedWeekIdx={highlightedWeekIdx}
+        expandedCell={expandedCell}
+      />
+      <EventoSheet
+        evento={selectedEvento}
+        open={openEvento}
+        onOpenChange={(o) => {
+          setOpenEvento(o)
+          if (!o) setHighlightedRowId(null)
+        }}
+      />
+      <SemanaSheet
+        semana={selectedSemana}
+        open={openSemana}
+        onOpenChange={(o) => {
+          setOpenSemana(o)
+          if (!o) setHighlightedWeekIdx(null)
+        }}
+      />
+      <InformarSaldoSheet open={openSaldo} onOpenChange={setOpenSaldo} />
+      <CellDrillSheet
+        expandedCell={expandedCell}
+        data={cellDrillData}
+        onOpenChange={(o) => {
+          if (!o) {
+            setExpandedCell(null)
+            setCellDrillData(null)
+          }
+        }}
+        onEventoClick={handleEventoFromExpansion}
+      />
+    </>
   )
-  }
+}
 
 // ---------------------------------------------------------------------
 // Zona 1 — Header (dropdown de unidades)
 // ---------------------------------------------------------------------
-// PLACEHOLDER MOCK — em produção, as N filiais virão dinamicamente do
-// source system do cliente (ERP, contábil, Open Finance). "Consolidado"
-// é sempre o PRIMEIRO item e representa a soma das filiais com
-// transferências internas neutralizadas; é também o default selecionado.
-// Os labels "Filial 1" / "Filial 2" abaixo são placeholders genéricos:
-// CFOup é multi-tenant para 70k+ clientes com qualquer número de
-// unidades (1, 10, 100). Pill segmentado não escala — dropdown sim.
-// Para tenants com listas longas (50+ unidades) adicionar filter/search
-// no dropdown numa iteração futura. Para o MVP, dropdown simples basta.
-// Estrutura esperada em prod:
-//   const filiais = await fetchFiliais(tenantId)            // [{id, label}]
-//   const UNIDADES = [{ id: "consolidado", label: "Consolidado" }, ...filiais]
+// Placeholders genéricos. Em produção, as N unidades virão dinamicamente do
+// source system do cliente. "Consolidado" é sempre o primeiro item.
 const UNIDADES: { id: UnidadeId; label: string }[] = [
   { id: "consolidado", label: "Consolidado" },
   { id: "filial-1", label: "Filial 1" },
@@ -458,9 +393,11 @@ const UNIDADES: { id: UnidadeId; label: string }[] = [
 function Zone1Header({
   unidade,
   setUnidade,
+  contrapartes,
 }: {
   unidade: UnidadeId
   setUnidade: (v: UnidadeId) => void
+  contrapartes: Contraparte[]
 }) {
   const activeLabel = UNIDADES.find((u) => u.id === unidade)?.label ?? "Consolidado"
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -470,11 +407,17 @@ function Zone1Header({
         <div className="flex items-center gap-0.5">
           <DropdownMenu>
             <DropdownMenuTrigger className={GHOST_BTN}>
-              <Building2 className="h-3 w-3 text-muted-foreground" />{activeLabel}<ChevronDown className="h-3 w-3 text-muted-foreground" />
+              <Building2 className="h-3 w-3 text-muted-foreground" />
+              {activeLabel}
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[180px]">
               {UNIDADES.map((u) => (
-                <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px] flex items-center justify-between gap-2">
+                <DropdownMenuItem
+                  key={u.id}
+                  onClick={() => setUnidade(u.id)}
+                  className="text-[12px] flex items-center justify-between gap-2"
+                >
                   <span>{u.label}</span>
                   {unidade === u.id && <Check className="h-3 w-3 text-[var(--brand-blue)] shrink-0" />}
                 </DropdownMenuItem>
@@ -482,15 +425,17 @@ function Zone1Header({
             </DropdownMenuContent>
           </DropdownMenu>
           <button type="button" className={GHOST_BTN}>
-            <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
+            <RefreshCw className="h-3 w-3 text-muted-foreground" />
+            Atualizar
           </button>
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <button type="button" className={GHOST_BTN}>
-                <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
+                <Plus className="h-3 w-3 text-[var(--brand-blue)]" />
+                Adicionar previsão
               </button>
             </SheetTrigger>
-            <QuickAddForecastSheet onClose={() => setSheetOpen(false)} />
+            <QuickAddForecastSheet onClose={() => setSheetOpen(false)} contrapartes={contrapartes} />
           </Sheet>
         </div>
       </PageHeader>
@@ -499,9 +444,15 @@ function Zone1Header({
 }
 
 // ---------------------------------------------------------------------
-// Quick Add Sheet — evento futuro (inline component)
+// Quick Add Sheet — evento futuro
 // ---------------------------------------------------------------------
-function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
+function QuickAddForecastSheet({
+  onClose,
+  contrapartes,
+}: {
+  onClose: () => void
+  contrapartes: Contraparte[]
+}) {
   const [valor, setValor] = useState("")
   const [direcao, setDirecao] = useState<"entrada" | "saida">("entrada")
   const [data, setData] = useState("")
@@ -525,7 +476,7 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
   }
 
   const handleSubmit = () => {
-    console.log({ valor, direcao, data, categoria, contraparte, status, confianca, obs })
+    // TODO: persistir via /api/cashflow/events quando hook tiver fetch real
     onClose()
   }
 
@@ -536,21 +487,24 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
   const DIR_ACTIVE = "bg-[rgba(21,103,200,0.10)] border-[rgba(21,103,200,0.40)] text-[var(--brand-blue)]"
   const DIR_INACTIVE = "border-border text-muted-foreground hover:border-[rgba(21,103,200,0.30)]"
   const LABEL = "text-[10px] font-semibold text-muted-foreground"
-  const INPUT_BASE = "w-full border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60"
+  const INPUT_BASE =
+    "w-full border-0 border-b border-border bg-transparent outline-none focus:border-[var(--brand-blue)] transition placeholder:text-muted-foreground/60"
 
   const valorColor = direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
 
   return (
-<SheetContent side="right" className="w-[340px] p-4">
-  {/* Header */}
-  <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-  <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
-        <button type="button" onClick={onClose} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+    <SheetContent side="right" className="w-[340px] p-4">
+      <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+        <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition"
+        >
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
       </div>
 
-      {/* Linha 1: Direção */}
       <div className="flex gap-1 mb-3">
         <button
           type="button"
@@ -572,7 +526,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      {/* Linha 2: Valor */}
       <div className="mb-3">
         <label className={LABEL}>Valor</label>
         <input
@@ -585,7 +538,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         />
       </div>
 
-      {/* Linha 3: Data + Categoria */}
       <div className="flex gap-2 mb-3">
         <div className="w-[120px]">
           <label className={LABEL}>Data esperada</label>
@@ -605,41 +557,57 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
             </SelectTrigger>
             <SelectContent>
               {(direcao === "entrada" ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((c) => (
-                <SelectItem key={c} value={c} className="text-[12px]">{c}</SelectItem>
+                <SelectItem key={c} value={c} className="text-[12px]">
+                  {c}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Linha 4: Cliente ou fornecedor */}
       <div className="mb-3">
         <label className={LABEL}>Cliente ou fornecedor</label>
         <Popover open={contraparteOpen} onOpenChange={setContraparteOpen}>
           <PopoverTrigger className="w-full h-6 text-[13px] font-semibold text-[var(--brand-navy)] border-0 border-b border-border bg-transparent rounded-none px-1 text-left flex items-center justify-between hover:border-[var(--brand-blue)] transition mt-0.5">
-            <span className={contraparte ? "" : "text-muted-foreground font-medium"}>{contraparte || "buscar cliente ou fornecedor"}</span>
+            <span className={contraparte ? "" : "text-muted-foreground font-medium"}>
+              {contraparte || "buscar cliente ou fornecedor"}
+            </span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </PopoverTrigger>
           <PopoverContent className="w-[260px] p-0" align="start">
             <Command>
               <CommandInput placeholder="buscar..." className="text-[12px] h-9" />
               <CommandList>
-                <CommandEmpty className="text-[11px] py-3 px-3 text-muted-foreground text-center">nenhum resultado</CommandEmpty>
-                <CommandGroup>
-                  {CONTRAPARTES.map((cp) => (
-                    <CommandItem key={cp.id} value={cp.nome} onSelect={() => { setContraparte(cp.nome); setContraparteOpen(false) }} className="text-[12px] flex items-center justify-between">
-                      <span>{cp.nome}</span>
-                      <span className="text-[10px] text-muted-foreground capitalize">{cp.tipo}</span>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                <CommandEmpty className="text-[11px] py-3 px-3 text-muted-foreground text-center">
+                  {contrapartes.length === 0
+                    ? "lista disponível após conexão dos dados"
+                    : "nenhum resultado"}
+                </CommandEmpty>
+                {contrapartes.length > 0 && (
+                  <CommandGroup>
+                    {contrapartes.map((cp) => (
+                      <CommandItem
+                        key={cp.id}
+                        value={cp.nome}
+                        onSelect={() => {
+                          setContraparte(cp.nome)
+                          setContraparteOpen(false)
+                        }}
+                        className="text-[12px] flex items-center justify-between"
+                      >
+                        <span>{cp.nome}</span>
+                        <span className="text-[10px] text-muted-foreground capitalize">{cp.tipo}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
               </CommandList>
             </Command>
           </PopoverContent>
         </Popover>
       </div>
 
-      {/* Linha 5: Status */}
       <div className="flex items-center gap-2 mb-2">
         <span className={LABEL}>Status</span>
         <button
@@ -660,7 +628,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      {/* Linha 6: Confiança */}
       <div className="flex items-center gap-2 mb-3">
         <span className={LABEL}>Confiança</span>
         {(["Alta", "Média", "Baixa"] as const).map((c) => (
@@ -676,7 +643,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         ))}
       </div>
 
-      {/* Linha 7: Observação */}
       <div className="mb-3">
         <button
           type="button"
@@ -697,7 +663,6 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
         )}
       </div>
 
-      {/* Footer */}
       <div className="pt-2 border-t border-border">
         <button
           type="button"
@@ -720,18 +685,19 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
   const DirIcon = evento.direcao === "entrada" ? ArrowDownRight : ArrowUpRight
   const dirColor = evento.direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
   const OrigemIcon = evento.origem === "API" ? Wifi : Hand
-  const origemText = evento.origem === "API" ? "Importado · Pluggy CEF" : "Manual · adicionado por você"
+  const origemText = evento.origem === "API" ? "Importado via API" : "Manual · adicionado por você"
 
-  const statusStyles = evento.status === "confirmado"
-    ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
-    : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
+  const statusStyles =
+    evento.status === "confirmado"
+      ? "text-[var(--brand-green)] border-[rgba(54,186,88,0.30)] bg-[rgba(54,186,88,0.08)]"
+      : "text-[var(--brand-warning)] border-[rgba(224,139,0,0.30)] bg-[rgba(224,139,0,0.08)]"
 
-  const handleAction = (action: string) => {
-    console.log("Ação:", action, "evento:", evento.id)
+  const handleAction = () => {
     onOpenChange(false)
   }
 
-  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+  const ACTION_ROW =
+    "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
 
   const actions = [
     { icon: CheckCircle2, title: "Confirmar como firme", sub: "marcar como documentado · confiança alta" },
@@ -744,19 +710,15 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <LightSheetContent className="w-[320px]">
-        {/* Eyebrow */}
         <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
-            EVENTO · CF13
-          </span>
+          <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">EVENTO · CF13</span>
         </div>
 
-        {/* Bloco identidade */}
         <div className="mb-3">
           <div className="flex items-baseline gap-2">
             <DirIcon className="h-4 w-4 shrink-0" style={{ color: dirColor }} />
             <span className="text-[20px] font-extrabold tabular-nums" style={{ color: dirColor }}>
-              R$ {evento.valor.toLocaleString("pt-BR")}
+              {fmtBRL(evento.valor)}
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">
@@ -768,7 +730,6 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
           </p>
         </div>
 
-        {/* Bloco status atual */}
         <div className="flex items-center gap-1.5 mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span
             className={`h-5 px-2 rounded-full text-[10.5px] font-semibold inline-flex items-center ${statusStyles}`}
@@ -784,10 +745,9 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
           </span>
         </div>
 
-        {/* 5 ações verticais */}
         <div className="flex flex-col gap-0.5">
           {actions.map((a) => (
-            <button key={a.title} type="button" className={ACTION_ROW} onClick={() => handleAction(a.title)}>
+            <button key={a.title} type="button" className={ACTION_ROW} onClick={handleAction}>
               <a.icon className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">{a.title}</p>
@@ -803,34 +763,37 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
 }
 
 // ---------------------------------------------------------------------
-// Cell Drill Sheet — drill-down de célula (documento/estimativa/manual)
+// Cell Drill Sheet — drill-down de célula
 // ---------------------------------------------------------------------
 function CellDrillSheet({
   expandedCell,
+  data,
   onOpenChange,
   onEventoClick,
 }: {
   expandedCell: { rowId: string; weekIdx: number } | null
+  data: CellDrillData | null
   onOpenChange: (open: boolean) => void
   onEventoClick: () => void
 }) {
-  const origem = getOrigem(expandedCell?.rowId)
-
   return (
     <Sheet open={expandedCell !== null} onOpenChange={onOpenChange}>
       <LightSheetContent className="w-[320px]">
-        {/* Eyebrow */}
         <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
             COMPOSIÇÃO · S{(expandedCell?.weekIdx ?? 0) + 1}
           </span>
         </div>
 
-        {origem === "documento" && (
+        {!data ? (
+          <p className="py-2 text-[11px] text-muted-foreground">
+            A composição da célula aparece aqui após a conexão dos dados.
+          </p>
+        ) : data.origem === "documento" ? (
           <>
             <p className="text-[11px] font-semibold text-[var(--brand-navy)] mb-2">Eventos da célula</p>
             <div className="flex flex-col gap-0.5">
-              {EVENTOS_CELULA_MOCK.map((e) => (
+              {data.eventos.map((e) => (
                 <button
                   key={e.id}
                   type="button"
@@ -849,29 +812,33 @@ function CellDrillSheet({
                     </span>
                   </div>
                   <span className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)]">
-                    R$ {e.valor.toLocaleString("pt-BR")}
+                    {fmtBRL(e.valor)}
                   </span>
                 </button>
               ))}
             </div>
           </>
-        )}
-
-        {origem === "estimativa" && (
+        ) : data.origem === "estimativa" ? (
           <div className="py-2">
             <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{ESTIMATIVA_MOCK.metodo}</p>
-            <p className="text-[10.5px] text-muted-foreground mt-1">Período: {ESTIMATIVA_MOCK.periodo} · Confiança: {ESTIMATIVA_MOCK.confianca}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{data.metodo}</p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">
+              Período: {data.periodo} · Confiança: {data.confianca}
+            </p>
           </div>
-        )}
-
-        {origem === "manual" && (
+        ) : (
           <button type="button" onClick={onEventoClick} className="w-full text-left py-2">
             <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Adicionado por você</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{MANUAL_MOCK.data} · {MANUAL_MOCK.contraparte}</p>
-            <p className="text-[10.5px] text-muted-foreground mt-1">Status: {MANUAL_MOCK.status} · Confiança: {MANUAL_MOCK.confianca}</p>
-            {MANUAL_MOCK.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{MANUAL_MOCK.obs}&quot;</p>}
-            <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">R$ {MANUAL_MOCK.valor.toLocaleString("pt-BR")}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              {data.data} · {data.contraparte}
+            </p>
+            <p className="text-[10.5px] text-muted-foreground mt-1">
+              Status: {data.status} · Confiança: {data.confianca}
+            </p>
+            {data.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{data.obs}&quot;</p>}
+            <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">
+              {fmtBRL(data.valor)}
+            </p>
           </button>
         )}
       </LightSheetContent>
@@ -882,90 +849,93 @@ function CellDrillSheet({
 // ---------------------------------------------------------------------
 // Semana Sheet — visão consolidada da semana
 // ---------------------------------------------------------------------
-function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const s = SEMANA_MOCK
+function SemanaSheet({ semana, open, onOpenChange }: { semana: Semana | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const colorFor = (v: number) => (v < 0 ? "var(--brand-error-soft)" : "var(--brand-navy)")
 
-  const fmtVal = (v: number) => {
-    const abs = Math.abs(v)
-    const formatted = abs >= 1000 ? `${(abs / 1000).toFixed(0)}k` : abs.toLocaleString("pt-BR")
-    return v < 0 ? `-R$ ${formatted}` : `R$ ${formatted}`
-  }
-  const colorFor = (v: number) => v < 0 ? "var(--brand-error-soft)" : "var(--brand-navy)"
-
-  const handleAction = (action: string) => {
-    console.log("Ação semana:", action)
+  const handleAction = () => {
     onOpenChange(false)
   }
 
-  const ACTION_ROW = "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
+  const ACTION_ROW =
+    "flex items-center gap-2.5 px-2 py-2.5 rounded-md hover:bg-[rgba(21,103,200,0.05)] transition cursor-pointer w-full text-left"
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <LightSheetContent className="w-[320px]">
-        {/* Eyebrow */}
         <div className="flex items-center justify-between pb-2 mb-3 mt-4" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span className="text-[10px] uppercase tracking-[0.10em] text-muted-foreground font-medium">
-            SEMANA · S{s.numero} · {s.dateRange.toUpperCase()}
+            {semana ? `SEMANA · S${semana.numero} · ${semana.dateRange.toUpperCase()}` : "SEMANA"}
           </span>
         </div>
 
-        {/* Bloco saldo */}
-        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          {[
-            { label: "Caixa inicial", value: s.caixaInicial },
-            { label: "Caixa final", value: s.caixaFinal },
-            { label: "Mínimo da semana", value: s.minimo },
-          ].map((item) => (
-            <div key={item.label} className="flex items-baseline gap-1.5 py-1">
-              <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
-              <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(item.value) }}>
-                {fmtVal(item.value)}
-              </span>
+        {!semana ? (
+          <p className="py-2 text-[11px] text-muted-foreground">
+            A visão consolidada da semana aparece aqui após a conexão dos dados.
+          </p>
+        ) : (
+          <>
+            <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+              {[
+                { label: "Caixa inicial", value: semana.caixaInicial },
+                { label: "Caixa final", value: semana.caixaFinal },
+                { label: "Mínimo da semana", value: semana.minimo },
+              ].map((item) => (
+                <div key={item.label} className="flex items-baseline gap-1.5 py-1">
+                  <span className="text-[11px] text-muted-foreground font-medium">{item.label}</span>
+                  <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(item.value) }}>
+                    {fmtBRL(item.value)}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Bloco totais */}
-        <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          <div className="flex items-baseline gap-1.5 py-1">
-            <span className="text-[11px] text-muted-foreground font-medium">Entradas</span>
-            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-navy)]">
-              {fmtVal(s.totalEntradas)}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-1.5 py-1">
-            <span className="text-[11px] text-muted-foreground font-medium">Saídas</span>
-            <span className="text-[13px] font-bold tabular-nums text-[var(--brand-error-soft)]">
-              {fmtVal(s.totalSaidas)}
-            </span>
-          </div>
-          <div className="flex items-baseline gap-1.5 py-1">
-            <span className="text-[11px] text-muted-foreground font-medium">Líquido</span>
-            <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(s.liquido) }}>
-              {fmtVal(s.liquido)}
-            </span>
-          </div>
-        </div>
+            <div className="mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+              <div className="flex items-baseline gap-1.5 py-1">
+                <span className="text-[11px] text-muted-foreground font-medium">Entradas</span>
+                <span className="text-[13px] font-bold tabular-nums text-[var(--brand-navy)]">
+                  {fmtBRL(semana.totalEntradas)}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1.5 py-1">
+                <span className="text-[11px] text-muted-foreground font-medium">Saídas</span>
+                <span className="text-[13px] font-bold tabular-nums text-[var(--brand-error-soft)]">
+                  {fmtBRL(semana.totalSaidas)}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1.5 py-1">
+                <span className="text-[11px] text-muted-foreground font-medium">Líquido</span>
+                <span className="text-[13px] font-bold tabular-nums" style={{ color: colorFor(semana.liquido) }}>
+                  {fmtBRL(semana.liquido)}
+                </span>
+              </div>
+            </div>
 
-        {/* Ações */}
-        <div className="flex flex-col gap-0.5">
-          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Ver todos eventos da semana")}>
-            <Eye className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Ver todos eventos da semana</p>
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">lista completa de entradas e saídas</p>
+            <div className="flex flex-col gap-0.5">
+              <button type="button" className={ACTION_ROW} onClick={handleAction}>
+                <Eye className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">
+                    Ver todos eventos da semana
+                  </p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                    lista completa de entradas e saídas
+                  </p>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              </button>
+              <button type="button" className={ACTION_ROW} onClick={handleAction}>
+                <BarChart3 className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">
+                    Comparar Forecast vs Actual
+                  </p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">previsto contra realizado</p>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              </button>
             </div>
-            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-          </button>
-          <button type="button" className={ACTION_ROW} onClick={() => handleAction("Comparar Forecast vs Actual")}>
-            <BarChart3 className="h-3.5 w-3.5 text-[var(--brand-blue)] shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-semibold text-[var(--brand-navy)] leading-tight">Comparar Forecast vs Actual</p>
-              <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">previsto contra realizado</p>
-            </div>
-            <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-          </button>
-        </div>
+          </>
+        )}
       </LightSheetContent>
     </Sheet>
   )
@@ -977,12 +947,12 @@ function SemanaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: 
 const UNIDADES_SALDO = ["Consolidado", "Filial 1", "Filial 2"]
 
 function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const [unidadeSaldo, setUnidadeSaldo] = useState("Filial 2")
+  const [unidadeSaldo, setUnidadeSaldo] = useState(UNIDADES_SALDO[0])
   const [valorSaldo, setValorSaldo] = useState("")
   const [dataSaldo, setDataSaldo] = useState("")
 
   const handleSave = () => {
-    console.log("Saldo salvo:", { unidade: unidadeSaldo, valor: valorSaldo, data: dataSaldo })
+    // TODO: persistir via /api/cashflow/balance quando hook tiver fetch real
     onOpenChange(false)
   }
 
@@ -990,16 +960,18 @@ function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChang
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-<SheetContent side="right" className="w-[340px] p-4">
-  {/* Header */}
-  <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-  <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
-          <button type="button" onClick={() => onOpenChange(false)} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
+      <SheetContent side="right" className="w-[340px] p-4">
+        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+          <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition"
+          >
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
-        {/* Campos */}
         <div className="flex flex-col gap-3">
           <div>
             <label className={LABEL}>Unidade</label>
@@ -1009,7 +981,9 @@ function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               </SelectTrigger>
               <SelectContent>
                 {UNIDADES_SALDO.map((u) => (
-                  <SelectItem key={u} value={u} className="text-[12px]">{u}</SelectItem>
+                  <SelectItem key={u} value={u} className="text-[12px]">
+                    {u}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -1036,7 +1010,6 @@ function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChang
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mt-4">
           <button
             type="button"
@@ -1052,24 +1025,65 @@ function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChang
 }
 
 // ---------------------------------------------------------------------
-// Zona 2 — KPIs (linha tipográfica compacta)
+// Zona 2 — KPIs
 // ---------------------------------------------------------------------
-function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction: (id: string, action: AcaoProblema) => void }) {
-  const verdictKey: Veredito = pendencias.length === 0 ? "OK" : "DADOS_INSUFICIENTES"
+function Zone2Kpis({
+  hasConnections,
+  snapshot,
+  pendencias,
+  onAction,
+}: {
+  hasConnections: boolean
+  snapshot: CashflowSnapshot | null
+  pendencias: Problema[]
+  onAction: (id: string, action: AcaoProblema) => void
+}) {
+  // Lógica do veredito: sem conexão OU pendências > 0 → DADOS_INSUFICIENTES.
+  // Conectado e zero pendências → OK.
+  const verdictKey: Veredito = !hasConnections || pendencias.length > 0 ? "DADOS_INSUFICIENTES" : "OK"
   const veredito = VEREDITO_STYLES[verdictKey]
+
+  const caixaHojeStr = snapshot ? fmtBRL(snapshot.caixaHoje) : "—"
+  const minimoStr = snapshot ? fmtBRL(snapshot.kpis.minimo.value) : "—"
+  const minimoMeta = snapshot ? `${snapshot.kpis.minimo.weekLabel} · ${snapshot.kpis.minimo.weekDateLabel}` : undefined
+  const medioStr = snapshot ? fmtBRL(snapshot.kpis.medio) : "—"
+  const medioMeta = snapshot ? "13 sem" : undefined
+  const minimoColor = snapshot && snapshot.kpis.minimo.value < 0 ? "var(--brand-error-soft)" : undefined
+  const medioColor = snapshot && snapshot.kpis.medio < 0 ? "var(--brand-error-soft)" : undefined
+
   return (
     <section className="mb-3 flex flex-wrap items-baseline border-y border-border py-2 px-1">
-      <KpiInline label="Caixa hoje" value="R$ 34.494" />
-      <KpiInline label="Mínimo" value="-R$ 251.633" valueColor="var(--brand-error-soft)" meta="S12 · 20/jul" />
-      <KpiInline label="Médio" value="-R$ 121.566" valueColor="var(--brand-error-soft)" meta="13 sem" />
+      <KpiInline label="Caixa hoje" value={caixaHojeStr} />
+      <KpiInline label="Mínimo" value={minimoStr} valueColor={minimoColor} meta={minimoMeta} />
+      <KpiInline label="Médio" value={medioStr} valueColor={medioColor} meta={medioMeta} />
       <div className="inline-flex items-baseline gap-2 px-4">
         <Popover>
-          <PopoverTrigger className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition" style={{ color: veredito.fg }}>
+          <PopoverTrigger
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded px-1.5 py-0.5 hover:bg-[rgba(7,29,59,0.06)] transition"
+            style={{ color: veredito.fg }}
+          >
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: veredito.dotColor }} />
             {veredito.label}
           </PopoverTrigger>
           <PopoverContent align="start" className="w-[320px] p-3 text-[12px]">
-            {pendencias.length === 0 ? (
+            {!hasConnections ? (
+              <div className="py-4 text-center">
+                <Plug className="h-6 w-6 mx-auto text-muted-foreground" />
+                <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] mt-2">
+                  Aguardando conexão dos dados
+                </p>
+                <p className="text-[10.5px] text-muted-foreground mt-1">
+                  Conecte banco, sistema de NF-e ou ERP em Conexões para o motor calcular o veredito.
+                </p>
+                <Link
+                  href="/conexoes"
+                  className="inline-flex items-center gap-1.5 mt-3 px-2.5 h-6 text-[11px] font-semibold rounded-md border border-border text-[var(--brand-navy)] hover:border-[var(--brand-blue)] transition"
+                >
+                  <Plug className="h-3 w-3" />
+                  Ir para Conexões
+                </Link>
+              </div>
+            ) : pendencias.length === 0 ? (
               <div className="py-4 text-center">
                 <CheckCircle2 className="h-6 w-6 mx-auto text-[var(--brand-green)]" />
                 <p className="text-[11px] text-muted-foreground mt-2">Tudo verificado · nenhuma pendência</p>
@@ -1078,7 +1092,9 @@ function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction:
               <>
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
                   <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
-                  <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">{pendencias.length}</span>
+                  <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">
+                    {pendencias.length}
+                  </span>
                 </div>
                 <div className="flex flex-col gap-1">
                   {pendencias.map((it) => (
@@ -1088,7 +1104,12 @@ function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction:
                       <p className="text-[10px] text-muted-foreground/80 leading-tight mt-0.5 italic">{it.impact}</p>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {it.actions.map((a, i) => (
-                          <button key={i} type="button" onClick={() => onAction(it.id, a)} className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition">
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => onAction(it.id, a)}
+                            className="h-5 px-2 text-[10px] font-semibold border-[0.5px] border-border rounded-md text-[var(--brand-navy)] hover:bg-[rgba(21,103,200,0.06)] hover:border-[rgba(21,103,200,0.30)] hover:text-[var(--brand-blue)] transition"
+                          >
                             {a.label}
                           </button>
                         ))}
@@ -1101,8 +1122,13 @@ function Zone2Kpis({ pendencias, onAction }: { pendencias: Problema[]; onAction:
           </PopoverContent>
         </Popover>
         {pendencias.length > 0 && (
-          <button type="button" className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]" style={{ color: "var(--brand-warning)" }}>
-            <AlertTriangle className="h-3 w-3" />{pendencias.length} críticas
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold rounded px-1.5 py-0.5 transition hover:bg-[rgba(224,139,0,0.10)]"
+            style={{ color: "var(--brand-warning)" }}
+          >
+            <AlertTriangle className="h-3 w-3" />
+            {pendencias.length} críticas
           </button>
         )}
       </div>
@@ -1114,7 +1140,9 @@ function KpiInline({ label, value, valueColor, meta }: { label: string; value: s
   return (
     <div className="inline-flex items-baseline gap-1.5 px-4 first:pl-1 border-r last:border-r-0 border-border rounded-md hover:bg-[rgba(7,29,59,0.04)] transition">
       <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
-      <span className="text-[13px] font-bold tabular-nums" style={{ color: valueColor ?? "var(--brand-navy)" }}>{value}</span>
+      <span className="text-[13px] font-bold tabular-nums" style={{ color: valueColor ?? "var(--brand-navy)" }}>
+        {value}
+      </span>
       {meta && <span className="text-[11px] text-muted-foreground font-normal">{meta}</span>}
     </div>
   )
@@ -1131,53 +1159,145 @@ const TOTAL_BORDER_LEFT = "4px solid var(--border)"
 const HEADER_GRADIENT = "rgba(7,29,59,0.03)"
 
 type OpenState = { op: boolean; op_rec: boolean; op_sai: boolean; fin: boolean; inv: boolean; ic: boolean }
-const SECTION_KEYS: (keyof OpenState)[] = ["op", "fin", "inv", "ic"]
-const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
 
-  function Zone3Grid({
-    onRowClick,
-    onCellClick,
-    onWeekClick,
-    highlightedRowId,
-    highlightedWeekIdx,
-    expandedCell,
-  }: {
-    onRowClick?: (rowId: string) => void
-    onCellClick?: (rowId: string, weekIdx: number) => void
-    onWeekClick?: (weekIdx: number) => void
-    highlightedRowId?: string | null
-    highlightedWeekIdx?: number | null
-    expandedCell?: { rowId: string; weekIdx: number } | null
-  }) {
+function Zone3Grid({
+  hasConnections,
+  snapshot,
+  weeks,
+  onRowClick,
+  onCellClick,
+  onWeekClick,
+  highlightedRowId,
+  highlightedWeekIdx,
+  expandedCell,
+}: {
+  hasConnections: boolean
+  snapshot: CashflowSnapshot | null
+  weeks: WeekHeader[]
+  onRowClick?: (rowId: string) => void
+  onCellClick?: (rowId: string, weekIdx: number) => void
+  onWeekClick?: (weekIdx: number) => void
+  highlightedRowId?: string | null
+  highlightedWeekIdx?: number | null
+  expandedCell?: { rowId: string; weekIdx: number } | null
+}) {
+  if (!snapshot) {
+    return <EmptyCashflowGrid hasConnections={hasConnections} />
+  }
+
+  return (
+    <FullCashflowGrid
+      snapshot={snapshot}
+      weeks={weeks}
+      onRowClick={onRowClick}
+      onCellClick={onCellClick}
+      onWeekClick={onWeekClick}
+      highlightedRowId={highlightedRowId}
+      highlightedWeekIdx={highlightedWeekIdx}
+      expandedCell={expandedCell}
+    />
+  )
+}
+
+function EmptyCashflowGrid({ hasConnections }: { hasConnections: boolean }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-8 md:p-10" aria-label="Grade de fluxo de caixa em 13 semanas">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Fluxo de Caixa · 13 semanas</p>
+      <h2 className="mt-1 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+        {hasConnections ? "Dados insuficientes para projetar o fluxo." : "Conecte dados para ver o fluxo de caixa de 13 semanas."}
+      </h2>
+      <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-[var(--slate-700)]">
+        A grade renderiza projeção semanal por atividade (Operação, Financiamento, Investimento, Entre Companhias), com saldos de Início e Final, Variação Líquida e a faixa "Depois da S13". Aparece aqui assim que o banco, sistema de NF-e ou ERP estiver conectado.
+      </p>
+      <Link
+        href="/conexoes"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold transition hover:border-[var(--brand-blue)]/40"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+        Ir para Conexões
+      </Link>
+    </section>
+  )
+}
+
+function FullCashflowGrid({
+  snapshot,
+  weeks,
+  onRowClick,
+  onCellClick,
+  onWeekClick,
+  highlightedRowId,
+  highlightedWeekIdx,
+  expandedCell,
+}: {
+  snapshot: CashflowSnapshot
+  weeks: WeekHeader[]
+  onRowClick?: (rowId: string) => void
+  onCellClick?: (rowId: string, weekIdx: number) => void
+  onWeekClick?: (weekIdx: number) => void
+  highlightedRowId?: string | null
+  highlightedWeekIdx?: number | null
+  expandedCell?: { rowId: string; weekIdx: number } | null
+}) {
   const [nivel, setNivel] = useState<1 | 2 | 3>(2)
   const [open, setOpen] = useState<OpenState>({
-  op: true,
-  op_rec: false,
-  op_sai: false,
-  fin: false,
-  inv: false,
-  ic: false,
+    op: true,
+    op_rec: false,
+    op_sai: false,
+    fin: false,
+    inv: false,
+    ic: false,
   })
   const toggle = (k: keyof OpenState) => setOpen((p) => ({ ...p, [k]: !p[k] }))
 
   const applyNivel = (n: 1 | 2 | 3) => {
     setNivel(n)
     if (n === 1) {
-      // Sintético: tudo colapsado
       setOpen({ op: false, op_rec: false, op_sai: false, fin: false, inv: false, ic: false })
     } else if (n === 2) {
-      // Grupos: seções abertas, sub-grupos fechados
       setOpen({ op: true, op_rec: false, op_sai: false, fin: true, inv: true, ic: true })
     } else {
-      // Detalhado: tudo aberto
       setOpen({ op: true, op_rec: true, op_sai: true, fin: true, inv: true, ic: true })
     }
   }
 
-  return (
-  <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
+  // Subtotais derivados do snapshot
+  const REC_OP_SUB_BY_WEEK = sumByWeek([snapshot.crReceber, snapshot.crRecuperacao, snapshot.outrasReceitas])
+  const SAI_OP_SUB_BY_WEEK = sumByWeek([
+    snapshot.cpPagar,
+    snapshot.cpVencidos,
+    snapshot.folha,
+    snapshot.tributosVendas,
+    snapshot.encargosTrab,
+    snapshot.despesasOper,
+  ])
+  const REC_OP_BEYOND = snapshot.beyondCrReceber + 0 + 0
+  const SAI_OP_BEYOND = snapshot.beyondCpPagar + 0 + 0 + 0 + 0 + 0
 
-      {/* Controle de nível */}
+  const CL_OPERACAO = REC_OP_SUB_BY_WEEK.map((v, i) => v + SAI_OP_SUB_BY_WEEK[i])
+  const CL_FINANCIAMENTO = sumByWeek([
+    snapshot.emprestimosNovos,
+    snapshot.aporteSocios,
+    snapshot.emprestimoFin,
+    snapshot.tarifasIof,
+    snapshot.retiradaSocios,
+  ])
+  const CL_INVESTIMENTO = sumByWeek([snapshot.vendaEquip, snapshot.compraEquip])
+  const CL_INTERCO = sumByWeek([snapshot.recebInterco, snapshot.pagtoInterco])
+
+  const CL_OPERACAO_BEYOND = REC_OP_BEYOND + SAI_OP_BEYOND
+  const CL_FIN_BEYOND = 0 + 0 + snapshot.beyondEmprestimo + 0 + 0
+  const CL_INV_BEYOND = 0
+  const CL_IC_BEYOND = 0
+
+  const VARIACAO_LIQUIDA = CL_OPERACAO.map(
+    (_, i) => CL_OPERACAO[i] + CL_FINANCIAMENTO[i] + CL_INVESTIMENTO[i] + CL_INTERCO[i],
+  )
+  const VARIACAO_BEYOND = CL_OPERACAO_BEYOND + CL_FIN_BEYOND + CL_INV_BEYOND + CL_IC_BEYOND
+
+  return (
+    <section className="rounded-2xl border border-border bg-card" aria-label="Grade de fluxo de caixa em 13 semanas">
       <div className="flex items-center justify-end px-3 py-1.5 border-b border-border">
         {[
           { value: 1 as const, label: "sintético" },
@@ -1201,7 +1321,6 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
         ))}
       </div>
 
-      {/* Wrapper com scrollbars sempre visíveis. */}
       <div style={{ overflowX: "scroll", overflowY: "scroll", maxHeight: "70vh" }}>
         <table
           className="w-full border-separate"
@@ -1214,7 +1333,7 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
         >
           <colgroup>
             <col style={{ width: FIRST_COL_WIDTH }} />
-            {WEEKS.map((_, i) => (
+            {weeks.map((_, i) => (
               <col key={i} style={{ width: WEEK_COL_WIDTH }} />
             ))}
             <col style={{ width: TOTAL_COL_WIDTH }} />
@@ -1242,7 +1361,7 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               >
                 Categoria
               </th>
-              {WEEKS.map((w, i) => (
+              {weeks.map((w, i) => (
                 <th
                   key={i}
                   scope="col"
@@ -1264,9 +1383,11 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                 >
                   <div className="flex flex-col items-end leading-tight">
                     <span>{w.label}</span>
-                    <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">
-                      {w.mondayLabel}
-                    </span>
+                    {w.mondayLabel && (
+                      <span className="text-[9px] font-semibold opacity-80 tracking-normal normal-case">
+                        {w.mondayLabel}
+                      </span>
+                    )}
                   </div>
                 </th>
               ))}
@@ -1319,22 +1440,18 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
           </thead>
 
           <tbody>
-            {/* (2) Caixa Início do Período — abre a tabela.
-                SALDO: Total = snapshot da S1, Depois da S13 = "—" (null). */}
             <DataRow
               label="Caixa Início do Período"
-              values={CAIXA_INICIO}
-              total={CAIXA_INICIO[0]}
+              values={snapshot.caixaInicio}
+              total={snapshot.caixaInicio[0]}
               beyond={null}
               variant="subtotal"
             />
 
-            {/* ===================== 1. OPERAÇÃO ===================== */}
             <SectionHeader label="OPERAÇÃO" expanded={open.op} onToggle={() => toggle("op")} />
 
             {open.op && (
               <>
-                {/* (1) Receitas Operacionais — subtotal AZUL CLARO bold; valor sempre visível */}
                 <SubGroupHeader
                   label="Receitas Operacionais"
                   expanded={open.op_rec}
@@ -1347,35 +1464,53 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                   <>
                     <DataRow
                       rowId="op_rec-cr_receber"
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber <span className="text-muted-foreground">(vencimentos)</span></>}
-                      values={CR_RECEBER}
-                      total={sum(CR_RECEBER)}
-                      beyond={BEYOND_CR_RECEBER}
+                      label={
+                        <>
+                          (+) <GlossaryTerm term="CR">CR</GlossaryTerm> a receber{" "}
+                          <span className="text-muted-foreground">(vencimentos)</span>
+                        </>
+                      }
+                      values={snapshot.crReceber}
+                      total={sum(snapshot.crReceber)}
+                      beyond={snapshot.beyondCrReceber}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
                       isHighlighted={highlightedRowId === "op_rec-cr_receber"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_receber" ? expandedCell.weekIdx : null}
-                     
                     />
                     <DataRow
                       rowId="op_rec-cr_recuperacao"
-                      label={<>(+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos <span className="text-muted-foreground">- recuperação</span></>}
-                      values={CR_RECUPERACAO}
-                      total={sum(CR_RECUPERACAO)}
+                      label={
+                        <>
+                          (+) <GlossaryTerm term="CR">CR</GlossaryTerm> vencidos{" "}
+                          <span className="text-muted-foreground">- recuperação</span>
+                        </>
+                      }
+                      values={snapshot.crRecuperacao}
+                      total={sum(snapshot.crRecuperacao)}
                       beyond={0}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
                       isHighlighted={highlightedRowId === "op_rec-cr_recuperacao"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_rec-cr_recuperacao" ? expandedCell.weekIdx : null}
-                     
                     />
-                    <DataRow rowId="op_rec-outras" label={<>(+) Outras receitas</>} values={OUTRAS_RECEITAS} total={sum(OUTRAS_RECEITAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_rec-outras"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null} />
+                    <DataRow
+                      rowId="op_rec-outras"
+                      label={<>(+) Outras receitas</>}
+                      values={snapshot.outrasReceitas}
+                      total={sum(snapshot.outrasReceitas)}
+                      beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_rec-outras"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_rec-outras" ? expandedCell.weekIdx : null}
+                    />
                   </>
                 )}
 
-                {/* (1) Saídas Operacionais — subtotal AZUL CLARO bold; valor sempre visível */}
                 <SubGroupHeader
                   label="Saídas Operacionais"
                   expanded={open.op_sai}
@@ -1388,40 +1523,91 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
                   <>
                     <DataRow
                       rowId="op_sai-cp_pagar"
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar <span className="text-muted-foreground">(vencimentos)</span></>}
-                      values={CP_A_PAGAR}
-                      total={sum(CP_A_PAGAR)}
-                      beyond={BEYOND_CP_A_PAGAR}
+                      label={
+                        <>
+                          (−) <GlossaryTerm term="CP">CP</GlossaryTerm> a pagar{" "}
+                          <span className="text-muted-foreground">(vencimentos)</span>
+                        </>
+                      }
+                      values={snapshot.cpPagar}
+                      total={sum(snapshot.cpPagar)}
+                      beyond={snapshot.beyondCpPagar}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
                       isHighlighted={highlightedRowId === "op_sai-cp_pagar"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_pagar" ? expandedCell.weekIdx : null}
-                     
                     />
                     <DataRow
                       rowId="op_sai-cp_vencidos"
-                      label={<>(−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos <span className="text-muted-foreground">- renegociação</span></>}
-                      values={CP_VENCIDOS}
-                      total={sum(CP_VENCIDOS)}
+                      label={
+                        <>
+                          (−) <GlossaryTerm term="CP">CP</GlossaryTerm> vencidos{" "}
+                          <span className="text-muted-foreground">- renegociação</span>
+                        </>
+                      }
+                      values={snapshot.cpVencidos}
+                      total={sum(snapshot.cpVencidos)}
                       beyond={0}
                       onClickRow={onRowClick}
                       onCellClick={onCellClick}
                       isHighlighted={highlightedRowId === "op_sai-cp_vencidos"}
                       highlightedWeekIdx={highlightedWeekIdx}
                       expandedWeekIdx={expandedCell?.rowId === "op_sai-cp_vencidos" ? expandedCell.weekIdx : null}
-                     
                     />
-                    <DataRow rowId="op_sai-folha" label={<>(−) Folha</>} values={FOLHA} total={sum(FOLHA)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-folha"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null} />
-                    <DataRow rowId="op_sai-tributos" label={<>(−) Tributos sobre Vendas</>} values={TRIBUTOS_VENDAS} total={sum(TRIBUTOS_VENDAS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-tributos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null} />
-                    <DataRow rowId="op_sai-encargos" label={<>(−) Encargos Trabalhistas</>} values={ENCARGOS_TRAB} total={sum(ENCARGOS_TRAB)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-encargos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null} />
-                    <DataRow rowId="op_sai-despesas" label={<>(−) Despesas Operacionais</>} values={DESPESAS_OPER} total={sum(DESPESAS_OPER)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "op_sai-despesas"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null} />
+                    <DataRow
+                      rowId="op_sai-folha"
+                      label={<>(−) Folha</>}
+                      values={snapshot.folha}
+                      total={sum(snapshot.folha)}
+                      beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-folha"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-folha" ? expandedCell.weekIdx : null}
+                    />
+                    <DataRow
+                      rowId="op_sai-tributos"
+                      label={<>(−) Tributos sobre Vendas</>}
+                      values={snapshot.tributosVendas}
+                      total={sum(snapshot.tributosVendas)}
+                      beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-tributos"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-tributos" ? expandedCell.weekIdx : null}
+                    />
+                    <DataRow
+                      rowId="op_sai-encargos"
+                      label={<>(−) Encargos Trabalhistas</>}
+                      values={snapshot.encargosTrab}
+                      total={sum(snapshot.encargosTrab)}
+                      beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-encargos"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-encargos" ? expandedCell.weekIdx : null}
+                    />
+                    <DataRow
+                      rowId="op_sai-despesas"
+                      label={<>(−) Despesas Operacionais</>}
+                      values={snapshot.despesasOper}
+                      total={sum(snapshot.despesasOper)}
+                      beyond={0}
+                      onClickRow={onRowClick}
+                      onCellClick={onCellClick}
+                      isHighlighted={highlightedRowId === "op_sai-despesas"}
+                      highlightedWeekIdx={highlightedWeekIdx}
+                      expandedWeekIdx={expandedCell?.rowId === "op_sai-despesas" ? expandedCell.weekIdx : null}
+                    />
                   </>
                 )}
               </>
             )}
 
-            {/* (3) "Caixa Líquido X" → "Líquido X". Variant subtotal (azul claro bold). */}
             <DataRow
               label="→ Líquido da Operação"
               values={CL_OPERACAO}
@@ -1430,27 +1616,73 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               variant="subtotal"
             />
 
-            {/* ===================== 2. FINANCIAMENTO ===================== */}
             <SectionHeader label="FINANCIAMENTO" expanded={open.fin} onToggle={() => toggle("fin")} />
             {open.fin && (
               <>
-                <DataRow rowId="fin-emprest_novos" label={<>(+) Empréstimos novos</>} values={EMPRESTIMOS_NOVOS} total={sum(EMPRESTIMOS_NOVOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_novos"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null} />
-                <DataRow rowId="fin-aporte" label={<>(+) Aporte de sócios</>} values={APORTE_SOCIOS} total={sum(APORTE_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-aporte"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null} />
-                <DataRow rowId="fin-emprest_fin" label={<>(−) Empréstimo / Financiamento</>} values={EMPRESTIMO_FIN} total={sum(EMPRESTIMO_FIN)} beyond={BEYOND_EMPRESTIMO} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-emprest_fin"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null} />
+                <DataRow
+                  rowId="fin-emprest_novos"
+                  label={<>(+) Empréstimos novos</>}
+                  values={snapshot.emprestimosNovos}
+                  total={sum(snapshot.emprestimosNovos)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-emprest_novos"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-emprest_novos" ? expandedCell.weekIdx : null}
+                />
+                <DataRow
+                  rowId="fin-aporte"
+                  label={<>(+) Aporte de sócios</>}
+                  values={snapshot.aporteSocios}
+                  total={sum(snapshot.aporteSocios)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-aporte"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-aporte" ? expandedCell.weekIdx : null}
+                />
+                <DataRow
+                  rowId="fin-emprest_fin"
+                  label={<>(−) Empréstimo / Financiamento</>}
+                  values={snapshot.emprestimoFin}
+                  total={sum(snapshot.emprestimoFin)}
+                  beyond={snapshot.beyondEmprestimo}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-emprest_fin"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-emprest_fin" ? expandedCell.weekIdx : null}
+                />
                 <DataRow
                   rowId="fin-tarifas"
-                  label={<>(−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm></>}
-                  values={TARIFAS_IOF}
-                  total={sum(TARIFAS_IOF)}
+                  label={
+                    <>
+                      (−) Tarifas Bancárias / <GlossaryTerm term="IOF">IOF</GlossaryTerm>
+                    </>
+                  }
+                  values={snapshot.tarifasIof}
+                  total={sum(snapshot.tarifasIof)}
                   beyond={0}
                   onClickRow={onRowClick}
                   onCellClick={onCellClick}
                   isHighlighted={highlightedRowId === "fin-tarifas"}
                   highlightedWeekIdx={highlightedWeekIdx}
                   expandedWeekIdx={expandedCell?.rowId === "fin-tarifas" ? expandedCell.weekIdx : null}
-                 
                 />
-                <DataRow rowId="fin-retirada" label={<>(−) Retiradas de Sócios</>} values={RETIRADA_SOCIOS} total={sum(RETIRADA_SOCIOS)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "fin-retirada"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null} />
+                <DataRow
+                  rowId="fin-retirada"
+                  label={<>(−) Retiradas de Sócios</>}
+                  values={snapshot.retiradaSocios}
+                  total={sum(snapshot.retiradaSocios)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "fin-retirada"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "fin-retirada" ? expandedCell.weekIdx : null}
+                />
               </>
             )}
             <DataRow
@@ -1461,12 +1693,33 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               variant="subtotal"
             />
 
-            {/* ===================== 3. INVESTIMENTO ===================== */}
             <SectionHeader label="INVESTIMENTO" expanded={open.inv} onToggle={() => toggle("inv")} />
             {open.inv && (
               <>
-                <DataRow rowId="inv-venda" label={<>(+) Venda de Equipamentos</>} values={VENDA_EQUIP} total={sum(VENDA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-venda"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null} />
-                <DataRow rowId="inv-compra" label={<>(−) Compra de Equipamentos</>} values={COMPRA_EQUIP} total={sum(COMPRA_EQUIP)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "inv-compra"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null} />
+                <DataRow
+                  rowId="inv-venda"
+                  label={<>(+) Venda de Equipamentos</>}
+                  values={snapshot.vendaEquip}
+                  total={sum(snapshot.vendaEquip)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "inv-venda"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "inv-venda" ? expandedCell.weekIdx : null}
+                />
+                <DataRow
+                  rowId="inv-compra"
+                  label={<>(−) Compra de Equipamentos</>}
+                  values={snapshot.compraEquip}
+                  total={sum(snapshot.compraEquip)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "inv-compra"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "inv-compra" ? expandedCell.weekIdx : null}
+                />
               </>
             )}
             <DataRow
@@ -1477,12 +1730,33 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               variant="subtotal"
             />
 
-            {/* ===================== 4. ENTRE COMPANHIAS ===================== */}
             <SectionHeader label="ENTRE COMPANHIAS" expanded={open.ic} onToggle={() => toggle("ic")} />
             {open.ic && (
               <>
-                <DataRow rowId="ic-receb" label={<>(+) Recebimentos entre companhias</>} values={RECEB_INTERCO} total={sum(RECEB_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-receb"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null} />
-                <DataRow rowId="ic-pagto" label={<>(−) Pagamentos entre companhias</>} values={PAGTO_INTERCO} total={sum(PAGTO_INTERCO)} beyond={0} onClickRow={onRowClick} onCellClick={onCellClick} isHighlighted={highlightedRowId === "ic-pagto"} highlightedWeekIdx={highlightedWeekIdx} expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null} />
+                <DataRow
+                  rowId="ic-receb"
+                  label={<>(+) Recebimentos entre companhias</>}
+                  values={snapshot.recebInterco}
+                  total={sum(snapshot.recebInterco)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "ic-receb"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "ic-receb" ? expandedCell.weekIdx : null}
+                />
+                <DataRow
+                  rowId="ic-pagto"
+                  label={<>(−) Pagamentos entre companhias</>}
+                  values={snapshot.pagtoInterco}
+                  total={sum(snapshot.pagtoInterco)}
+                  beyond={0}
+                  onClickRow={onRowClick}
+                  onCellClick={onCellClick}
+                  isHighlighted={highlightedRowId === "ic-pagto"}
+                  highlightedWeekIdx={highlightedWeekIdx}
+                  expandedWeekIdx={expandedCell?.rowId === "ic-pagto" ? expandedCell.weekIdx : null}
+                />
               </>
             )}
             <DataRow
@@ -1493,7 +1767,6 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               variant="subtotal"
             />
 
-            {/* ===================== Fechamento ===================== */}
             <DataRow
               label="VARIAÇÃO LÍQUIDA DO CAIXA"
               values={VARIACAO_LIQUIDA}
@@ -1502,17 +1775,16 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
               variant="subtotal"
               upperLabel
             />
-            {/* SALDO: Total = snapshot da S13, Depois da S13 = "—" (null). */}
             <DataRow
               label="Caixa Final do Período"
-              values={CAIXA_FINAL}
-              total={CAIXA_FINAL[12]}
+              values={snapshot.caixaFinal}
+              total={snapshot.caixaFinal[12]}
               beyond={null}
               variant="subtotal"
             />
             <DataRow
               label="Caixa Mínimo Operacional"
-              values={Array.from({ length: 13 }, () => CAIXA_MINIMO_OPERACIONAL)}
+              values={Array.from({ length: 13 }, () => snapshot.caixaMinimoOperacional)}
               total={null}
               beyond={null}
               variant="muted"
@@ -1526,17 +1798,9 @@ const SUBGROUP_KEYS: (keyof OpenState)[] = ["op_rec", "op_sai"]
 }
 
 // =====================================================================
-// SectionHeader (nível 1) — fundo branco, navy bold uppercase 11px, com chevron.
+// SectionHeader
 // =====================================================================
-function SectionHeader({
-  label,
-  expanded,
-  onToggle,
-}: {
-  label: string
-  expanded: boolean
-  onToggle: () => void
-}) {
+function SectionHeader({ label, expanded, onToggle }: { label: string; expanded: boolean; onToggle: () => void }) {
   const Icon = expanded ? ChevronDown : ChevronRight
   return (
     <tr
@@ -1566,7 +1830,12 @@ function SectionHeader({
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
+          <Icon
+            className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]"
+            strokeWidth={2.4}
+            aria-hidden
+            style={{ color: "var(--brand-navy)" }}
+          />
           {label}
         </span>
       </th>
@@ -1586,15 +1855,16 @@ function SectionHeader({
           height: 26,
         }}
       />
-      <td className="transition group-hover:!bg-[rgba(21,103,200,0.06)]" style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }} />
+      <td
+        className="transition group-hover:!bg-[rgba(21,103,200,0.06)]"
+        style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", height: 26 }}
+      />
     </tr>
   )
 }
 
 // =====================================================================
-// SubGroupHeader (nível 2) — Receitas/Saídas Operacionais.
-// (1) Fundo #DCE7F5 + navy bold. CRÍTICO: subtotal SEMPRE visível, mesmo
-// quando expandido — sub-rows aparecem ABAIXO desta linha.
+// SubGroupHeader
 // =====================================================================
 function SubGroupHeader({
   label,
@@ -1638,7 +1908,12 @@ function SubGroupHeader({
         }}
       >
         <span className="inline-flex items-center gap-1.5">
-          <Icon className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]" strokeWidth={2.4} aria-hidden style={{ color: "var(--brand-navy)" }} />
+          <Icon
+            className="h-3 w-3 transition-all opacity-60 group-hover:opacity-100 group-hover:text-[var(--brand-blue)]"
+            strokeWidth={2.4}
+            aria-hidden
+            style={{ color: "var(--brand-navy)" }}
+          />
           {label}
         </span>
       </th>
@@ -1676,10 +1951,7 @@ function SubGroupHeader({
 }
 
 // =====================================================================
-// DataRow — variantes:
-//   default  : peso 500 INK/NAVY (linhas analíticas)
-//   subtotal : (1) fundo #DCE7F5 + texto navy bold 700 (Líquidos, Variação, Caixa Início/Final)
-//   muted    : muted italic (Caixa Mínimo Operacional)
+// DataRow
 // =====================================================================
 type RowVariant = "default" | "subtotal" | "muted"
 
@@ -1771,7 +2043,13 @@ function DataRow({
         {values.map((v, i) => {
           const isCellExpanded = expandedWeekIdx === i
           const isCellHighlighted = highlightedWeekIdx === i
-          const cellBg = isHighlighted ? highlightBg : isCellExpanded ? "rgba(21,103,200,0.12)" : isCellHighlighted ? "rgba(21,103,200,0.04)" : rowBg
+          const cellBg = isHighlighted
+            ? highlightBg
+            : isCellExpanded
+            ? "rgba(21,103,200,0.12)"
+            : isCellHighlighted
+            ? "rgba(21,103,200,0.04)"
+            : rowBg
           return (
             <NumericCell
               key={i}
@@ -1868,10 +2146,16 @@ function NumericCell({
         borderLeft: isTotalCol ? TOTAL_BORDER_LEFT : undefined,
         whiteSpace: "nowrap",
       }}
-      onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
+      onClick={
+        onClick
+          ? (e) => {
+              e.stopPropagation()
+              onClick()
+            }
+          : undefined
+      }
     >
       {fmtCompact(isEmpty ? null : (value as number))}
     </td>
   )
 }
-
