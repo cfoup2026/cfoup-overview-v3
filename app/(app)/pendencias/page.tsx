@@ -52,7 +52,6 @@ interface Issue {
   title: string
   sub: string
   impactText: string
-  chips: string[]
   action: string
   actionHref: string
 }
@@ -76,18 +75,7 @@ const SEVERITY_STYLES: Record<Severity, { bg: string; color: string; label: stri
   baixa: { bg: "#FFF7E0", color: "#A47900", label: "Baixa" },
 }
 
-// Chip colors for decision categories
-const CHIP_COLORS: Record<string, { bg: string; color: string }> = {
-  "caixa atual": { bg: "rgba(54,186,88,0.12)", color: "var(--brand-green)" },
-  "projeção": { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" },
-  "margem": { bg: "rgba(0,180,180,0.10)", color: "var(--brand-cyan)" },
-  "fornecedor": { bg: "rgba(209,67,67,0.10)", color: "var(--brand-error-soft)" },
-  "cliente": { bg: "rgba(147,112,219,0.12)", color: "#7C5CBF" },
-  "impostos": { bg: "#FFF7E0", color: "#A47900" },
-  "folha": { bg: "rgba(15,42,90,0.10)", color: "var(--brand-navy)" },
-  "corte": { bg: "rgba(139,69,69,0.12)", color: "#8B4545" },
-  "retirada": { bg: "rgba(139,90,43,0.10)", color: "#8B5A2B" },
-}
+
 
 // ================================================================
 // MOCK DATA
@@ -124,10 +112,9 @@ const ISSUES: Issue[] = [
   {
     severity: "alta",
     icon: AlertTriangle,
-    title: "Saldo de abertura",
-    sub: "Banco Bradesco PJ",
+    title: "Saldo de abertura não confirmado em 1 conta",
+    sub: "Conta Banco Bradesco PJ",
     impactText: "A projeção de caixa pode estar distorcida.",
-    chips: ["caixa atual", "projeção", "margem"],
     action: "Confirmar saldo",
     actionHref: "/conexoes?conta=banco-bradesco-pj&acao=confirmar-saldo",
   },
@@ -137,7 +124,6 @@ const ISSUES: Issue[] = [
     title: "18 lançamentos sem categoria",
     sub: "Últimos 15 dias",
     impactText: "Margem e custos por categoria podem estar subestimados.",
-    chips: ["cliente", "fornecedor", "corte"],
     action: "Classificar agora",
     actionHref: "/pendencias-setup?filtro=sem-categoria&impacto=alto&periodo=15d",
   },
@@ -147,7 +133,6 @@ const ISSUES: Issue[] = [
     title: "Folha de pagamento de maio não localizada",
     sub: "Competência 05/2026",
     impactText: "Folha, impostos e caixa futuro podem estar incorretos.",
-    chips: ["impostos", "folha"],
     action: "Enviar documento",
     actionHref: "/conexoes?acao=upload&tipo=folha&competencia=2026-05",
   },
@@ -157,7 +142,6 @@ const ISSUES: Issue[] = [
     title: "Fornecedor recorrente sem validação",
     sub: "7 fornecedores",
     impactText: "Risco de duplicidade ou dados incorretos nos próximos pagamentos.",
-    chips: ["fornecedor", "caixa atual", "corte"],
     action: "Validar fornecedores",
     actionHref: "/pendencias-setup?filtro=fornecedores&modo=validar",
   },
@@ -165,9 +149,9 @@ const ISSUES: Issue[] = [
 
 const RELIABLE_AREAS: ReliableArea[] = [
   { icon: Wallet, title: "Caixa atual", desc: "Dados bancários atualizados", href: "/fluxo-de-caixa" },
-  { icon: FileText, title: "Contas a receber", desc: "Faturamento e recebimentos ok", href: "/analise-financeira?aba=clientes" },
+  { icon: FileText, title: "Contas a receber", desc: "Faturamento e recebimentos ok", href: "/analise-financeira?aba=faturamento" },
   { icon: Users, title: "Clientes", desc: "Base e movimentações confiáveis", href: "/analise-financeira?aba=clientes" },
-  { icon: LayoutGrid, title: "Despesas fixas recorrentes", desc: "Identificadas e categorizadas", href: "/analise-financeira?aba=fornecedor" },
+  { icon: LayoutGrid, title: "Despesas fixas recorrentes", desc: "Identificadas e categorizadas", href: "/analise-financeira?aba=fornecedores" },
 ]
 
 const HISTORY: HistoryStep[] = [
@@ -407,14 +391,11 @@ export default function QualidadeDaDecisaoPage() {
             <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="w-[30%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                  <th className="w-[42%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
                     Problema
                   </th>
-                  <th className="w-[24%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                  <th className="w-[34%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
                     Impacto na decisão
-                  </th>
-                  <th className="w-[22%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                    Decisões afetadas
                   </th>
                   <th className="w-[24%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
                     Ação recomendada
@@ -425,18 +406,10 @@ export default function QualidadeDaDecisaoPage() {
                 {ISSUES.map((issue) => {
                   const style = SEVERITY_STYLES[issue.severity]
                   const Icon = issue.icon
-                  const extraChips = issue.chips.length > 3 ? issue.chips.length - 3 : 0
-                  const visibleChips = issue.chips.slice(0, 3)
 
                   return (
-                    <tr key={issue.title} className="border-b border-[var(--border-soft)] align-top">
-                      <td className="py-3.5 pr-3">
-                        <span
-                          className="mb-1.5 inline-block rounded px-2 py-0.5 text-[9.5px] font-bold uppercase"
-                          style={{ background: style.bg, color: style.color }}
-                        >
-                          {style.label}
-                        </span>
+                    <tr key={issue.title} className="border-b border-[var(--border-soft)]">
+                      <td className="py-3.5 pr-3 align-top">
                         <div className="flex gap-2.5">
                           <span
                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
@@ -444,54 +417,33 @@ export default function QualidadeDaDecisaoPage() {
                           >
                             <Icon className="h-4 w-4" />
                           </span>
-                          <div>
-                            <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                              {issue.title}
-                            </p>
-                            <p className="text-[10.5px] text-muted-foreground">{issue.sub}</p>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em]"
+                                style={{ background: style.bg, color: style.color }}
+                              >
+                                {style.label}
+                              </span>
+                              <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                                {issue.title}
+                              </p>
+                            </div>
+                            <p className="mt-0.5 text-[10.5px] text-muted-foreground">{issue.sub}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 pr-3">
+                      <td className="py-3.5 pr-3 align-top">
                         <p className="text-xs leading-snug text-[var(--ink-muted)]">{issue.impactText}</p>
                       </td>
-                      <td className="py-3.5 pr-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {visibleChips.map((chip) => {
-                            const chipStyle = CHIP_COLORS[chip] || { bg: "#EEF3F8", color: "var(--ink-muted)" }
-                            return (
-                              <span
-                                key={chip}
-                                className="flex h-7 w-7 items-center justify-center rounded-lg"
-                                style={{ background: chipStyle.bg, color: chipStyle.color }}
-                                title={chip}
-                              >
-                                <Circle className="h-3.5 w-3.5" />
-                              </span>
-                            )
-                          })}
-                          {extraChips > 0 && (
-                            <span className="text-[11px] font-bold text-muted-foreground">+{extraChips}</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3.5">
-                        <div className="flex flex-col items-start gap-1.5">
-                          <Link
-                            href={issue.actionHref}
-                            className="rounded-lg border border-border bg-white px-3.5 py-1.5 text-[11.5px] font-bold transition hover:border-[var(--brand-blue)]"
-                            style={{ color: "var(--brand-navy)" }}
-                          >
-                            {issue.action}
-                          </Link>
-                          <Link
-                            href={`${issue.actionHref}&view=detalhes`}
-                            className="text-[10.5px] font-semibold"
-                            style={{ color: "var(--brand-blue)" }}
-                          >
-                            Ver detalhes
-                          </Link>
-                        </div>
+                      <td className="py-3.5 align-top">
+                        <Link
+                          href={issue.actionHref}
+                          className="inline-block rounded-lg border border-border bg-white px-3.5 py-1.5 text-[11.5px] font-bold transition hover:border-[var(--brand-blue)]"
+                          style={{ color: "var(--brand-navy)" }}
+                        >
+                          {issue.action}
+                        </Link>
                       </td>
                     </tr>
                   )
