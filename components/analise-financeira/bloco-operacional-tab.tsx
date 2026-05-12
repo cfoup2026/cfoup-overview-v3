@@ -39,11 +39,11 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       <div className="p-7">
         {/* Verdict */}
         <div
-          className="mb-3.5 flex items-baseline gap-4 rounded-r-lg border-l-4 px-[22px] py-4"
-          style={{ background: "#F0F4FA", borderLeftColor: "var(--brand-blue)" }}
+          className="mb-4 flex items-baseline gap-4 rounded-r-lg border-l-4 px-6 py-4"
+          style={{ background: "var(--muted)", borderLeftColor: "var(--brand-blue)" }}
         >
           <span
-            className="flex-shrink-0 text-[10.5px] font-bold uppercase tracking-[0.12em]"
+            className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             Veredito
@@ -58,21 +58,20 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
         {/* Headline (leitura) */}
         <div
-          className="mb-[18px] rounded-r-lg border-l-4 px-[22px] py-4"
+          className="mb-4 rounded-r-lg border-l-4 px-6 py-4"
           style={{
             background: "linear-gradient(180deg, #FFFEF7 0%, #FFFAEB 100%)",
             borderLeftColor: "var(--brand-warning)",
           }}
         >
           <div
-            className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.12em]"
+            className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-warning)" }}
           >
             A leitura
           </div>
           <p
-            className="m-0 text-[14.5px] leading-[1.65]"
-            style={{ color: "#243042" }}
+            className="m-0 text-[13px] leading-relaxed text-muted-foreground"
             dangerouslySetInnerHTML={{ __html: dados.leitura }}
           />
         </div>
@@ -92,11 +91,11 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           {dados.kpis.map((kpi, idx) => (
             <div
               key={idx}
-              className="relative block overflow-hidden rounded-[10px] border border-[var(--line)] px-[18px] pb-4 pt-[18px]"
+              className="relative block overflow-hidden rounded-xl border border-border px-4 pb-4 pt-4"
               style={{
                 background: kpi.highlight
                   ? "linear-gradient(180deg, #FFFEF7 0%, #FFFAEB 100%)"
-                  : "var(--white)",
+                  : "var(--card)",
               }}
             >
               {/* Border-left */}
@@ -109,8 +108,8 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 }}
               />
               <div
-                className="mb-2 text-[10.5px] font-semibold uppercase leading-[1.3] tracking-[0.08em]"
-                style={{ color: kpi.highlight ? "var(--brand-warning)" : "var(--muted-html)" }}
+                className={`mb-2 text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] ${kpi.highlight ? "" : "text-muted-foreground"}`}
+                style={kpi.highlight ? { color: "var(--brand-warning)" } : undefined}
               >
                 {kpi.label}
               </div>
@@ -120,17 +119,16 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 dangerouslySetInnerHTML={{ __html: kpi.valor }}
               />
               <div
-                className="mt-1.5 text-[12px] font-medium leading-[1.4]"
-                style={{
-                  color:
-                    kpi.deltaType === "up"
-                      ? "var(--pos)"
-                      : kpi.deltaType === "down"
-                        ? "var(--neg)"
-                        : kpi.deltaType === "warn"
-                          ? "var(--warn)"
-                          : "var(--muted-html)",
-                }}
+                className={`mt-2 text-[12px] font-medium leading-[1.4] ${kpi.deltaType === "neutral" ? "text-muted-foreground" : ""}`}
+                style={
+                  kpi.deltaType === "up"
+                    ? { color: "var(--pos)" }
+                    : kpi.deltaType === "down"
+                      ? { color: "var(--neg)" }
+                      : kpi.deltaType === "warn"
+                        ? { color: "var(--warn)" }
+                        : undefined
+                }
               >
                 {kpi.delta}
               </div>
@@ -146,7 +144,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           {dados.alertas.map((alerta, idx) => (
             <div
               key={idx}
-              className="rounded-r-[10px] border border-[var(--line)] px-[18px] py-4"
+              className="rounded-r-xl border border-border px-4 py-4"
               style={{
                 borderLeftWidth: "4px",
                 borderLeftColor:
@@ -158,7 +156,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
               }}
             >
               <span
-                className="mb-2 inline-block rounded px-2 py-[3px] text-[10px] font-bold uppercase tracking-[0.1em]"
+                className="mb-2 inline-block rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{
                   background:
                     alerta.nivel === "critico"
@@ -181,14 +179,13 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                     : "Sob controle"}
               </span>
               <div
-                className="mb-1.5 text-[14px] font-semibold"
+                className="mb-2 text-[13px] font-semibold"
                 style={{ color: "var(--brand-navy)" }}
               >
                 {alerta.titulo}
               </div>
               <div
-                className="text-[13px] leading-[1.55]"
-                style={{ color: "#3D4D66" }}
+                className="text-[13px] leading-relaxed text-muted-foreground"
                 dangerouslySetInnerHTML={{ __html: alerta.texto }}
               />
             </div>
@@ -197,12 +194,12 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
         {/* Actions (navy background) */}
         <div
-          className="mb-4 rounded-[14px] p-9"
+          className="mb-4 rounded-2xl p-6 md:p-8"
           style={{ background: "var(--brand-navy)" }}
         >
           <h4
-            className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em]"
-            style={{ color: "#38B8E8" }}
+            className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: "var(--brand-cyan)" }}
           >
             Ações priorizadas — Bloco {letra}
           </h4>
@@ -210,21 +207,17 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
             {dados.acoes.map((acao, idx) => (
               <li key={idx} className="flex gap-4">
                 <span
-                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[13px] font-medium"
-                  style={{
-                    fontFamily: "var(--cfoup-font-serif)",
-                    background: "#38B8E8",
-                    color: "#071D3B",
-                  }}
+                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[13px] font-bold tabular-nums"
+                  style={{ background: "var(--brand-cyan)", color: "var(--brand-navy)" }}
                 >
                   {idx + 1}
                 </span>
                 <div className="flex-1">
                   <span
-                    className="text-[14px] leading-[1.55] text-white"
+                    className="text-[13px] leading-relaxed text-white"
                     dangerouslySetInnerHTML={{ __html: acao.texto }}
                   />
-                  <span className="ml-2 text-[12px] text-white/60">{acao.meta}</span>
+                  <span className="ml-2 text-[11px] text-white/60">{acao.meta}</span>
                 </div>
               </li>
             ))}
@@ -232,16 +225,16 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         </div>
 
         {/* Glossary toggle */}
-        <div className="mt-6 border-t border-[var(--line)] pt-6">
+        <div className="mt-6 border-t border-border pt-6">
           <button
             type="button"
             onClick={() => setGlossOpen(!glossOpen)}
-            className="flex w-full items-center justify-between rounded-[10px] border border-[var(--line)] bg-white px-6 py-[18px] text-left text-[13.5px] font-semibold tracking-[0.02em] transition-all hover:border-[#38B8E8] hover:bg-[#FAFCFF]"
+            className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-6 py-4 text-left text-[13px] font-semibold transition-all hover:border-[color:var(--brand-cyan)] hover:bg-muted"
             style={{ color: "var(--brand-navy)" }}
           >
             <span>
               <span
-                className="mr-3 text-[10.5px] font-bold uppercase tracking-[0.14em]"
+                className="mr-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
               >
                 Glossário
@@ -249,33 +242,22 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
               Bloco {letra}
             </span>
             <span
-              className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-[16px] leading-none transition-transform"
-              style={{
-                background: glossOpen ? "#38B8E8" : "#EEF3F9",
-                color: glossOpen ? "#fff" : "var(--brand-blue)",
-                transform: glossOpen ? "rotate(45deg)" : "rotate(0deg)",
-              }}
+              className={`flex h-6 w-6 items-center justify-center rounded-full text-[16px] leading-none transition-transform ${glossOpen ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-muted text-[color:var(--brand-blue)]"}`}
             >
               +
             </span>
           </button>
           {glossOpen && (
-            <div
-              className="mt-[-1px] rounded-b-[10px] border border-t-0 border-[var(--line)] bg-white px-7 pb-2 pt-6"
-              style={{ borderTop: "1px dashed var(--line)" }}
-            >
+            <div className="mt-[-1px] rounded-b-xl border border-t border-dashed border-border bg-card px-7 pb-2 pt-6">
               {dados.glossario.map((item, idx) => (
-                <div key={idx} className="border-b border-[#F0F3F8] py-3.5 last:border-b-0">
+                <div key={idx} className="border-b border-border py-4 last:border-b-0">
                   <dt
-                    className="mb-1 text-[14px] font-semibold tracking-[-0.005em]"
+                    className="mb-1 text-[13px] font-semibold"
                     style={{ color: "var(--brand-navy)" }}
                   >
                     {item.termo}
                   </dt>
-                  <dd
-                    className="m-0 text-[13.5px] leading-[1.6]"
-                    style={{ color: "#3D4D66" }}
-                  >
+                  <dd className="m-0 text-[13px] leading-relaxed text-muted-foreground">
                     {item.definicao}
                   </dd>
                 </div>
