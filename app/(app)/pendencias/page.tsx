@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { AlertTriangle, Clock, FileText, CheckCircle2 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 function chatHref(q: string) {
   return `/chat?q=${encodeURIComponent(q)}&auto=1`
@@ -11,9 +10,9 @@ export default function PendenciasPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Controle"
+        eyebrow="Mesa de Decisão"
         title="Pendências"
-        description={`Exceções, conciliações e decisões que esperam seu olhar. Tudo em ordem pelo impacto financeiro na ${clienteAtual.empresa.nomeCurto}.`}
+        description="Itens em aberto que ainda esperam decisão."
       />
 
       <section className="mb-8 grid gap-4 md:grid-cols-3">
@@ -91,10 +90,10 @@ function SummaryTile({
 }) {
   const styles =
     tone === "warning"
-      ? { bg: "rgba(234,179,8,0.12)", color: "#92610b" }
+      ? { bg: "rgba(224,139,0,0.12)", color: "var(--brand-warning)" }
       : tone === "info"
         ? { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }
-        : { bg: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark)" }
+        : { bg: "rgba(54,186,88,0.12)", color: "var(--brand-green)" }
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center gap-3">
@@ -131,13 +130,13 @@ function PendingRow({
 }) {
   const priColor =
     priority === "Crítica"
-      ? { bg: "rgba(200,30,30,0.10)", color: "var(--brand-red)" }
+      ? { bg: "rgba(209,67,67,0.10)", color: "var(--brand-error-soft)" }
       : priority === "Atenção"
-        ? { bg: "rgba(234,179,8,0.12)", color: "#92610b" }
+        ? { bg: "rgba(224,139,0,0.12)", color: "var(--brand-warning)" }
         : { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" }
 
   return (
-    <li className="flex flex-col gap-3 px-6 py-5 md:flex-row md:items-start md:justify-between">
+    <li className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-start md:justify-between">
       <div className="flex gap-4">
         <span
           aria-hidden
@@ -158,10 +157,10 @@ function PendingRow({
               {tag}
             </span>
           </div>
-          <p className="mt-2 text-[15px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
+          <p className="mt-2 text-[13px] font-bold leading-snug" style={{ color: "var(--brand-navy)" }}>
             {title}
           </p>
-          <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground md:max-w-xl">{body}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground md:max-w-xl">{body}</p>
         </div>
       </div>
       <div className="flex items-center gap-3 md:flex-col md:items-end md:gap-2 md:pl-4">
