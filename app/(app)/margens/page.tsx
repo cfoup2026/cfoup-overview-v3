@@ -31,15 +31,15 @@ const INDICADORES: Indicator[] = [
   {
     label: "Margem operacional",
     value: "9,8%",
-    delta: "−0,4 p.p.",
+    delta: "caiu 0,4 ponto",
     refText: "pressão em despesa fixa",
     status: "pressionando",
-    leitura: "Resultado pressionado em R$ 14k/mês.",
+    leitura: "Resultado pressionado em R$ 14k no mês.",
   },
   {
     label: "Prazo médio de estoque",
     value: "54 dias",
-    delta: "+6 dias",
+    delta: "subiu 6 dias",
     refText: "giro caiu",
     status: "risco",
     leitura: "R$ 92k a mais presos do que em janeiro.",
@@ -47,15 +47,15 @@ const INDICADORES: Indicator[] = [
   {
     label: "Margem bruta",
     value: "32,4%",
-    delta: "+1,1 p.p.",
+    delta: "subiu 1,1 ponto",
     refText: "vs. ano anterior",
     status: "saudavel",
-    leitura: "Mantém o fôlego pra absorver pressão.",
+    leitura: "Fôlego pra absorver pressão.",
   },
   {
     label: "Prazo médio de recebimento",
     value: "38 dias",
-    delta: "−3 dias",
+    delta: "caiu 3 dias",
     refText: "melhor desde jan",
     status: "saudavel",
     leitura: "Cliente pagando mais rápido.",
@@ -63,26 +63,34 @@ const INDICADORES: Indicator[] = [
   {
     label: "Margem líquida",
     value: "7,2%",
-    delta: "+0,2 p.p.",
+    delta: "subiu 0,2 ponto",
     refText: "mês fechado",
     status: "saudavel",
-    leitura: "No azul, dentro da meta.",
+    leitura: "No azul.",
   },
   {
     label: "Prazo médio de pagamento",
     value: "26 dias",
-    delta: "+1 dia",
-    refText: "dentro da política",
+    delta: "subiu 1 dia",
+    refText: "ritmo mantido",
     status: "estavel",
-    leitura: "Sem mudança relevante.",
+    leitura: "Fornecedor pago no mesmo ritmo.",
   },
   {
     label: "Ponto de equilíbrio",
     value: "R$ 248k/mês",
-    delta: "+R$ 64k",
-    refText: "receita R$ 312k",
+    delta: "",
+    refText: "piso da operação",
+    status: "estavel",
+    leitura: "Valor mínimo para o mês fechar no zero.",
+  },
+  {
+    label: "Receita do mês",
+    value: "R$ 312k",
+    delta: "+R$ 64k acima do ponto",
+    refText: "folga sobre o piso",
     status: "saudavel",
-    leitura: "R$ 64k acima do ponto.",
+    leitura: "Operação acima do equilíbrio em R$ 64k.",
   },
 ]
 
@@ -100,15 +108,15 @@ export default function IndicadoresPage() {
           className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          As margens estão positivas, mas a margem operacional está pressionada. O estoque está parado e o ponto de equilíbrio exige R$ 248k por mês.
+          A operação está R$ 64k acima do ponto de equilíbrio de R$ 248k/mês, com margens positivas, mas a margem operacional já dá sinal de pressão e o estoque está alongando o ciclo.
         </h2>
         <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-          Os clientes estão pagando mais rápido e o pagamento ao fornecedor segue igual. O problema não é em cobrança nem em fornecedor. É a despesa fixa pesando na operação e o estoque parado puxando dinheiro. Antes de mexer em preço ou prazo, vale revisar o estoque lento e cortar despesa fixa.
+          Cliente pagando mais rápido e fornecedor no mesmo ritmo mostram que o problema não é em cobrança nem em fornecedor: é despesa fixa e estoque parado. Antes de mexer em preço ou prazo, cortar fixo e girar estoque.
         </p>
       </section>
 
-      {/* Grid de indicadores — 3 colunas */}
-      <section className="mb-3 grid gap-4 md:grid-cols-3">
+      {/* Grid de indicadores — 4 colunas */}
+      <section className="mb-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {INDICADORES.map((ind) => (
           <IndicatorCard key={ind.label} {...ind} />
         ))}
@@ -135,7 +143,8 @@ function IndicatorCard({ label, value, delta, refText, status, leitura }: Indica
   const styles = STATUS_STYLES[status]
   const statusLabel = STATUS_LABELS[status]
 
-  const IconComponent = delta.startsWith("+") ? TrendingUp : delta.startsWith("−") || delta.startsWith("-") ? TrendingDown : Minus
+  const hasDelta = delta.length > 0
+  const IconComponent = delta.startsWith("+") || delta.startsWith("subiu") ? TrendingUp : delta.startsWith("−") || delta.startsWith("-") || delta.startsWith("caiu") ? TrendingDown : Minus
 
   const deltaColor =
     status === "saudavel" ? "var(--brand-green-dark)" :
@@ -144,34 +153,36 @@ function IndicatorCard({ label, value, delta, refText, status, leitura }: Indica
     "var(--brand-cyan)"
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 md:p-5">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-3 md:p-4">
       <span
         aria-hidden
         className="absolute left-0 top-0 h-full w-[3px]"
         style={{ background: styles.color }}
       />
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
         <span
-          className="shrink-0 rounded px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.12em]"
+          className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.10em]"
           style={{ background: styles.bg, color: styles.color }}
         >
           {statusLabel}
         </span>
       </div>
       <p
-        className="text-[1.5rem] font-extrabold leading-none tabular-nums"
+        className="text-[1.25rem] font-extrabold leading-none tabular-nums"
         style={{ color: "var(--brand-navy)" }}
       >
         {value}
       </p>
-      <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold" style={{ color: deltaColor }}>
-        <IconComponent className="h-3.5 w-3.5" />
-        {delta}
-      </div>
-      <p className="mt-2 text-[11px] text-muted-foreground">{refText}</p>
+      {hasDelta && (
+        <div className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: deltaColor }}>
+          <IconComponent className="h-3 w-3" />
+          {delta}
+        </div>
+      )}
+      <p className="mt-1.5 text-[10px] text-muted-foreground">{refText}</p>
       <p
-        className="mt-3 border-t border-border pt-3 text-[12.5px] leading-relaxed"
+        className="mt-2.5 border-t border-border pt-2.5 text-[11.5px] leading-relaxed"
         style={{ color: "var(--brand-navy)" }}
       >
         {leitura}
