@@ -94,7 +94,116 @@ const INDICADORES: Indicator[] = [
   },
 ]
 
+function gerarLeituraCFOup(indicadores: Indicator[]): { h2: string; paragrafo: string } {
+  // Encontra indicadores em alerta (Pressionando ou Risco)
+  const alertas = indicadores.filter((i) => i.status === "pressionando" || i.status === "risco")
+  
+  // Encontra indicadores saudáveis relevantes
+  const saudaveis = indicadores.filter((i) => i.status === "saudavel")
+  
+  // Encontra ponto de equilíbrio e receita para posição geral
+  const pontoEquilibrio = indicadores.find((i) => i.label === "Ponto de equilíbrio")
+  const receita = indicadores.find((i) => i.label === "Receita do mês")
+  
+  // Monta h2: posição geral + 1 a 2 maiores sinais de atenção
+  let h2 = "Operação acima do ponto de equilíbrio"
+  
+  if (alertas.length > 0) {
+    const sinais = alertas.slice(0, 2).map((a) => {
+      // Traduz label para linguagem natural
+      const labelNatural = a.label === "Prazo médio de estoque" ? "estoque" :
+                          a.label === "Prazo médio de recebimento" ? "recebimento" :
+                          a.label === "Prazo médio de pagamento" ? "pagamento ao fornecedor" :
+                          a.label.toLowerCase()
+      
+      // Formata delta para incluir valor
+      if (a.label.includes("Prazo")) {
+        return `${labelNatural} subiu para ${a.value}`
+      }
+      return `${labelNatural} ${a.delta}`
+    })
+    
+    if (sinais.length === 1) {
+      h2 += `, mas com um sinal de atenção: ${sinais[0]}.`
+    } else {
+      h2 += `, mas com dois sinais de atenção: ${sinais[0]} e ${sinais[1]}.`
+    }
+  } else {
+    h2 += ", sem sinais de alerta no momento."
+  }
+  
+  // Monta parágrafo: folga ou sinal saudável + impacto
+  let paragrafo = ""
+  
+  if (receita && pontoEquilibrio) {
+    paragrafo = "A folga existe"
+  }
+  
+  if (alertas.length > 0) {
+    const causas = alertas.map((a) => {
+      if (a.label === "Margem operacional") return "despesa fixa"
+      if (a.label === "Prazo médio de estoque") return "dinheiro parado em estoque"
+      return a.refText
+    })
+    paragrafo += `, mas está sendo consumida por ${causas.join(" e ")}.`
+  } else {
+    paragrafo = "Indicadores equilibrados, sem pressão imediata."
+  }
+  
+  return { h2, paragrafo }
+}
+
+function gerarAtencaoAgora(indicadores: Indicator[]): string {
+  const alertas = indicadores.filter((i) => i.status === "pressionando" || i.status === "risco")
+  const saudaveis = indicadores.filter((i) => i.status === "saudavel")
+  
+  if (alertas.length === 0) {
+    return "Nenhuma ação urgente no momento. Manter acompanhamento dos indicadores."
+  }
+  
+  // Gera ações práticas baseadas nos alertas
+  const acoes: string[] = []
+  
+  for (const alerta of alertas) {
+    if (alerta.label === "Margem operacional") {
+      acoes.push("validar despesa fixa do mês")
+    }
+    if (alerta.label === "Prazo médio de estoque") {
+      acoes.push("abrir o estoque por linha/produto")
+    }
+    if (alerta.label === "Prazo médio de recebimento") {
+      acoes.push("revisar cobrança e inadimplência")
+    }
+    if (alerta.label === "Prazo médio de pagamento") {
+      acoes.push("verificar renegociação com fornecedor")
+    }
+  }
+  
+  // Negação explícita de causa nos indicadores saudáveis
+  const negacoes: string[] = []
+  
+  const recebimentoSaudavel = saudaveis.find((i) => i.label === "Prazo médio de recebimento")
+  const pagamentoSaudavel = saudaveis.find((i) => i.label === "Prazo médio de pagamento" || i.status === "estavel")
+  
+  if (recebimentoSaudavel) negacoes.push("recebimento")
+  if (pagamentoSaudavel || indicadores.find((i) => i.label === "Prazo médio de pagamento" && i.status === "estavel")) {
+    negacoes.push("fornecedor")
+  }
+  
+  let resultado = acoes.length > 0 
+    ? acoes.map((a) => a.charAt(0).toUpperCase() + a.slice(1)).join(" e ") + "."
+    : ""
+  
+  if (negacoes.length > 0 && acoes.length > 0) {
+    resultado += ` Esses ${acoes.length === 1 ? "ponto explica" : "dois pontos explicam"} melhor a pressão atual do que ${negacoes.join(" ou ")}.`
+  }
+  
+  return resultado
+}
+
 export default function IndicadoresPage() {
+  const leituraCFOup = gerarLeituraCFOup(INDICADORES)
+  const atencaoAgora = gerarAtencaoAgora(INDICADORES)
   return (
     <>
       <PageHeader eyebrow="Mesa de decisão" title="Indicadores" />
@@ -108,10 +217,10 @@ export default function IndicadoresPage() {
           className="mt-2 text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          Operação acima do ponto de equilíbrio, mas com dois sinais de atenção: margem operacional caiu 0,4 ponto e estoque subiu para 54 dias.
+          {leituraCFOup.h2}
         </h2>
         <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-          A folga existe, mas está sendo consumida por despesa fixa e dinheiro parado em estoque.
+          {leituraCFOup.paragrafo}
         </p>
       </section>
 
@@ -131,7 +240,7 @@ export default function IndicadoresPage() {
           Atenção agora
         </span>
         <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Validar despesa fixa do mês e abrir o estoque por linha/produto. Esses dois pontos explicam melhor a pressão atual do que recebimento ou fornecedor.
+          {atencaoAgora}
         </p>
       </section>
     </>
