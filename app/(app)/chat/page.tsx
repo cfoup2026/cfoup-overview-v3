@@ -16,6 +16,7 @@ import {
   RefreshCcw,
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
+import { PageHeader } from "@/components/page-header"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
@@ -491,14 +492,9 @@ function ChatInner() {
 
         {/* Área principal */}
         <div className="flex flex-col bg-background">
-          <header className="mb-3 px-6 md:px-10 lg:px-12">
-            <h1
-              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              Chat CFOup
-            </h1>
-          </header>
+          <div className="px-6 md:px-10 lg:px-12">
+            <PageHeader eyebrow="Mesa de Decisão" title="Chat CFOup" />
+          </div>
 
           {/* Mensagens */}
           <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>

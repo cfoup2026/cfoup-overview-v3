@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { MessageCircle, Clock, DollarSign, MoveHorizontal, TrendingUp, Check, Lightbulb } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
 
 type Tone = "positive" | "negative" | "neutral"
 
@@ -249,23 +250,11 @@ export default function CenariosPage() {
 
   return (
     <>
-      {/* Header de página */}
-      <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Planejamento
-          </p>
-          <h1
-            className="mt-1 font-serif text-[30px] font-medium leading-tight tracking-tight"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            Cenários
-          </h1>
-          <p className="mt-1.5 text-[14px] text-muted-foreground">
-            Teste impacto no caixa antes de decidir.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Mesa de Decisão"
+        title="Cenários"
+        description="Teste impacto no caixa antes de decidir."
+      >
         <Link
           href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
           className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-white px-4 py-2.5 text-[13px] font-semibold transition hover:border-[var(--brand-cyan)]"
@@ -274,7 +263,7 @@ export default function CenariosPage() {
           <MessageCircle className="h-4 w-4" />
           Discutir com CFOup
         </Link>
-      </header>
+      </PageHeader>
 
       {/* Linha 1: grid 3 colunas */}
       <div className="grid gap-[18px] lg:grid-cols-[1.06fr_1.7fr_0.96fr] mt-3">

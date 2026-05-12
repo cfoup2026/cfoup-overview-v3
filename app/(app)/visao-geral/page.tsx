@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Plug,
 } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
 import { LiquidezBlock } from "@/components/liquidez-block"
 import { LiveStatus } from "@/components/live-status"
 import { useVisaoGeralData, type DrilldownIcon } from "@/lib/hooks/use-visao-geral-data"
@@ -46,18 +47,19 @@ export default function VisaoGeralPage() {
 
   return (
     <>
-      {/* Header */}
-      <header className="mb-3 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-        <div className="max-w-3xl">
-          <h1
-            className="text-balance text-lg font-extrabold leading-tight tracking-tight md:text-[1.3rem]"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            {greeting}, {user.name}. {data.headline}
-          </h1>
-        </div>
+      <PageHeader eyebrow="Mesa de Decisão" title="Visão Geral">
         <LiveStatus />
-      </header>
+      </PageHeader>
+
+      {/* Saudação contextual */}
+      <div className="mb-3 max-w-3xl">
+        <p
+          className="text-balance text-lg font-extrabold leading-tight tracking-tight md:text-[1.3rem]"
+          style={{ color: "var(--brand-navy)" }}
+        >
+          {greeting}, {user.name}. {data.headline}
+        </p>
+      </div>
 
       {/* Resumo executivo */}
       <section aria-labelledby="bloco-resumo" className="mb-3">

@@ -206,7 +206,7 @@ export default function IndicadoresPage() {
   const atencaoAgora = gerarAtencaoAgora(INDICADORES)
   return (
     <>
-      <PageHeader eyebrow="Mesa de decisão" title="Indicadores" />
+      <PageHeader eyebrow="Mesa de Decisão" title="Indicadores" />
 
       {/* Leitura do CFOup */}
       <section className="mb-6 rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
