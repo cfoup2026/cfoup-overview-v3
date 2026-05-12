@@ -42,15 +42,15 @@ function renderBold(text: string): ReactNode {
 function getPctClass(pct: number, direcao: DRELinhaAH["direcaoFavoravel"]): string {
   const isFavoravel =
     (direcao === "cresce" && pct >= 0) || (direcao === "cai" && pct <= 0)
-  return isFavoravel ? "text-[color:var(--pos)]" : "text-[color:var(--neg)]"
+  return isFavoravel ? "text-[color:var(--brand-green)]" : "text-[color:var(--brand-error-soft)]"
 }
 
 // ---------------------------------------------------------------------
 // Note label color by status
 // ---------------------------------------------------------------------
 const NOTE_LABEL_COLOR = {
-  positivo: "var(--pos)",
-  atencao: "var(--warn)",
+  positivo: "var(--brand-green)",
+  atencao: "var(--brand-warning)",
   info: "var(--brand-blue)",
 }
 
@@ -130,43 +130,43 @@ function ViewVertical({ data }: { data: DREData }) {
             DRE — peso de cada linha sobre a Receita Líquida
           </caption>
           <thead>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
+            <tr className="bg-muted">
               <th
                 className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]"
-                style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "34%" }}
+                style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}
               >
                 Linha
               </th>
               <th
                 colSpan={2}
                 className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]"
-                style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}
+                style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}
               >
                 2023
               </th>
               <th
                 colSpan={2}
                 className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]"
-                style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}
+                style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}
               >
                 2024
               </th>
               <th
                 colSpan={2}
                 className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]"
-                style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}
+                style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}
               >
                 2025
               </th>
             </tr>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-2" style={{ borderColor: "var(--line)" }} />
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-2" style={{ borderColor: "var(--border)" }} />
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
             </tr>
           </thead>
           <tbody>
@@ -191,8 +191,8 @@ function ViewVertical({ data }: { data: DREData }) {
               return (
                 <tr
                   key={linha.id}
-                  className={`border-b hover:bg-[color:var(--tbl-row-hover)] ${rowClass} ${isLast ? "border-b-0" : ""}`}
-                  style={{ ...rowStyle, borderColor: "var(--line)" }}
+                  className={`border-b hover:bg-muted/50 ${rowClass} ${isLast ? "border-b-0" : ""}`}
+                  style={{ ...rowStyle, borderColor: "var(--border)" }}
                 >
                   <td className={`px-3 py-2 text-left font-medium ${labelPadding}`}>
                     {linha.label}
@@ -237,14 +237,14 @@ function ViewHorizontal({ data }: { data: DREData }) {
             DRE — quanto cada linha cresceu ou caiu entre os anos
           </caption>
           <thead>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "38%" }}>Linha</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2023</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2024</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2025</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 24/23</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 25/24</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 25/23</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "38%" }}>Linha</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2023</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2024</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2025</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 24/23</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 25/24</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 25/23</th>
             </tr>
           </thead>
           <tbody>
@@ -264,8 +264,8 @@ function ViewHorizontal({ data }: { data: DREData }) {
               return (
                 <tr
                   key={linha.id}
-                  className={`border-b hover:bg-[color:var(--tbl-row-hover)] ${rowClass} ${isLast ? "border-b-0" : ""}`}
-                  style={{ ...rowStyle, borderColor: "var(--line)" }}
+                  className={`border-b hover:bg-muted/50 ${rowClass} ${isLast ? "border-b-0" : ""}`}
+                  style={{ ...rowStyle, borderColor: "var(--border)" }}
                 >
                   <td className="px-3 py-2 pl-6 text-left font-medium">{linha.label}</td>
                   {linha.valores.map((v) => (

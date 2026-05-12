@@ -4,8 +4,8 @@ import { conteudoConclusao } from "@/lib/conteudos/analise-contabil"
 import type { ConclusaoDadosCliente } from "@/lib/clientes/empresa-001"
 
 const NOTE_LABEL_COLOR = {
-  positivo: "var(--pos)",
-  atencao: "var(--warn)",
+  positivo: "var(--brand-green)",
+  atencao: "var(--brand-warning)",
   info: "var(--brand-blue)",
 }
 

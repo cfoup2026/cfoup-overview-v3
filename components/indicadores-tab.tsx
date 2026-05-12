@@ -15,8 +15,8 @@ function renderBold(text: string): ReactNode {
 }
 
 const NOTE_LABEL_COLOR = {
-  positivo: "var(--pos)",
-  atencao: "var(--warn)",
+  positivo: "var(--brand-green)",
+  atencao: "var(--brand-warning)",
   info: "var(--brand-blue)",
 }
 
@@ -44,12 +44,12 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
             Principais indicadores — o que cada um responde
           </caption>
           <thead>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "34%" }}>Indicador</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2023</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2024</th>
-              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2025</th>
-              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "34%" }}>O que quer dizer</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}>Indicador</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2023</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2024</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2025</th>
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}>O que quer dizer</th>
             </tr>
           </thead>
           <tbody>
@@ -58,8 +58,8 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
               return (
                 <tr
                   key={linha.id}
-                  className={`border-b hover:bg-[color:var(--tbl-row-hover)] ${isLast ? "border-b-0" : ""}`}
-                  style={{ borderColor: "var(--line)" }}
+                  className={`border-b hover:bg-muted/50 ${isLast ? "border-b-0" : ""}`}
+                  style={{ borderColor: "var(--border)" }}
                 >
                   <td className="px-3 py-2 pl-6 font-medium" style={{ color: "var(--brand-navy)" }}>{linha.label}</td>
                   {linha.valoresPorAno.map((v) => (

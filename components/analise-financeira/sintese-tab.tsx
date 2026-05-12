@@ -29,7 +29,7 @@ export default function SinteseTab({ dados }: Props) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             Síntese
           </p>
-          <h2 className="mt-0.5 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+          <h2 className="mt-1 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
             O que importa agora
           </h2>
           <p className="mt-1 text-[12px] text-muted-foreground">
@@ -39,18 +39,18 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Verdict */}
         <div
-          className="flex items-baseline gap-4 rounded-xl border border-border px-[22px] py-4"
-          style={{ background: "#F0F4FA", borderLeft: "4px solid #1567C8" }}
+          className="flex items-baseline gap-4 rounded-xl border border-border px-6 py-4"
+          style={{ background: "#F0F4FA", borderLeft: "4px solid var(--brand-blue)" }}
         >
           <span
-            className="flex-shrink-0 text-[10.5px] font-bold uppercase tracking-[0.12em]"
-            style={{ color: "#1567C8" }}
+            className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: "var(--brand-blue)" }}
           >
             Tese
           </span>
           <span
             className="text-[15px] md:text-[16px] font-semibold leading-snug"
-            style={{ color: "#071D3B" }}
+            style={{ color: "var(--brand-navy)" }}
           >
             {dados.tese}
           </span>
@@ -58,11 +58,11 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Actions */}
         <div
-          className="rounded-[10px] border border-border px-7 py-6"
+          className="rounded-xl border border-border px-7 py-6"
           style={{ background: "white" }}
         >
           <h4
-            className="mb-[14px] text-[11px] font-semibold uppercase tracking-[0.14em]"
+            className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             3 decisões desta semana
@@ -71,11 +71,11 @@ export default function SinteseTab({ dados }: Props) {
             {dados.decisoes.map((d, idx) => (
               <li
                 key={idx}
-                className="relative block py-[10px] pl-[38px] text-[14px] leading-[1.6]"
+                className="relative block py-3 pl-10 text-[13px] leading-relaxed"
                 style={{ color: "var(--brand-navy)", counterIncrement: "acts" }}
               >
                 <span
-                  className="absolute left-0 top-[10px] inline-flex h-6 w-6 items-center justify-center rounded-[5px] text-[13px] font-semibold"
+                  className="absolute left-0 top-3 inline-flex h-6 w-6 items-center justify-center rounded-lg text-[13px] font-bold tabular-nums"
                   style={{
                     background: "var(--brand-blue)",
                     color: "white",
@@ -92,8 +92,8 @@ export default function SinteseTab({ dados }: Props) {
 
         {/* Callout final */}
         <div
-          className="rounded-xl border border-border px-[22px] py-[18px] text-[16px] leading-[1.55]"
-          style={{ background: "#F7F9FC", borderLeft: "3px solid #38B8E8", color: "#071D3B" }}
+          className="rounded-xl border border-border px-6 py-4 text-[15px] leading-relaxed"
+          style={{ background: "var(--muted)", borderLeft: "3px solid var(--brand-cyan)", color: "var(--brand-navy)" }}
         >
           <b className="font-semibold">{dados.callout.split(".")[0]}.</b>
           {dados.callout.substring(dados.callout.indexOf(".") + 1)}
