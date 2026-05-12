@@ -95,13 +95,18 @@ export default function IndicadoresPage() {
         description={`Sinais que o dono da ${clienteAtual.empresa.nomeCurto} olha antes de decidir. Margens, ciclo financeiro e ponto de equilíbrio.`}
       />
 
-      {/* Leitura do CFOup — destaque navy no topo */}
-      <section className="mb-6 rounded-2xl border border-[rgba(21,103,200,0.25)] bg-brand-gradient p-7 md:p-9 text-white">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">Leitura do CFOup</p>
-        <h2 className="mt-3 max-w-3xl text-balance text-[1.5rem] md:text-[1.75rem] font-extrabold leading-tight">
+      {/* Leitura do CFOup */}
+      <section className="mb-6 rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+          Leitura do CFOup
+        </p>
+        <h2
+          className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
+        >
           Margem operacional pressiona o resultado em R$ 14k/mês. Caixa segura outros 6 meses no ritmo atual.
         </h2>
-        <p className="mt-3 max-w-2xl text-white/85 text-[14px] leading-relaxed">
+        <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--slate-700)]">
           Margem bruta e recebimento mantêm o fôlego. Estoque crescendo prende caixa.
         </p>
       </section>
