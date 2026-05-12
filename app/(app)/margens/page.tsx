@@ -89,11 +89,7 @@ const INDICADORES: Indicator[] = [
 export default function IndicadoresPage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Mesa de decisão"
-        title="Indicadores"
-        description={`Sinais que o dono da ${clienteAtual.empresa.nomeCurto} olha antes de decidir. Margens, ciclo financeiro e ponto de equilíbrio.`}
-      />
+      <PageHeader eyebrow="Mesa de decisão" title="Indicadores" />
 
       {/* Leitura do CFOup */}
       <section className="mb-6 rounded-2xl border border-border bg-hero-gradient p-4 md:p-5">
