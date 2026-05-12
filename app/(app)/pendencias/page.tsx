@@ -1,9 +1,24 @@
+"use client"
+
+import { useState, useRef, useCallback } from "react"
+import Link from "next/link"
 import { PageHeader } from "@/components/page-header"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   RefreshCw,
   HelpCircle,
   CheckCircle2,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
   Info,
   AlertTriangle,
@@ -39,12 +54,14 @@ interface Issue {
   impactText: string
   chips: string[]
   action: string
+  actionHref: string
 }
 
 interface ReliableArea {
   icon: React.ElementType
   title: string
   desc: string
+  href: string
 }
 
 interface HistoryStep {
@@ -112,6 +129,7 @@ const ISSUES: Issue[] = [
     impactText: "A projeção de caixa pode estar distorcida.",
     chips: ["caixa atual", "projeção", "margem"],
     action: "Confirmar saldo",
+    actionHref: "/conexoes?conta=banco-bradesco-pj&acao=confirmar-saldo",
   },
   {
     severity: "alta",
@@ -121,6 +139,7 @@ const ISSUES: Issue[] = [
     impactText: "Margem e custos por categoria podem estar subestimados.",
     chips: ["cliente", "fornecedor", "corte"],
     action: "Classificar agora",
+    actionHref: "/pendencias-setup?filtro=sem-categoria&impacto=alto&periodo=15d",
   },
   {
     severity: "media",
@@ -130,6 +149,7 @@ const ISSUES: Issue[] = [
     impactText: "Folha, impostos e caixa futuro podem estar incorretos.",
     chips: ["impostos", "folha"],
     action: "Enviar documento",
+    actionHref: "/conexoes?acao=upload&tipo=folha&competencia=2026-05",
   },
   {
     severity: "media",
@@ -139,14 +159,15 @@ const ISSUES: Issue[] = [
     impactText: "Risco de duplicidade ou dados incorretos nos próximos pagamentos.",
     chips: ["fornecedor", "caixa atual", "corte"],
     action: "Validar fornecedores",
+    actionHref: "/pendencias-setup?filtro=fornecedores&modo=validar",
   },
 ]
 
 const RELIABLE_AREAS: ReliableArea[] = [
-  { icon: Wallet, title: "Caixa atual", desc: "Dados bancários atualizados" },
-  { icon: FileText, title: "Contas a receber", desc: "Faturamento e recebimentos ok" },
-  { icon: Users, title: "Clientes", desc: "Base e movimentações confiáveis" },
-  { icon: LayoutGrid, title: "Despesas fixas recorrentes", desc: "Identificadas e categorizadas" },
+  { icon: Wallet, title: "Caixa atual", desc: "Dados bancários atualizados", href: "/fluxo-de-caixa" },
+  { icon: FileText, title: "Contas a receber", desc: "Faturamento e recebimentos ok", href: "/analise-financeira?aba=clientes" },
+  { icon: Users, title: "Clientes", desc: "Base e movimentações confiáveis", href: "/analise-financeira?aba=clientes" },
+  { icon: LayoutGrid, title: "Despesas fixas recorrentes", desc: "Identificadas e categorizadas", href: "/analise-financeira?aba=fornecedor" },
 ]
 
 const HISTORY: HistoryStep[] = [
@@ -161,6 +182,16 @@ const HISTORY: HistoryStep[] = [
 // ================================================================
 
 export default function QualidadeDaDecisaoPage() {
+  const [entendaOpen, setEntendaOpen] = useState(false)
+  const tableRef = useRef<HTMLElement>(null)
+  const [tableHighlight, setTableHighlight] = useState(false)
+
+  const scrollToTable = useCallback(() => {
+    tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    setTableHighlight(true)
+    setTimeout(() => setTableHighlight(false), 1500)
+  }, [])
+
   return (
     <>
       <PageHeader
@@ -190,67 +221,114 @@ export default function QualidadeDaDecisaoPage() {
       {/* BLOCO 1 — Veredito + Drivers */}
       <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         {/* Card Esquerdo — Veredito */}
-        <section className="rounded-2xl border border-border bg-card p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
-            Qualidade da decisão
-          </p>
+        <div>
+          <section className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
+              Qualidade da decisão
+            </p>
 
-          <div className="mt-4 flex items-center gap-6">
-            {/* Gauge SVG */}
-            <div className="relative h-[140px] w-[140px] shrink-0">
-              <svg viewBox="0 0 140 140" className="h-full w-full">
-                <circle
-                  cx="70"
-                  cy="70"
-                  r="58"
-                  fill="none"
-                  stroke="var(--border)"
-                  strokeWidth="10"
-                />
-                <circle
-                  cx="70"
-                  cy="70"
-                  r="58"
-                  fill="none"
-                  stroke="var(--brand-green)"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray="364.4"
-                  strokeDashoffset={364.4 * (1 - SCORE / 100)}
-                  transform="rotate(-90 70 70)"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[30px] font-extrabold tabular-nums" style={{ color: "var(--brand-navy)" }}>
-                  {SCORE}%
+            <div className="mt-4 flex items-center gap-6">
+              {/* Gauge SVG */}
+              <div className="relative h-[140px] w-[140px] shrink-0">
+                <svg viewBox="0 0 140 140" className="h-full w-full">
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r="58"
+                    fill="none"
+                    stroke="var(--border)"
+                    strokeWidth="10"
+                  />
+                  <circle
+                    cx="70"
+                    cy="70"
+                    r="58"
+                    fill="none"
+                    stroke="var(--brand-green)"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray="364.4"
+                    strokeDashoffset={364.4 * (1 - SCORE / 100)}
+                    transform="rotate(-90 70 70)"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-[30px] font-extrabold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+                    {SCORE}%
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">de qualidade</span>
+                </div>
+              </div>
+
+              {/* Info column */}
+              <div className="flex flex-col gap-3">
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
+                  style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green)" }}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Confiança parcial
                 </span>
-                <span className="text-[11px] text-muted-foreground">de qualidade</span>
+                <p className="text-[12.5px] leading-relaxed text-[var(--ink-soft)]">
+                  A leitura está boa, mas 2 itens reduzem a confiança em margem e projeção de caixa.
+                </p>
+                <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
+                  <CollapsibleTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-bold transition hover:border-[var(--brand-blue)]"
+                      style={{ color: "var(--brand-navy)" }}
+                    >
+                      Entenda o que afeta
+                      {entendaOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    </button>
+                  </CollapsibleTrigger>
+                </Collapsible>
               </div>
             </div>
+          </section>
 
-            {/* Info column */}
-            <div className="flex flex-col gap-3">
-              <span
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
-                style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green)" }}
+          {/* Collapsible inline below Veredito */}
+          <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
+            <CollapsibleContent className="overflow-hidden transition-all duration-200 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+              <div
+                className="mt-3 rounded-xl border border-border p-5"
+                style={{ background: "var(--bg-subtle)" }}
               >
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Confiança parcial
-              </span>
-              <p className="text-[12.5px] leading-relaxed text-[var(--ink-soft)]">
-                A leitura está boa, mas 2 itens reduzem a confiança em margem e projeção de caixa.
-              </p>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-bold transition hover:border-[var(--brand-blue)]"
-                style={{ color: "var(--brand-navy)" }}
-              >
-                Entenda o que afeta
-                <ChevronDown className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        </section>
+                <p className="text-[12.5px] font-semibold leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+                  Score parte de 100% e desconta o impacto de cada item.
+                </p>
+
+                <ul className="mt-3 space-y-1.5 text-[12px] text-[var(--ink-muted)]">
+                  <li><strong>Peso alto:</strong> banco, saldo, CF13, folha, impostos.</li>
+                  <li><strong>Peso médio:</strong> classificação, consolidação, duplicidade.</li>
+                  <li><strong>Peso baixo:</strong> descrição e metadata.</li>
+                </ul>
+
+                <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--ink-muted)]">
+                  Se faltar dado crítico (saldo de abertura, banco ativo sem dado, setup essencial incompleto), o score vira <em>Dados insuficientes</em> mesmo se estivesse alto.
+                </p>
+
+                <div className="mt-4 border-t border-border pt-3">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                    Drivers atuais
+                  </p>
+                  <ul className="space-y-1.5">
+                    {DRIVERS.map((driver) => {
+                      const style = SEVERITY_STYLES[driver.severity]
+                      return (
+                        <li key={driver.title} className="flex items-center justify-between gap-2 text-[11.5px]">
+                          <span style={{ color: "var(--brand-navy)" }}>{driver.title}</span>
+                          <span className="font-bold tabular-nums" style={{ color: style.color }}>{driver.impact}</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
 
         {/* Card Direito — Drivers */}
         <section className="rounded-2xl border border-border bg-card p-5">
@@ -296,6 +374,7 @@ export default function QualidadeDaDecisaoPage() {
           <div className="mt-3 flex justify-end">
             <button
               type="button"
+              onClick={scrollToTable}
               className="inline-flex items-center gap-0.5 text-xs font-bold"
               style={{ color: "var(--brand-blue)" }}
             >
@@ -309,7 +388,14 @@ export default function QualidadeDaDecisaoPage() {
       {/* BLOCO 2 — Tabela + Lateral */}
       <div className="mb-4 grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         {/* Card Esquerdo — Tabela */}
-        <section className="rounded-2xl border border-border bg-card p-5">
+        <section
+          ref={tableRef}
+          className={`rounded-2xl border bg-card p-5 transition-all duration-300 ${
+            tableHighlight
+              ? "border-[var(--brand-blue)] outline outline-2 outline-[var(--brand-blue)]"
+              : "border-border"
+          }`}
+        >
           <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
               O que reduz a qualidade hoje
@@ -391,20 +477,20 @@ export default function QualidadeDaDecisaoPage() {
                       </td>
                       <td className="py-3.5">
                         <div className="flex flex-col items-start gap-1.5">
-                          <button
-                            type="button"
+                          <Link
+                            href={issue.actionHref}
                             className="rounded-lg border border-border bg-white px-3.5 py-1.5 text-[11.5px] font-bold transition hover:border-[var(--brand-blue)]"
                             style={{ color: "var(--brand-navy)" }}
                           >
                             {issue.action}
-                          </button>
-                          <button
-                            type="button"
+                          </Link>
+                          <Link
+                            href={`${issue.actionHref}&view=detalhes`}
                             className="text-[10.5px] font-semibold"
                             style={{ color: "var(--brand-blue)" }}
                           >
                             Ver detalhes
-                          </button>
+                          </Link>
                         </div>
                       </td>
                     </tr>
@@ -412,17 +498,6 @@ export default function QualidadeDaDecisaoPage() {
                 })}
               </tbody>
             </table>
-          </div>
-
-          <div className="mt-3 flex justify-end">
-            <button
-              type="button"
-              className="inline-flex items-center gap-0.5 text-xs font-bold"
-              style={{ color: "var(--brand-blue)" }}
-            >
-              Ver todos os itens
-              <ChevronRight className="h-3 w-3" />
-            </button>
           </div>
         </section>
 
@@ -440,37 +515,33 @@ export default function QualidadeDaDecisaoPage() {
               Essas áreas estão confiáveis com os dados atuais.
             </p>
 
-            <ul className="space-y-3">
+            <ul className="space-y-1">
               {RELIABLE_AREAS.map((area) => {
                 const Icon = area.icon
                 return (
-                  <li key={area.title} className="flex items-center gap-2.5">
-                    <span
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                      style={{ background: "rgba(54,186,88,0.10)", color: "var(--brand-green)" }}
+                  <li key={area.title}>
+                    <Link
+                      href={area.href}
+                      className="flex items-center gap-2.5 rounded-lg px-2 py-2.5 transition hover:bg-[var(--bg-subtle)]"
                     >
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                        {area.title}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">{area.desc}</p>
-                    </div>
+                      <span
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                        style={{ background: "rgba(54,186,88,0.10)", color: "var(--brand-green)" }}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                          {area.title}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">{area.desc}</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    </Link>
                   </li>
                 )
               })}
             </ul>
-
-            <div className="mt-3.5 flex justify-end">
-              <button
-                type="button"
-                className="text-[11px] font-semibold"
-                style={{ color: "var(--brand-blue)" }}
-              >
-                Ver detalhes
-              </button>
-            </div>
           </section>
 
           {/* Card 2 — Evolução */}
@@ -565,14 +636,39 @@ export default function QualidadeDaDecisaoPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-semibold"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            Entenda como o score é calculado
-            <HelpCircle className="h-3.5 w-3.5" />
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="ml-auto inline-flex items-center gap-1 text-[11.5px] font-semibold"
+                style={{ color: "var(--brand-blue)" }}
+              >
+                Entenda como o score é calculado
+                <HelpCircle className="h-3.5 w-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-[360px] p-4">
+              <h3 className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
+                Como o score é calculado
+              </h3>
+              <p className="mt-2 text-[12px] leading-relaxed text-[var(--ink-muted)]">
+                Score parte de 100% e desconta o impacto de cada item conforme o peso da categoria.
+              </p>
+              <ul className="mt-3 space-y-1 text-[11.5px] text-[var(--ink-muted)]">
+                <li><strong>Alto:</strong> banco, saldo, CF13, folha, impostos</li>
+                <li><strong>Médio:</strong> classificação, consolidação, duplicidade</li>
+                <li><strong>Baixo:</strong> descrição e metadata</li>
+              </ul>
+              <div
+                className="mt-3 rounded-lg border-l-[3px] bg-[rgba(224,139,0,0.08)] p-3"
+                style={{ borderLeftColor: "var(--brand-warning)" }}
+              >
+                <p className="text-[11px] leading-relaxed text-[var(--ink-muted)]">
+                  <strong>Override:</strong> faltando saldo de abertura, banco ativo sem dado ou setup essencial incompleto, o score vira <em>Dados insuficientes</em>.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </section>
     </>
