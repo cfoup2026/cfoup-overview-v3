@@ -30,44 +30,22 @@ import {
   Users,
   LayoutGrid,
   Circle,
+  Plug,
 } from "lucide-react"
+import {
+  useQualidadeDaDecisao,
+  type Severity,
+  type DriverIconKey,
+  type IssueIconKey,
+  type ReliableIconKey,
+  type Driver,
+  type Issue,
+  type ReliableArea,
+} from "@/lib/hooks/use-qualidade-da-decisao"
 
 // ================================================================
-// TYPES & CONSTANTS
+// CONSTANTS — estilo e mapeamento de ícone (UI, não dado)
 // ================================================================
-
-type Severity = "alta" | "media" | "baixa"
-
-interface Driver {
-  severity: Severity
-  icon: React.ElementType
-  title: string
-  desc: string
-  impact: string
-}
-
-interface Issue {
-  severity: Severity
-  icon: React.ElementType
-  title: string
-  sub: string
-  impactText: string
-  action: string
-  actionHref: string
-}
-
-interface ReliableArea {
-  icon: React.ElementType
-  title: string
-  desc: string
-  href: string
-}
-
-interface HistoryStep {
-  pct: number
-  date: string
-  current?: boolean
-}
 
 const SEVERITY_STYLES: Record<Severity, { bg: string; color: string; label: string }> = {
   alta: { bg: "rgba(209,67,67,0.10)", color: "var(--brand-error-soft)", label: "Alta" },
@@ -75,97 +53,34 @@ const SEVERITY_STYLES: Record<Severity, { bg: string; color: string; label: stri
   baixa: { bg: "#FFF7E0", color: "#A47900", label: "Baixa" },
 }
 
+const DRIVER_ICON: Record<DriverIconKey, React.ComponentType<{ className?: string }>> = {
+  "alert-triangle": AlertTriangle,
+  "clipboard-list": ClipboardList,
+  "info": Info,
+  "alert-circle": AlertCircle,
+}
 
+const ISSUE_ICON: Record<IssueIconKey, React.ComponentType<{ className?: string }>> = {
+  "alert-triangle": AlertTriangle,
+  "clipboard-list": ClipboardList,
+  "info": Info,
+  "alert-circle": AlertCircle,
+}
 
-// ================================================================
-// MOCK DATA
-// ================================================================
-
-const SCORE = 82
-const UPDATED_AT = "20/05/2026 às 08:35"
-
-const DRIVERS: Driver[] = [
-  {
-    severity: "alta",
-    icon: AlertTriangle,
-    title: "Saldo de abertura não confirmado em 1 conta",
-    desc: "Impacta projeção de caixa e conciliações",
-    impact: "−12%",
-  },
-  {
-    severity: "media",
-    icon: ClipboardList,
-    title: "18 lançamentos sem categoria em saídas",
-    desc: "Impacta margem, fornecedor e corte de custo",
-    impact: "−6%",
-  },
-  {
-    severity: "baixa",
-    icon: Info,
-    title: "Folha de pagamento de maio não localizada",
-    desc: "Impacta folha, impostos e caixa",
-    impact: "−4%",
-  },
-]
-
-const ISSUES: Issue[] = [
-  {
-    severity: "alta",
-    icon: AlertTriangle,
-    title: "Saldo de abertura não confirmado em 1 conta",
-    sub: "Conta Banco Bradesco PJ",
-    impactText: "A projeção de caixa pode estar distorcida.",
-    action: "Confirmar saldo",
-    actionHref: "/conexoes?conta=banco-bradesco-pj&acao=confirmar-saldo",
-  },
-  {
-    severity: "alta",
-    icon: ClipboardList,
-    title: "18 lançamentos sem categoria",
-    sub: "Últimos 15 dias",
-    impactText: "Margem e custos por categoria podem estar subestimados.",
-    action: "Classificar agora",
-    actionHref: "/pendencias-setup?filtro=sem-categoria&impacto=alto&periodo=15d",
-  },
-  {
-    severity: "media",
-    icon: Info,
-    title: "Folha de pagamento de maio não localizada",
-    sub: "Competência 05/2026",
-    impactText: "Folha, impostos e caixa futuro podem estar incorretos.",
-    action: "Enviar documento",
-    actionHref: "/conexoes?acao=upload&tipo=folha&competencia=2026-05",
-  },
-  {
-    severity: "media",
-    icon: AlertCircle,
-    title: "Fornecedor recorrente sem validação",
-    sub: "7 fornecedores",
-    impactText: "Risco de duplicidade ou dados incorretos nos próximos pagamentos.",
-    action: "Validar fornecedores",
-    actionHref: "/pendencias-setup?filtro=fornecedores&modo=validar",
-  },
-]
-
-const RELIABLE_AREAS: ReliableArea[] = [
-  { icon: Wallet, title: "Caixa atual", desc: "Dados bancários atualizados", href: "/fluxo-de-caixa" },
-  { icon: FileText, title: "Contas a receber", desc: "Faturamento e recebimentos ok", href: "/analise-financeira?aba=faturamento" },
-  { icon: Users, title: "Clientes", desc: "Base e movimentações confiáveis", href: "/analise-financeira?aba=clientes" },
-  { icon: LayoutGrid, title: "Despesas fixas recorrentes", desc: "Identificadas e categorizadas", href: "/analise-financeira?aba=fornecedores" },
-]
-
-const HISTORY: HistoryStep[] = [
-  { pct: 62, date: "10/05" },
-  { pct: 71, date: "13/05" },
-  { pct: 78, date: "16/05" },
-  { pct: 82, date: "20/05", current: true },
-]
+const RELIABLE_ICON: Record<ReliableIconKey, React.ComponentType<{ className?: string }>> = {
+  "wallet": Wallet,
+  "file-text": FileText,
+  "users": Users,
+  "layout-grid": LayoutGrid,
+}
 
 // ================================================================
 // PAGE COMPONENT
 // ================================================================
 
 export default function QualidadeDaDecisaoPage() {
+  const { score, updatedAt, veredito, drivers, issues, reliableAreas, history } =
+    useQualidadeDaDecisao()
   const [entendaOpen, setEntendaOpen] = useState(false)
   const tableRef = useRef<HTMLElement>(null)
   const [tableHighlight, setTableHighlight] = useState(false)
@@ -176,6 +91,8 @@ export default function QualidadeDaDecisaoPage() {
     setTimeout(() => setTableHighlight(false), 1500)
   }, [])
 
+  const hasScore = score !== null && veredito !== null
+
   return (
     <>
       <PageHeader
@@ -184,7 +101,9 @@ export default function QualidadeDaDecisaoPage() {
         description="Esta tela não lista tarefas. Ela controla se o CFOup pode dar uma recomendação financeira confiável hoje."
       >
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted-foreground">Dados atualizados em {UPDATED_AT}</span>
+          {updatedAt && (
+            <span className="text-[11px] text-muted-foreground">Dados atualizados em {updatedAt}</span>
+          )}
           <button
             type="button"
             className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-white transition hover:border-[var(--brand-blue)]"
@@ -211,161 +130,192 @@ export default function QualidadeDaDecisaoPage() {
               Qualidade da decisão
             </p>
 
-            <div className="mt-4 flex flex-1 items-center gap-6">
-              {/* Gauge SVG */}
-              <div className="relative h-[140px] w-[140px] shrink-0">
-                <svg viewBox="0 0 140 140" className="h-full w-full">
-                  <circle
-                    cx="70"
-                    cy="70"
-                    r="58"
-                    fill="none"
-                    stroke="var(--border)"
-                    strokeWidth="10"
-                  />
-                  <circle
-                    cx="70"
-                    cy="70"
-                    r="58"
-                    fill="none"
-                    stroke="var(--brand-green)"
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                    strokeDasharray="364.4"
-                    strokeDashoffset={364.4 * (1 - SCORE / 100)}
-                    transform="rotate(-90 70 70)"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-[30px] font-extrabold tabular-nums" style={{ color: "var(--brand-navy)" }}>
-                    {SCORE}%
+            {hasScore ? (
+              <div className="mt-4 flex flex-1 items-center gap-6">
+                {/* Gauge SVG */}
+                <div className="relative h-[140px] w-[140px] shrink-0">
+                  <svg viewBox="0 0 140 140" className="h-full w-full">
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r="58"
+                      fill="none"
+                      stroke="var(--border)"
+                      strokeWidth="10"
+                    />
+                    <circle
+                      cx="70"
+                      cy="70"
+                      r="58"
+                      fill="none"
+                      stroke="var(--brand-green)"
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      strokeDasharray="364.4"
+                      strokeDashoffset={364.4 * (1 - (score as number) / 100)}
+                      transform="rotate(-90 70 70)"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-[30px] font-extrabold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+                      {score}%
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">de qualidade</span>
+                  </div>
+                </div>
+
+                {/* Info column */}
+                <div className="flex flex-col gap-3">
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
+                    style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green)" }}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    {veredito!.label}
                   </span>
-                  <span className="text-[11px] text-muted-foreground">de qualidade</span>
+                  <p className="text-[12.5px] leading-relaxed text-[var(--ink-soft)]">
+                    {veredito!.description}
+                  </p>
+                  <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
+                    <CollapsibleTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-bold transition hover:border-[var(--brand-blue)]"
+                        style={{ color: "var(--brand-navy)" }}
+                      >
+                        Entenda o que afeta
+                        {entendaOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      </button>
+                    </CollapsibleTrigger>
+                  </Collapsible>
                 </div>
               </div>
-
-              {/* Info column */}
-              <div className="flex flex-col gap-3">
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold"
-                  style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green)" }}
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Confiança parcial
-                </span>
-                <p className="text-[12.5px] leading-relaxed text-[var(--ink-soft)]">
-                  A leitura está boa, mas 2 itens reduzem a confiança em margem e projeção de caixa.
+            ) : (
+              <div className="mt-4 flex flex-1 flex-col justify-center gap-3">
+                <p className="text-[14px] font-bold leading-snug" style={{ color: "var(--brand-navy)" }}>
+                  Dados insuficientes para calcular qualidade da decisão.
                 </p>
-                <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
-                  <CollapsibleTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-bold transition hover:border-[var(--brand-blue)]"
-                      style={{ color: "var(--brand-navy)" }}
-                    >
-                      Entenda o que afeta
-                      {entendaOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                    </button>
-                  </CollapsibleTrigger>
-                </Collapsible>
+                <p className="text-[12.5px] leading-relaxed text-[var(--ink-soft)]">
+                  Conecte banco, sistema de NF-e ou ERP em Conexões. O score aparece assim que houver base de dados suficiente.
+                </p>
+                <Link
+                  href="/conexoes"
+                  className="inline-flex items-center gap-2 self-start rounded-lg border border-border px-3 py-2 text-xs font-semibold transition hover:border-[var(--brand-blue)]"
+                  style={{ color: "var(--brand-navy)" }}
+                >
+                  <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  Ir para Conexões
+                </Link>
               </div>
-            </div>
+            )}
           </section>
 
-          {/* Collapsible inline below Veredito */}
-          <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
-            <CollapsibleContent className="overflow-hidden transition-all duration-200 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-              <div
-                className="mt-3 rounded-xl border border-border p-5"
-                style={{ background: "var(--bg-subtle)" }}
-              >
-                <p className="text-[12.5px] font-semibold leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-                  Score parte de 100% e desconta o impacto de cada item.
-                </p>
-
-                <ul className="mt-3 space-y-1.5 text-[12px] text-[var(--ink-muted)]">
-                  <li><strong>Peso alto:</strong> banco, saldo, CF13, folha, impostos.</li>
-                  <li><strong>Peso médio:</strong> classificação, consolidação, duplicidade.</li>
-                  <li><strong>Peso baixo:</strong> descrição e metadata.</li>
-                </ul>
-
-                <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--ink-muted)]">
-                  Se faltar dado crítico (saldo de abertura, banco ativo sem dado, setup essencial incompleto), o score vira <em>Dados insuficientes</em> mesmo se estivesse alto.
-                </p>
-
-                <div className="mt-4 border-t border-border pt-3">
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                    Drivers atuais
+          {/* Collapsible inline below Veredito — só quando há score E drivers */}
+          {hasScore && drivers.length > 0 && (
+            <Collapsible open={entendaOpen} onOpenChange={setEntendaOpen}>
+              <CollapsibleContent className="overflow-hidden transition-all duration-200 data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                <div
+                  className="mt-3 rounded-xl border border-border p-5"
+                  style={{ background: "var(--bg-subtle)" }}
+                >
+                  <p className="text-[12.5px] font-semibold leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+                    Score parte de 100% e desconta o impacto de cada item.
                   </p>
-                  <ul className="space-y-1.5">
-                    {DRIVERS.map((driver) => {
-                      const style = SEVERITY_STYLES[driver.severity]
-                      return (
-                        <li key={driver.title} className="flex items-center justify-between gap-2 text-[11.5px]">
-                          <span style={{ color: "var(--brand-navy)" }}>{driver.title}</span>
-                          <span className="font-bold tabular-nums" style={{ color: style.color }}>{driver.impact}</span>
-                        </li>
-                      )
-                    })}
+
+                  <ul className="mt-3 space-y-1.5 text-[12px] text-[var(--ink-muted)]">
+                    <li><strong>Peso alto:</strong> banco, saldo, CF13, folha, impostos.</li>
+                    <li><strong>Peso médio:</strong> classificação, consolidação, duplicidade.</li>
+                    <li><strong>Peso baixo:</strong> descrição e metadata.</li>
                   </ul>
+
+                  <p className="mt-3 text-[11.5px] leading-relaxed text-[var(--ink-muted)]">
+                    Se faltar dado crítico (saldo de abertura, banco ativo sem dado, setup essencial incompleto), o score vira <em>Dados insuficientes</em> mesmo se estivesse alto.
+                  </p>
+
+                  <div className="mt-4 border-t border-border pt-3">
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                      Drivers atuais
+                    </p>
+                    <ul className="space-y-1.5">
+                      {drivers.map((driver: Driver) => {
+                        const style = SEVERITY_STYLES[driver.severity]
+                        return (
+                          <li key={driver.title} className="flex items-center justify-between gap-2 text-[11.5px]">
+                            <span style={{ color: "var(--brand-navy)" }}>{driver.title}</span>
+                            <span className="font-bold tabular-nums" style={{ color: style.color }}>{driver.impact}</span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </div>
 
         {/* Card Direito — Drivers */}
         <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-1.5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--ink-muted)]">
-              O que mais impacta a qualidade (drivers)
-            </p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--ink-muted)]">
+                O que mais impacta a qualidade (drivers)
+              </p>
               <Info className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
-            <span className="text-[11px] text-muted-foreground">Impacto no score</span>
+            {drivers.length > 0 && (
+              <span className="text-[11px] text-muted-foreground">Impacto no score</span>
+            )}
           </div>
 
-          <ul className="mt-3.5 divide-y divide-[var(--border-soft)]">
-            {DRIVERS.map((driver) => {
-              const style = SEVERITY_STYLES[driver.severity]
-              const Icon = driver.icon
-              return (
-                <li key={driver.title} className="flex items-center gap-3.5 py-3">
-                  <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                    style={{ background: style.bg, color: style.color }}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                      {driver.title}
-                    </p>
-                    <p className="text-[11.5px] text-muted-foreground">{driver.desc}</p>
-                  </div>
-                  <span
-                    className="shrink-0 text-sm font-extrabold tabular-nums"
-                    style={{ color: style.color }}
-                  >
-                    {driver.impact}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+          {drivers.length > 0 ? (
+            <>
+              <ul className="mt-3.5 divide-y divide-[var(--border-soft)]">
+                {drivers.map((driver: Driver) => {
+                  const style = SEVERITY_STYLES[driver.severity]
+                  const Icon = DRIVER_ICON[driver.icon]
+                  return (
+                    <li key={driver.title} className="flex items-center gap-3.5 py-3">
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                        style={{ background: style.bg, color: style.color }}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                          {driver.title}
+                        </p>
+                        <p className="text-[11.5px] text-muted-foreground">{driver.desc}</p>
+                      </div>
+                      <span
+                        className="shrink-0 text-sm font-extrabold tabular-nums"
+                        style={{ color: style.color }}
+                      >
+                        {driver.impact}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
 
-          <div className="mt-auto flex justify-end pt-3">
-            <button
-              type="button"
-              onClick={scrollToTable}
-              className="inline-flex items-center gap-0.5 text-xs font-bold"
-              style={{ color: "var(--brand-blue)" }}
-            >
-              Ver todos os itens que impactam
-              <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
+              <div className="mt-auto flex justify-end pt-3">
+                <button
+                  type="button"
+                  onClick={scrollToTable}
+                  className="inline-flex items-center gap-0.5 text-xs font-bold"
+                  style={{ color: "var(--brand-blue)" }}
+                >
+                  Ver todos os itens que impactam
+                  <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="mt-3.5 flex-1 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+              Os fatores que mais afetam a qualidade aparecem aqui quando os dados estiverem conectados.
+            </p>
+          )}
         </section>
       </div>
 
@@ -384,73 +334,81 @@ export default function QualidadeDaDecisaoPage() {
             <h2 className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
               O que reduz a qualidade hoje
             </h2>
-            <span className="text-xs font-semibold text-muted-foreground">{ISSUES.length} itens</span>
+            {issues.length > 0 && (
+              <span className="text-xs font-semibold text-muted-foreground">{issues.length} itens</span>
+            )}
           </div>
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[600px]">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="w-[42%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                    Problema
-                  </th>
-                  <th className="w-[34%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                    Impacto na decisão
-                  </th>
-                  <th className="w-[24%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                    Ação recomendada
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {ISSUES.map((issue) => {
-                  const style = SEVERITY_STYLES[issue.severity]
-                  const Icon = issue.icon
+          {issues.length > 0 ? (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[600px]">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="w-[42%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                      Problema
+                    </th>
+                    <th className="w-[34%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                      Impacto na decisão
+                    </th>
+                    <th className="w-[24%] py-2 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                      Ação recomendada
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {issues.map((issue: Issue) => {
+                    const style = SEVERITY_STYLES[issue.severity]
+                    const Icon = ISSUE_ICON[issue.icon]
 
-                  return (
-                    <tr key={issue.title} className="border-b border-[var(--border-soft)]">
-                      <td className="py-3.5 pr-3 align-top">
-                        <div className="flex gap-2.5">
-                          <span
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                            style={{ background: style.bg, color: style.color }}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em]"
-                                style={{ background: style.bg, color: style.color }}
-                              >
-                                {style.label}
-                              </span>
-                              <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                                {issue.title}
-                              </p>
+                    return (
+                      <tr key={issue.title} className="border-b border-[var(--border-soft)]">
+                        <td className="py-3.5 pr-3 align-top">
+                          <div className="flex gap-2.5">
+                            <span
+                              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                              style={{ background: style.bg, color: style.color }}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em]"
+                                  style={{ background: style.bg, color: style.color }}
+                                >
+                                  {style.label}
+                                </span>
+                                <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                                  {issue.title}
+                                </p>
+                              </div>
+                              <p className="mt-0.5 text-[10.5px] text-muted-foreground">{issue.sub}</p>
                             </div>
-                            <p className="mt-0.5 text-[10.5px] text-muted-foreground">{issue.sub}</p>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 pr-3 align-top">
-                        <p className="text-xs leading-snug text-[var(--ink-muted)]">{issue.impactText}</p>
-                      </td>
-                      <td className="py-3.5 align-top">
-                        <Link
-                          href={issue.actionHref}
-                          className="inline-block rounded-lg border border-border bg-white px-3.5 py-1.5 text-[11.5px] font-bold transition hover:border-[var(--brand-blue)]"
-                          style={{ color: "var(--brand-navy)" }}
-                        >
-                          {issue.action}
-                        </Link>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="py-3.5 pr-3 align-top">
+                          <p className="text-xs leading-snug text-[var(--ink-muted)]">{issue.impactText}</p>
+                        </td>
+                        <td className="py-3.5 align-top">
+                          <Link
+                            href={issue.actionHref}
+                            className="inline-block rounded-lg border border-border bg-white px-3.5 py-1.5 text-[11.5px] font-bold transition hover:border-[var(--brand-blue)]"
+                            style={{ color: "var(--brand-navy)" }}
+                          >
+                            {issue.action}
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="mt-4 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+              Os itens que reduzem a qualidade aparecem aqui quando houver dado conectado.
+            </p>
+          )}
         </section>
 
         {/* Lateral Direita */}
@@ -464,36 +422,40 @@ export default function QualidadeDaDecisaoPage() {
               </h2>
             </div>
             <p className="mb-3.5 mt-1 text-[11.5px] text-muted-foreground">
-              Essas áreas estão confiáveis com os dados atuais.
+              {reliableAreas.length > 0
+                ? "Essas áreas estão confiáveis com os dados atuais."
+                : "Áreas confiáveis aparecem aqui após a conexão dos dados."}
             </p>
 
-            <ul className="space-y-1">
-              {RELIABLE_AREAS.map((area) => {
-                const Icon = area.icon
-                return (
-                  <li key={area.title}>
-                    <Link
-                      href={area.href}
-                      className="flex items-center gap-2.5 rounded-lg px-2 py-2.5 transition hover:bg-[var(--bg-subtle)]"
-                    >
-                      <span
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                        style={{ background: "rgba(54,186,88,0.10)", color: "var(--brand-green)" }}
+            {reliableAreas.length > 0 && (
+              <ul className="space-y-1">
+                {reliableAreas.map((area: ReliableArea) => {
+                  const Icon = RELIABLE_ICON[area.icon]
+                  return (
+                    <li key={area.title}>
+                      <Link
+                        href={area.href}
+                        className="flex items-center gap-2.5 rounded-lg px-2 py-2.5 transition hover:bg-[var(--bg-subtle)]"
                       >
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
-                          {area.title}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">{area.desc}</p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+                        <span
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                          style={{ background: "rgba(54,186,88,0.10)", color: "var(--brand-green)" }}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[12.5px] font-bold" style={{ color: "var(--brand-navy)" }}>
+                            {area.title}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">{area.desc}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </section>
 
           {/* Card 2 — Evolução */}
@@ -505,31 +467,35 @@ export default function QualidadeDaDecisaoPage() {
               </h2>
             </div>
             <p className="mb-3.5 mt-1 text-[11.5px] text-muted-foreground">
-              Sua qualidade da decisão vem melhorando.
+              {history.length > 0
+                ? "Histórico do score por data."
+                : "O histórico aparece após o primeiro cálculo de qualidade."}
             </p>
 
-            <div className="flex items-end justify-between gap-2">
-              {HISTORY.map((step) => (
-                <div
-                  key={step.date}
-                  className="flex flex-col items-center rounded-lg px-1 py-2"
-                  style={step.current ? { background: "rgba(54,186,88,0.10)" } : undefined}
-                >
-                  <span
-                    className="text-[15px] font-extrabold tabular-nums"
-                    style={{ color: step.current ? "var(--brand-green)" : "var(--brand-navy)" }}
+            {history.length > 0 && (
+              <div className="flex items-end justify-between gap-2">
+                {history.map((step) => (
+                  <div
+                    key={step.date}
+                    className="flex flex-col items-center rounded-lg px-1 py-2"
+                    style={step.current ? { background: "rgba(54,186,88,0.10)" } : undefined}
                   >
-                    {step.pct}%
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">{step.date}</span>
-                </div>
-              ))}
-            </div>
+                    <span
+                      className="text-[15px] font-extrabold tabular-nums"
+                      style={{ color: step.current ? "var(--brand-green)" : "var(--brand-navy)" }}
+                    >
+                      {step.pct}%
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">{step.date}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </div>
 
-      {/* RODAPÉ — Legenda */}
+      {/* RODAPÉ — Legenda (metodologia, não é dado do cliente) */}
       <section className="rounded-2xl border border-border bg-card p-5">
         <div className="flex flex-wrap items-center gap-6">
           <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
