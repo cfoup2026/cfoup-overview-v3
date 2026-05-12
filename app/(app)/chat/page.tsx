@@ -20,53 +20,38 @@ import { PageHeader } from "@/components/page-header"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
- *  Integração com window.claude.complete (ambiente Claude Artifacts)
- *  Quando indisponível (preview v0), usa um fallback determinístico com o
- *  mesmo tom do system prompt para manter a experiência coerente.
+ *  Chat CFOup — MVP
+ *  Sem dados conectados → responde honestamente. Nunca devolve número
+ *  inventado, persona fictícia, métrica fixa, cliente ou linha fictícia.
+ *  Quando o Núcleo de Dados estiver plugado, a função respostaSemDados()
+ *  é substituída pelo roteamento à LLM usando buildSystemPrompt() + contexto
+ *  real do cliente.
  * ============================================================================ */
 
-declare global {
-  interface Window {
-    claude?: {
-      complete: (prompt: string) => Promise<string>
-    }
-  }
-}
-
-const buildSystemPrompt = () => `Você é o CFOup. É o CFO digital da ${clienteAtual.empresa.nome}. Fala direto com o Rafael, o dono.
+const buildSystemPrompt = () => `Você é o CFOup. É o CFO digital da ${clienteAtual.empresa.nome}. Fala direto com o dono da empresa.
 
 ## Como você fala
 - Curto, direto, humano. Como um amigo de confiança que entende das contas da empresa.
 - Nunca use jargão de MBA, de consultoria ou de startup. Nada de "sinergia", "mindset", "alavancar", "benchmark", "framework", "OKR".
 - Se precisar de termo técnico, traduz na mesma frase (ex.: "PMR, que é o tempo até você receber").
 - Português brasileiro simples. Trata por "você".
-- Máximo 4 ou 5 frases. Vai direto ao impacto: o que isso muda no caixa, na margem, no bolso da ${clienteAtual.empresa.nomeCurto}.
+- Máximo 4 ou 5 frases. Vai direto ao impacto: o que isso muda no caixa, na margem, no bolso.
 - Nunca pergunte "como posso ajudar?". Já responde com a leitura.
-- Valor em R$ quando fizer sentido. Primeiro a leitura, depois o número. Se recomendar, diz o tradeoff em uma frase.
+- Valor em R$ apenas quando vier do dado conectado. Sem dado, não afirma número.
 
-## O que você sabe da ${clienteAtual.empresa.nomeCurto} neste mês
-- Caixa hoje: R$ 1,284 milhão (+R$ 48k sobre o mês passado).
-- No ritmo atual o caixa aguenta cerca de 8 meses (queima média R$ 156k/mês).
-- Receita 30 dias: R$ 482,1k (+6,4%). Resultado 30 dias: R$ 71,8k.
-- Margem bruta 42,6%. Operacional 21,4%. Líquida 14,9% (meta 15%).
-- PMR (tempo até receber) subiu de 28 pra 34 dias. Isso trava capital de giro — hoje são ~R$ 48k parados.
-- 1 cliente representa 34% da receita dos últimos 90 dias, acima do limite de 30%.
-- R$ 612k em recebíveis no horizonte de 30 a 60 dias.
-- Adquirente cobra ~2,9% ao mês para antecipar.
-- Despesas fixas: folha R$ 186,4k, fornecedores R$ 142k, impostos R$ 98,7k por mês.
-- Linha A (serviços recorrentes, margem 38,2%, saudável).
-- Linha B (projetos sob demanda, margem 18,7%, caiu 2,1 p.p. por desconto fora da política — corrigir a régua recupera ~R$ 18k/mês).
-- Linha C (licenciamento, margem 54,9%).
-- Linha D (consultoria pontual, margem 28,3%).
+## Sem dados conectados
+Quando não houver dado real do cliente para fundamentar a resposta:
+- Não inventa caixa, margem, receita, fôlego, antecipação, custo, cliente, fornecedor.
+- Não cita linha de produto, nome de cliente, fornecedor ou banco.
+- Responde com uma das três frases padrão (sem dados / conceitual / fora de escopo) e direciona para conectar banco, faturamento ou recebíveis.
 
-## Fora do seu escopo (você NÃO responde)
+## Fora do seu escopo (você NÃO responde com parecer)
 - Tributário/fiscal específico (regime, deduções, declaração).
 - Jurídico (contratos, processos, societário).
 - Regulatório.
 - Temas não financeiros (RH detalhado, TI, marketing).
 
-Quando perguntarem algo assim, responde em UMA frase que isso é com outro especialista (contador, advogado) e SEMPRE oferece uma pergunta alternativa que traduz o mesmo assunto em impacto financeiro.
-Exemplo: "Regime tributário é com seu contador. Se você me disser quanto economizaria por mês, eu projeto o efeito no caixa dos próximos 90 dias."
+Quando perguntarem algo assim, responde em UMA frase que isso é com outro especialista (contador, advogado, RH). Quando houver dado conectado, pode traduzir em impacto financeiro; sem dado, apenas reconhece o escopo.
 
 ## Formato
 Texto corrido. Nada de cabeçalhos em negrito, nada de bullet list longa. Parece uma conversa por whatsapp com um CFO bom.`
@@ -126,7 +111,7 @@ function chipSetFor(lastUserText: string | null): Chip[] {
 
   if (/(receb|antecip|adquir|cartão|cartao|atras)/.test(q)) {
     return [
-      { label: "Quanto custa antecipar?", question: "Quanto custa antecipar 40% dos recebíveis?", icon: "wallet" },
+      { label: "Vale antecipar recebível?", question: "Vale antecipar recebível pra cobrir o caixa?", icon: "wallet" },
       { label: "Tem alternativa?", question: "Tem alternativa mais barata que antecipar recebível?", icon: "refresh" },
       { label: "Quem tá atrasando?", question: "Quem está me devendo há mais de 30 dias?", icon: "clock" },
     ]
@@ -182,7 +167,7 @@ function relatedQuestionsFor(lastUserText: string | null): string[] {
   // Recebíveis / cobrança / antecipação
   if (/(receb|antecip|adquir|cartão|cartao|atras|inadimpl|cliente.*pag|cobrar|cobrança|cobranca)/.test(q)) {
     return [
-      "Quanto custa antecipar 40% dos recebíveis?",
+      "Vale antecipar recebível pra cobrir o caixa?",
       "Tem alternativa mais barata que antecipar?",
       "Quem está me devendo há mais de 30 dias?",
       "Qual minha taxa real de inadimplência?",
@@ -223,166 +208,86 @@ function relatedQuestionsFor(lastUserText: string | null): string[] {
   ]
 }
 
-function buildPrompt(history: Message[]): string {
-  const transcript = history
-    .map((m) => {
-      if (m.role === "user") return `Rafael: ${m.text}`
-      return `CFOup: ${m.card.resposta}`
-    })
-    .join("\n\n")
-  return `${buildSystemPrompt()}\n\n## Conversa até agora\n${transcript}\n\nCFOup:`
+/* ============================================================================ *
+ *  Classificação de pergunta + respostas honestas (sem dados conectados)
+ * ============================================================================ */
+
+type TipoPergunta = "fora_escopo" | "conceitual" | "sobre_empresa"
+
+function classificarPergunta(text: string): TipoPergunta {
+  const q = text.toLowerCase()
+
+  // Fora de escopo: tributário, jurídico, regulatório, RH detalhado
+  if (
+    /(tribut|fiscal|regime tribut|simples nacional|lucro presumido|lucro real|deduç|deduc|advog|jurídic|juridic|processo judic|contrato societ|trabalhist|rescis|sindical|regulat)/.test(
+      q,
+    )
+  ) {
+    return "fora_escopo"
+  }
+
+  // Conceitual: "o que é", "como funciona", "qual a diferença", "quando faz sentido"
+  if (
+    /(o que (é|e) |o que significa|como funciona|qual a diferença|qual a diferenca|quando faz sentido|para que serve|pra que serve)/.test(
+      q,
+    )
+  ) {
+    return "conceitual"
+  }
+
+  return "sobre_empresa"
 }
 
-function fallbackFor(question: string): AnswerCardData {
-  const q = question.toLowerCase()
+const MSG_SEM_DADOS =
+  "Não tenho dados suficientes para calcular isso ainda. Conecte banco, faturamento ou recebíveis pra eu responder com base real."
 
-  // 1. Caixa / quanto tempo / fôlego (EmptyState #1)
-  if (/(caixa aguent|quanto tempo|fôlego|folego|operar com o caixa)/.test(q)) {
+const MSG_CONCEITUAL =
+  "Posso explicar o conceito, mas não posso afirmar o impacto na sua empresa sem dados conectados."
+
+const MSG_FORA_ESCOPO =
+  "Isso é tema para contador, advogado ou especialista. Posso analisar apenas o impacto financeiro quando houver dados conectados."
+
+function respostaSemDados(question: string): AnswerCardData {
+  const tipo = classificarPergunta(question)
+  const baseFonte = { periodo: "—", base: "Sem dados conectados" }
+
+  if (tipo === "fora_escopo") {
     return {
-      dado: { destaque: "8 meses de fôlego", sub: "Caixa atual: R$ 1,284 mi" },
-      resposta:
-        "Hoje você tem R$ 1,284 mi no banco. Com folha, fornecedor e imposto saindo todo mês (~R$ 156k), " +
-        "dá pra segurar uns 8 meses sem receita nova. Folga boa. " +
-        "O problema não é o caixa — é que tem dinheiro seu parado na rua: o cliente tá pagando mais devagar (34 dias em vez de 28).",
-      fonte: {
-        periodo: "Mês corrente",
-        base: "Saldo bancário consolidado · saídas médias 90d",
-        premissa: "Sem grande saída atípica no horizonte",
-      },
-      risco: "Cada dia a mais que o cliente demora pra pagar é dinheiro que não tá no seu caixa pra cobrir fornecedor ou repor estoque",
-      acao: "Cobrar mais rápido antes de pensar em antecipar",
+      dado: { destaque: "Fora do escopo financeiro" },
+      resposta: MSG_FORA_ESCOPO,
+      fonte: baseFonte,
+      risco: "Parecer técnico fora do financeiro é com o especialista responsável",
+      acao: "Levar ao contador, advogado ou consultor de RH conforme o tema",
     }
   }
 
-  // 2. Margem / perdendo dinheiro (EmptyState #2)
-  if (/(margem|perdendo|rentabil|onde.*perd)/.test(q)) {
+  if (tipo === "conceitual") {
     return {
-      dado: { destaque: "Linha B perdeu 2,1 p.p.", sub: "Margem caiu de 20,8% para 18,7%" },
-      resposta:
-        "A Linha B tá sangrando margem — caiu de 20,8% pra 18,7% em 3 meses. " +
-        "Não é custo subindo, é vendedor dando desconto que não devia. " +
-        "Se você travar desconto no sistema, recupera uns R$ 18k por mês que hoje tá indo pro cliente de graça.",
-      fonte: {
-        periodo: "Últimos 90 dias",
-        base: "Margem por linha · descontos aplicados",
-        premissa: "Volume mantido se ajustar desconto",
-      },
-      risco: "Desconto vira costume — quanto mais tempo passa, mais difícil tirar sem o cliente reclamar",
-      acao: "Travar desconto no sistema; se vendedor quiser mais, precisa de aprovação",
+      dado: { destaque: "Conceito, sem número da empresa" },
+      resposta: MSG_CONCEITUAL,
+      fonte: baseFonte,
+      risco: "Conceito não substitui número — decisão real precisa do seu caixa",
+      acao: "Conectar banco, faturamento ou recebíveis pra ver o impacto no seu caso",
     }
   }
 
-  // 3. Concentração / perder cliente (EmptyState #3)
-  if (/(concentra|cliente.*(sair|perd)|dependênc|dependenc|maior cliente|perder.*cliente)/.test(q)) {
-    return {
-      dado: { destaque: "R$ 164k a menos por mês", sub: "Um cliente vale 34% da receita" },
-      resposta:
-        "Se esse cliente sair, somem R$ 164k por mês e o fôlego de caixa cai de 8 meses pra 4. " +
-        "Não quebra, mas aperta muito. " +
-        "A saída não é torcer pra ele ficar — é fechar 2 ou 3 contratos médios antes da renovação dele, pra ter onde cair se precisar.",
-      fonte: {
-        periodo: "Receita últimos 90d",
-        base: "Top clientes · participação consolidada",
-        premissa: "Custo variável sai junto com o cliente",
-      },
-      risco: "Cliente grande sabe que você depende dele — e usa isso na hora de negociar preço",
-      acao: "Fechar 2 ou 3 contratos médios antes da próxima renovação",
-    }
-  }
-
-  // 4. Retirada / pró-labore (EmptyState #4)
-  if (/(retirada|pro[- ]?labore|sócio|socio|distribuir|dividend|quanto.*retirar|prejudicar.*negócio)/.test(q)) {
-    return {
-      dado: { destaque: "R$ 20k a 25k este mês", sub: "Sem encostar na folga de caixa" },
-      resposta:
-        "Dá pra tirar de R$ 20k a R$ 25k este mês sem apertar nada. " +
-        "É o que sobra depois de pagar tudo e manter a folga pro fechamento do trimestre. " +
-        "Acima disso, você começa a usar a reserva, não o lucro.",
-      fonte: {
-        periodo: "Resultado últimos 90d",
-        base: "Resultado médio mensal · necessidade de caixa",
-        premissa: "Faturamento estável no trimestre",
-      },
-      risco: "Retirada alta parece tranquila até o mês em que um cliente atrasa e o caixa não tem de onde tirar",
-      acao: "Fixar teto de retirada como % do resultado do mês anterior",
-    }
-  }
-
-  // 5. Contratar funcionário (Chip #1)
-  if (/(contrata|funcionário|funcionario|head|vendedor|time comercial|mais um)/.test(q)) {
-    return {
-      dado: { destaque: "Custo: ~R$ 28k/mês", sub: "Se paga em ~4,5 meses" },
-      resposta:
-        "Com salário e encargos, um comercial sênior sai por uns R$ 28k/mês. " +
-        "Leva uns 3 meses pra ele engatar. Pra se pagar em menos de 5 meses, precisa trazer R$ 40k de venda nova. " +
-        "Menos que isso, vira folha que não se paga.",
-      fonte: {
-        periodo: "Estimativa atual",
-        base: "Custo CLT perfil sênior · encargos ~70%",
-        premissa: "Traz R$ 40k/mês de venda nova depois de 3 meses",
-      },
-      risco: "Contratação que não traz venda vira corte caro 6 meses depois",
-      acao: "Combinar a meta de venda antes de abrir a vaga",
-    }
-  }
-
-  // 6. Cliente lucrativo (Chip #2)
-  if (/(cliente.*lucr|lucro.*cliente|qual cliente|rentab.*cliente)/.test(q)) {
-    return {
-      dado: { destaque: "Linha A: margem 38,2%", sub: "É onde sobra dinheiro de verdade" },
-      resposta:
-        "Os clientes da Linha A deixam 38,2% de margem — é o que sustenta o resultado. " +
-        "Linha B parece grande, mas com margem de 18,7% a maior parte da receita vira custo, não lucro. " +
-        "Cliente bom não é o que paga mais; é o que deixa margem.",
-      fonte: {
-        periodo: "Últimos 90 dias",
-        base: "Margem por linha de receita",
-        premissa: "Custos diretos alocados por linha",
-      },
-      risco: "Vendedor que bate meta de receita bruta pode estar trazendo volume na linha errada e afundando o resultado",
-      acao: "Comissionar por margem, não por receita bruta",
-    }
-  }
-
-  // 7. Antecipar recebível (Chip #3)
-  if (/antecip/.test(q)) {
-    return {
-      dado: { destaque: "R$ 244,8k no caixa hoje", sub: "Custo: R$ 7,1k" },
-      resposta:
-        "Dá pra colocar R$ 244,8k no caixa hoje se antecipar 40% do que tem pra entrar nos próximos 30–60 dias. " +
-        "Custa R$ 7,1k. Vale se você tem fornecedor pressionando, folha chegando ou estoque pra repor. " +
-        "Se não tem nenhum aperto, é dinheiro que sai do bolso e não volta.",
-      fonte: {
-        periodo: "Recebíveis 30–60d",
-        base: "Adquirente · taxa 2,9%/mês",
-        premissa: "40% da carteira disponível",
-      },
-      risco: "Antecipar sem ter pra quê resolve o problema de hoje e cria o do mês que vem",
-      acao: "Antes de antecipar, ver se é emergência ou se dá pra segurar",
-    }
-  }
-
-  // Default — sem âncora suficiente
   return {
-    dado: { destaque: "Posso ajudar — me dá uma âncora" },
-    resposta:
-      "Consigo te ajudar com isso, mas preciso de algo concreto pra calcular o impacto: um valor, um prazo ou uma decisão. " +
-      "Exemplo: quanto falta, em qual semana e qual alternativa você tá considerando. " +
-      "Aí eu te devolvo o efeito direto em caixa e resultado.",
-    fonte: { periodo: "—", base: "Dados conectados · mês corrente" },
-    risco: "Sem âncora, qualquer resposta é palpite — e palpite não decide nada",
-    acao: "Reescrever a pergunta com um valor, um prazo ou uma decisão concreta",
+    dado: { destaque: "Aguardando dados conectados", sub: "Banco · Faturamento · Recebíveis" },
+    resposta: MSG_SEM_DADOS,
+    fonte: baseFonte,
+    risco: "Sem dado conectado, qualquer número é palpite",
+    acao: "Conectar banco, faturamento ou recebíveis em Configurações",
   }
 }
 
-// LLM real entra em round seguinte com prompt que pede JSON dos 5 campos.
-// Por ora, render é sempre via fallback determinístico — garante que nenhuma
-// resposta seja texto inventado.
-async function askClaude(history: Message[]): Promise<AnswerCardData> {
+// No MVP, askCFOup sempre responde via respostaSemDados — nenhum número
+// inventado sai daqui. Quando o Núcleo de Dados estiver plugado, troca-se a
+// implementação pra rotear à LLM com buildSystemPrompt() + contexto real.
+async function askCFOup(history: Message[]): Promise<AnswerCardData> {
   await new Promise((r) => setTimeout(r, 700))
   const last = history[history.length - 1]
   const text = last && last.role === "user" ? last.text : ""
-  return fallbackFor(text)
+  return respostaSemDados(text)
 }
 
 /* ============================================================================ *
@@ -431,7 +336,7 @@ function ChatInner() {
       setDraft("")
       setPending(true)
 
-      const card = await askClaude([...messages, userMsg])
+      const card = await askCFOup([...messages, userMsg])
       const cfoupMsg: Message = { id: `c-${Date.now()}`, role: "cfoup", card }
       setMessages((prev) => [...prev, cfoupMsg])
       setPending(false)
