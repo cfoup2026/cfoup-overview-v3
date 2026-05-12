@@ -100,10 +100,10 @@ export default function IndicadoresPage() {
           className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          Negócio no azul: margem bruta subindo, líquida positiva, operação R$ 64k acima do ponto de equilíbrio.
+          Margens positivas, mas a margem operacional está pressionada. O estoque alonga o ciclo e o ponto de equilíbrio exige R$ 248k/mês.
         </h2>
         <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--slate-700)]">
-          O aperto vem do estoque que prende mais dinheiro a cada mês e da despesa fixa pressionando a margem operacional. Cliente paga em dia, fornecedor no mesmo ritmo.
+          PMR melhorou e PMP está dentro da política — o problema não está em cobrança nem em fornecedor. Está em despesa fixa e estoque parado. Ação: revisar estoque lento e despesas fixas antes de mexer em preço ou prazo.
         </p>
       </section>
 
