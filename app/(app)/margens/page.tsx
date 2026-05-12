@@ -108,10 +108,10 @@ export default function IndicadoresPage() {
           className="mt-2 text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          Operação acima do ponto de equilíbrio, mas com pressão em margem e estoque.
+          Operação acima do ponto de equilíbrio, mas com dois sinais de atenção: margem operacional caiu 0,4 ponto e estoque subiu para 54 dias.
         </h2>
         <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-          O caixa não está ruim hoje; o risco é o estoque parado e a despesa fixa consumirem a folga nos próximos meses.
+          A folga existe, mas está sendo consumida por despesa fixa e dinheiro parado em estoque.
         </p>
       </section>
 
@@ -131,7 +131,7 @@ export default function IndicadoresPage() {
           Atenção agora
         </span>
         <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          Antes de mexer em preço ou prazo, revisar estoque parado e despesa fixa. O problema principal não está no recebimento nem no fornecedor.
+          Validar despesa fixa do mês e abrir o estoque por linha/produto. Esses dois pontos explicam melhor a pressão atual do que recebimento ou fornecedor.
         </p>
       </section>
     </>
