@@ -45,33 +45,24 @@ export function GlossarioTab() {
     <section>
       {/* H2 + lede */}
       <h2
-        className="mb-2 text-[30px] leading-[1.1] tracking-[-0.01em]"
-        style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+        style={{ color: "var(--brand-navy)" }}
       >
         Glossário
       </h2>
-      <p
-        className="mb-6 max-w-[1180px] text-[15.5px] leading-[1.65]"
-        style={{ color: "var(--muted-html)" }}
-      >
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
         Todos os termos contábeis e financeiros usados neste relatório, explicados em linguagem simples.
       </p>
 
       {/* Glossary-full card */}
-      <div
-        className="rounded-xl border bg-white py-2"
-        style={{ borderColor: "var(--line)" }}
-      >
+      <div className="rounded-xl border border-border bg-card py-2">
         {Object.entries(grupos).map(([letra, termos]) => (
           <div key={letra}>
             {/* Letra header */}
-            <div
-              className="border-b px-8 py-5"
-              style={{ background: "#FAFCFF", borderColor: "var(--line)" }}
-            >
+            <div className="border-b border-border bg-muted px-8 py-5">
               <span
-                className="text-[22px] tracking-[-0.01em]"
-                style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-cyan)" }}
+                className="text-xl font-extrabold tabular-nums"
+                style={{ color: "var(--brand-cyan)" }}
               >
                 {letra}
               </span>
@@ -82,19 +73,15 @@ export function GlossarioTab() {
               return (
                 <div
                   key={item.termo}
-                  className={`grid gap-7 px-8 py-4 md:grid-cols-[220px_1fr] ${isLast ? "" : "border-b"}`}
-                  style={{ borderColor: "var(--line)" }}
+                  className={`grid gap-7 px-8 py-4 md:grid-cols-[220px_1fr] ${isLast ? "" : "border-b border-border"}`}
                 >
                   <p
-                    className="pt-0.5 text-[14px] font-semibold tracking-[-0.005em]"
+                    className="pt-1 text-[13px] font-semibold"
                     style={{ color: "var(--brand-navy)" }}
                   >
                     {item.termo}
                   </p>
-                  <p
-                    className="text-[13.5px] leading-[1.6]"
-                    style={{ color: "#3D4D66" }}
-                  >
+                  <p className="text-[13px] leading-relaxed text-muted-foreground">
                     {item.definicao}
                   </p>
                 </div>
