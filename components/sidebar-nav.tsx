@@ -29,7 +29,7 @@ export const navSections = [
       { href: "/chat", label: "Chat CFOup", icon: MessageSquareText },
       { href: "/cenarios", label: "Cenários", icon: GitBranch },
       { href: "/margens", label: "Indicadores", icon: PieChart },
-      { href: "/pendencias", label: "Pendências", icon: AlertCircle },
+      { href: "/pendencias", label: "Qualidade da Decisão", icon: AlertCircle },
     ],
   },
   {

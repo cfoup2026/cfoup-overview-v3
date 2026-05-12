@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { MessageCircle, Clock, DollarSign, MoveHorizontal, TrendingUp, Check, Lightbulb } from "lucide-react"
+import { PageHeader } from "@/components/page-header"
 
 type Tone = "positive" | "negative" | "neutral"
 
@@ -32,8 +33,8 @@ type Decision = {
 }
 
 function toneColor(tone: "positive" | "negative" | "neutral"): string {
-  if (tone === "positive") return "var(--brand-green-dark, #0F7A33)"
-  if (tone === "negative") return "var(--brand-red, #D14343)"
+  if (tone === "positive") return "var(--brand-green-dark)"
+  if (tone === "negative") return "var(--brand-error-soft)"
   return "var(--brand-navy)"
 }
 
@@ -249,38 +250,26 @@ export default function CenariosPage() {
 
   return (
     <>
-      {/* Header de página */}
-      <header className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Planejamento
-          </p>
-          <h1
-            className="mt-1 font-serif text-[30px] font-medium leading-tight tracking-tight"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            Cenários
-          </h1>
-          <p className="mt-1.5 text-[14px] text-muted-foreground">
-            Teste impacto no caixa antes de decidir.
-          </p>
-        </div>
-
+      <PageHeader
+        eyebrow="Mesa de Decisão"
+        title="Cenários"
+        description="Teste impacto no caixa antes de decidir."
+      >
         <Link
           href={`/chat?q=${encodeURIComponent(currentState.chatPrompt)}&auto=1`}
-          className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-white px-4 py-2.5 text-[13px] font-semibold transition hover:border-[var(--brand-cyan)]"
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2 text-[13px] font-semibold transition hover:border-[var(--brand-cyan)]"
           style={{ color: "var(--brand-blue)" }}
         >
           <MessageCircle className="h-4 w-4" />
           Discutir com CFOup
         </Link>
-      </header>
+      </PageHeader>
 
       {/* Linha 1: grid 3 colunas */}
-      <div className="grid gap-[18px] lg:grid-cols-[1.06fr_1.7fr_0.96fr] mt-3">
+      <div className="grid gap-4 lg:grid-cols-[1.06fr_1.7fr_0.96fr] mt-3">
         {/* Card DECISÃO */}
-        <section className="rounded-[14px] border border-border bg-card p-5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-blue)" }}>
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
             Decisão em teste
           </div>
@@ -295,7 +284,7 @@ export default function CenariosPage() {
             {activeDecision.context}
           </p>
 
-          <p className="mt-5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
             {activeDecision.paramLabel}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -328,20 +317,20 @@ export default function CenariosPage() {
           </div>
 
           <div className="mt-5 border-t border-[#EEF3F8] pt-4 space-y-3">
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
-              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <Clock className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
               <span>Caixa: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.caixa.value}</strong></span>
             </div>
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
-              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <DollarSign className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
               <span>Custo: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.custo.value}</strong></span>
             </div>
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
-              <span className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <MoveHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
               <span>Fôlego: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.folego.value}</strong></span>
@@ -350,8 +339,8 @@ export default function CenariosPage() {
         </section>
 
         {/* Card IMPACTO */}
-        <section className="rounded-[14px] border border-border bg-card p-5">
-          <div className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-blue)" }}>
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             Impacto no caixa
           </div>
 
@@ -361,21 +350,21 @@ export default function CenariosPage() {
               className="rounded-xl border p-5"
               style={{ background: "#FFF5F5", borderColor: "#F2CACA", minHeight: "168px" }}
             >
-              <p className="text-[10.5px] font-bold uppercase tracking-[0.16em]" style={{ color: "var(--brand-red, #D14343)" }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-error-soft)" }}>
                 Sem agir
               </p>
-              <p className="mt-2.5 text-[12px]" style={{ color: "#3D4D66" }}>
+              <p className="mt-2 text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                 menor caixa na S3
               </p>
               <p
                 className="mt-3 text-[34px] font-extrabold tabular-nums leading-none tracking-tight"
-                style={{ color: "var(--brand-red, #D14343)" }}
+                style={{ color: "var(--brand-error-soft)" }}
               >
                 {SEM_AGIR.value}
               </p>
               <p
                 className="mt-3 text-[12px] font-semibold"
-                style={{ color: "var(--brand-red, #D14343)" }}
+                style={{ color: "var(--brand-error-soft)" }}
               >
                 ponto de ruptura na S3
               </p>
@@ -383,7 +372,7 @@ export default function CenariosPage() {
 
             {/* Círculo "vs" */}
             <div
-              className="z-10 grid h-[42px] w-[42px] place-items-center rounded-full border border-border bg-white text-[10.5px] font-extrabold uppercase tracking-[0.08em]"
+              className="z-10 grid h-[42px] w-[42px] place-items-center rounded-full border border-border bg-white text-[10px] font-extrabold uppercase tracking-[0.08em]"
               style={{
                 color: "var(--brand-navy)",
                 marginLeft: "-10px",
@@ -404,20 +393,20 @@ export default function CenariosPage() {
               }}
             >
               <p
-                className="text-[10.5px] font-bold uppercase tracking-[0.16em]"
+                className="text-[10px] font-bold uppercase tracking-[0.18em]"
                 style={{
-                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark)" : "var(--brand-error-soft)",
                 }}
               >
                 Com esta decisão
               </p>
-              <p className="mt-2.5 text-[12px]" style={{ color: "#3D4D66" }}>
+              <p className="mt-2 text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                 menor caixa na S3
               </p>
               <p
                 className="mt-3 text-[34px] font-extrabold tabular-nums leading-none tracking-tight"
                 style={{
-                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark)" : "var(--brand-error-soft)",
                 }}
               >
                 {currentState.caixaMinComDecisao.value}
@@ -425,7 +414,7 @@ export default function CenariosPage() {
               <p
                 className="mt-3 text-[12px] font-semibold"
                 style={{
-                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-red, #D14343)",
+                  color: currentState.caixaMinComDecisao.tone === "positive" ? "var(--brand-green-dark)" : "var(--brand-error-soft)",
                 }}
               >
                 {currentState.caixaMinComDecisao.delta}
@@ -433,15 +422,15 @@ export default function CenariosPage() {
             </div>
           </div>
 
-          <p className="mt-4 px-3 text-center text-[12.5px] italic" style={{ color: "#3D4D66" }}>
+          <p className="mt-4 px-3 text-center text-[12px] italic" style={{ color: "var(--brand-ink-muted)" }}>
             {currentState.reading}
           </p>
 
           <div
-            className="mt-4 grid grid-cols-3 rounded-[10px] border border-border"
+            className="mt-4 grid grid-cols-3 rounded-xl border border-border"
             style={{ background: "#FAFBFD" }}
           >
-            <div className="p-3.5">
+            <div className="p-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Caixa hoje
               </p>
@@ -453,19 +442,19 @@ export default function CenariosPage() {
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground">saldo atual</p>
             </div>
-            <div className="border-l border-border p-3.5">
+            <div className="border-l border-border p-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Diferença
               </p>
               <p
                 className="mt-1.5 text-[18px] font-extrabold tabular-nums tracking-tight"
-                style={{ color: "var(--brand-green-dark, #0F7A33)" }}
+                style={{ color: "var(--brand-green-dark)" }}
               >
                 {currentState.caixaMinComDecisao.delta.replace(" vs sem agir", "")}
               </p>
               <p className="mt-1 text-[11px] text-muted-foreground">melhora no menor caixa</p>
             </div>
-            <div className="border-l border-border p-3.5">
+            <div className="border-l border-border p-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Fôlego
               </p>
@@ -483,8 +472,8 @@ export default function CenariosPage() {
         </section>
 
         {/* Card MESA DE DECISÕES */}
-        <aside className="rounded-[14px] border border-border bg-card p-5">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-green-dark, #0F7A33)" }}>
+        <aside className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-green-dark)" }}>
             <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "currentColor" }} />
             Mesa de decisões
           </div>
@@ -503,8 +492,8 @@ export default function CenariosPage() {
                   disabled={isActive}
                   className={
                     isActive
-                      ? "flex w-full items-baseline justify-between gap-2 rounded-lg border px-3 py-2.5 text-left cursor-default"
-                      : "flex w-full items-baseline justify-between gap-2 rounded-lg px-3 py-2.5 text-left transition hover:bg-[rgba(21,103,200,0.04)]"
+                      ? "flex w-full items-baseline justify-between gap-2 rounded-lg border px-3 py-2 text-left cursor-default"
+                      : "flex w-full items-baseline justify-between gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-[rgba(21,103,200,0.04)]"
                   }
                   style={
                     isActive
@@ -512,14 +501,14 @@ export default function CenariosPage() {
                           background: "rgba(54,186,88,0.08)",
                           borderColor: "rgba(54,186,88,0.25)",
                           borderLeftWidth: "3px",
-                          borderLeftColor: "var(--brand-green, #36BA58)",
+                          borderLeftColor: "var(--brand-green)",
                         }
                       : undefined
                   }
                 >
                   <span
                     className="text-[13px] font-semibold"
-                    style={{ color: isActive ? "var(--brand-green-dark, #0F7A33)" : "var(--brand-ink-muted, #3D4D66)" }}
+                    style={{ color: isActive ? "var(--brand-green-dark)" : "var(--brand-ink-muted)" }}
                   >
                     {d.alavanca}
                   </span>
@@ -533,32 +522,32 @@ export default function CenariosPage() {
             })}
           </div>
 
-          <p className="mt-5 border-t border-[var(--brand-line-soft,#EEF3F8)] pt-3.5 text-[11.5px] leading-snug text-muted-foreground">
+          <p className="mt-5 border-t border-[var(--brand-line-soft,#EEF3F8)] pt-4 text-[11px] leading-snug text-muted-foreground">
             Clique em uma decisão para testar.
           </p>
         </aside>
       </div>
 
       {/* Linha 2: grid 2 colunas */}
-      <div className="grid gap-[18px] lg:grid-cols-[1fr_0.42fr] mt-3">
+      <div className="grid gap-4 lg:grid-cols-[1fr_0.42fr] mt-3">
         {/* Card TRAJETÓRIA */}
-        <section className="rounded-[14px] border border-border bg-card p-5">
+        <section className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-navy)" }}>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-navy)" }}>
               Trajetória do caixa · 13 semanas
             </p>
-            <div className="flex items-center gap-3.5 text-[11px] font-semibold">
-              <span style={{ color: "var(--brand-red, #D14343)" }}>── Sem agir</span>
-              <span style={{ color: "var(--brand-green-dark, #0F7A33)" }}>── Com esta decisão</span>
+            <div className="flex items-center gap-4 text-[11px] font-semibold">
+              <span style={{ color: "var(--brand-error-soft)" }}>── Sem agir</span>
+              <span style={{ color: "var(--brand-green-dark)" }}>── Com esta decisão</span>
             </div>
           </div>
 
-          <div className="relative mt-3.5" style={{ height: "220px" }}>
+          <div className="relative mt-4" style={{ height: "220px" }}>
             <TrajetoriaChart semAgir={TRAJECTORY_SEM_AGIR} comDecisao={currentState.trajectoryComDecisao} />
             <div
-              className="absolute rounded-md border bg-white px-2.5 py-1.5 text-[10.5px] font-semibold leading-tight"
+              className="absolute rounded-md border bg-white px-2.5 py-1.5 text-[10px] font-semibold leading-tight"
               style={{
-                color: "var(--brand-red, #D14343)",
+                color: "var(--brand-error-soft)",
                 borderColor: "#F2CACA",
                 boxShadow: "0 2px 8px rgba(7,29,59,0.05)",
                 left: "165px",
@@ -571,16 +560,16 @@ export default function CenariosPage() {
         </section>
 
         {/* Card CONSEQUÊNCIA */}
-        <section className="rounded-[14px] border border-border bg-card p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-navy)" }}>
+        <section className="rounded-2xl border border-border bg-card p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-navy)" }}>
             Consequência operacional
           </p>
 
-          <div className="mt-3.5 space-y-3.5">
+          <div className="mt-4 space-y-4">
             <div className="grid items-center gap-3" style={{ gridTemplateColumns: "36px 1fr auto" }}>
               <span
                 className="grid h-8 w-8 place-items-center rounded-lg"
-                style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark, #0F7A33)" }}
+                style={{ background: "rgba(54,186,88,0.12)", color: "var(--brand-green-dark)" }}
               >
                 <TrendingUp className="h-4 w-4" strokeWidth={2} />
               </span>
@@ -599,7 +588,7 @@ export default function CenariosPage() {
             <div className="grid items-center gap-3" style={{ gridTemplateColumns: "36px 1fr auto" }}>
               <span
                 className="grid h-8 w-8 place-items-center rounded-lg"
-                style={{ background: "rgba(209,67,67,0.10)", color: "var(--brand-red, #D14343)" }}
+                style={{ background: "rgba(209,67,67,0.10)", color: "var(--brand-error-soft)" }}
               >
                 <DollarSign className="h-4 w-4" strokeWidth={2} />
               </span>
@@ -639,11 +628,11 @@ export default function CenariosPage() {
 
       {/* Leitura Rápida (rodapé full-width) */}
       <div
-        className="mt-3 flex items-start gap-3.5 rounded-[10px] border border-border p-4"
+        className="mt-3 flex items-start gap-4 rounded-xl border border-border p-4"
         style={{
           background: "#FAFBFD",
           borderLeftWidth: "3px",
-          borderLeftColor: "var(--brand-cyan, #38B8E8)",
+          borderLeftColor: "var(--brand-cyan)",
         }}
       >
         <span
@@ -654,7 +643,7 @@ export default function CenariosPage() {
         </span>
         <div>
           <p
-            className="text-[10.5px] font-bold uppercase tracking-[0.18em]"
+            className="text-[10px] font-bold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             Leitura rápida
@@ -718,17 +707,17 @@ function TrajetoriaChart({
       <rect x={s3X} y="5" width={s3Width} height="195" rx="4" style={{ fill: "rgba(209,67,67,0.06)" }} />
 
       {/* Linhas */}
-      <polyline points={pointsStr(semAgir)} fill="none" stroke="var(--brand-red, #D14343)" strokeWidth="2" />
-      <polyline points={pointsStr(comDecisao)} fill="none" stroke="var(--brand-green, #36BA58)" strokeWidth="2.25" />
+      <polyline points={pointsStr(semAgir)} fill="none" stroke="var(--brand-error-soft)" strokeWidth="2" />
+      <polyline points={pointsStr(comDecisao)} fill="none" stroke="var(--brand-green)" strokeWidth="2.25" />
 
       {/* Pontos sem agir */}
       {semAgir.map((v, i) => (
-        <circle key={`r${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-red, #D14343)" }} />
+        <circle key={`r${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-error-soft)" }} />
       ))}
 
       {/* Pontos com decisão */}
       {comDecisao.map((v, i) => (
-        <circle key={`g${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-green, #36BA58)" }} />
+        <circle key={`g${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-green)" }} />
       ))}
 
       {/* Labels eixo X (S1...S13) */}

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import SinteseTab from "@/components/analise-financeira/sintese-tab"
@@ -23,8 +24,44 @@ const TABS: TabConfig[] = [
   { id: "checklist", numeral: "08", label: "Checklist Mensal" },
 ]
 
+// Map query param values (including variations) to valid tab IDs
+function resolveTabFromParam(param: string | null): string {
+  if (!param) return "sintese"
+  const normalized = param.toLowerCase().trim()
+  const mapping: Record<string, string> = {
+    sintese: "sintese",
+    síntese: "sintese",
+    caixa: "caixa",
+    clientes: "clientes",
+    cliente: "clientes",
+    faturamento: "faturamento",
+    fornecedores: "fornecedores",
+    fornecedor: "fornecedores",
+    ciclo: "ciclo",
+    auditoria: "auditoria",
+    checklist: "checklist",
+  }
+  return mapping[normalized] || "sintese"
+}
+
 export default function AnaliseFinanceiraPage() {
-  const [activeTab, setActiveTab] = useState("sintese")
+  return (
+    <Suspense fallback={null}>
+      <AnaliseFinanceiraContent />
+    </Suspense>
+  )
+}
+
+function AnaliseFinanceiraContent() {
+  const searchParams = useSearchParams()
+  const abaParam = searchParams.get("aba")
+  const [activeTab, setActiveTab] = useState(() => resolveTabFromParam(abaParam))
+
+  // Sync tab when URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    const resolved = resolveTabFromParam(abaParam)
+    setActiveTab(resolved)
+  }, [abaParam])
   const dados = clienteAtual.dadosFinanceiros
   const hero = dados.hero
 

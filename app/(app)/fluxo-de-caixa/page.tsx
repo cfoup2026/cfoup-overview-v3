@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { PageHeader } from "@/components/page-header"
 import {
   Command,
   CommandInput,
@@ -51,7 +52,7 @@ function LightSheetContent({ children, className }: { children: React.ReactNode;
   return (
     <SheetPrimitive.Portal>
       <SheetPrimitive.Content
-        className={`fixed inset-y-0 right-0 z-50 w-[320px] bg-background border-l border-border shadow-[0_8px_32px_-12px_rgba(7,29,59,0.25)] p-[14px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right ${className ?? ""}`}
+        className={`fixed inset-y-0 right-0 z-50 w-[320px] bg-background border-l border-border shadow-[0_6px_24px_-12px_rgba(7,29,59,0.25)] p-4 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right ${className ?? ""}`}
       >
         <SheetPrimitive.Close className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground hover:bg-[rgba(7,29,59,0.04)] hover:text-[var(--brand-navy)] transition">
           <X className="h-3.5 w-3.5" />
@@ -464,38 +465,36 @@ function Zone1Header({
   const activeLabel = UNIDADES.find((u) => u.id === unidade)?.label ?? "Consolidado"
   const [sheetOpen, setSheetOpen] = useState(false)
   return (
-    <header className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
-      <div className="flex items-baseline gap-2 flex-wrap">
-        <h1 className="text-[13px] font-bold leading-none text-[var(--brand-navy)] tracking-tight">Fluxo de Caixa 13 Semanas</h1>
-        <span className="text-[11px] text-muted-foreground">· há 2 min</span>
-      </div>
-      <div className="flex items-center gap-0.5">
-        <DropdownMenu>
-          <DropdownMenuTrigger className={GHOST_BTN}>
-            <Building2 className="h-3 w-3 text-muted-foreground" />{activeLabel}<ChevronDown className="h-3 w-3 text-muted-foreground" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[180px]">
-            {UNIDADES.map((u) => (
-              <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px] flex items-center justify-between gap-2">
-                <span>{u.label}</span>
-                {unidade === u.id && <Check className="h-3 w-3 text-[var(--brand-blue)] shrink-0" />}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <button type="button" className={GHOST_BTN}>
-          <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
-        </button>
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetTrigger asChild>
-            <button type="button" className={GHOST_BTN}>
-              <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
-            </button>
-          </SheetTrigger>
-          <QuickAddForecastSheet onClose={() => setSheetOpen(false)} />
-        </Sheet>
-      </div>
-    </header>
+    <div className="mb-4">
+      <PageHeader eyebrow="Mesa de Decisão" title="Fluxo de Caixa">
+        <div className="flex items-center gap-0.5">
+          <DropdownMenu>
+            <DropdownMenuTrigger className={GHOST_BTN}>
+              <Building2 className="h-3 w-3 text-muted-foreground" />{activeLabel}<ChevronDown className="h-3 w-3 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[180px]">
+              {UNIDADES.map((u) => (
+                <DropdownMenuItem key={u.id} onClick={() => setUnidade(u.id)} className="text-[12px] flex items-center justify-between gap-2">
+                  <span>{u.label}</span>
+                  {unidade === u.id && <Check className="h-3 w-3 text-[var(--brand-blue)] shrink-0" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <button type="button" className={GHOST_BTN}>
+            <RefreshCw className="h-3 w-3 text-muted-foreground" />Atualizar
+          </button>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+            <SheetTrigger asChild>
+              <button type="button" className={GHOST_BTN}>
+                <Plus className="h-3 w-3 text-[var(--brand-blue)]" />Adicionar previsão
+              </button>
+            </SheetTrigger>
+            <QuickAddForecastSheet onClose={() => setSheetOpen(false)} />
+          </Sheet>
+        </div>
+      </PageHeader>
+    </div>
   )
 }
 
@@ -542,10 +541,10 @@ function QuickAddForecastSheet({ onClose }: { onClose: () => void }) {
   const valorColor = direcao === "entrada" ? "var(--brand-navy)" : "var(--brand-error-soft)"
 
   return (
-    <SheetContent side="right" className="w-[340px] p-[14px]">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-        <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
+<SheetContent side="right" className="w-[340px] p-4">
+  {/* Header */}
+  <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+  <span className="text-[14px] font-bold text-[var(--brand-navy)]">Adicionar previsão</span>
         <button type="button" onClick={onClose} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -991,10 +990,10 @@ function InformarSaldoSheet({ open, onOpenChange }: { open: boolean; onOpenChang
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[340px] p-[14px]">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
-          <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
+<SheetContent side="right" className="w-[340px] p-4">
+  {/* Header */}
+  <div className="flex items-center justify-between pb-2 mb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
+  <span className="text-[14px] font-bold text-[var(--brand-navy)]">Informar saldo manual</span>
           <button type="button" onClick={() => onOpenChange(false)} className="h-6 w-6 flex items-center justify-center rounded-md hover:bg-[rgba(7,29,59,0.06)] transition">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>

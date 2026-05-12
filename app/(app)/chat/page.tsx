@@ -16,6 +16,7 @@ import {
   RefreshCcw,
 } from "lucide-react"
 import { CfoupLogo } from "@/components/cfoup-logo"
+import { PageHeader } from "@/components/page-header"
 import { clienteAtual } from "@/lib/clientes/cliente-atual"
 
 /* ============================================================================ *
@@ -466,7 +467,7 @@ function ChatInner() {
         >
           <div className="mb-3 px-6 pt-10">
             <h2
-              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              className="text-base font-bold leading-tight tracking-tight"
               style={{ color: "var(--brand-navy)" }}
             >
               Continue a decisão
@@ -491,14 +492,9 @@ function ChatInner() {
 
         {/* Área principal */}
         <div className="flex flex-col bg-background">
-          <header className="mb-3 px-6 md:px-10 lg:px-12">
-            <h1
-              className="text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              Chat CFOup
-            </h1>
-          </header>
+          <div className="px-6 md:px-10 lg:px-12">
+            <PageHeader eyebrow="Mesa de Decisão" title="Chat CFOup" />
+          </div>
 
           {/* Mensagens */}
           <div ref={scroller} className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 22rem)" }}>
@@ -616,7 +612,7 @@ function AnswerCard({ card }: { card: AnswerCardData }) {
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Mesa de decisão
           </span>
         </div>
@@ -637,14 +633,14 @@ function AnswerCard({ card }: { card: AnswerCardData }) {
         <div className="my-4 border-t border-border" />
 
         {/* Slot 3 — Fonte */}
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           FONTE · {card.fonte.periodo} • {card.fonte.base}
           {card.fonte.premissa && ` • premissa: ${card.fonte.premissa}`}
         </p>
 
         {/* Slot 4 — Risco */}
         <p className="mt-2">
-          <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-700/80">RISCO</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--brand-warning)" }}>RISCO</span>
           <span className="ml-2 text-[13px] text-[var(--slate-700)]">{card.risco}</span>
         </p>
 
@@ -669,7 +665,7 @@ function PendingBubble() {
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             escrevendo…
           </span>
         </div>
@@ -697,7 +693,7 @@ function EmptyState({ onPick }: { onPick: (q: string) => void }) {
     "Quanto posso retirar da empresa sem prejudicar o negócio?",
   ]
   return (
-    <div className="mb-10 rounded-2xl border border-border bg-card p-6 md:p-7">
+    <div className="mb-10 rounded-2xl border border-border bg-card p-4 md:p-5">
       <h2 className="text-base font-bold" style={{ color: "var(--brand-navy)" }}>
         Pergunte sobre caixa, margem, clientes, fornecedores ou cenários.
       </h2>
