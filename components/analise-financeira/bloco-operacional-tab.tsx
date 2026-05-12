@@ -24,13 +24,13 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       {/* Section Head (navy gradient) */}
       <div
         className="flex flex-wrap items-center justify-between gap-4 px-6 py-4"
-        style={{ background: "linear-gradient(135deg, #071D3B 0%, #0A2647 100%)" }}
+        style={{ background: "linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-deep) 100%)" }}
       >
         <h2
           className="m-0 text-[22px] font-medium tracking-[-0.005em] text-white"
           style={{ fontFamily: "var(--cfoup-font-serif)" }}
         >
-          {letra} <span style={{ color: "#38B8E8" }}>· {titulo}</span>
+          {letra} <span style={{ color: "var(--brand-cyan)" }}>· {titulo}</span>
         </h2>
         <span className="text-[11px] tracking-[0.04em] text-white/70">{src}</span>
       </div>
@@ -39,7 +39,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       <div className="p-7">
         {/* Verdict */}
         <div
-          className="mb-4 flex items-baseline gap-4 rounded-r-lg border-l-4 px-6 py-4"
+          className="mb-3 flex items-baseline gap-4 rounded-r-lg border-l-4 px-6 py-4"
           style={{ background: "var(--muted)", borderLeftColor: "var(--brand-blue)" }}
         >
           <span
@@ -58,7 +58,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
         {/* Headline (leitura) */}
         <div
-          className="mb-4 rounded-r-lg border-l-4 px-6 py-4"
+          className="mb-5 rounded-r-lg border-l-4 px-6 py-4"
           style={{
             background: "linear-gradient(180deg, #FFFEF7 0%, #FFFAEB 100%)",
             borderLeftColor: "var(--brand-warning)",
@@ -71,7 +71,8 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
             A leitura
           </div>
           <p
-            className="m-0 text-[13px] leading-relaxed text-muted-foreground"
+            className="m-0 text-[14px] leading-relaxed"
+            style={{ color: "var(--brand-navy)" }}
             dangerouslySetInnerHTML={{ __html: dados.leitura }}
           />
         </div>
@@ -91,7 +92,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           {dados.kpis.map((kpi, idx) => (
             <div
               key={idx}
-              className="relative block overflow-hidden rounded-xl border border-border px-4 pb-4 pt-4"
+              className="relative block overflow-hidden rounded-xl border border-border px-5 py-5"
               style={{
                 background: kpi.highlight
                   ? "linear-gradient(180deg, #FFFEF7 0%, #FFFAEB 100%)"
@@ -119,14 +120,14 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 dangerouslySetInnerHTML={{ __html: kpi.valor }}
               />
               <div
-                className={`mt-2 text-[12px] font-medium leading-[1.4] ${kpi.deltaType === "neutral" ? "text-muted-foreground" : ""}`}
+                className={`mt-2 text-[12px] font-medium ${kpi.deltaType === "neutral" ? "text-muted-foreground" : ""}`}
                 style={
                   kpi.deltaType === "up"
-                    ? { color: "var(--pos)" }
+                    ? { color: "var(--brand-green)" }
                     : kpi.deltaType === "down"
-                      ? { color: "var(--neg)" }
+                      ? { color: "var(--brand-error-soft)" }
                       : kpi.deltaType === "warn"
-                        ? { color: "var(--warn)" }
+                        ? { color: "var(--brand-warning)" }
                         : undefined
                 }
               >
@@ -144,19 +145,19 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           {dados.alertas.map((alerta, idx) => (
             <div
               key={idx}
-              className="rounded-r-xl border border-border px-4 py-4"
+              className="rounded-r-xl border border-border px-5 py-4"
               style={{
                 borderLeftWidth: "4px",
                 borderLeftColor:
                   alerta.nivel === "critico"
-                    ? "var(--neg)"
+                    ? "var(--brand-error-soft)"
                     : alerta.nivel === "atencao"
-                      ? "var(--warn)"
-                      : "var(--pos)",
+                      ? "var(--brand-warning)"
+                      : "var(--brand-green)",
               }}
             >
               <span
-                className="mb-2 inline-block rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                className="mb-2 inline-block rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{
                   background:
                     alerta.nivel === "critico"
@@ -166,10 +167,10 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                         : "rgba(54,186,88,0.1)",
                   color:
                     alerta.nivel === "critico"
-                      ? "var(--neg)"
+                      ? "var(--brand-error-soft)"
                       : alerta.nivel === "atencao"
-                        ? "var(--warn)"
-                        : "var(--pos)",
+                        ? "var(--brand-warning)"
+                        : "var(--brand-green)",
                 }}
               >
                 {alerta.nivel === "critico"
