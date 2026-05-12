@@ -317,19 +317,19 @@ export default function CenariosPage() {
           </div>
 
           <div className="mt-5 border-t border-[#EEF3F8] pt-4 space-y-3">
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <Clock className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
               <span>Caixa: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.caixa.value}</strong></span>
             </div>
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <DollarSign className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
               <span>Custo: <strong style={{ color: "var(--brand-navy)", fontWeight: 700 }}>{currentState.consequences.custo.value}</strong></span>
             </div>
-            <div className="flex items-center gap-3 text-[13px]" style={{ color: "#3D4D66" }}>
+            <div className="flex items-center gap-3 text-[13px]" style={{ color: "var(--brand-ink-muted)" }}>
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#FAFBFD]" style={{ color: "var(--brand-navy)" }}>
                 <MoveHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
@@ -353,7 +353,7 @@ export default function CenariosPage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "var(--brand-error-soft)" }}>
                 Sem agir
               </p>
-              <p className="mt-2 text-[12px]" style={{ color: "#3D4D66" }}>
+              <p className="mt-2 text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                 menor caixa na S3
               </p>
               <p
@@ -400,7 +400,7 @@ export default function CenariosPage() {
               >
                 Com esta decisão
               </p>
-              <p className="mt-2 text-[12px]" style={{ color: "#3D4D66" }}>
+              <p className="mt-2 text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                 menor caixa na S3
               </p>
               <p
@@ -422,7 +422,7 @@ export default function CenariosPage() {
             </div>
           </div>
 
-          <p className="mt-4 px-3 text-center text-[12px] italic" style={{ color: "#3D4D66" }}>
+          <p className="mt-4 px-3 text-center text-[12px] italic" style={{ color: "var(--brand-ink-muted)" }}>
             {currentState.reading}
           </p>
 
@@ -501,14 +501,14 @@ export default function CenariosPage() {
                           background: "rgba(54,186,88,0.08)",
                           borderColor: "rgba(54,186,88,0.25)",
                           borderLeftWidth: "3px",
-                          borderLeftColor: "var(--brand-green, #36BA58)",
+                          borderLeftColor: "var(--brand-green)",
                         }
                       : undefined
                   }
                 >
                   <span
                     className="text-[13px] font-semibold"
-                    style={{ color: isActive ? "var(--brand-green-dark)" : "var(--brand-ink-muted, #3D4D66)" }}
+                    style={{ color: isActive ? "var(--brand-green-dark)" : "var(--brand-ink-muted)" }}
                   >
                     {d.alavanca}
                   </span>
@@ -632,7 +632,7 @@ export default function CenariosPage() {
         style={{
           background: "#FAFBFD",
           borderLeftWidth: "3px",
-          borderLeftColor: "var(--brand-cyan, #38B8E8)",
+          borderLeftColor: "var(--brand-cyan)",
         }}
       >
         <span
@@ -708,7 +708,7 @@ function TrajetoriaChart({
 
       {/* Linhas */}
       <polyline points={pointsStr(semAgir)} fill="none" stroke="var(--brand-error-soft)" strokeWidth="2" />
-      <polyline points={pointsStr(comDecisao)} fill="none" stroke="var(--brand-green, #36BA58)" strokeWidth="2.25" />
+      <polyline points={pointsStr(comDecisao)} fill="none" stroke="var(--brand-green)" strokeWidth="2.25" />
 
       {/* Pontos sem agir */}
       {semAgir.map((v, i) => (
@@ -717,7 +717,7 @@ function TrajetoriaChart({
 
       {/* Pontos com decisão */}
       {comDecisao.map((v, i) => (
-        <circle key={`g${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-green, #36BA58)" }} />
+        <circle key={`g${i}`} cx={xOf(i)} cy={yOf(v)} r="3" style={{ fill: "var(--brand-green)" }} />
       ))}
 
       {/* Labels eixo X (S1...S13) */}

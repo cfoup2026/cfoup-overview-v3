@@ -612,7 +612,7 @@ function AnswerCard({ card }: { card: AnswerCardData }) {
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Mesa de decisão
           </span>
         </div>
@@ -665,7 +665,7 @@ function PendingBubble() {
           <span className="text-sm font-bold" style={{ color: "var(--brand-navy)" }}>
             CFOup
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             escrevendo…
           </span>
         </div>

@@ -207,7 +207,7 @@ export default function QualidadeDaDecisaoPage() {
         {/* Card Esquerdo — Veredito */}
         <div className="flex flex-col">
           <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--ink-muted)]">
               Qualidade da decisão
             </p>
 
@@ -318,9 +318,9 @@ export default function QualidadeDaDecisaoPage() {
         <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-1.5">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
-                O que mais impacta a qualidade (drivers)
-              </p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--ink-muted)]">
+              O que mais impacta a qualidade (drivers)
+            </p>
               <Info className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
             <span className="text-[11px] text-muted-foreground">Impacto no score</span>

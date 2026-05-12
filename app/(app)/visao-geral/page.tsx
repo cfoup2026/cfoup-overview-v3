@@ -149,15 +149,15 @@ export default function VisaoGeralPage() {
           aria-labelledby="bloco-alertas"
           className="lg:col-span-5 rounded-2xl border p-4 md:p-5"
           style={{
-            background: "rgba(234,179,8,0.08)",
-            borderColor: "rgba(234,179,8,0.35)",
+            background: "rgba(224,139,0,0.08)",
+            borderColor: "rgba(224,139,0,0.35)",
           }}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
               <p
                 className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: "#92651b" }}
+                style={{ color: "var(--brand-warning)" }}
               >
                 Alertas de execução
               </p>
@@ -255,7 +255,7 @@ export default function VisaoGeralPage() {
             </div>
 
             <div className="grid gap-1.5 text-sm md:border-l md:border-white/20 md:pl-6">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
                 Perguntas sugeridas
               </p>
               {data.promptsSugeridos.map((p) => (
@@ -302,7 +302,7 @@ function DrillInCard({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {eyebrow}
           </p>
           {count && <p className="text-[11px] text-muted-foreground">{count}</p>}
@@ -368,8 +368,8 @@ function AlertRow({
   body: string
 }) {
   const Icon = severity === "warning" ? AlertTriangle : Info
-  const color = severity === "warning" ? "#b45309" : "var(--brand-blue)"
-  const bg = severity === "warning" ? "rgba(234,179,8,0.12)" : "rgba(21,103,200,0.10)"
+  const color = severity === "warning" ? "var(--brand-warning)" : "var(--brand-blue)"
+  const bg = severity === "warning" ? "rgba(224,139,0,0.12)" : "rgba(21,103,200,0.10)"
   return (
     <li className="flex items-start gap-2.5 py-2.5 first:pt-0 last:pb-0">
       <span
@@ -442,7 +442,7 @@ function PortfolioSection({
         </p>
       ) : (
         <>
-          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Top 5 do período
           </p>
           <ul className="mt-2 space-y-1">
@@ -473,7 +473,7 @@ function PortfolioSection({
               <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {criticoLabel}
               </p>
               <p className="mt-0.5 text-[14px] font-bold leading-tight" style={{ color: "var(--brand-navy)" }}>
@@ -563,7 +563,7 @@ function TopSupplierRow({ name, share }: { name: string; share: number }) {
 function PortfolioIndicator({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
       <p
         className="mt-1 text-[1rem] font-extrabold leading-none tabular-nums"
         style={{ color: "var(--brand-navy)" }}
