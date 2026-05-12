@@ -100,10 +100,10 @@ export default function IndicadoresPage() {
           className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          Margens positivas, mas a margem operacional está pressionada. O estoque alonga o ciclo e o ponto de equilíbrio exige R$ 248k/mês.
+          As margens estão positivas, mas a margem operacional está pressionada. O estoque está parado e o ponto de equilíbrio exige R$ 248k por mês.
         </h2>
-        <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--slate-700)]">
-          PMR melhorou e PMP está dentro da política — o problema não está em cobrança nem em fornecedor. Está em despesa fixa e estoque parado. Ação: revisar estoque lento e despesas fixas antes de mexer em preço ou prazo.
+        <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
+          Os clientes estão pagando mais rápido e o pagamento ao fornecedor segue igual. O problema não é em cobrança nem em fornecedor. É a despesa fixa pesando na operação e o estoque parado puxando dinheiro. Antes de mexer em preço ou prazo, vale revisar o estoque lento e cortar despesa fixa.
         </p>
       </section>
 
