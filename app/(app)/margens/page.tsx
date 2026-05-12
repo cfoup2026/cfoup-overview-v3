@@ -100,10 +100,10 @@ export default function IndicadoresPage() {
           className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          Margem operacional pressiona o resultado em R$ 14k/mês. Caixa segura outros 6 meses no ritmo atual.
+          Negócio no azul: margem bruta subindo, líquida positiva, operação R$ 64k acima do ponto de equilíbrio.
         </h2>
         <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-[var(--slate-700)]">
-          Margem bruta e recebimento mantêm o fôlego. Estoque crescendo prende caixa.
+          O aperto vem do estoque que prende mais dinheiro a cada mês e da despesa fixa pressionando a margem operacional. Cliente paga em dia, fornecedor no mesmo ritmo.
         </p>
       </section>
 
