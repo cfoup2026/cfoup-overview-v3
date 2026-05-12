@@ -205,13 +205,13 @@ export default function QualidadeDaDecisaoPage() {
       {/* BLOCO 1 — Veredito + Drivers */}
       <div className="mb-4 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
         {/* Card Esquerdo — Veredito */}
-        <div>
-          <section className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex flex-col">
+          <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
               Qualidade da decisão
             </p>
 
-            <div className="mt-4 flex items-center gap-6">
+            <div className="mt-4 flex flex-1 items-center gap-6">
               {/* Gauge SVG */}
               <div className="relative h-[140px] w-[140px] shrink-0">
                 <svg viewBox="0 0 140 140" className="h-full w-full">
@@ -315,7 +315,7 @@ export default function QualidadeDaDecisaoPage() {
         </div>
 
         {/* Card Direito — Drivers */}
-        <section className="rounded-2xl border border-border bg-card p-5">
+        <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
           <div className="flex items-baseline justify-between">
             <div className="flex items-center gap-1.5">
               <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
@@ -355,7 +355,7 @@ export default function QualidadeDaDecisaoPage() {
             })}
           </ul>
 
-          <div className="mt-3 flex justify-end">
+          <div className="mt-auto flex justify-end pt-3">
             <button
               type="button"
               onClick={scrollToTable}
