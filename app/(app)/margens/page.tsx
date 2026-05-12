@@ -50,7 +50,7 @@ const INDICADORES: Indicator[] = [
     delta: "subiu 1,1 ponto",
     refText: "vs. ano anterior",
     status: "saudavel",
-    leitura: "Fôlego pra absorver pressão.",
+    leitura: "Ainda segura parte da pressão da operação.",
   },
   {
     label: "Prazo médio de recebimento",
@@ -66,7 +66,7 @@ const INDICADORES: Indicator[] = [
     delta: "subiu 0,2 ponto",
     refText: "mês fechado",
     status: "saudavel",
-    leitura: "No azul.",
+    leitura: "Lucro final ainda positivo, mas com pouco espaço.",
   },
   {
     label: "Prazo médio de pagamento",
@@ -105,13 +105,13 @@ export default function IndicadoresPage() {
           Leitura do CFOup
         </p>
         <h2
-          className="mt-2 max-w-3xl text-balance text-[15px] md:text-base font-bold leading-snug"
+          className="mt-2 text-balance text-[15px] md:text-base font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
-          A operação está R$ 64k acima do ponto de equilíbrio de R$ 248k/mês, com margens positivas, mas a margem operacional já dá sinal de pressão e o estoque está alongando o ciclo.
+          Operação acima do ponto de equilíbrio, mas com pressão em margem e estoque.
         </h2>
         <p className="mt-2 text-pretty text-[13px] leading-relaxed text-[var(--slate-700)]">
-          Cliente pagando mais rápido e fornecedor no mesmo ritmo mostram que o problema não é em cobrança nem em fornecedor: é despesa fixa e estoque parado. Antes de mexer em preço ou prazo, cortar fixo e girar estoque.
+          O caixa não está ruim hoje; o risco é o estoque parado e a despesa fixa consumirem a folga nos próximos meses.
         </p>
       </section>
 
@@ -130,10 +130,9 @@ export default function IndicadoresPage() {
         >
           Atenção agora
         </span>
-        <ul className="space-y-2 text-[13.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-          <li>Revisar custo fixo no próximo fechamento.</li>
-          <li>Olhar Prazo médio de estoque por linha de produto.</li>
-        </ul>
+        <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+          Antes de mexer em preço ou prazo, revisar estoque parado e despesa fixa. O problema principal não está no recebimento nem no fornecedor.
+        </p>
       </section>
     </>
   )
