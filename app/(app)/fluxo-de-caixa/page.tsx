@@ -717,14 +717,14 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
         <div className="mb-3">
           <div className="flex items-baseline gap-2">
             <DirIcon className="h-4 w-4 shrink-0" style={{ color: dirColor }} />
-            <span className="text-[20px] font-extrabold tabular-nums" style={{ color: dirColor }}>
+            <span className="text-lg md:text-[1.3rem] font-extrabold tabular-nums" style={{ color: dirColor }}>
               {fmtBRL(evento.valor)}
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground mt-1">
             {evento.data} · {evento.categoria} · {evento.contraparte}
           </p>
-          <p className="text-[10.5px] text-muted-foreground mt-1.5 flex items-center gap-1">
+          <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
             <OrigemIcon className="h-2.5 w-2.5" />
             {origemText}
           </p>
@@ -732,13 +732,13 @@ function EventoSheet({ evento, open, onOpenChange }: { evento: Evento | null; op
 
         <div className="flex items-center gap-1.5 mb-3 pb-3" style={{ borderBottom: "0.5px solid var(--border)" }}>
           <span
-            className={`h-5 px-2 rounded-full text-[10.5px] font-semibold inline-flex items-center ${statusStyles}`}
+            className={`h-5 px-2 rounded-full text-[11px] font-semibold inline-flex items-center ${statusStyles}`}
             style={{ borderWidth: "0.5px" }}
           >
             {evento.status === "confirmado" ? "Confirmado" : "Estimado"}
           </span>
           <span
-            className="h-5 px-2 rounded-full text-[10.5px] font-semibold text-muted-foreground inline-flex items-center"
+            className="h-5 px-2 rounded-full text-[11px] font-semibold text-muted-foreground inline-flex items-center"
             style={{ borderWidth: "0.5px", borderColor: "var(--border)" }}
           >
             Confiança {evento.confianca}
@@ -822,7 +822,7 @@ function CellDrillSheet({
           <div className="py-2">
             <p className="text-[11px] font-semibold text-[var(--brand-navy)]">Valor estimado pelo motor</p>
             <p className="text-[11px] text-muted-foreground mt-0.5">{data.metodo}</p>
-            <p className="text-[10.5px] text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-1">
               Período: {data.periodo} · Confiança: {data.confianca}
             </p>
           </div>
@@ -832,10 +832,10 @@ function CellDrillSheet({
             <p className="text-[11px] text-muted-foreground mt-0.5">
               {data.data} · {data.contraparte}
             </p>
-            <p className="text-[10.5px] text-muted-foreground mt-1">
+            <p className="text-[11px] text-muted-foreground mt-1">
               Status: {data.status} · Confiança: {data.confianca}
             </p>
-            {data.obs && <p className="text-[10.5px] text-muted-foreground mt-0.5 italic">&quot;{data.obs}&quot;</p>}
+            {data.obs && <p className="text-[11px] text-muted-foreground mt-0.5 italic">&quot;{data.obs}&quot;</p>}
             <p className="text-[11px] font-semibold tabular-nums text-[var(--brand-navy)] mt-1">
               {fmtBRL(data.valor)}
             </p>
@@ -1069,10 +1069,10 @@ function Zone2Kpis({
             {!hasConnections ? (
               <div className="py-4 text-center">
                 <Plug className="h-6 w-6 mx-auto text-muted-foreground" />
-                <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] mt-2">
+                <p className="text-[11px] font-semibold text-[var(--brand-navy)] mt-2">
                   Aguardando conexão dos dados
                 </p>
-                <p className="text-[10.5px] text-muted-foreground mt-1">
+                <p className="text-[11px] text-muted-foreground mt-1">
                   Conecte banco, sistema de NF-e ou ERP em Conexões para o motor calcular o veredito.
                 </p>
                 <Link
@@ -1091,7 +1091,7 @@ function Zone2Kpis({
             ) : (
               <>
                 <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
-                  <span className="text-[11.5px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
+                  <span className="text-[11px] font-semibold text-[var(--brand-navy)]">Dados insuficientes</span>
                   <span className="h-4 px-1.5 inline-flex items-center text-[10px] font-bold rounded-full bg-[rgba(224,139,0,0.10)] text-[var(--brand-warning)]">
                     {pendencias.length}
                   </span>
@@ -1099,8 +1099,8 @@ function Zone2Kpis({
                 <div className="flex flex-col gap-1">
                   {pendencias.map((it) => (
                     <div key={it.id} className="rounded-md p-2 hover:bg-[rgba(7,29,59,0.03)] transition">
-                      <p className="text-[11.5px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
-                      <p className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{it.detail}</p>
+                      <p className="text-[11px] font-semibold text-[var(--brand-navy)] leading-tight">{it.title}</p>
+                      <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{it.detail}</p>
                       <p className="text-[10px] text-muted-foreground/80 leading-tight mt-0.5 italic">{it.impact}</p>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {it.actions.map((a, i) => (
