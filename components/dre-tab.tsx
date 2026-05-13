@@ -376,7 +376,7 @@ function ViewHorizontal({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewComentarios({ data }: { data: DREData }) {
   return (
-    <div className="max-w-4xl rounded-xl border border-border bg-card py-2">
+    <div className="rounded-xl border border-border bg-card py-2">
       {data.comentarios.map((c, idx) => {
         const labelColor = NOTE_LABEL_COLOR[c.status] || "var(--brand-blue)"
         const isLast = idx === data.comentarios.length - 1
