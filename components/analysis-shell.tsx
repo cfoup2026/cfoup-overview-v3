@@ -1,12 +1,11 @@
 "use client"
 
 import { useEffect, type ReactNode } from "react"
+import { PageHeader } from "@/components/page-header"
 
 // ---------------------------------------------------------------------
 // AnalysisShell — reusable header + tabs wrapper for Análise Contábil
-// and Análise Financeira. Hero editorial (fundo navy gradient, Fraunces
-// no H1, chips claros). Tabs nav sticky. Espelha sizes/weights/cores
-// dos HTMLs cfoup-tese.
+// and Análise Financeira. Uses PageHeader for consistency with other pages.
 // ---------------------------------------------------------------------
 
 export type TabConfig = {
@@ -50,57 +49,36 @@ export function AnalysisShell({
 
   return (
     <>
-      {/* ============================================================ */}
-      {/* STICKY HEADER — hero + tabs juntos                            */}
-      {/* ============================================================ */}
-      <div className="sticky top-0 z-20 -mx-8 bg-background md:-mx-10 lg:-mx-12">
-        <div className="px-8 pt-4 md:px-10 lg:px-12">
-          {/* HERO — card visual */}
-          <header className="rounded-2xl border border-border bg-card p-6 md:p-8">
-            {/* Eyebrow */}
-            <p
-              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: "var(--brand-blue)" }}
-            >
-              {eyebrow}
-            </p>
+      {/* HEADER — usando PageHeader canônico */}
+      <PageHeader eyebrow={eyebrow} title={empresa.nome || "—"} />
 
-            {/* H1 — nome da empresa ou fallback */}
-            <h1
-              className="mt-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {empresa.nome || "—"}
-            </h1>
-
-            {/* Descrição curta */}
-            <p className="mt-2 max-w-[800px] text-[13px] leading-relaxed text-muted-foreground">
-              {descricaoCurta}
-            </p>
-
-            {/* Metadados */}
-            <div className="mt-5 space-y-1 text-[13px] text-muted-foreground">
-              <p>
-                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Período analisado:</span>{" "}
-                {meta?.periodoAnalisado || "—"}
-              </p>
-              <p>
-                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Regime tributário:</span>{" "}
-                {meta?.regimeTributario || "—"}
-              </p>
-              <p>
-                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Fontes recebidas:</span>{" "}
-                {meta?.fontesRecebidas || "Nenhum arquivo recebido"}
-              </p>
-              <p>
-                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Status da análise:</span>{" "}
-                {meta?.statusAnalise || "Aguardando arquivos"}
-              </p>
-            </div>
-          </header>
+      {/* METADADOS — bloco separado abaixo do PageHeader */}
+      <div className="-mt-6 mb-6">
+        <p className="text-[13px] leading-relaxed text-muted-foreground">
+          {descricaoCurta}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-muted-foreground">
+          <p>
+            <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Período analisado:</span>{" "}
+            {meta?.periodoAnalisado || "—"}
+          </p>
+          <p>
+            <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Regime tributário:</span>{" "}
+            {meta?.regimeTributario || "—"}
+          </p>
+          <p>
+            <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Fontes recebidas:</span>{" "}
+            {meta?.fontesRecebidas || "Nenhum arquivo recebido"}
+          </p>
+          <p>
+            <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Status da análise:</span>{" "}
+            {meta?.statusAnalise || "Aguardando arquivos"}
+          </p>
         </div>
+      </div>
 
-        {/* TABS NAV */}
+      {/* STICKY TABS NAV */}
+      <div className="sticky top-0 z-20 -mx-8 bg-background md:-mx-10 lg:-mx-12">
         <nav className="border-b border-border bg-background px-8 md:px-10 lg:px-12">
         <div className="flex gap-2 overflow-x-auto">
           {tabs.map((tab) => {
