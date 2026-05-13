@@ -94,14 +94,14 @@ export function DRETab({ data }: { data: DREData }) {
       {view === "vertical" && (
         <>
           <ViewVertical data={data} />
-          <ExecutiveCardsAV />
+          <ExecutiveCards content={conteudoDRE.executiveCardsAV} />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
         </>
       )}
       {view === "horizontal" && (
         <>
           <ViewHorizontal data={data} />
-          <ExecutiveCardsAH />
+          <ExecutiveCards content={conteudoDRE.executiveCardsAH} />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
         </>
       )}
@@ -116,10 +116,9 @@ export function DRETab({ data }: { data: DREData }) {
 }
 
 // ---------------------------------------------------------------------
-// Executive Cards AV — análise proporcional (peso sobre receita líquida)
-// Números extraídos diretamente da tabela linhasAV em empresa-001.ts
+// Executive Cards — componente reutilizável para leitura + ações
 // ---------------------------------------------------------------------
-function ExecutiveCardsAV() {
+function ExecutiveCards({ content }: { content: typeof conteudoDRE.executiveCardsAV }) {
   return (
     <div className="mt-6 space-y-4">
       {/* Card: Leitura da análise */}
@@ -128,10 +127,10 @@ function ExecutiveCardsAV() {
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
-          Leitura da análise
+          {content.leitura.titulo}
         </p>
         <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-          Margem líquida avançou 16 pontos entre 2023 e 2025 (28,4% → 44,4%). O CPV caiu de 38,9% para 24,4% da receita líquida no período — principal ganho de margem. Despesas com pessoal reduziram de 20,7% para 17,3%. Despesas gerais subiram de 10,9% para 13,7%.
+          {content.leitura.texto}
         </p>
       </div>
 
@@ -141,68 +140,15 @@ function ExecutiveCardsAV() {
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
-          Pontos de ação — DRE
+          {content.acoes.titulo}
         </p>
         <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            CPV caiu 14,5 pontos (38,9% → 24,4%) — verificar se houve mudança de critério contábil ou ganho real de eficiência.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Despesas gerais subiram 2,8 pontos (10,9% → 13,7%) — mapear composição para entender origem do aumento.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Lucro bruto saltou de 61,1% para 75,6% da receita líquida — estrutura de custos está mais leve.
-          </li>
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Executive Cards AH — análise temporal (evolução entre períodos)
-// Números extraídos diretamente da tabela linhasAH em empresa-001.ts
-// ---------------------------------------------------------------------
-function ExecutiveCardsAH() {
-  return (
-    <div className="mt-6 space-y-4">
-      {/* Card: Leitura da análise */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <p
-          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Leitura da análise
-        </p>
-        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-          Receita líquida cresceu +30,8% entre 2023 e 2025. Lucro líquido cresceu +104,7% no mesmo período (R$ 474.849 → R$ 971.923). CPV caiu -18,0% em valor absoluto, mesmo com receita subindo. Despesas gerais cresceram +64,2%, acima da receita.
-        </p>
-      </div>
-
-      {/* Card: Pontos de ação */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <p
-          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Pontos de ação — DRE
-        </p>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            CPV caiu -18,0% enquanto receita cresceu +30,8% — validar se houve mudança de critério ou terceirização.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Despesas gerais cresceram +64,2% no período, acima da receita (+30,8%) — investigar composição.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Lucro bruto cresceu +62,0% vs lucro líquido +104,7% — ganho de alavancagem operacional confirmado.
-          </li>
+          {content.acoes.itens.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
     </div>
