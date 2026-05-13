@@ -37,6 +37,7 @@ export type ConfiguracoesField = {
   value: string | null
   hint?: string
   placeholder?: string
+  source?: "auto" | "manual"
 }
 
 export type ConfiguracoesToggle = {
@@ -73,14 +74,16 @@ export type ConfiguracoesData = {
     title: string
     description: string
     fields: {
+      cnpj: ConfiguracoesField
       razaoSocial: ConfiguracoesField
-      apelido: ConfiguracoesField
       setor: ConfiguracoesField
-      moeda: ConfiguracoesField
       regime: ConfiguracoesField
+      apelido: ConfiguracoesField
+      moeda: ConfiguracoesField
       inicioFiscal: ConfiguracoesField
       contatoResponsavel: ConfiguracoesField
       emailResponsavel: ConfiguracoesField
+      telefone: ConfiguracoesField
     }
   }
 
@@ -145,11 +148,11 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     },
 
     banner: {
-      title: "Acelere o cadastro conectando suas fontes",
+      title: "Comece preenchendo os dados da empresa",
       description:
-        "Conecte banco, ERP, NF-e ou arquivos para preencher informações automaticamente. O restante pode ser configurado manualmente.",
-      ctaLabel: "Ir para Conexões",
-      ctaHref: "/conexoes",
+        "Preencha ou importe os dados básicos da empresa para iniciar o CFOup.",
+      ctaLabel: "Importar cartão CNPJ",
+      ctaHref: "#",
     },
 
     emptyFieldLabel: "Aguardando conexão",
@@ -164,25 +167,29 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
 
     empresa: {
       title: "Perfil da empresa",
-      description: "Informações básicas que personalizam a análise do CFOup. Algumas são preenchidas automaticamente ao conectar fontes.",
+      description: "Identificação fiscal e operacional da empresa. Digite o CNPJ ou importe o cartão para preencher razão social, setor e regime automaticamente. O resto você ajusta aqui.",
       fields: {
-        razaoSocial: { label: "Razão social", value: null, placeholder: "Será buscado via CNPJ" },
-        apelido: { label: "Apelido no CFOup", value: null, placeholder: "Como sua empresa é chamada no dia a dia" },
-        setor: { label: "Setor de atuação", value: null, placeholder: "Selecionar setor" },
-        moeda: { label: "Moeda padrão", value: null, placeholder: "Real (BRL) é o padrão — alterar se necessário" },
-        regime: { label: "Regime tributário", value: null, placeholder: "Detectado via CNPJ ou selecionar manualmente" },
-        inicioFiscal: { label: "Início do exercício fiscal", value: null, placeholder: "Janeiro é o padrão — alterar se necessário" },
+        cnpj: { label: "CNPJ", value: null, placeholder: "Digite o CNPJ ou importe o cartão", source: "manual" },
+        razaoSocial: { label: "Razão social", value: null, placeholder: "Será buscado via CNPJ", source: "auto" },
+        setor: { label: "Setor de atuação", value: null, placeholder: "Será detectado via CNPJ ou ajuste manual", source: "auto" },
+        regime: { label: "Regime tributário", value: null, placeholder: "Será detectado via CNPJ ou ajuste manual", source: "auto" },
+        apelido: { label: "Apelido no CFOup", value: null, placeholder: "Como sua empresa é chamada no dia a dia", source: "manual" },
+        moeda: { label: "Moeda padrão", value: "Real (BRL)", source: "manual" },
+        inicioFiscal: { label: "Início do exercício fiscal", value: `Janeiro ${new Date().getFullYear()}`, source: "manual" },
         contatoResponsavel: {
           label: "Contato responsável",
           value: contatoNome,
           hint: "Usuário logado no CFOup",
           placeholder: "Não identificado",
+          source: "manual",
         },
         emailResponsavel: {
           label: "E-mail do responsável",
           value: contatoEmail,
           placeholder: "Não identificado",
+          source: "manual",
         },
+        telefone: { label: "Telefone de contato", value: null, placeholder: "Adicionar telefone", source: "manual" },
       },
     },
 
