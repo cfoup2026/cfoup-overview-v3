@@ -91,13 +91,100 @@ export function DRETab({ data }: { data: DREData }) {
       </div>
 
       {/* Views */}
-      {view === "vertical" && <ViewVertical data={data} />}
-      {view === "horizontal" && <ViewHorizontal data={data} />}
-      {view === "comentarios" && <ViewComentarios data={data} />}
-
-      {/* Glossário inline */}
-      <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+      {view === "vertical" && (
+        <>
+          <ViewVertical data={data} />
+          <ExecutiveCards
+            leitura={{
+              titulo: "Leitura da análise",
+              texto: "A Análise Vertical mostra o peso de cada linha sobre a Receita Líquida. Permite identificar onde o dinheiro está indo: quanto fica em custo, quanto em despesas operacionais, quanto sobra de lucro.",
+            }}
+            acoes={[
+              "Comparar margem bruta entre os anos para identificar pressão de custos",
+              "Verificar se despesas operacionais estão crescendo mais que a receita",
+              "Avaliar se o lucro líquido acompanha o crescimento do faturamento",
+            ]}
+          />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
+      {view === "horizontal" && (
+        <>
+          <ViewHorizontal data={data} />
+          <ExecutiveCards
+            leitura={{
+              titulo: "Leitura da análise",
+              texto: "A Análise Horizontal mostra quanto cada linha cresceu ou caiu entre os períodos. Permite identificar tendências: o que está acelerando, o que está desacelerando, o que mudou de direção.",
+            }}
+            acoes={[
+              "Identificar linhas com variação acima de 20% — exigem explicação",
+              "Verificar se custos cresceram mais que receita (sinal de alerta)",
+              "Checar se lucro líquido acompanhou evolução da receita bruta",
+            ]}
+          />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
+      {view === "comentarios" && (
+        <>
+          <ViewComentarios data={data} />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
     </section>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Executive Cards — leitura + ações
+// ---------------------------------------------------------------------
+function ExecutiveCards({
+  leitura,
+  acoes,
+}: {
+  leitura: { titulo: string; texto: string }
+  acoes: string[]
+}) {
+  return (
+    <div className="mt-6 grid gap-4 md:grid-cols-2 max-w-4xl">
+      {/* Card: Leitura da análise */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          {leitura.titulo}
+        </p>
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          {leitura.texto}
+        </p>
+      </div>
+
+      {/* Card: Pontos de ação */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Pontos de ação — DRE
+        </p>
+        <ul className="space-y-2">
+          {acoes.map((acao, idx) => (
+            <li
+              key={idx}
+              className="flex items-start gap-2 text-[13px] leading-relaxed"
+              style={{ color: "var(--brand-ink-muted)" }}
+            >
+              <span
+                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ background: "var(--brand-blue)" }}
+              />
+              {acao}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   )
 }
 
@@ -110,9 +197,6 @@ function ViewVertical({ data }: { data: DREData }) {
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
-          <caption className="px-6 pb-2 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            DRE — peso de cada linha sobre a Receita Líquida
-          </caption>
           <thead>
             <tr className="bg-muted">
               <th
@@ -212,9 +296,6 @@ function ViewHorizontal({ data }: { data: DREData }) {
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
-          <caption className="px-6 pb-2 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            DRE — quanto cada linha cresceu ou caiu entre os anos
-          </caption>
           <thead>
             <tr className="bg-muted">
               <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "38%" }}>Linha</th>
