@@ -15,12 +15,18 @@ export type TabConfig = {
   label: string
 }
 
+export type AnalysisShellMeta = {
+  periodoAnalisado?: string
+  regimeTributario?: string
+  fontesRecebidas?: string
+  statusAnalise?: "Completa" | "Parcial" | "Aguardando arquivos"
+}
+
 export type AnalysisShellProps = {
-  empresa: { nome: string }
+  empresa: { nome?: string }
   eyebrow: string
-  subtitulo: string
-  descricao: string
-  chips: { label: string; value: string }[]
+  descricaoCurta: string
+  meta?: AnalysisShellMeta
   tabs: TabConfig[]
   activeTab: string
   onTabChange: (id: string) => void
@@ -30,9 +36,8 @@ export type AnalysisShellProps = {
 export function AnalysisShell({
   empresa,
   eyebrow,
-  subtitulo,
-  descricao,
-  chips,
+  descricaoCurta,
+  meta,
   tabs,
   activeTab,
   onTabChange,
@@ -51,47 +56,48 @@ export function AnalysisShell({
       <div className="sticky top-0 z-20 -mx-8 bg-background md:-mx-10 lg:-mx-12">
         <div className="px-8 pt-4 md:px-10 lg:px-12">
           {/* HERO — card visual */}
-          <header className="rounded-2xl border border-border bg-hero-gradient p-6 md:p-8">
-          {/* Brand text (eyebrow + subtitulo) */}
-          <div className="mb-6">
+          <header className="rounded-2xl border border-border bg-card p-6 md:p-8">
+            {/* Eyebrow */}
             <p
               className="text-[10px] font-semibold uppercase tracking-[0.18em]"
               style={{ color: "var(--brand-blue)" }}
             >
               {eyebrow}
             </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              {subtitulo}
+
+            {/* H1 — nome da empresa ou fallback */}
+            <h1
+              className="mt-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+              style={{ color: "var(--brand-navy)" }}
+            >
+              {empresa.nome || "—"}
+            </h1>
+
+            {/* Descrição curta */}
+            <p className="mt-2 max-w-[800px] text-[13px] leading-relaxed text-muted-foreground">
+              {descricaoCurta}
             </p>
-          </div>
 
-          {/* H1 */}
-          <h1
-            className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            {empresa.nome}
-          </h1>
-
-          {/* Descrição */}
-          <p className="mb-5 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
-            {descricao}
-          </p>
-
-          {/* Chips */}
-          <div className="flex flex-wrap gap-6">
-            {chips.map((c, idx) => (
-              <div key={idx}>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                  {c.label}
-                </p>
-                <p className="mt-1 text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
-                  {c.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        </header>
+            {/* Metadados */}
+            <div className="mt-5 space-y-1 text-[13px] text-muted-foreground">
+              <p>
+                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Período analisado:</span>{" "}
+                {meta?.periodoAnalisado || "—"}
+              </p>
+              <p>
+                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Regime tributário:</span>{" "}
+                {meta?.regimeTributario || "—"}
+              </p>
+              <p>
+                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Fontes recebidas:</span>{" "}
+                {meta?.fontesRecebidas || "Nenhum arquivo recebido"}
+              </p>
+              <p>
+                <span className="font-medium" style={{ color: "var(--brand-navy)" }}>Status da análise:</span>{" "}
+                {meta?.statusAnalise || "Aguardando arquivos"}
+              </p>
+            </div>
+          </header>
         </div>
 
         {/* TABS NAV */}
