@@ -34,10 +34,44 @@ export type TermoGlossario = {
   definicao: string
 }
 
-// Tipo para Evidence Block colapsável
+// Tipo para linha de tabela de movimentação mensal
+export type MovimentoMes = {
+  mes: string
+  entradas: number
+  saidas: number
+  saldo: number
+  isMelhor?: boolean
+  isPior?: boolean
+}
+
+// Tipo para linha de tabela de saídas recorrentes
+export type SaidaRecorrente = {
+  categoria: string
+  valorMedio: number
+  recorrencia: string
+  leitura: string
+  acao?: string
+}
+
+// Tipo para Evidence Block colapsável (suporta HTML ou dados estruturados)
 export type EvidenceBlock = {
   titulo: string
-  conteudo: string // HTML ou texto
+  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis"
+  // Para tipo "html"
+  conteudo?: string
+  // Para tipo "movimento-mensal"
+  movimentos?: MovimentoMes[]
+  totalEntradas?: number
+  totalSaidas?: number
+  mediaEntradas?: number
+  mediaSaidas?: number
+  notaRodape?: string
+  // Para tipo "saidas-recorrentes"
+  saidas?: SaidaRecorrente[]
+  totalSaidas2?: number
+  // Para tipo "dois-paineis" (grid 2 colunas)
+  painelEsquerdo?: { titulo: string; conteudo: string }
+  painelDireito?: { titulo: string; conteudo: string }
 }
 
 // Tipo para CTA executivo
