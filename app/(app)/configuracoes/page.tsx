@@ -245,7 +245,7 @@ function Field({ field, emptyLabel }: { field: ConfiguracoesField; emptyLabel: s
         }`}
         style={isEmpty ? undefined : { color: "var(--brand-navy)" }}
       >
-        {isEmpty ? emptyLabel : field.value}
+        {isEmpty ? field.placeholder ?? emptyLabel : field.value}
       </div>
       {field.hint && <p className="mt-1.5 text-xs text-muted-foreground">{field.hint}</p>}
     </div>

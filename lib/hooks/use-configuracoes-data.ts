@@ -36,6 +36,7 @@ export type ConfiguracoesField = {
   label: string
   value: string | null
   hint?: string
+  placeholder?: string
 }
 
 export type ConfiguracoesToggle = {
@@ -140,13 +141,13 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
       eyebrow: "Implantação",
       title: "Configurações",
       description:
-        "Ajuste como o CFOup trabalha pra sua empresa: ciclos de fechamento, metas, tolerâncias e quem recebe os alertas.",
+        "Ajuste como o CFOup deve operar para sua empresa: cadastro, metas, alertas, relatórios e permissões.",
     },
 
     banner: {
-      title: "Configure suas conexões para ativar metas e alertas",
+      title: "Acelere o cadastro conectando suas fontes",
       description:
-        "Sem dados conectados o CFOup não consegue acompanhar metas nem disparar alertas. Conecte banco, NF-e e ERP pra liberar as preferências.",
+        "Conecte banco, ERP, NF-e ou arquivos para preencher informações automaticamente. O restante pode ser configurado manualmente.",
       ctaLabel: "Ir para Conexões",
       ctaHref: "/conexoes",
     },
@@ -154,31 +155,33 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     emptyFieldLabel: "Aguardando conexão",
 
     sections: [
-      { id: "empresa", label: "Empresa" },
+      { id: "empresa", label: "Cadastro da empresa" },
       { id: "metas", label: "Metas e tolerâncias" },
-      { id: "alertas", label: "Alertas" },
-      { id: "relatorios", label: "Relatórios" },
-      { id: "seguranca", label: "Segurança" },
+      { id: "alertas", label: "Alertas e notificações" },
+      { id: "relatorios", label: "Relatórios automáticos" },
+      { id: "seguranca", label: "Segurança e acesso" },
     ],
 
     empresa: {
       title: "Perfil da empresa",
-      description: "Essas informações servem de contexto para o CFOup.",
+      description: "Informações básicas que personalizam a análise do CFOup. Algumas são preenchidas automaticamente ao conectar fontes.",
       fields: {
-        razaoSocial: { label: "Razão social", value: null },
-        apelido: { label: "Apelido no CFOup", value: null },
-        setor: { label: "Setor de atuação", value: null },
-        moeda: { label: "Moeda padrão", value: null },
-        regime: { label: "Regime tributário", value: null },
-        inicioFiscal: { label: "Início do exercício fiscal", value: null },
+        razaoSocial: { label: "Razão social", value: null, placeholder: "Será buscado via CNPJ" },
+        apelido: { label: "Apelido no CFOup", value: null, placeholder: "Como sua empresa é chamada no dia a dia" },
+        setor: { label: "Setor de atuação", value: null, placeholder: "Selecionar setor" },
+        moeda: { label: "Moeda padrão", value: null, placeholder: "Real (BRL) é o padrão — alterar se necessário" },
+        regime: { label: "Regime tributário", value: null, placeholder: "Detectado via CNPJ ou selecionar manualmente" },
+        inicioFiscal: { label: "Início do exercício fiscal", value: null, placeholder: "Janeiro é o padrão — alterar se necessário" },
         contatoResponsavel: {
           label: "Contato responsável",
           value: contatoNome,
           hint: "Usuário logado no CFOup",
+          placeholder: "Não identificado",
         },
         emailResponsavel: {
           label: "E-mail do responsável",
           value: contatoEmail,
+          placeholder: "Não identificado",
         },
       },
     },
@@ -186,34 +189,38 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     metas: {
       title: "Metas e tolerâncias",
       description:
-        "Os limites que definem quando o CFOup levanta um alerta na Visão Geral.",
+        "Defina os limites que acionam alertas na Visão Geral. O CFOup compara seus dados com essas metas diariamente.",
       fields: {
         margemLiquida: {
           label: "Margem líquida alvo",
           value: null,
           hint: "Alerta quando ficar abaixo da meta",
+          placeholder: "Definir meta",
         },
         runway: {
           label: "Runway mínimo",
           value: null,
           hint: "Alerta crítico abaixo do piso definido",
+          placeholder: "Definir piso",
         },
         concentracao: {
           label: "Concentração máxima por cliente",
           value: null,
           hint: "Alerta acima desse valor",
+          placeholder: "Definir limite",
         },
         pmr: {
           label: "PMR tolerado",
           value: null,
           hint: "Alerta quando ultrapassa o prazo",
+          placeholder: "Definir prazo tolerado",
         },
       },
     },
 
     alertas: {
       title: "Alertas e comunicação",
-      description: `Escolha como o CFOup avisa a ${clienteAtual.empresa.nomeCurto} quando algo sair do combinado.`,
+      description: `Escolha como e quando o CFOup deve notificar a ${clienteAtual.empresa.nomeCurto}. Você pode ajustar a qualquer momento.`,
       toggles: [
         {
           id: "resumo-diario",
@@ -245,21 +252,24 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     relatorios: {
       title: "Relatórios e envios",
       description:
-        "Quem recebe, com que frequência e em qual formato. Definido após as conexões ativas.",
+        "Configure quem recebe os relatórios, com que frequência e em qual formato. Pode ser ajustado depois.",
       fields: {
         destinatarios: {
           label: "Destinatários",
           value: null,
           hint: "Ex.: diretoria, contador, sócios",
+          placeholder: "Adicionar destinatários",
         },
         frequencia: {
           label: "Frequência de envio",
           value: null,
+          placeholder: "Mensal é o padrão — alterar se necessário",
         },
         formato: {
           label: "Formato padrão",
           value: null,
           hint: "PDF executivo ou planilha detalhada",
+          placeholder: "PDF executivo é o padrão",
         },
       },
       toggles: [
@@ -281,20 +291,23 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     seguranca: {
       title: "Segurança e acesso",
       description:
-        "Controles de autenticação e auditoria. Ativados depois que os dados da empresa entrarem.",
+        "Controles de autenticação e auditoria para proteger os dados da empresa. Recomendamos ativar 2FA.",
       fields: {
         autenticacao: {
           label: "Autenticação em dois fatores",
           value: null,
           hint: "Recomendado para todos os administradores",
+          placeholder: "Configurar 2FA",
         },
         sessao: {
           label: "Expiração de sessão",
           value: null,
+          placeholder: "8 horas é o padrão — alterar se necessário",
         },
         ultimoAcesso: {
           label: "Último acesso registrado",
           value: null,
+          placeholder: "Registrado a cada acesso",
         },
       },
       toggles: [
