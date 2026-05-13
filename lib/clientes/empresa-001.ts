@@ -944,21 +944,39 @@ export const dadosCliente: AnaliseContabilData = {
       veredito: "A conta bancária analisada não está acumulando reserva — e a leitura final ainda depende de consolidar os demais bancos.",
       leitura: "Mesmo com muito movimento, esta conta quase não acumulou saldo ao longo de <strong>13 meses</strong>. Isso mostra que ela funciona mais como <strong>passagem</strong> do que como <strong>formação de reserva</strong>. Para entender se isso vem da operação ou de saídas fora dela, ainda falta consolidar os demais bancos.",
       kpis: [
-        { label: "Saldo inicial (05/03/2025)", valor: "R$ 20<span class='unit'>k</span>", delta: "validado por extrato físico", deltaType: "flat" },
-        { label: "Saldo atual (~31/03/2026)", valor: "R$ 34<span class='unit'>k</span>", delta: "+R$ 14k em 13 meses", deltaType: "flat" },
-        { label: "Meses positivos / negativos", valor: "6 / 7", delta: "Mais meses queimando que gerando", deltaType: "warn" },
-        { label: "Pior mês", valor: "−R$ 32<span class='unit'>k</span>", delta: "Novembro/2025", deltaType: "down" },
+        { label: "Saldo inicial (05/03/2025)", valor: "R$ 20<span class='unit'>k</span>", delta: "validado por extrato físico", deltaType: "flat" as const, href: "/fluxo-de-caixa" },
+        { label: "Saldo atual (~31/03/2026)", valor: "R$ 34<span class='unit'>k</span>", delta: "+R$ 14k em 13 meses", deltaType: "flat" as const, href: "/fluxo-de-caixa" },
+        { label: "Meses positivos / negativos", valor: "6 / 7", delta: "Mais meses queimando que gerando", deltaType: "warn" as const, href: "/fluxo-de-caixa" },
+        { label: "Pior mês", valor: "−R$ 32<span class='unit'>k</span>", delta: "Novembro/2025", deltaType: "down" as const, href: "/fluxo-de-caixa" },
       ],
       alertas: [
-        { nivel: "critico", titulo: "R$ 734k circulando fora do banco", texto: "O banco captou menos do que o sistema registra. <b>R$ 73k/mês</b> de fluxo invisível. <b>Confirmar com contador qual outra conta está ativa.</b>" },
-        { nivel: "atencao", titulo: "Sem reserva de caixa", texto: "+R$ 14k em 13 meses = <b>operação no empate</b>. Caixa atual cobre só 4 dias de saída." },
-        { nivel: "atencao", titulo: "Mais meses negativos que positivos", texto: "7 meses negativos contra 6 positivos. <b>Pior mês foi Nov/25 (R$ −32k)</b> — evento específico daquele mês." },
+        { nivel: "critico" as const, titulo: "R$ 734k circulando fora do banco", texto: "O banco captou menos do que o sistema registra. <b>R$ 73k/mês</b> de fluxo invisível. <b>Confirmar com contador qual outra conta está ativa.</b>", href: "/conexoes" },
+        { nivel: "atencao" as const, titulo: "Sem reserva de caixa", texto: "+R$ 14k em 13 meses = <b>operação no empate</b>. Caixa atual cobre só 4 dias de saída.", href: "/fluxo-de-caixa" },
+        { nivel: "atencao" as const, titulo: "Mais meses negativos que positivos", texto: "7 meses negativos contra 6 positivos. <b>Pior mês foi Nov/25 (R$ −32k)</b> — evento específico daquele mês.", href: "/fluxo-de-caixa" },
       ],
       acoes: [
-        { texto: "<b>Identificar a outra conta bancária</b> com o contador — verificar se é outra PJ ou conta pessoal.", meta: "R$ 73k/mês fora" },
-        { texto: "<b>Consolidar visão de caixa de TODAS as contas</b>.", meta: "Sem isso, projeção incompleta" },
-        { texto: "<b>Implementar fluxo de caixa de 13 semanas</b>, atualizado toda sexta.", meta: "Modelo existe" },
+        { texto: "<b>Identificar a outra conta bancária</b> com o contador — verificar se é outra PJ ou conta pessoal.", meta: "R$ 73k/mês fora", href: "/conexoes" },
+        { texto: "<b>Consolidar visão de caixa de TODAS as contas</b>.", meta: "Sem isso, projeção incompleta", href: "/conexoes" },
+        { texto: "<b>Implementar fluxo de caixa de 13 semanas</b>, atualizado toda sexta.", meta: "Modelo existe", href: "/fluxo-de-caixa" },
         { texto: "<b>Definir caixa mínimo operacional</b>: 1 mês de saída = R$ 254k.", meta: "Hoje R$ 34k = ~4 dias" },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Movimentação mensal detalhada (13 meses)",
+          conteudo: "<table style='width:100%; font-size:12px; border-collapse:collapse;'><tr style='border-bottom:1px solid var(--border);'><th style='text-align:left; padding:8px 0;'>Mês</th><th style='text-align:right; padding:8px 0;'>Entradas</th><th style='text-align:right; padding:8px 0;'>Saídas</th><th style='text-align:right; padding:8px 0;'>Saldo</th></tr><tr><td style='padding:6px 0;'>Mar/25</td><td style='text-align:right;'>R$ 89k</td><td style='text-align:right;'>R$ 82k</td><td style='text-align:right; color:var(--brand-green);'>+R$ 7k</td></tr><tr><td style='padding:6px 0;'>Abr/25</td><td style='text-align:right;'>R$ 76k</td><td style='text-align:right;'>R$ 91k</td><td style='text-align:right; color:var(--brand-red);'>−R$ 15k</td></tr><tr><td style='padding:6px 0;'>Nov/25</td><td style='text-align:right;'>R$ 54k</td><td style='text-align:right;'>R$ 86k</td><td style='text-align:right; color:var(--brand-red);'>−R$ 32k</td></tr></table><p style='margin-top:12px; font-size:11px; color:var(--brand-ink-muted);'>Tabela resumida. Dados completos disponíveis no Fluxo de Caixa.</p>",
+        },
+        {
+          titulo: "Principais saídas recorrentes",
+          conteudo: "<ul style='margin:0; padding-left:16px; font-size:13px;'><li style='margin-bottom:8px;'><b>Folha de pagamento:</b> R$ 68k/mês (média)</li><li style='margin-bottom:8px;'><b>Fornecedores:</b> R$ 145k/mês (média)</li><li style='margin-bottom:8px;'><b>Impostos:</b> R$ 28k/mês (média)</li><li><b>Outras saídas:</b> R$ 13k/mês (média)</li></ul>",
+        },
+      ],
+      ctas: [
+        {
+          eyebrow: "Próximo passo",
+          texto: "Conecte as demais contas bancárias para consolidar a visão completa de caixa e identificar onde estão os R$ 73k/mês que não aparecem neste banco.",
+          ctaLabel: "Conectar bancos",
+          href: "/conexoes",
+        },
       ],
       glossario: [
         { termo: "Fluxo de caixa", definicao: "= entrada e saída de dinheiro do banco ao longo do tempo." },

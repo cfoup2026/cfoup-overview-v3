@@ -9,7 +9,8 @@ export type KPI = {
   valor: string
   delta: string
   deltaType: "up" | "down" | "flat" | "warn"
-  highlight?: boolean // fundo amarelo
+  highlight?: boolean
+  href?: string
 }
 
 // Tipo genérico para Alerta
@@ -17,18 +18,34 @@ export type Alerta = {
   nivel: "critico" | "atencao" | "controle"
   titulo: string
   texto: string
+  href?: string
 }
 
 // Tipo genérico para Ação
 export type Acao = {
   texto: string
   meta: string
+  href?: string
 }
 
 // Tipo genérico para termo de glossário
 export type TermoGlossario = {
   termo: string
   definicao: string
+}
+
+// Tipo para Evidence Block colapsável
+export type EvidenceBlock = {
+  titulo: string
+  conteudo: string // HTML ou texto
+}
+
+// Tipo para CTA executivo
+export type CTA = {
+  eyebrow: string
+  texto: string
+  ctaLabel: string
+  href: string
 }
 
 // ---------------------------------------------------------------------
@@ -78,6 +95,8 @@ export type BlocoOperacional = {
   alertas: Alerta[]
   acoes: Acao[]
   glossario: TermoGlossario[]
+  evidenceBlocks?: EvidenceBlock[]
+  ctas?: CTA[]
 }
 
 // ---------------------------------------------------------------------
