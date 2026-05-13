@@ -106,19 +106,6 @@ export type AoContadorDadosCliente = {
   grupos: GrupoAoContador[]
 }
 
-// ---------------------------------------------------------------------
-// Tipos Conclusão
-// ---------------------------------------------------------------------
-export type CardConclusao = {
-  id: string
-  titulo: string
-  paragrafo: string
-}
-
-export type ConclusaoDadosCliente = {
-  cards: CardConclusao[]
-}
-
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
@@ -133,7 +120,6 @@ export type AnaliseContabilData = {
   balanco: BPDadosCliente
   indicadores: IndicadoresDadosCliente
   aoContador: AoContadorDadosCliente
-  conclusao: ConclusaoDadosCliente
 }
 
 // ---------------------------------------------------------------------
@@ -763,39 +749,6 @@ export const dadosCliente: AnaliseContabilData = {
           "O Livro Razão e o Livro Diário da empresa estão em dia? Pode disponibilizar?",
           "Houve alteração contratual nos últimos três anos — entrada ou saída de sócio, mudança de capital, mudança de objeto social?",
         ],
-      },
-    ],
-  },
-
-  // =====================================================================
-  // CONCLUSÃO — dados do cliente piloto
-  // =====================================================================
-  conclusao: {
-    cards: [
-      {
-        id: "vai-bem",
-        titulo: "A empresa vai bem",
-        paragrafo: "A empresa está melhor que a média das pequenas indústrias do Brasil. Não tem dívida, tem muito caixa, o lucro vem crescendo, e a margem está em 44%. Olhando só os números contábeis, não há nenhum sinal de problema financeiro.",
-      },
-      {
-        id: "dinheiro-parado",
-        titulo: "Mas tem dinheiro demais parado",
-        paragrafo: "Tanta saúde esconde um outro tema: R$ 1,45 milhão estão em banco, equivalente a 2 anos de despesa. Esse dinheiro não está virando máquina nova, não está sendo distribuído aos sócios, não está sendo usado em aquisição. O balanço registra como 'Bancos conta movimento', mas o contador e o dono precisam confirmar se está mesmo em conta corrente ou se parte está aplicado em algum lugar.",
-      },
-      {
-        id: "tres-duvidas",
-        titulo: "Três coisas que os números não respondem",
-        paragrafo: "Três dúvidas não podem ser resolvidas só olhando DRE e balanço: (1) por que o custo de produção caiu tanto em 2024 e ficou parado em 2025 — se foi mudança real ou reclassificação; (2) o que está dentro de 'Despesas Gerais', linha que cresceu 64% em três anos; (3) o que os sócios pretendem fazer com o R$ 1,45 milhão guardado. Enquanto essas três perguntas não forem respondidas, qualquer recomendação é só chute.",
-      },
-      {
-        id: "proximo-passo",
-        titulo: "Próximo passo",
-        paragrafo: "Obter as respostas do dono (sobre vendas, clientes, intenção com o caixa) e do contador (sobre como as contas foram lançadas, depreciação, apuração do Simples). Depois, cruzar com o fluxo de caixa real da empresa — contas a pagar, contas a receber, movimentação bancária — e com a operação que passa por outras empresas do grupo. Só depois disso é possível fazer uma recomendação financeira com base real.",
-      },
-      {
-        id: "resumo",
-        titulo: "Resumo em uma frase",
-        paragrafo: "A empresa é um caso raro: R$ 44 de lucro em cada R$ 100 vendidos, zero dívida, R$ 1,45 milhão em banco. O desafio não é ganhar dinheiro — é decidir o que fazer com ele.",
       },
     ],
   },
