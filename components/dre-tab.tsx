@@ -97,12 +97,12 @@ export function DRETab({ data }: { data: DREData }) {
           <ExecutiveCards
             leitura={{
               titulo: "Leitura da análise",
-              texto: "A Análise Vertical mostra o peso de cada linha sobre a Receita Líquida. Permite identificar onde o dinheiro está indo: quanto fica em custo, quanto em despesas operacionais, quanto sobra de lucro.",
+              texto: "Margem líquida de 44% em 2025 — estrutura de custos saudável, com CPV representando apenas 14% da receita. Despesas gerais consumiram 39% em 2025, subindo de 34% em 2023. A linha de impostos está zerada nos três exercícios — irregular para Lucro Presumido; confirmar tratamento fiscal com contador.",
             }}
             acoes={[
-              "Comparar margem bruta entre os anos para identificar pressão de custos",
-              "Verificar se despesas operacionais estão crescendo mais que a receita",
-              "Avaliar se o lucro líquido acompanha o crescimento do faturamento",
+              "Despesas gerais subiram de 34% para 39% da receita entre 2023 e 2025 — revisar composição e classificação contábil.",
+              "Impostos zerados em todos os períodos não condiz com Lucro Presumido; solicitar esclarecimento ao contador.",
+              "Margem líquida de 44% é forte, mas depende da consistência do tratamento fiscal para ser sustentável.",
             ]}
           />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
@@ -114,12 +114,12 @@ export function DRETab({ data }: { data: DREData }) {
           <ExecutiveCards
             leitura={{
               titulo: "Leitura da análise",
-              texto: "A Análise Horizontal mostra quanto cada linha cresceu ou caiu entre os períodos. Permite identificar tendências: o que está acelerando, o que está desacelerando, o que mudou de direção.",
+              texto: "Receita cresceu 46% entre 2023 e 2025, mas lucro líquido saltou 88% — ganho de alavancagem operacional real. CPV caiu 17% no período mesmo com receita subindo — eficiência produtiva ou reclassificação contábil? Despesas gerais cresceram 68%, acima da receita; exige atenção se virar tendência.",
             }}
             acoes={[
-              "Identificar linhas com variação acima de 20% — exigem explicação",
-              "Verificar se custos cresceram mais que receita (sinal de alerta)",
-              "Checar se lucro líquido acompanhou evolução da receita bruta",
+              "CPV caindo 17% enquanto receita cresce 46% é incomum — validar se houve mudança de critério ou terceirização.",
+              "Despesas gerais +68% no período superam o crescimento da receita; mapear composição para identificar origem.",
+              "Lucro bruto +64% vs Lucro líquido +88% indica ganho de escala; confirmar se estrutura de custos é replicável.",
             ]}
           />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
@@ -136,7 +136,7 @@ export function DRETab({ data }: { data: DREData }) {
 }
 
 // ---------------------------------------------------------------------
-// Executive Cards — leitura + ações
+// Executive Cards — leitura + ações (empilhados verticalmente)
 // ---------------------------------------------------------------------
 function ExecutiveCards({
   leitura,
@@ -146,7 +146,7 @@ function ExecutiveCards({
   acoes: string[]
 }) {
   return (
-    <div className="mt-6 grid gap-4 md:grid-cols-2 max-w-4xl">
+    <div className="mt-6 space-y-4 max-w-4xl">
       {/* Card: Leitura da análise */}
       <div className="rounded-xl border border-border bg-card p-5">
         <p
