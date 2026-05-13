@@ -150,9 +150,9 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
         >
           O que o DRE e o Balanço mostram juntos
         </h3>
-        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {data.fatos.map((fato) => (
-            <div key={fato.numero}>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-border">
+          {data.fatos.map((fato, idx) => (
+            <div key={fato.numero} className={idx > 0 ? "pt-6 md:pt-0 md:pl-8" : ""}>
               <h4
                 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
@@ -188,8 +188,8 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
         >
           Como usar este relatório
         </p>
-        <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-[140px_1fr]">
+        <div className="divide-y divide-border">
+          <div className="grid gap-4 pb-4 md:grid-cols-[140px_1fr]">
             <p
               className="text-[10px] font-semibold uppercase tracking-[0.18em]"
               style={{ color: "var(--brand-blue)" }}
@@ -200,7 +200,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               {renderBoldNavy(data.comoUsar.navegacao)}
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-[140px_1fr]">
+          <div className="grid gap-4 pt-4 md:grid-cols-[140px_1fr]">
             <p
               className="text-[10px] font-semibold uppercase tracking-[0.18em]"
               style={{ color: "var(--brand-blue)" }}
