@@ -18,11 +18,11 @@ import { ConclusaoTab } from "@/components/conclusao-tab"
 // Tabs config — matches HTML cfoup-tese
 // ---------------------------------------------------------------------
 const TABS: TabConfig[] = [
-  { id: "sintese", numeral: "01", label: "Síntese Executiva" },
+  { id: "sintese", numeral: "01", label: "Síntese" },
   { id: "dre", numeral: "02", label: "DRE" },
-  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
+  { id: "balanco", numeral: "03", label: "Balanço" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
-  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
+  { id: "perguntas-contador", numeral: "05", label: "Ao Contador" },
   { id: "glossario", numeral: "06", label: "Glossário" },
   { id: "conclusao", numeral: "07", label: "Conclusão" },
 ]
@@ -88,13 +88,6 @@ type SinteseData = AnaliseContabilData["sintese"]
 function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold tracking-tight leading-tight"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Síntese Executiva
-      </h2>
       <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {data.intro}
       </p>
