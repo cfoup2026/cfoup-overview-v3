@@ -115,8 +115,8 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 {kpi.label}
               </div>
               <div
-                className="text-[26px] font-medium leading-[1.05] tracking-[-0.01em]"
-                style={{ fontFamily: "var(--cfoup-font-serif)", color: "var(--brand-navy)" }}
+                className="text-[1.5rem] font-extrabold leading-[1.05] tracking-tight tabular-nums"
+                style={{ color: "var(--brand-navy)" }}
                 dangerouslySetInnerHTML={{ __html: kpi.valor }}
               />
               <div
