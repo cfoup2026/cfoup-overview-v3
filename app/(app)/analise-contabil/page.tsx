@@ -88,15 +88,54 @@ type SinteseData = AnaliseContabilData["sintese"]
 function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
-      <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {data.intro}
-      </p>
-
       {/* ============================================================ */}
-      {/* SYNTHESIS — caixa navy com 3 colunas                          */}
+      {/* RESUMO EXECUTIVO — card padrão                                */}
       {/* ============================================================ */}
       <div
         className="rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p className="max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          {data.intro}
+        </p>
+      </div>
+
+      {/* ============================================================ */}
+      {/* KPIs — 5 cards com border-left colorida                       */}
+      {/* ============================================================ */}
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+        {data.kpis.map((kpi, idx) => (
+          <div
+            key={kpi.label}
+            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
+            style={{ borderColor: "var(--border)" }}
+          >
+            {/* Border-left colorida */}
+            <span
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
+            />
+            <p className="mb-3 min-h-[28px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
+              {kpi.label}
+            </p>
+            <p
+              className="mb-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
+              style={{ color: "var(--brand-navy)" }}
+            >
+              {kpi.valor}
+            </p>
+            <p className="mt-auto text-[11px] leading-relaxed text-muted-foreground">
+              {kpi.comentario}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ============================================================ */}
+      {/* OS 3 FATOS QUE IMPORTAM — caixa com 3 colunas                  */}
+      {/* ============================================================ */}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
         style={{ background: "white" }}
       >
         <p
@@ -134,37 +173,6 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* ============================================================ */}
-      {/* KPIs — 5 cards com border-left colorida                       */}
-      {/* ============================================================ */}
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        {data.kpis.map((kpi, idx) => (
-          <div
-            key={kpi.label}
-            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
-            style={{ borderColor: "var(--border)" }}
-          >
-            {/* Border-left colorida */}
-            <span
-              className="absolute left-0 top-0 h-full w-[3px]"
-              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
-            />
-            <p className="mb-3 min-h-[28px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
-              {kpi.label}
-            </p>
-            <p
-              className="mb-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {kpi.valor}
-            </p>
-            <p className="mt-auto text-[11px] leading-relaxed text-muted-foreground">
-              {kpi.comentario}
-            </p>
-          </div>
-        ))}
       </div>
 
       {/* ============================================================ */}
