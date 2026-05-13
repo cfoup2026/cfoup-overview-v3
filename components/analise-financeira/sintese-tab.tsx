@@ -6,10 +6,10 @@ type Props = {
   dados: SinteseFinanceiraData
 }
 
-const NIVEL_LABEL: Record<string, string> = {
-  critico: "Crítico",
-  atencao: "Atenção",
-  controle: "Controle",
+const NIVEL_CONFIG: Record<string, { label: string; color: string }> = {
+  critico: { label: "Crítico", color: "var(--brand-red)" },
+  atencao: { label: "Atenção", color: "var(--brand-warning)" },
+  controle: { label: "Controle", color: "var(--brand-green)" },
 }
 
 export default function SinteseTab({ dados }: Props) {
@@ -30,13 +30,13 @@ export default function SinteseTab({ dados }: Props) {
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           KPIs-chave
         </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {dados.kpis.map((kpi, idx) => (
-            <div key={idx} className="space-y-1">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
-              <p className="text-lg font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>{kpi.valor}</p>
+            <div key={idx} className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
+              <p className="mt-1 text-xl font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>{kpi.valor}</p>
               {kpi.contexto && (
-                <p className="text-[11px] text-muted-foreground">{kpi.contexto}</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{kpi.contexto}</p>
               )}
             </div>
           ))}
@@ -49,16 +49,22 @@ export default function SinteseTab({ dados }: Props) {
           Alertas operacionais
         </p>
         <div className="divide-y divide-border">
-          {dados.alertas.map((alerta, idx) => (
-            <div key={idx} className="py-3 first:pt-0 last:pb-0">
-              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
-                <span className="mr-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  {NIVEL_LABEL[alerta.nivel] || alerta.nivel}
-                </span>
-                {alerta.texto}
-              </p>
-            </div>
-          ))}
+          {dados.alertas.map((alerta, idx) => {
+            const config = NIVEL_CONFIG[alerta.nivel] || { label: alerta.nivel, color: "var(--brand-blue)" }
+            return (
+              <div key={idx} className="py-3 first:pt-0 last:pb-0">
+                <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+                  <span
+                    className="mr-2 text-[10px] font-semibold uppercase tracking-wide"
+                    style={{ color: config.color }}
+                  >
+                    {config.label}
+                  </span>
+                  {alerta.texto}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -67,21 +73,21 @@ export default function SinteseTab({ dados }: Props) {
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Leitura executiva
         </p>
-        <div className="space-y-5">
+        <div className="grid gap-5 md:grid-cols-2">
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">A leitura principal</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>A leitura principal</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.principal}</p>
           </div>
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">O que funcionou</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que funcionou</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQueFuncionou}</p>
           </div>
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">O que preocupa</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que preocupa</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQuePreocupa}</p>
           </div>
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">O que fazer agora</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que fazer agora</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQueFazerAgora}</p>
           </div>
         </div>
@@ -95,7 +101,7 @@ export default function SinteseTab({ dados }: Props) {
         <div className="divide-y divide-border">
           {dados.acoes.map((acao, idx) => (
             <div key={idx} className="flex gap-4 py-3 first:pt-0 last:pb-0">
-              <span className="text-[13px] font-bold tabular-nums text-muted-foreground">{String(idx + 1).padStart(2, "0")}</span>
+              <span className="text-[13px] font-bold tabular-nums" style={{ color: "var(--brand-blue)" }}>{String(idx + 1).padStart(2, "0")}</span>
               <div>
                 <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
                   <strong className="font-semibold">{acao.titulo}</strong> — {acao.descricao}
