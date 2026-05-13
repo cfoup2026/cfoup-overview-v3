@@ -123,7 +123,7 @@ function EmptyTabState({ message }: { message: string }) {
         style={{ color: "var(--brand-navy)" }}
       >
         <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
-        Importar demonstrativos
+        Importar arquivos
       </Link>
     </section>
   )
