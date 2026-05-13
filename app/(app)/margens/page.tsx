@@ -1,8 +1,9 @@
-import { TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { PageHeader } from "@/components/page-header"
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
+"use client"
 
-type Status = "saudavel" | "pressionando" | "risco" | "estavel"
+import { TrendingUp, TrendingDown, Minus, Plug } from "lucide-react"
+import Link from "next/link"
+import { PageHeader } from "@/components/page-header"
+import { useIndicadores, type Indicator, type Status } from "@/lib/hooks/use-indicadores"
 
 const STATUS_STYLES: Record<Status, { color: string; bg: string }> = {
   saudavel: { color: "var(--brand-green)", bg: "rgba(54,186,88,0.10)" },
@@ -18,111 +19,42 @@ const STATUS_LABELS: Record<Status, string> = {
   estavel: "Estável",
 }
 
-type Indicator = {
-  label: string
-  value: string
-  delta: string
-  refText: string
-  status: Status
-  leitura: string
-}
-
-const INDICADORES: Indicator[] = [
-  {
-    label: "Margem operacional",
-    value: "9,8%",
-    delta: "caiu 0,4 ponto",
-    refText: "pressão em despesa fixa",
-    status: "pressionando",
-    leitura: "Resultado pressionado em R$ 14k no mês.",
-  },
-  {
-    label: "Prazo médio de estoque",
-    value: "54 dias",
-    delta: "subiu 6 dias",
-    refText: "giro caiu",
-    status: "risco",
-    leitura: "R$ 92k a mais presos do que em janeiro.",
-  },
-  {
-    label: "Margem bruta",
-    value: "32,4%",
-    delta: "subiu 1,1 ponto",
-    refText: "vs. ano anterior",
-    status: "saudavel",
-    leitura: "Ainda segura parte da pressão da operação.",
-  },
-  {
-    label: "Prazo médio de recebimento",
-    value: "38 dias",
-    delta: "caiu 3 dias",
-    refText: "melhor desde jan",
-    status: "saudavel",
-    leitura: "Cliente pagando mais rápido.",
-  },
-  {
-    label: "Margem líquida",
-    value: "7,2%",
-    delta: "subiu 0,2 ponto",
-    refText: "mês fechado",
-    status: "saudavel",
-    leitura: "Lucro final ainda positivo, mas com pouco espaço.",
-  },
-  {
-    label: "Prazo médio de pagamento",
-    value: "26 dias",
-    delta: "subiu 1 dia",
-    refText: "ritmo mantido",
-    status: "estavel",
-    leitura: "Fornecedor pago no mesmo ritmo.",
-  },
-  {
-    label: "Ponto de equilíbrio",
-    value: "R$ 248k/mês",
-    delta: "",
-    refText: "piso da operação",
-    status: "estavel",
-    leitura: "Valor mínimo para o mês fechar no zero.",
-  },
-  {
-    label: "Receita do mês",
-    value: "R$ 312k",
-    delta: "+R$ 64k acima do ponto",
-    refText: "folga sobre o piso",
-    status: "saudavel",
-    leitura: "Operação acima do equilíbrio em R$ 64k.",
-  },
-]
-
 function gerarLeituraCFOup(indicadores: Indicator[]): { h2: string; paragrafo: string } {
+  // Guarda inicial — sem dados conectados, retorna leitura honesta
+  if (indicadores.length === 0) {
+    return {
+      h2: "Aguardando conexão dos dados.",
+      paragrafo:
+        "A leitura do CFOup aparece quando o banco, sistema de NF-e ou ERP estiver conectado.",
+    }
+  }
+
   // Encontra indicadores em alerta (Pressionando ou Risco)
   const alertas = indicadores.filter((i) => i.status === "pressionando" || i.status === "risco")
-  
-  // Encontra indicadores saudáveis relevantes
-  const saudaveis = indicadores.filter((i) => i.status === "saudavel")
-  
+
   // Encontra ponto de equilíbrio e receita para posição geral
   const pontoEquilibrio = indicadores.find((i) => i.label === "Ponto de equilíbrio")
   const receita = indicadores.find((i) => i.label === "Receita do mês")
-  
+
   // Monta h2: posição geral + 1 a 2 maiores sinais de atenção
   let h2 = "Operação acima do ponto de equilíbrio"
-  
+
   if (alertas.length > 0) {
     const sinais = alertas.slice(0, 2).map((a) => {
       // Traduz label para linguagem natural
-      const labelNatural = a.label === "Prazo médio de estoque" ? "estoque" :
-                          a.label === "Prazo médio de recebimento" ? "recebimento" :
-                          a.label === "Prazo médio de pagamento" ? "pagamento ao fornecedor" :
-                          a.label.toLowerCase()
-      
+      const labelNatural =
+        a.label === "Prazo médio de estoque" ? "estoque" :
+        a.label === "Prazo médio de recebimento" ? "recebimento" :
+        a.label === "Prazo médio de pagamento" ? "pagamento ao fornecedor" :
+        a.label.toLowerCase()
+
       // Formata delta para incluir valor
       if (a.label.includes("Prazo")) {
         return `${labelNatural} subiu para ${a.value}`
       }
       return `${labelNatural} ${a.delta}`
     })
-    
+
     if (sinais.length === 1) {
       h2 += `, mas com um sinal de atenção: ${sinais[0]}.`
     } else {
@@ -131,14 +63,14 @@ function gerarLeituraCFOup(indicadores: Indicator[]): { h2: string; paragrafo: s
   } else {
     h2 += ", sem sinais de alerta no momento."
   }
-  
+
   // Monta parágrafo: folga ou sinal saudável + impacto
   let paragrafo = ""
-  
+
   if (receita && pontoEquilibrio) {
     paragrafo = "A folga existe"
   }
-  
+
   if (alertas.length > 0) {
     const causas = alertas.map((a) => {
       if (a.label === "Margem operacional") return "despesa fixa"
@@ -149,21 +81,26 @@ function gerarLeituraCFOup(indicadores: Indicator[]): { h2: string; paragrafo: s
   } else {
     paragrafo = "Indicadores equilibrados, sem pressão imediata."
   }
-  
+
   return { h2, paragrafo }
 }
 
 function gerarAtencaoAgora(indicadores: Indicator[]): string {
+  // Guarda inicial — sem dados conectados, retorna ação honesta
+  if (indicadores.length === 0) {
+    return "Dados insuficientes para indicar ação. Conecte banco, sistema de NF-e ou ERP para o CFOup gerar a próxima ação."
+  }
+
   const alertas = indicadores.filter((i) => i.status === "pressionando" || i.status === "risco")
   const saudaveis = indicadores.filter((i) => i.status === "saudavel")
-  
+
   if (alertas.length === 0) {
     return "Nenhuma ação urgente no momento. Manter acompanhamento dos indicadores."
   }
-  
+
   // Gera ações práticas baseadas nos alertas
   const acoes: string[] = []
-  
+
   for (const alerta of alertas) {
     if (alerta.label === "Margem operacional") {
       acoes.push("validar despesa fixa do mês")
@@ -178,32 +115,38 @@ function gerarAtencaoAgora(indicadores: Indicator[]): string {
       acoes.push("verificar renegociação com fornecedor")
     }
   }
-  
+
   // Negação explícita de causa nos indicadores saudáveis
   const negacoes: string[] = []
-  
+
   const recebimentoSaudavel = saudaveis.find((i) => i.label === "Prazo médio de recebimento")
   const pagamentoSaudavel = saudaveis.find((i) => i.label === "Prazo médio de pagamento" || i.status === "estavel")
-  
+
   if (recebimentoSaudavel) negacoes.push("recebimento")
-  if (pagamentoSaudavel || indicadores.find((i) => i.label === "Prazo médio de pagamento" && i.status === "estavel")) {
+  if (
+    pagamentoSaudavel ||
+    indicadores.find((i) => i.label === "Prazo médio de pagamento" && i.status === "estavel")
+  ) {
     negacoes.push("fornecedor")
   }
-  
-  let resultado = acoes.length > 0 
-    ? acoes.map((a) => a.charAt(0).toUpperCase() + a.slice(1)).join(" e ") + "."
-    : ""
-  
+
+  let resultado =
+    acoes.length > 0
+      ? acoes.map((a) => a.charAt(0).toUpperCase() + a.slice(1)).join(" e ") + "."
+      : ""
+
   if (negacoes.length > 0 && acoes.length > 0) {
     resultado += ` Esses ${acoes.length === 1 ? "ponto explica" : "dois pontos explicam"} melhor a pressão atual do que ${negacoes.join(" ou ")}.`
   }
-  
+
   return resultado
 }
 
 export default function IndicadoresPage() {
-  const leituraCFOup = gerarLeituraCFOup(INDICADORES)
-  const atencaoAgora = gerarAtencaoAgora(INDICADORES)
+  const { hasConnections, indicadores } = useIndicadores()
+  const leituraCFOup = gerarLeituraCFOup(indicadores)
+  const atencaoAgora = gerarAtencaoAgora(indicadores)
+
   return (
     <>
       <PageHeader eyebrow="Mesa de Decisão" title="Indicadores" />
@@ -224,12 +167,33 @@ export default function IndicadoresPage() {
         </p>
       </section>
 
-      {/* Grid de indicadores — 4 colunas */}
-      <section className="mb-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {INDICADORES.map((ind) => (
-          <IndicatorCard key={ind.label} {...ind} />
-        ))}
-      </section>
+      {/* Grid de indicadores — só quando há dados */}
+      {hasConnections ? (
+        <section className="mb-3 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {indicadores.map((ind) => (
+            <IndicatorCard key={ind.label} {...ind} />
+          ))}
+        </section>
+      ) : (
+        <section className="mb-3 rounded-2xl border border-border bg-card p-5 md:p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Indicadores
+          </p>
+          <h2 className="mt-1 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
+            Aguardando conexão dos dados.
+          </h2>
+          <p className="mt-2 text-[13px] leading-relaxed text-[var(--slate-700)]">
+            Margem, prazos, ponto de equilíbrio e receita aparecem aqui quando o banco, sistema de NF-e ou ERP estiver conectado.
+          </p>
+          <Link
+            href="/conexoes"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-[var(--brand-navy)] transition hover:border-[var(--brand-blue)]/40"
+          >
+            <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Ir para Conexões
+          </Link>
+        </section>
+      )}
 
       {/* Bloco final — Atenção agora */}
       <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
@@ -252,7 +216,12 @@ function IndicatorCard({ label, value, delta, refText, status, leitura }: Indica
   const statusLabel = STATUS_LABELS[status]
 
   const hasDelta = delta.length > 0
-  const IconComponent = delta.startsWith("+") || delta.startsWith("subiu") ? TrendingUp : delta.startsWith("−") || delta.startsWith("-") || delta.startsWith("caiu") ? TrendingDown : Minus
+  const IconComponent =
+    delta.startsWith("+") || delta.startsWith("subiu")
+      ? TrendingUp
+      : delta.startsWith("−") || delta.startsWith("-") || delta.startsWith("caiu")
+      ? TrendingDown
+      : Minus
 
   const deltaColor =
     status === "saudavel" ? "var(--brand-green-dark)" :

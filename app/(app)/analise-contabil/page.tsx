@@ -76,8 +76,8 @@ const KPI_BORDER_COLORS = [
   "var(--brand-green)",
   "var(--brand-blue)",
   "var(--brand-cyan)",
-  "var(--warn)",
-  "var(--warn)",
+  "var(--brand-warning)",
+  "var(--brand-warning)",
 ]
 
 // ---------------------------------------------------------------------
@@ -90,15 +90,12 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
     <section>
       {/* H2 + lede */}
       <h2
-        className="mb-2 text-[20px] md:text-[26px] font-extrabold tracking-tight leading-tight"
+        className="mb-2 text-lg md:text-[1.3rem] font-extrabold tracking-tight leading-tight"
         style={{ color: "var(--brand-navy)" }}
       >
         Síntese Executiva
       </h2>
-      <p
-        className="mb-8 max-w-[1180px] text-[15.5px] leading-[1.65]"
-        style={{ color: "var(--muted-html)" }}
-      >
+      <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {data.intro}
       </p>
 
@@ -106,17 +103,17 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       {/* SYNTHESIS — caixa navy com 3 colunas                          */}
       {/* ============================================================ */}
       <div
-        className="rounded-[14px] border border-border p-9 md:p-10"
+        className="rounded-2xl border border-border p-6 md:p-8"
         style={{ background: "white" }}
       >
         <p
-          className="mb-5 text-[11px] font-semibold uppercase tracking-[0.15em]"
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
           Os três fatos que importam
         </p>
         <h3
-          className="mb-1.5 text-base md:text-lg font-bold leading-snug"
+          className="mb-2 text-base md:text-lg font-bold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
           O que o DRE e o Balanço mostram juntos
@@ -125,21 +122,19 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           {data.fatos.map((fato) => (
             <div key={fato.numero}>
               <h4
-                className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em]"
+                className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
               >
                 {fato.numero} · {fato.titulo}
               </h4>
               <p
-                className="text-[13.5px] leading-[1.65]"
+                className="text-[13px] leading-relaxed"
                 style={{ color: "var(--brand-navy)" }}
               >
                 {renderBoldNavy(fato.corpo)}
               </p>
               {fato.chatCfoup && (
-                <em
-                  className="mt-2.5 block text-[12.5px] text-muted-foreground"
-                >
+                <em className="mt-3 block text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                   Chat CFOup: {fato.chatCfoup}
                 </em>
               )}
@@ -156,29 +151,23 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           <div
             key={kpi.label}
             className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
-            style={{ borderColor: "var(--line)" }}
+            style={{ borderColor: "var(--border)" }}
           >
             {/* Border-left colorida */}
             <span
               className="absolute left-0 top-0 h-full w-[3px]"
               style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
             />
-            <p
-              className="mb-3 min-h-[28px] text-[10.5px] font-semibold uppercase leading-[1.3] tracking-[0.1em]"
-              style={{ color: "var(--muted-html)" }}
-            >
+            <p className="mb-3 min-h-[28px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
               {kpi.label}
             </p>
             <p
-              className="mb-2.5 text-[20px] md:text-[24px] font-extrabold leading-tight tabular-nums"
+              className="mb-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
               style={{ color: "var(--brand-navy)" }}
             >
               {kpi.valor}
             </p>
-            <p
-              className="mt-auto text-[11.5px] leading-[1.5]"
-              style={{ color: "var(--muted-html)" }}
-            >
+            <p className="mt-auto text-[11px] leading-relaxed text-muted-foreground">
               {kpi.comentario}
             </p>
           </div>
@@ -189,45 +178,31 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       {/* Como usar — notes                                             */}
       {/* ============================================================ */}
       <h3
-        className="mb-3 mt-10 text-[17px] font-semibold tracking-[-0.005em]"
+        className="mb-3 mt-10 text-base font-bold"
         style={{ color: "var(--brand-navy)" }}
       >
         Como usar este relatório
       </h3>
-      <div
-        className="rounded-xl border bg-white py-2"
-        style={{ borderColor: "var(--line)" }}
-      >
-        <div
-          className="grid gap-6 border-b px-7 py-4 md:grid-cols-[140px_1fr]"
-          style={{ borderColor: "var(--line)" }}
-        >
+      <div className="rounded-xl border border-border bg-card py-2">
+        <div className="grid gap-6 border-b border-border px-7 py-4 md:grid-cols-[140px_1fr]">
           <p
-            className="pt-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em]"
+            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             Navegação
           </p>
-          <p
-            className="text-[14px] leading-[1.65]"
-            style={{ color: "#243042" }}
-          >
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
             {renderBoldNavy(data.comoUsar.navegacao)}
           </p>
         </div>
-        <div
-          className="grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr]"
-        >
+        <div className="grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr]">
           <p
-            className="pt-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em]"
+            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             O que analisamos
           </p>
-          <p
-            className="text-[14px] leading-[1.65]"
-            style={{ color: "#243042" }}
-          >
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
             {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
           </p>
         </div>
@@ -262,54 +237,49 @@ function GlossarioInline({
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="mt-14 border-t pt-8" style={{ borderColor: "var(--line)" }}>
+    <div className="mt-14 border-t border-border pt-8">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between rounded-[10px] border bg-white px-6 py-4 text-left transition hover:border-[color:var(--brand-cyan)] hover:bg-[#FAFCFF]"
-        style={{ borderColor: "var(--line)" }}
+        className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-6 py-4 text-left transition hover:border-[color:var(--brand-cyan)] hover:bg-muted"
       >
         <span className="flex items-center gap-3">
           <span
-            className="text-[10.5px] font-bold uppercase tracking-[0.14em]"
+            className="text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-blue)" }}
           >
             Glossário
           </span>
           <span
-            className="text-[13.5px] font-semibold tracking-[0.02em]"
+            className="text-[13px] font-semibold"
             style={{ color: "var(--brand-navy)" }}
           >
             Termos usados na {label}
           </span>
         </span>
         <span
-          className={`flex h-[22px] w-[22px] items-center justify-center rounded-full text-[16px] leading-none transition-transform ${
-            open ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-[#EEF3F9] text-[color:var(--brand-blue)]"
+          className={`flex h-6 w-6 items-center justify-center rounded-full text-[16px] leading-none transition-transform ${
+            open ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-muted text-[color:var(--brand-blue)]"
           }`}
         >
           +
         </span>
       </button>
       <div
-        className={`overflow-hidden rounded-b-[10px] border border-t-0 bg-white transition-all ${
+        className={`overflow-hidden rounded-b-xl border border-t-0 border-border bg-card transition-all ${
           open ? "max-h-[3000px] border-dashed border-t" : "max-h-0 border-transparent"
         }`}
-        style={{ borderColor: open ? "var(--line)" : "transparent" }}
       >
         <div className="px-7 pb-2 pt-6">
           {glossario.map((item) => (
-            <div key={item.termo} className="border-b py-3.5 last:border-b-0" style={{ borderColor: "#F0F3F8" }}>
+            <div key={item.termo} className="border-b border-border py-4 last:border-b-0">
               <p
-                className="mb-1 text-[14px] font-semibold tracking-[-0.005em]"
+                className="mb-1 text-[13px] font-semibold"
                 style={{ color: "var(--brand-navy)" }}
               >
                 {item.termo}
               </p>
-              <p
-                className="text-[13.5px] leading-[1.6]"
-                style={{ color: "#3D4D66" }}
-              >
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
                 {item.definicao}
               </p>
             </div>

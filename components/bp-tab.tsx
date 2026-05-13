@@ -39,12 +39,12 @@ function getPctClass(pct: number, direcao: BPLinhaAH["direcaoFavoravel"]): strin
   if (direcao === "neutra") return ""
   const isFavoravel =
     (direcao === "cresce" && pct >= 0) || (direcao === "cai" && pct <= 0)
-  return isFavoravel ? "text-[color:var(--pos)]" : "text-[color:var(--neg)]"
+  return isFavoravel ? "text-[color:var(--brand-green)]" : "text-[color:var(--brand-error-soft)]"
 }
 
 const NOTE_LABEL_COLOR = {
-  positivo: "var(--pos)",
-  atencao: "var(--warn)",
+  positivo: "var(--brand-green)",
+  atencao: "var(--brand-warning)",
   info: "var(--brand-blue)",
 }
 
@@ -60,20 +60,17 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
     <section>
       {/* H2 + lede */}
       <h2
-        className="mb-2 text-[30px] leading-[1.1] tracking-[-0.01em]"
-        style={{ fontFamily: "var(--cfoup-font-serif)", fontWeight: 500, color: "var(--brand-navy)" }}
+        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
+        style={{ color: "var(--brand-navy)" }}
       >
         Balanço Patrimonial
       </h2>
-      <p
-        className="mb-6 max-w-[1180px] text-[15.5px] leading-[1.65]"
-        style={{ color: "var(--muted-html)" }}
-      >
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoBP.intro}
       </p>
 
       {/* Subtabs */}
-      <div className="mb-6 flex w-fit gap-1 rounded-[10px] p-1" style={{ background: "#EEF3F9" }}>
+      <div className="mb-6 flex w-fit gap-1 rounded-xl bg-muted p-1">
         {(["vertical", "horizontal", "comentarios"] as View[]).map((v) => {
           const isActive = view === v
           const label = v === "vertical" ? "Análise Vertical" : v === "horizontal" ? "Análise Horizontal" : "Comentários"
@@ -81,8 +78,8 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`rounded-[7px] px-4 py-2 text-[12.5px] font-semibold tracking-[0.02em] transition ${
-                isActive ? "bg-[color:var(--brand-blue)] text-white" : "bg-transparent text-[color:var(--muted-html)] hover:text-[color:var(--brand-blue)]"
+              className={`rounded-lg px-4 py-2 text-[12px] font-semibold transition ${
+                isActive ? "bg-[color:var(--brand-blue)] text-white" : "bg-transparent text-muted-foreground hover:text-[color:var(--brand-blue)]"
               }`}
             >
               {label}
@@ -103,49 +100,49 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
 function ViewVertical({ dados }: { dados: BPDadosCliente }) {
   return (
     <div>
-      <p className="mb-2 max-w-[1180px] text-[13.5px]" style={{ color: "var(--muted-html)" }}>
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoBP.legendaAV}
       </p>
-      <div className="overflow-hidden rounded-xl shadow-[0_1px_3px_rgba(7,29,59,0.04),0_8px_24px_rgba(7,29,59,0.04)]" style={{ background: "#fff" }}>
+      <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "34%" }}>Conta</th>
-              <th colSpan={2} className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2023</th>
-              <th colSpan={2} className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2024</th>
-              <th colSpan={2} className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2025</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}>Conta</th>
+              <th colSpan={2} className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2023</th>
+              <th colSpan={2} className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2024</th>
+              <th colSpan={2} className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2025</th>
             </tr>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-2" style={{ borderColor: "var(--line)" }} />
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>R$</th>
-              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>AV</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-2" style={{ borderColor: "var(--border)" }} />
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>R$</th>
+              <th className="border-b-2 px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>AV</th>
             </tr>
           </thead>
           <tbody>
             {dados.linhasAV.map((linha, idx) => {
               const isLast = idx === dados.linhasAV.length - 1
-              let rowStyle: React.CSSProperties = { color: "#1F2A3D" }
+              let rowStyle: React.CSSProperties = { color: "var(--brand-navy)" }
               let rowClass = ""
               let labelClass = ""
               if (linha.isHeaderSecao) {
-                rowStyle = { background: "#F4F8FD", color: "var(--brand-navy)" }
+                rowStyle = { background: "var(--muted)", color: "var(--brand-navy)" }
                 rowClass = "font-extrabold"
                 labelClass = "text-[12px] uppercase tracking-[0.08em]"
               } else if (linha.isSubtotal) {
-                rowStyle = { background: "#F4F8FD", color: "var(--brand-navy)" }
+                rowStyle = { background: "var(--muted)", color: "var(--brand-navy)" }
                 rowClass = "font-semibold"
               }
               return (
-                <tr key={linha.id} className={`border-b hover:bg-[color:var(--tbl-row-hover)] ${rowClass} ${isLast ? "border-b-0" : ""}`} style={{ ...rowStyle, borderColor: "var(--line)" }}>
-                  <td className={`px-3 py-2.5 pl-6 text-left font-medium ${labelClass}`}>{linha.label}</td>
+                <tr key={linha.id} className={`border-b hover:bg-muted/50 ${rowClass} ${isLast ? "border-b-0" : ""}`} style={{ ...rowStyle, borderColor: "var(--border)" }}>
+                  <td className={`px-3 py-2 pl-6 text-left font-medium ${labelClass}`}>{linha.label}</td>
                   {linha.valores.map((v) => (
                     <>
-                      <td key={`${v.ano}-rs`} className="px-3 py-2.5 text-right tabular-nums">{formatBRL(v.rs)}</td>
-                      <td key={`${v.ano}-av`} className="px-3 py-2.5 text-right tabular-nums"><span className="inline-block min-w-[48px] pl-1.5 text-right text-[11px] font-medium">{formatPct(v.av)}</span></td>
+                      <td key={`${v.ano}-rs`} className="px-3 py-2 text-right tabular-nums">{formatBRL(v.rs)}</td>
+                      <td key={`${v.ano}-av`} className="px-3 py-2 text-right tabular-nums"><span className="inline-block min-w-[48px] pl-2 text-right text-[11px] font-medium">{formatPct(v.av)}</span></td>
                     </>
                   ))}
                 </tr>
@@ -161,43 +158,43 @@ function ViewVertical({ dados }: { dados: BPDadosCliente }) {
 function ViewHorizontal({ dados }: { dados: BPDadosCliente }) {
   return (
     <div>
-      <p className="mb-2 max-w-[1180px] text-[13.5px]" style={{ color: "var(--muted-html)" }}>{conteudoBP.legendaAH}</p>
-      <div className="overflow-hidden rounded-xl shadow-[0_1px_3px_rgba(7,29,59,0.04),0_8px_24px_rgba(7,29,59,0.04)]" style={{ background: "#fff" }}>
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{conteudoBP.legendaAH}</p>
+      <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
           <thead>
-            <tr style={{ background: "var(--tbl-header-bg)" }}>
-              <th className="border-b-2 px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)", width: "38%" }}>Conta</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2023</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2024</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>2025</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 24/23</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 25/24</th>
-              <th className="border-b-2 px-3 py-3.5 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--line)", color: "var(--brand-navy)" }}>Δ 25/23</th>
+            <tr className="bg-muted">
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "38%" }}>Conta</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2023</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2024</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2025</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 24/23</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 25/24</th>
+              <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Δ 25/23</th>
             </tr>
           </thead>
           <tbody>
             {dados.linhasAH.map((linha, idx) => {
               const isLast = idx === dados.linhasAH.length - 1
-              let rowStyle: React.CSSProperties = { color: "#1F2A3D" }
+              let rowStyle: React.CSSProperties = { color: "var(--brand-navy)" }
               let rowClass = ""
               let labelClass = ""
               if (linha.isHeaderSecao) {
-                rowStyle = { background: "#F4F8FD", color: "var(--brand-navy)" }
+                rowStyle = { background: "var(--muted)", color: "var(--brand-navy)" }
                 rowClass = "font-extrabold"
                 labelClass = "text-[12px] uppercase tracking-[0.08em]"
               } else if (linha.isSubtotal) {
-                rowStyle = { background: "#F4F8FD", color: "var(--brand-navy)" }
+                rowStyle = { background: "var(--muted)", color: "var(--brand-navy)" }
                 rowClass = "font-semibold"
               }
               return (
-                <tr key={linha.id} className={`border-b hover:bg-[color:var(--tbl-row-hover)] ${rowClass} ${isLast ? "border-b-0" : ""}`} style={{ ...rowStyle, borderColor: "var(--line)" }}>
-                  <td className={`px-3 py-2.5 pl-6 text-left font-medium ${labelClass}`}>{linha.label}</td>
+                <tr key={linha.id} className={`border-b hover:bg-muted/50 ${rowClass} ${isLast ? "border-b-0" : ""}`} style={{ ...rowStyle, borderColor: "var(--border)" }}>
+                  <td className={`px-3 py-2 pl-6 text-left font-medium ${labelClass}`}>{linha.label}</td>
                   {linha.valores.map((v) => (
-                    <td key={v.ano} className="px-3 py-2.5 text-right tabular-nums">{linha.isHeaderSecao ? "—" : formatBRL(v.rs)}</td>
+                    <td key={v.ano} className="px-3 py-2 text-right tabular-nums">{linha.isHeaderSecao ? "—" : formatBRL(v.rs)}</td>
                   ))}
                   {linha.deltas.map((d) => (
-                    <td key={d.intervalo} className="px-3 py-2.5 text-right tabular-nums">
-                      <span className={`inline-block min-w-[48px] pl-1.5 text-right text-[11px] font-medium ${linha.isHeaderSecao ? "" : getPctClass(d.pct, linha.direcaoFavoravel)}`}>
+                    <td key={d.intervalo} className="px-3 py-2 text-right tabular-nums">
+                      <span className={`inline-block min-w-[48px] pl-2 text-right text-[11px] font-medium ${linha.isHeaderSecao ? "" : getPctClass(d.pct, linha.direcaoFavoravel)}`}>
                         {linha.isHeaderSecao ? "—" : formatPct(d.pct, true)}
                       </span>
                     </td>
@@ -214,14 +211,14 @@ function ViewHorizontal({ dados }: { dados: BPDadosCliente }) {
 
 function ViewComentarios({ dados }: { dados: BPDadosCliente }) {
   return (
-    <div className="rounded-xl border bg-white py-2" style={{ borderColor: "var(--line)" }}>
+    <div className="rounded-xl border border-border bg-card py-2">
       {dados.comentarios.map((c, idx) => {
         const labelColor = NOTE_LABEL_COLOR[c.status] || "var(--brand-blue)"
         const isLast = idx === dados.comentarios.length - 1
         return (
-          <div key={c.id} className={`grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr] ${isLast ? "" : "border-b"}`} style={{ borderColor: "var(--line)" }}>
-            <p className="pt-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em]" style={{ color: labelColor }}>{c.titulo}</p>
-            <p className="text-[14px] leading-[1.65]" style={{ color: "#243042" }}>{renderBold(c.corpo)}</p>
+          <div key={c.id} className={`grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr] ${isLast ? "" : "border-b border-border"}`}>
+            <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: labelColor }}>{c.titulo}</p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{renderBold(c.corpo)}</p>
           </div>
         )
       })}
@@ -232,20 +229,20 @@ function ViewComentarios({ dados }: { dados: BPDadosCliente }) {
 function GlossarioInline({ glossario, label }: { glossario: { termo: string; definicao: string }[]; label: string }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="mt-14 border-t pt-8" style={{ borderColor: "var(--line)" }}>
-      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between rounded-[10px] border bg-white px-6 py-4 text-left transition hover:border-[color:var(--brand-cyan)] hover:bg-[#FAFCFF]" style={{ borderColor: "var(--line)" }}>
+    <div className="mt-14 border-t border-border pt-8">
+      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-6 py-4 text-left transition hover:border-[color:var(--brand-cyan)] hover:bg-muted">
         <span className="flex items-center gap-3">
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--brand-blue)" }}>Glossário</span>
-          <span className="text-[13.5px] font-semibold tracking-[0.02em]" style={{ color: "var(--brand-navy)" }}>Termos usados no {label}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>Glossário</span>
+          <span className="text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>Termos usados no {label}</span>
         </span>
-        <span className={`flex h-[22px] w-[22px] items-center justify-center rounded-full text-[16px] leading-none transition-transform ${open ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-[#EEF3F9] text-[color:var(--brand-blue)]"}`}>+</span>
+        <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[16px] leading-none transition-transform ${open ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-muted text-[color:var(--brand-blue)]"}`}>+</span>
       </button>
-      <div className={`overflow-hidden rounded-b-[10px] border border-t-0 bg-white transition-all ${open ? "max-h-[3000px] border-dashed border-t" : "max-h-0 border-transparent"}`} style={{ borderColor: open ? "var(--line)" : "transparent" }}>
+      <div className={`overflow-hidden rounded-b-xl border border-t-0 border-border bg-card transition-all ${open ? "max-h-[3000px] border-dashed border-t" : "max-h-0 border-transparent"}`}>
         <div className="px-7 pb-2 pt-6">
           {glossario.map((item) => (
-            <div key={item.termo} className="border-b py-3.5 last:border-b-0" style={{ borderColor: "#F0F3F8" }}>
-              <p className="mb-1 text-[14px] font-semibold tracking-[-0.005em]" style={{ color: "var(--brand-navy)" }}>{item.termo}</p>
-              <p className="text-[13.5px] leading-[1.6]" style={{ color: "#3D4D66" }}>{item.definicao}</p>
+            <div key={item.termo} className="border-b border-border py-4 last:border-b-0">
+              <p className="mb-1 text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>{item.termo}</p>
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{item.definicao}</p>
             </div>
           ))}
         </div>

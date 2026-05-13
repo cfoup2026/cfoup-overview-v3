@@ -55,29 +55,26 @@ export function AnalysisShell({
           {/* Brand text (eyebrow + subtitulo) */}
           <div className="mb-6">
             <p
-              className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
               style={{ color: "var(--brand-blue)" }}
             >
               {eyebrow}
             </p>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {subtitulo}
             </p>
           </div>
 
           {/* H1 */}
           <h1
-            className="mb-2 text-[20px] font-extrabold leading-tight tracking-tight md:text-[26px]"
+            className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
             style={{ color: "var(--brand-navy)" }}
           >
             {empresa.nome}
           </h1>
 
           {/* Descrição */}
-          <p
-            className="mb-5 max-w-[1180px] text-[13px] font-light leading-[1.55] md:text-[14px]"
-            style={{ color: "var(--slate-700)" }}
-          >
+          <p className="mb-5 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
             {descricao}
           </p>
 
@@ -88,7 +85,7 @@ export function AnalysisShell({
                 <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                   {c.label}
                 </p>
-                <p className="mt-0.5 text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
+                <p className="mt-1 text-[13px] font-medium" style={{ color: "var(--brand-navy)" }}>
                   {c.value}
                 </p>
               </div>
@@ -99,14 +96,14 @@ export function AnalysisShell({
 
         {/* TABS NAV */}
         <nav className="border-b border-border bg-background px-8 md:px-10 lg:px-12">
-        <div className="flex gap-1 overflow-x-auto">
+        <div className="flex gap-2 overflow-x-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-baseline gap-1.5 whitespace-nowrap rounded-t-md px-2 py-3 transition-colors ${
+                className={`flex items-baseline gap-2 whitespace-nowrap rounded-t-lg px-2 py-3 transition-colors ${
                   isActive
                     ? "text-foreground"
                     : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
@@ -119,17 +116,12 @@ export function AnalysisShell({
                 }}
               >
                 <span
-                  className="text-[10px] font-medium"
+                  className="text-[10px] font-semibold"
                   style={{ color: "var(--brand-blue)" }}
                 >
                   {tab.numeral}
                 </span>
-                <span
-                  className="text-sm"
-                  style={{
-                    fontWeight: isActive ? 700 : 500,
-                  }}
-                >
+                <span className={`text-[13px] ${isActive ? "font-bold" : "font-medium"}`}>
                   {tab.label}
                 </span>
               </button>
