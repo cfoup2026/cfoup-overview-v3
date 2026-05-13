@@ -110,6 +110,8 @@ export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
   emitidoEm: string
+  fontesRecebidas: string
+  statusAnalise: "Completa" | "Parcial" | "Aguardando arquivos"
   sintese: {
     intro: string
     fatos: { numero: string; titulo: string; corpo: string; chatCfoup: string }[]
@@ -134,6 +136,8 @@ export const dadosCliente: AnaliseContabilData = {
   },
   periodos: ["2023", "2024", "2025"],
   emitidoEm: "21/04/2026",
+  fontesRecebidas: "DRE, Balanço Patrimonial",
+  statusAnalise: "Completa",
 
   sintese: {
     intro:

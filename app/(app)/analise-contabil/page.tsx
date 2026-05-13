@@ -37,8 +37,8 @@ export default function AnaliseContabilPage() {
       chips={[
         { label: "PERÍODO ANALISADO", value: data.periodos.join(" · ") },
         { label: "REGIME TRIBUTÁRIO", value: data.empresa.regime },
-        { label: "FONTES RECEBIDAS", value: "DRE, Balanço Patrimonial" },
-        { label: "STATUS DA ANÁLISE", value: "Completa" },
+        { label: "FONTES RECEBIDAS", value: data.fontesRecebidas },
+        { label: "STATUS DA ANÁLISE", value: data.statusAnalise },
       ]}
       subtitulo="Leitura dos demonstrativos contábeis recebidos."
       descricao=""
