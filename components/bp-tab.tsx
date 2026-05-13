@@ -197,7 +197,7 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
 
 function ViewVertical({ dados }: { dados: BPDadosCliente }) {
   return (
-    <div>
+    <div className="max-w-4xl">
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
           <thead>
@@ -252,7 +252,7 @@ function ViewVertical({ dados }: { dados: BPDadosCliente }) {
 
 function ViewHorizontal({ dados }: { dados: BPDadosCliente }) {
   return (
-    <div>
+    <div className="max-w-5xl">
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
           <thead>
