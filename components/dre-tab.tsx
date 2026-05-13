@@ -71,7 +71,7 @@ export function DRETab({ data }: { data: DREData }) {
       >
         Demonstração do Resultado
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {data.intro}
       </p>
 
@@ -119,7 +119,7 @@ function ViewVertical({ data }: { data: DREData }) {
   return (
     <div>
       {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {renderBold(data.legendaAV)}
       </p>
 
@@ -226,7 +226,7 @@ function ViewHorizontal({ data }: { data: DREData }) {
   return (
     <div>
       {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {renderBold(data.legendaAH)}
       </p>
 

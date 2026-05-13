@@ -95,7 +95,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       >
         Síntese Executiva
       </h2>
-      <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {data.intro}
       </p>
 
@@ -134,7 +134,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
                 {renderBoldNavy(fato.corpo)}
               </p>
               {fato.chatCfoup && (
-                <em className="mt-3 block text-[12px] text-muted-foreground">
+                <em className="mt-3 block text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>
                   Chat CFOup: {fato.chatCfoup}
                 </em>
               )}

@@ -65,7 +65,7 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
       >
         Balanço Patrimonial
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoBP.intro}
       </p>
 
@@ -100,7 +100,7 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
 function ViewVertical({ dados }: { dados: BPDadosCliente }) {
   return (
     <div>
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoBP.legendaAV}
       </p>
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
@@ -158,7 +158,7 @@ function ViewVertical({ dados }: { dados: BPDadosCliente }) {
 function ViewHorizontal({ dados }: { dados: BPDadosCliente }) {
   return (
     <div>
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">{conteudoBP.legendaAH}</p>
+      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{conteudoBP.legendaAH}</p>
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
           <thead>

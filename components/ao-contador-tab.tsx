@@ -21,7 +21,7 @@ export function AoContadorTab({ dados }: Props) {
       >
         Perguntas ao Contador
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoAoContador.intro}
       </p>
 
@@ -37,7 +37,7 @@ export function AoContadorTab({ dados }: Props) {
               {grupo.numero}. {grupo.titulo}
             </h3>
             {/* Contexto */}
-            <p className="mb-3 text-[12px] italic text-muted-foreground">
+            <p className="mb-3 text-[12px] italic" style={{ color: "var(--brand-ink-muted)" }}>
               {grupo.contexto}
             </p>
             {/* Lista */}

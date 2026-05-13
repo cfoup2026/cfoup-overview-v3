@@ -50,7 +50,7 @@ export function GlossarioTab() {
       >
         Glossário
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         Todos os termos contábeis e financeiros usados neste relatório, explicados em linguagem simples.
       </p>
 

@@ -22,7 +22,7 @@ export function ConclusaoTab({ dados }: { dados: ConclusaoDadosCliente }) {
       >
         Conclusão
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoConclusao.intro}
       </p>
 

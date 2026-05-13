@@ -33,7 +33,7 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
       >
         Indicadores
       </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed text-muted-foreground">
+      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
         {conteudoIndicadores.intro}
       </p>
 
@@ -65,7 +65,7 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
                   {linha.valoresPorAno.map((v) => (
                     <td key={v.ano} className="px-3 py-2 text-right tabular-nums" style={{ color: "var(--brand-navy)" }}>{v.valor}</td>
                   ))}
-                  <td className="px-3 py-2 text-left text-[12px] text-muted-foreground">{linha.explicacao}</td>
+                  <td className="px-3 py-2 text-left text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>{linha.explicacao}</td>
                 </tr>
               )
             })}
