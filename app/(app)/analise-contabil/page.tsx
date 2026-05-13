@@ -107,7 +107,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
         {data.kpis.map((kpi, idx) => (
           <div
             key={kpi.label}
-            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
+            className="relative flex min-h-[120px] flex-col overflow-hidden rounded-xl border bg-white px-4 py-3"
             style={{ borderColor: "var(--border)" }}
           >
             {/* Border-left colorida */}
@@ -115,16 +115,16 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
               className="absolute left-0 top-0 h-full w-[3px]"
               style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
             />
-            <p className="mb-3 min-h-[28px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
+            <p className="mb-1.5 min-h-[24px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
               {kpi.label}
             </p>
             <p
-              className="mb-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
+              className="mb-1.5 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
               style={{ color: "var(--brand-navy)" }}
             >
               {kpi.valor}
             </p>
-            <p className="mt-auto text-[11px] leading-relaxed text-muted-foreground">
+            <p className="mt-auto text-[11px] leading-snug text-muted-foreground">
               {kpi.comentario}
             </p>
           </div>
