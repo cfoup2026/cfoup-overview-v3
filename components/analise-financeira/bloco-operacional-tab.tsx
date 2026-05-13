@@ -120,7 +120,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 dangerouslySetInnerHTML={{ __html: kpi.valor }}
               />
               <div
-                className={`mt-2 text-[12px] font-medium ${kpi.deltaType === "neutral" ? "text-muted-foreground" : ""}`}
+                className={`mt-2 text-[12px] font-medium tabular-nums ${kpi.deltaType === "neutral" ? "text-muted-foreground" : ""}`}
                 style={
                   kpi.deltaType === "up"
                     ? { color: "var(--brand-green)" }
