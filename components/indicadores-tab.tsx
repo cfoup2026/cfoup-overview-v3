@@ -26,30 +26,15 @@ const NOTE_LABEL_COLOR = {
 export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Indicadores
-      </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {conteudoIndicadores.intro}
-      </p>
-
       {/* Tabela */}
-      <div className="overflow-hidden rounded-xl bg-card shadow-sm">
+      <div className="max-w-4xl overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
-          <caption className="px-6 pb-2 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            Principais indicadores — o que cada um responde
-          </caption>
           <thead>
             <tr className="bg-muted">
-              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}>Indicador</th>
+              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>Indicador</th>
               <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2023</th>
               <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2024</th>
               <th className="border-b-2 px-3 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)" }}>2025</th>
-              <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "34%" }}>O que quer dizer</th>
             </tr>
           </thead>
           <tbody>
@@ -65,7 +50,6 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
                   {linha.valoresPorAno.map((v) => (
                     <td key={v.ano} className="px-3 py-2 text-right tabular-nums" style={{ color: "var(--brand-navy)" }}>{v.valor}</td>
                   ))}
-                  <td className="px-3 py-2 text-left text-[12px]" style={{ color: "var(--brand-ink-muted)" }}>{linha.explicacao}</td>
                 </tr>
               )
             })}
@@ -73,27 +57,25 @@ export function IndicadoresTab({ dados }: { dados: IndicadoresDadosCliente }) {
         </table>
       </div>
 
-      {/* H3 + notes */}
-      <h3
-        className="mb-3 mt-8 text-base font-bold"
-        style={{ color: "var(--brand-navy)" }}
+      {/* Bloco: O que esses números dizem no conjunto — card padrão */}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
       >
-        O que esses números dizem no conjunto
-      </h3>
-      <div className="rounded-xl border border-border bg-card py-2">
-        {dados.comentarios.map((c, idx) => {
-          const labelColor = NOTE_LABEL_COLOR[c.status] || "var(--brand-blue)"
-          const isLast = idx === dados.comentarios.length - 1
-          return (
-            <div
-              key={c.id}
-              className={`grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr] ${isLast ? "" : "border-b border-border"}`}
-            >
-              <p className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: labelColor }}>{c.titulo}</p>
+        <p
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          O que esses números dizem no conjunto
+        </p>
+        <div className="divide-y divide-border">
+          {dados.comentarios.map((c) => (
+            <div key={c.id} className="grid gap-4 py-4 first:pt-0 last:pb-0 md:grid-cols-[140px_1fr]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: NOTE_LABEL_COLOR[c.status] || "var(--brand-blue)" }}>{c.titulo}</p>
               <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{renderBold(c.corpo)}</p>
             </div>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Glossário inline */}
