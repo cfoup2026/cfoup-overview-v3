@@ -137,7 +137,7 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     hasConnections: false,
 
     header: {
-      eyebrow: "Preferências",
+      eyebrow: "Implantação",
       title: "Configurações",
       description:
         "Ajuste como o CFOup trabalha pra sua empresa: ciclos de fechamento, metas, tolerâncias e quem recebe os alertas.",
