@@ -3,12 +3,6 @@
 import { useState } from "react"
 import type { BlocoOperacional } from "@/lib/types/analise-financeira"
 
-// ---------------------------------------------------------------------
-// BlocoOperacionalTab — componente reutilizável para abas A-F
-// Estrutura: section-head + verdict + headline + kpis + alerts + actions + glossary
-// CSS classes baseadas em analise-financeira.html
-// ---------------------------------------------------------------------
-
 type Props = {
   letra: string
   titulo: string
@@ -99,13 +93,10 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                   : "var(--card)",
               }}
             >
-              {/* Border-left */}
               <span
                 className="absolute left-0 top-0 h-full w-[3px]"
                 style={{
-                  background: kpi.highlight
-                    ? "var(--brand-warning)"
-                    : "var(--brand-cyan)",
+                  background: kpi.highlight ? "var(--brand-warning)" : "var(--brand-cyan)",
                 }}
               />
               <div
@@ -179,10 +170,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                     ? "Atenção"
                     : "Sob controle"}
               </span>
-              <div
-                className="mb-2 text-[13px] font-semibold"
-                style={{ color: "var(--brand-navy)" }}
-              >
+              <div className="mb-2 text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
                 {alerta.titulo}
               </div>
               <div
@@ -195,10 +183,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         </div>
 
         {/* Actions (navy background) */}
-        <div
-          className="mb-4 rounded-2xl p-6 md:p-8"
-          style={{ background: "var(--brand-navy)" }}
-        >
+        <div className="mb-4 rounded-2xl p-6 md:p-8" style={{ background: "var(--brand-navy)" }}>
           <h4
             className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "var(--brand-cyan)" }}
@@ -253,13 +238,13 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
             <div className="mt-[-1px] rounded-b-xl border border-t border-dashed border-border bg-card px-7 pb-2 pt-6">
               {dados.glossario.map((item, idx) => (
                 <div key={idx} className="border-b border-border py-4 last:border-b-0">
-                  <dt
-                    className="mb-1 text-[13px] font-semibold"
-                    style={{ color: "var(--brand-navy)" }}
-                  >
+                  <dt className="mb-1 text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
                     {item.termo}
                   </dt>
-                  <dd className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+                  <dd
+                    className="m-0 text-[13px] leading-relaxed"
+                    style={{ color: "var(--brand-ink-muted)" }}
+                  >
                     {item.definicao}
                   </dd>
                 </div>
