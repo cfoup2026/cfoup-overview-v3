@@ -94,34 +94,14 @@ export function DRETab({ data }: { data: DREData }) {
       {view === "vertical" && (
         <>
           <ViewVertical data={data} />
-          <ExecutiveCards
-            leitura={{
-              titulo: "Leitura da análise",
-              texto: "Margem líquida de 44% em 2025 — estrutura de custos saudável, com CPV representando apenas 14% da receita. Despesas gerais consumiram 39% em 2025, subindo de 34% em 2023. A linha de impostos está zerada nos três exercícios — irregular para Lucro Presumido; confirmar tratamento fiscal com contador.",
-            }}
-            acoes={[
-              "Despesas gerais subiram de 34% para 39% da receita entre 2023 e 2025 — revisar composição e classificação contábil.",
-              "Impostos zerados em todos os períodos não condiz com Lucro Presumido; solicitar esclarecimento ao contador.",
-              "Margem líquida de 44% é forte, mas depende da consistência do tratamento fiscal para ser sustentável.",
-            ]}
-          />
+          <ExecutiveCardsAV />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
         </>
       )}
       {view === "horizontal" && (
         <>
           <ViewHorizontal data={data} />
-          <ExecutiveCards
-            leitura={{
-              titulo: "Leitura da análise",
-              texto: "Receita cresceu 46% entre 2023 e 2025, mas lucro líquido saltou 88% — ganho de alavancagem operacional real. CPV caiu 17% no período mesmo com receita subindo — eficiência produtiva ou reclassificação contábil? Despesas gerais cresceram 68%, acima da receita; exige atenção se virar tendência.",
-            }}
-            acoes={[
-              "CPV caindo 17% enquanto receita cresce 46% é incomum — validar se houve mudança de critério ou terceirização.",
-              "Despesas gerais +68% no período superam o crescimento da receita; mapear composição para identificar origem.",
-              "Lucro bruto +64% vs Lucro líquido +88% indica ganho de escala; confirmar se estrutura de custos é replicável.",
-            ]}
-          />
+          <ExecutiveCardsAH />
           <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
         </>
       )}
@@ -136,27 +116,22 @@ export function DRETab({ data }: { data: DREData }) {
 }
 
 // ---------------------------------------------------------------------
-// Executive Cards — leitura + ações (empilhados verticalmente)
+// Executive Cards AV — análise proporcional (peso sobre receita líquida)
+// Números extraídos diretamente da tabela linhasAV em empresa-001.ts
 // ---------------------------------------------------------------------
-function ExecutiveCards({
-  leitura,
-  acoes,
-}: {
-  leitura: { titulo: string; texto: string }
-  acoes: string[]
-}) {
+function ExecutiveCardsAV() {
   return (
-    <div className="mt-6 space-y-4 max-w-4xl">
+    <div className="mt-6 space-y-4">
       {/* Card: Leitura da análise */}
       <div className="rounded-xl border border-border bg-card p-5">
         <p
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
-          {leitura.titulo}
+          Leitura da análise
         </p>
         <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-          {leitura.texto}
+          Margem líquida avançou 16 pontos entre 2023 e 2025 (28,4% → 44,4%). O CPV caiu de 38,9% para 24,4% da receita líquida no período — principal ganho de margem. Despesas com pessoal reduziram de 20,7% para 17,3%. Despesas gerais subiram de 10,9% para 13,7%.
         </p>
       </div>
 
@@ -169,19 +144,65 @@ function ExecutiveCards({
           Pontos de ação — DRE
         </p>
         <ul className="space-y-2">
-          {acoes.map((acao, idx) => (
-            <li
-              key={idx}
-              className="flex items-start gap-2 text-[13px] leading-relaxed"
-              style={{ color: "var(--brand-ink-muted)" }}
-            >
-              <span
-                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ background: "var(--brand-blue)" }}
-              />
-              {acao}
-            </li>
-          ))}
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            CPV caiu 14,5 pontos (38,9% → 24,4%) — verificar se houve mudança de critério contábil ou ganho real de eficiência.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Despesas gerais subiram 2,8 pontos (10,9% → 13,7%) — mapear composição para entender origem do aumento.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Lucro bruto saltou de 61,1% para 75,6% da receita líquida — estrutura de custos está mais leve.
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Executive Cards AH — análise temporal (evolução entre períodos)
+// Números extraídos diretamente da tabela linhasAH em empresa-001.ts
+// ---------------------------------------------------------------------
+function ExecutiveCardsAH() {
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Card: Leitura da análise */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Leitura da análise
+        </p>
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          Receita líquida cresceu +30,8% entre 2023 e 2025. Lucro líquido cresceu +104,7% no mesmo período (R$ 474.849 → R$ 971.923). CPV caiu -18,0% em valor absoluto, mesmo com receita subindo. Despesas gerais cresceram +64,2%, acima da receita.
+        </p>
+      </div>
+
+      {/* Card: Pontos de ação */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Pontos de ação — DRE
+        </p>
+        <ul className="space-y-2">
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            CPV caiu -18,0% enquanto receita cresceu +30,8% — validar se houve mudança de critério ou terceirização.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Despesas gerais cresceram +64,2% no período, acima da receita (+30,8%) — investigar composição.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Lucro bruto cresceu +62,0% vs lucro líquido +104,7% — ganho de alavancagem operacional confirmado.
+          </li>
         </ul>
       </div>
     </div>
