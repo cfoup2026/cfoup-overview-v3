@@ -176,36 +176,41 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       </div>
 
       {/* ============================================================ */}
-      {/* Como usar — notes                                             */}
+      {/* Como usar — card padrão                                       */}
       {/* ============================================================ */}
-      <h3
-        className="mb-3 mt-10 text-base font-bold"
-        style={{ color: "var(--brand-navy)" }}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
       >
-        Como usar este relatório
-      </h3>
-      <div className="rounded-xl border border-border bg-card py-2">
-        <div className="grid gap-6 border-b border-border px-7 py-4 md:grid-cols-[140px_1fr]">
-          <p
-            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            Navegação
-          </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            {renderBoldNavy(data.comoUsar.navegacao)}
-          </p>
-        </div>
-        <div className="grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr]">
-          <p
-            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            O que analisamos
-          </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
-          </p>
+        <p
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Como usar este relatório
+        </p>
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-[140px_1fr]">
+            <p
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "var(--brand-blue)" }}
+            >
+              Navegação
+            </p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              {renderBoldNavy(data.comoUsar.navegacao)}
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-[140px_1fr]">
+            <p
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "var(--brand-blue)" }}
+            >
+              O que analisamos
+            </p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
+            </p>
+          </div>
         </div>
       </div>
 

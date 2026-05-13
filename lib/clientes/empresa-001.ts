@@ -160,7 +160,7 @@ export const dadosCliente: AnaliseContabilData = {
         corpo:
           "De cada R$ 100 vendidos, sobravam **R$ 61 em 2023** depois de pagar o custo de produção. Em **2024 foram R$ 68**. Em **2025, R$ 76**. No lucro final (depois de todas as despesas), eram **R$ 28 em 2023, R$ 31 em 2024 e R$ 44 em 2025** para cada R$ 100 vendidos.",
         chatCfoup:
-          "Chat CFOup: entender o que mudou na estrutura de custos antes de projetar 2026 em cima desse novo patamar.",
+          "Entender o que mudou na estrutura de custos antes de projetar 2026 em cima desse novo patamar.",
       },
       {
         numero: "02",
@@ -168,7 +168,7 @@ export const dadosCliente: AnaliseContabilData = {
         corpo:
           "O saldo em conta bancária passou de **R$ 679 mil em 2023** para **R$ 955 mil em 2024** e **R$ 1,45 milhão em 2025**. Sem dívida, sem grande investimento, sem distribuição formal.",
         chatCfoup:
-          "Chat CFOup: o balanço registra o valor como 'Bancos conta movimento'. Se estiver em conta corrente, perde pra inflação. Se estiver em aplicação, deveria estar lançado como 'Aplicações Financeiras'. Se estiver em outra empresa do grupo, não apareceria aqui. Vale confirmar onde esse dinheiro está de fato.",
+          "O balanço registra o valor como 'Bancos conta movimento'. Se estiver em conta corrente, perde pra inflação. Se estiver em aplicação, deveria estar lançado como 'Aplicações Financeiras'. Se estiver em outra empresa do grupo, não apareceria aqui. Vale confirmar onde esse dinheiro está de fato.",
       },
       {
         numero: "03",
@@ -176,7 +176,7 @@ export const dadosCliente: AnaliseContabilData = {
         corpo:
           "Capital social de **R$ 5 mil**. Lucro acumulado: **R$ 1,45 milhão**. Nos últimos três anos, a empresa deu quase R$ 2 milhões de lucro e não tem registro de nenhuma distribuição formal aos sócios.",
         chatCfoup:
-          "Chat CFOup: formalizar distribuição anual de lucros é isenta de IR, protege o sócio em caso de fiscalização, e libera capital pessoal para diversificar patrimônio fora da empresa.",
+          "Formalizar distribuição anual de lucros é isenta de IR, protege o sócio em caso de fiscalização, e libera capital pessoal para diversificar patrimônio fora da empresa.",
       },
     ],
 
