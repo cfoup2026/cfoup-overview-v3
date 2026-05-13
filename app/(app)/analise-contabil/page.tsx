@@ -37,15 +37,15 @@ export default function AnaliseContabilPage() {
   return (
     <AnalysisShell
       empresa={{ nome: data.empresa.nome }}
-      eyebrow="CFOup · Análise Contábil"
+      eyebrow="CFOUP · ANÁLISE CONTÁBIL"
       chips={[
-        { label: "EXERCÍCIOS", value: data.periodos.join(" · ") },
-        { label: "CNPJ", value: data.empresa.cnpj },
-        { label: "REGIME", value: data.empresa.regime },
-        { label: "EMITIDO EM", value: data.emitidoEm },
+        { label: "PERÍODO ANALISADO", value: data.periodos.join(" · ") },
+        { label: "REGIME TRIBUTÁRIO", value: data.empresa.regime },
+        { label: "FONTES RECEBIDAS", value: "DRE, Balanço Patrimonial" },
+        { label: "STATUS DA ANÁLISE", value: "Completa" },
       ]}
-      subtitulo="Demonstração do Resultado · Balanço Patrimonial"
-      descricao={`Análise do DRE e do Balanço Patrimonial de ${data.periodos.join(", ")} para embasar as próximas decisões financeiras da empresa.`}
+      subtitulo="Leitura dos demonstrativos contábeis recebidos."
+      descricao=""
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
