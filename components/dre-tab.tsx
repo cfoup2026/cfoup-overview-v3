@@ -64,17 +64,6 @@ export function DRETab({ data }: { data: DREData }) {
 
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Demonstração do Resultado
-      </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {data.intro}
-      </p>
-
       {/* Subtabs — matches HTML .subtabs */}
       <div className="mb-6 flex w-fit gap-1 rounded-xl bg-muted p-1">
         {(["vertical", "horizontal", "comentarios"] as View[]).map((v) => {
@@ -102,13 +91,121 @@ export function DRETab({ data }: { data: DREData }) {
       </div>
 
       {/* Views */}
-      {view === "vertical" && <ViewVertical data={data} />}
-      {view === "horizontal" && <ViewHorizontal data={data} />}
-      {view === "comentarios" && <ViewComentarios data={data} />}
-
-      {/* Glossário inline */}
-      <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+      {view === "vertical" && (
+        <>
+          <ViewVertical data={data} />
+          <ExecutiveCardsAV />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
+      {view === "horizontal" && (
+        <>
+          <ViewHorizontal data={data} />
+          <ExecutiveCardsAH />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
+      {view === "comentarios" && (
+        <>
+          <ViewComentarios data={data} />
+          <GlossarioInline glossario={conteudoDRE.glossario} label="DRE" />
+        </>
+      )}
     </section>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Executive Cards AV — análise proporcional (peso sobre receita líquida)
+// Números extraídos diretamente da tabela linhasAV em empresa-001.ts
+// ---------------------------------------------------------------------
+function ExecutiveCardsAV() {
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Card: Leitura da análise */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Leitura da análise
+        </p>
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          Margem líquida avançou 16 pontos entre 2023 e 2025 (28,4% → 44,4%). O CPV caiu de 38,9% para 24,4% da receita líquida no período — principal ganho de margem. Despesas com pessoal reduziram de 20,7% para 17,3%. Despesas gerais subiram de 10,9% para 13,7%.
+        </p>
+      </div>
+
+      {/* Card: Pontos de ação */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Pontos de ação — DRE
+        </p>
+        <ul className="space-y-2">
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            CPV caiu 14,5 pontos (38,9% → 24,4%) — verificar se houve mudança de critério contábil ou ganho real de eficiência.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Despesas gerais subiram 2,8 pontos (10,9% → 13,7%) — mapear composição para entender origem do aumento.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Lucro bruto saltou de 61,1% para 75,6% da receita líquida — estrutura de custos está mais leve.
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Executive Cards AH — análise temporal (evolução entre períodos)
+// Números extraídos diretamente da tabela linhasAH em empresa-001.ts
+// ---------------------------------------------------------------------
+function ExecutiveCardsAH() {
+  return (
+    <div className="mt-6 space-y-4">
+      {/* Card: Leitura da análise */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Leitura da análise
+        </p>
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          Receita líquida cresceu +30,8% entre 2023 e 2025. Lucro líquido cresceu +104,7% no mesmo período (R$ 474.849 → R$ 971.923). CPV caiu -18,0% em valor absoluto, mesmo com receita subindo. Despesas gerais cresceram +64,2%, acima da receita.
+        </p>
+      </div>
+
+      {/* Card: Pontos de ação */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p
+          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Pontos de ação — DRE
+        </p>
+        <ul className="space-y-2">
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            CPV caiu -18,0% enquanto receita cresceu +30,8% — validar se houve mudança de critério ou terceirização.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Despesas gerais cresceram +64,2% no período, acima da receita (+30,8%) — investigar composição.
+          </li>
+          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+            Lucro bruto cresceu +62,0% vs lucro líquido +104,7% — ganho de alavancagem operacional confirmado.
+          </li>
+        </ul>
+      </div>
+    </div>
   )
 }
 
@@ -117,18 +214,10 @@ export function DRETab({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewVertical({ data }: { data: DREData }) {
   return (
-    <div>
-      {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {renderBold(data.legendaAV)}
-      </p>
-
+    <div className="max-w-4xl">
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
-          <caption className="px-6 pb-2 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            DRE — peso de cada linha sobre a Receita Líquida
-          </caption>
           <thead>
             <tr className="bg-muted">
               <th
@@ -224,18 +313,10 @@ function ViewVertical({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewHorizontal({ data }: { data: DREData }) {
   return (
-    <div>
-      {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {renderBold(data.legendaAH)}
-      </p>
-
+    <div className="max-w-5xl">
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
-          <caption className="px-6 pb-2 pt-4 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            DRE — quanto cada linha cresceu ou caiu entre os anos
-          </caption>
           <thead>
             <tr className="bg-muted">
               <th className="border-b-2 px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ borderColor: "var(--border)", color: "var(--brand-navy)", width: "38%" }}>Linha</th>

@@ -11,20 +11,16 @@ import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
-import { GlossarioTab } from "@/components/glossario-tab"
-import { ConclusaoTab } from "@/components/conclusao-tab"
 
 // ---------------------------------------------------------------------
 // Tabs config — matches HTML cfoup-tese
 // ---------------------------------------------------------------------
 const TABS: TabConfig[] = [
-  { id: "sintese", numeral: "01", label: "Síntese Executiva" },
+  { id: "sintese", numeral: "01", label: "Síntese" },
   { id: "dre", numeral: "02", label: "DRE" },
-  { id: "balanco", numeral: "03", label: "Balanço Patrimonial" },
+  { id: "balanco", numeral: "03", label: "Balanço" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
-  { id: "perguntas-contador", numeral: "05", label: "Perguntas ao Contador" },
-  { id: "glossario", numeral: "06", label: "Glossário" },
-  { id: "conclusao", numeral: "07", label: "Conclusão" },
+  { id: "perguntas-contador", numeral: "05", label: "Ao Contador" },
 ]
 
 // ---------------------------------------------------------------------
@@ -37,15 +33,15 @@ export default function AnaliseContabilPage() {
   return (
     <AnalysisShell
       empresa={{ nome: data.empresa.nome }}
-      eyebrow="CFOup · Análise Contábil"
+      eyebrow="CFOUP · ANÁLISE CONTÁBIL"
       chips={[
-        { label: "EXERCÍCIOS", value: data.periodos.join(" · ") },
-        { label: "CNPJ", value: data.empresa.cnpj },
-        { label: "REGIME", value: data.empresa.regime },
-        { label: "EMITIDO EM", value: data.emitidoEm },
+        { label: "PERÍODO ANALISADO", value: data.periodos.join(" · ") },
+        { label: "REGIME TRIBUTÁRIO", value: data.empresa.regime },
+        { label: "FONTES RECEBIDAS", value: "DRE, Balanço Patrimonial" },
+        { label: "STATUS DA ANÁLISE", value: "Completa" },
       ]}
-      subtitulo="Demonstração do Resultado · Balanço Patrimonial"
-      descricao={`Análise do DRE e do Balanço Patrimonial de ${data.periodos.join(", ")} para embasar as próximas decisões financeiras da empresa.`}
+      subtitulo="Leitura dos demonstrativos contábeis recebidos."
+      descricao=""
       tabs={TABS}
       activeTab={activeTab}
       onTabChange={setActiveTab}
@@ -55,8 +51,6 @@ export default function AnaliseContabilPage() {
       {activeTab === "balanco" && <BPTab dados={data.balanco} />}
       {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
       {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
-      {activeTab === "glossario" && <GlossarioTab />}
-      {activeTab === "conclusao" && <ConclusaoTab dados={data.conclusao} />}
     </AnalysisShell>
   )
 }
@@ -88,22 +82,54 @@ type SinteseData = AnaliseContabilData["sintese"]
 function SinteseExecutiva({ data }: { data: SinteseData }) {
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold tracking-tight leading-tight"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Síntese Executiva
-      </h2>
-      <p className="mb-8 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {data.intro}
-      </p>
-
       {/* ============================================================ */}
-      {/* SYNTHESIS — caixa navy com 3 colunas                          */}
+      {/* RESUMO EXECUTIVO — card padrão                                */}
       {/* ============================================================ */}
       <div
         className="rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p className="max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+          {data.intro}
+        </p>
+      </div>
+
+      {/* ============================================================ */}
+      {/* KPIs — 5 cards com border-left colorida                       */}
+      {/* ============================================================ */}
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+        {data.kpis.map((kpi, idx) => (
+          <div
+            key={kpi.label}
+            className="relative flex min-h-[120px] flex-col overflow-hidden rounded-xl border bg-white px-4 py-3"
+            style={{ borderColor: "var(--border)" }}
+          >
+            {/* Border-left colorida */}
+            <span
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
+            />
+            <p className="mb-1.5 min-h-[24px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
+              {kpi.label}
+            </p>
+            <p
+              className="mb-1.5 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
+              style={{ color: "var(--brand-navy)" }}
+            >
+              {kpi.valor}
+            </p>
+            <p className="mt-auto text-[11px] leading-snug text-muted-foreground">
+              {kpi.comentario}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* ============================================================ */}
+      {/* OS 3 FATOS QUE IMPORTAM — caixa com 3 colunas                  */}
+      {/* ============================================================ */}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
         style={{ background: "white" }}
       >
         <p
@@ -118,9 +144,9 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
         >
           O que o DRE e o Balanço mostram juntos
         </h3>
-        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {data.fatos.map((fato) => (
-            <div key={fato.numero}>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-border">
+          {data.fatos.map((fato, idx) => (
+            <div key={fato.numero} className={idx > 0 ? "pt-6 md:pt-0 md:pl-8" : ""}>
               <h4
                 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "var(--brand-blue)" }}
@@ -144,67 +170,41 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
       </div>
 
       {/* ============================================================ */}
-      {/* KPIs — 5 cards com border-left colorida                       */}
+      {/* Como usar — card padrão                                       */}
       {/* ============================================================ */}
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        {data.kpis.map((kpi, idx) => (
-          <div
-            key={kpi.label}
-            className="relative flex min-h-[180px] flex-col overflow-hidden rounded-xl border bg-white p-5"
-            style={{ borderColor: "var(--border)" }}
-          >
-            {/* Border-left colorida */}
-            <span
-              className="absolute left-0 top-0 h-full w-[3px]"
-              style={{ background: KPI_BORDER_COLORS[idx] || "var(--brand-cyan)" }}
-            />
-            <p className="mb-3 min-h-[28px] text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.18em] text-muted-foreground">
-              {kpi.label}
-            </p>
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Como usar este relatório
+        </p>
+        <div className="divide-y divide-border">
+          <div className="grid gap-4 pb-4 md:grid-cols-[140px_1fr]">
             <p
-              className="mb-3 text-lg md:text-[1.3rem] font-extrabold leading-tight tabular-nums"
-              style={{ color: "var(--brand-navy)" }}
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "var(--brand-blue)" }}
             >
-              {kpi.valor}
+              Navegação
             </p>
-            <p className="mt-auto text-[11px] leading-relaxed text-muted-foreground">
-              {kpi.comentario}
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              {renderBoldNavy(data.comoUsar.navegacao)}
             </p>
           </div>
-        ))}
-      </div>
-
-      {/* ============================================================ */}
-      {/* Como usar — notes                                             */}
-      {/* ============================================================ */}
-      <h3
-        className="mb-3 mt-10 text-base font-bold"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Como usar este relatório
-      </h3>
-      <div className="rounded-xl border border-border bg-card py-2">
-        <div className="grid gap-6 border-b border-border px-7 py-4 md:grid-cols-[140px_1fr]">
-          <p
-            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            Navegação
-          </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            {renderBoldNavy(data.comoUsar.navegacao)}
-          </p>
-        </div>
-        <div className="grid gap-6 px-7 py-4 md:grid-cols-[140px_1fr]">
-          <p
-            className="pt-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            O que analisamos
-          </p>
-          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
-          </p>
+          <div className="grid gap-4 pt-4 md:grid-cols-[140px_1fr]">
+            <p
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: "var(--brand-blue)" }}
+            >
+              O que analisamos
+            </p>
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
+            </p>
+          </div>
         </div>
       </div>
 

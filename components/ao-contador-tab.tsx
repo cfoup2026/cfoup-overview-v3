@@ -14,52 +14,51 @@ type Props = {
 export function AoContadorTab({ dados }: Props) {
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-        style={{ color: "var(--brand-navy)" }}
+      {/* Card único: pauta operacional */}
+      <div
+        className="rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
       >
-        Perguntas ao Contador
-      </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {conteudoAoContador.intro}
-      </p>
+        <p
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
+        >
+          Pauta de alinhamento com o contador
+        </p>
 
-      {/* Questions card */}
-      <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
-        {dados.grupos.map((grupo) => (
-          <div key={grupo.id} className="mb-7 last:mb-0">
-            {/* Título */}
-            <h3
-              className="mb-1 text-base font-bold leading-snug"
-              style={{ color: "var(--brand-navy)" }}
-            >
-              {grupo.numero}. {grupo.titulo}
-            </h3>
-            {/* Contexto */}
-            <p className="mb-3 text-[12px] italic" style={{ color: "var(--brand-ink-muted)" }}>
-              {grupo.contexto}
-            </p>
-            {/* Lista */}
-            <ol className="list-none space-y-0">
-              {grupo.perguntas.map((pergunta, idx) => (
-                <li
-                  key={idx}
-                  className="relative border-b border-border py-3 pl-10 text-[13px] leading-relaxed last:border-b-0"
-                  style={{ color: "var(--brand-ink-muted)" }}
-                >
-                  <span
-                    className="absolute left-0 top-3 w-7 text-[13px] font-bold tabular-nums"
-                    style={{ color: "var(--brand-cyan)" }}
+        <div className="divide-y divide-border">
+          {dados.grupos.map((grupo) => (
+            <div key={grupo.id} className="py-5 first:pt-0 last:pb-0">
+              {/* Eyebrow do grupo */}
+              <p
+                className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "var(--brand-blue)" }}
+              >
+                {grupo.numero} · {grupo.titulo}
+              </p>
+              {/* Contexto */}
+              <p className="mb-4 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+                {grupo.contexto}
+              </p>
+              {/* Perguntas */}
+              <ul className="space-y-2">
+                {grupo.perguntas.map((pergunta, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-3 text-[13px] leading-relaxed"
+                    style={{ color: "var(--brand-navy)" }}
                   >
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                  {pergunta}
-                </li>
-              ))}
-            </ol>
-          </div>
-        ))}
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ background: "var(--brand-blue)" }}
+                    />
+                    {pergunta}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Glossário inline */}
