@@ -2,7 +2,7 @@
 
 // ---------------------------------------------------------------------
 // Síntese — Análise Financeira
-// Replicação fiel do HTML cfoup-tese: section-head + verdict + actions + callout
+// Alinhado ao padrão operacional SinteseExecutiva da Análise Contábil
 // ---------------------------------------------------------------------
 
 type Decisao = {
@@ -23,81 +23,61 @@ type Props = {
 
 export default function SinteseTab({ dados }: Props) {
   return (
-    <section className="op-section space-y-4">
-        {/* Clean header */}
-        <div className="rounded-xl border border-border bg-white p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-            Síntese
-          </p>
-          <h2 className="mt-1 text-base font-bold" style={{ color: "var(--brand-navy)" }}>
-            O que importa agora
-          </h2>
-          <p className="mt-1 text-[12px] text-muted-foreground">
-            A tese e as decisões da semana
-          </p>
-        </div>
-
-        {/* Verdict */}
-        <div
-          className="flex items-baseline gap-4 rounded-xl border border-border px-6 py-4"
-          style={{ background: "#F0F4FA", borderLeft: "4px solid var(--brand-blue)" }}
+    <section>
+      {/* ============================================================ */}
+      {/* TESE — parágrafo direto no fluxo                             */}
+      {/* ============================================================ */}
+      <div
+        className="rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p
+          className="max-w-[1180px] text-[15px] md:text-[16px] font-semibold leading-snug"
+          style={{ color: "var(--brand-navy)" }}
         >
-          <span
-            className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            Tese
-          </span>
-          <span
-            className="text-[15px] md:text-[16px] font-semibold leading-snug"
-            style={{ color: "var(--brand-navy)" }}
-          >
-            {dados.tese}
-          </span>
-        </div>
+          {dados.tese}
+        </p>
+      </div>
 
-        {/* Actions */}
-        <div
-          className="rounded-xl border border-border px-7 py-6"
-          style={{ background: "white" }}
+      {/* ============================================================ */}
+      {/* DECISÕES DA SEMANA — lista simples                           */}
+      {/* ============================================================ */}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p
+          className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "var(--brand-blue)" }}
         >
-          <h4
-            className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "var(--brand-blue)" }}
-          >
-            3 decisões desta semana
-          </h4>
-          <ol className="m-0 list-none p-0" style={{ counterReset: "acts" }}>
-            {dados.decisoes.map((d, idx) => (
-              <li
-                key={idx}
-                className="relative block py-3 pl-10 text-[13px] leading-relaxed"
-                style={{ color: "var(--brand-navy)", counterIncrement: "acts" }}
-              >
-                <span
-                  className="absolute left-0 top-3 inline-flex h-6 w-6 items-center justify-center rounded-lg text-[13px] font-bold tabular-nums"
-                  style={{
-                    background: "var(--brand-blue)",
-                    color: "white",
-                  }}
-                >
-                  {idx + 1}
-                </span>
-                <b className="font-semibold">{d.titulo}</b> — {d.descricao}{" "}
-                <span className="ml-2 text-[12px] italic text-muted-foreground">{d.meta}</span>
-              </li>
-            ))}
-          </ol>
+          3 decisões desta semana
+        </p>
+        <div className="divide-y divide-border">
+          {dados.decisoes.map((d, idx) => (
+            <div key={idx} className="py-4 first:pt-0 last:pb-0">
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+                <strong className="font-semibold">{d.titulo}</strong> — {d.descricao}
+              </p>
+              <p className="mt-1 text-[12px] italic text-muted-foreground">
+                {d.meta}
+              </p>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Callout final */}
-        <div
-          className="rounded-xl border border-border px-6 py-4 text-[15px] leading-relaxed"
-          style={{ background: "var(--muted)", borderLeft: "3px solid var(--brand-cyan)", color: "var(--brand-navy)" }}
-        >
-          <b className="font-semibold">{dados.callout.split(".")[0]}.</b>
+      {/* ============================================================ */}
+      {/* CALLOUT — bloco simples sem borda lateral                    */}
+      {/* ============================================================ */}
+      <div
+        className="mt-6 rounded-2xl border border-border p-6 md:p-8"
+        style={{ background: "white" }}
+      >
+        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
+          <strong className="font-semibold">{dados.callout.split(".")[0]}.</strong>
           {dados.callout.substring(dados.callout.indexOf(".") + 1)}
-        </div>
+        </p>
+      </div>
     </section>
   )
 }
