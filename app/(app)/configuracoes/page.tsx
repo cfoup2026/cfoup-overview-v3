@@ -148,7 +148,7 @@ export default function ConfiguracoesPage() {
 
 const PROFILE_BADGE_STYLES: Record<ConfiguracoesUserProfile, { bg: string; color: string }> = {
   admin: { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" },
-  financeiro: { bg: "rgba(56,184,232,0.12)", color: "var(--brand-navy)" },
+  operacional: { bg: "rgba(56,184,232,0.12)", color: "var(--brand-navy)" },
   contador: { bg: "var(--muted)", color: "var(--brand-navy)" },
   leitura: { bg: "var(--muted)", color: "var(--slate-600)" },
 }

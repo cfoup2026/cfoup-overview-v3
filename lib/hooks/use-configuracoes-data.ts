@@ -23,8 +23,6 @@
 
 "use client"
 
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
-
 export type ConfiguracoesSectionId =
   | "empresa"
   | "metas"
@@ -32,7 +30,7 @@ export type ConfiguracoesSectionId =
   | "relatorios"
   | "seguranca"
 
-export type ConfiguracoesUserProfile = "admin" | "financeiro" | "contador" | "leitura"
+export type ConfiguracoesUserProfile = "admin" | "operacional" | "contador" | "leitura"
 
 export type ConfiguracoesUser = {
   id: string
@@ -151,9 +149,6 @@ type UserHint = {
 
 // TODO: substituir pelo fetch real a /api/configuracoes?companyId=...
 export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
-  const contatoNome = user?.name && user.name !== "Convidado" ? user.name : null
-  const contatoEmail = user?.email && user.email.length > 0 ? user.email : null
-
   return {
     hasConnections: false,
 
@@ -189,21 +184,20 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
         cnpj: { label: "CNPJ", value: null, placeholder: "Digite o CNPJ ou importe o cartão", source: "manual" },
         razaoSocial: { label: "Razão social", value: null, placeholder: "Será buscado via CNPJ", source: "auto" },
         setor: { label: "Setor de atuação", value: null, placeholder: "Será detectado via CNPJ ou ajuste manual", source: "auto" },
-        regime: { label: "Regime tributário", value: null, placeholder: "Será detectado via CNPJ ou ajuste manual", source: "auto" },
+        regime: { label: "Regime tributário", value: null, placeholder: "Selecionar regime tributário", source: "auto" },
         apelido: { label: "Apelido no CFOup", value: null, placeholder: "Como sua empresa é chamada no dia a dia", source: "manual" },
         moeda: { label: "Moeda padrão", value: "Real (BRL)", source: "manual" },
         inicioFiscal: { label: "Início do exercício fiscal", value: `Janeiro ${new Date().getFullYear()}`, source: "manual" },
         contatoResponsavel: {
           label: "Contato responsável",
-          value: contatoNome,
-          hint: "Usuário logado no CFOup",
-          placeholder: "Não identificado",
+          value: null,
+          placeholder: "Nome do responsável",
           source: "manual",
         },
         emailResponsavel: {
           label: "E-mail do responsável",
-          value: contatoEmail,
-          placeholder: "Não identificado",
+          value: null,
+          placeholder: "E-mail do responsável",
           source: "manual",
         },
         telefone: { label: "Telefone de contato", value: null, placeholder: "Adicionar telefone", source: "manual" },
@@ -244,7 +238,7 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
 
     alertas: {
       title: "Alertas e comunicação",
-      description: `Escolha como e quando o CFOup deve notificar a ${clienteAtual.empresa.nomeCurto}. Você pode ajustar a qualquer momento.`,
+      description: "Como o CFOup avisa quando algo sair do combinado. Cada canal é independente.",
       toggles: [
         {
           id: "resumo-diario",
@@ -353,13 +347,11 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
     equipe: {
       title: "Equipe com acesso ao CFOup",
       description: "Cadastre quem vai usar o sistema na empresa. Você pode adicionar mais pessoas a qualquer momento.",
-      users: [
-        { id: "owner", nome: contatoNome ?? "—", email: contatoEmail ?? "—", perfil: "admin" },
-      ],
+      users: [],
       addLabel: "Adicionar usuário",
       profileLabels: {
         admin: "Admin",
-        financeiro: "Financeiro",
+        operacional: "Operacional",
         contador: "Contador",
         leitura: "Leitura",
       },
