@@ -81,7 +81,7 @@ export function GlossarioTab() {
                   >
                     {item.termo}
                   </p>
-                  <p className="text-[13px] leading-relaxed text-muted-foreground">
+                  <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
                     {item.definicao}
                   </p>
                 </div>

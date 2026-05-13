@@ -191,7 +191,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           >
             Navegação
           </p>
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
             {renderBoldNavy(data.comoUsar.navegacao)}
           </p>
         </div>
@@ -202,7 +202,7 @@ function SinteseExecutiva({ data }: { data: SinteseData }) {
           >
             O que analisamos
           </p>
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
+          <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
             {renderBoldNavy(data.comoUsar.oQueAnalisamos)}
           </p>
         </div>
@@ -279,7 +279,7 @@ function GlossarioInline({
               >
                 {item.termo}
               </p>
-              <p className="text-[13px] leading-relaxed text-muted-foreground">
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
                 {item.definicao}
               </p>
             </div>

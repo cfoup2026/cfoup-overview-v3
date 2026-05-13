@@ -42,7 +42,7 @@ export function ConclusaoTab({ dados }: { dados: ConclusaoDadosCliente }) {
               >
                 {card.titulo}
               </p>
-              <p className="text-[13px] leading-relaxed text-muted-foreground">
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
                 {card.paragrafo}
               </p>
             </div>

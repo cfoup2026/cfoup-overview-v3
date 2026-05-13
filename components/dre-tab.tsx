@@ -310,7 +310,7 @@ function ViewComentarios({ data }: { data: DREData }) {
             >
               {c.titulo}
             </p>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
               {renderBold(c.corpo)}
             </p>
           </div>
@@ -352,7 +352,7 @@ function GlossarioInline({
           {glossario.map((item) => (
             <div key={item.termo} className="border-b border-border py-4 last:border-b-0">
               <p className="mb-1 text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>{item.termo}</p>
-              <p className="text-[13px] leading-relaxed text-muted-foreground">{item.definicao}</p>
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{item.definicao}</p>
             </div>
           ))}
         </div>

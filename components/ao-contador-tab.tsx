@@ -46,6 +46,7 @@ export function AoContadorTab({ dados }: Props) {
                 <li
                   key={idx}
                   className="relative border-b border-border py-3 pl-10 text-[13px] leading-relaxed last:border-b-0"
+                  style={{ color: "var(--brand-ink-muted)" }}
                 >
                   <span
                     className="absolute left-0 top-3 w-7 text-[13px] font-bold tabular-nums"
@@ -85,7 +86,7 @@ function GlossarioInline({ glossario, label }: { glossario: { termo: string; def
           {glossario.map((item) => (
             <div key={item.termo} className="border-b border-border py-4 last:border-b-0">
               <p className="mb-1 text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>{item.termo}</p>
-              <p className="text-[13px] leading-relaxed text-muted-foreground">{item.definicao}</p>
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{item.definicao}</p>
             </div>
           ))}
         </div>
