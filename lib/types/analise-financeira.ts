@@ -34,16 +34,35 @@ export type TermoGlossario = {
 // ---------------------------------------------------------------------
 // Síntese (aba ✦)
 // ---------------------------------------------------------------------
-export type DecisaoSintese = {
+export type KpiSintese = {
+  label: string
+  valor: string
+  contexto?: string
+}
+
+export type AlertaSintese = {
+  nivel: "critico" | "atencao" | "controle"
+  texto: string
+}
+
+export type LeituraExecutiva = {
+  principal: string
+  oQueFuncionou: string
+  oQuePreocupa: string
+  oQueFazerAgora: string
+}
+
+export type AcaoSintese = {
   titulo: string
   descricao: string
-  meta: string
 }
 
 export type SinteseFinanceiraData = {
-  tese: string
-  decisoes: DecisaoSintese[]
-  callout: string
+  veredito: string
+  kpis: KpiSintese[]
+  alertas: AlertaSintese[]
+  leitura: LeituraExecutiva
+  acoes: AcaoSintese[]
 }
 
 // ---------------------------------------------------------------------

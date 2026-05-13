@@ -786,25 +786,30 @@ export const dadosCliente: AnaliseContabilData = {
       dataBase: "20/04/2026",
     },
     sintese: {
-      tese: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
-      decisoes: [
-        {
-          titulo: "SUPRICORP",
-          descricao: "reduzir dependência e melhorar prazo de recebimento.",
-          meta: "9,6% da receita · paga em 69 dias · puxou 56% do crescimento de Q1-2026",
-        },
-        {
-          titulo: "Base ativa",
-          descricao: "atacar os 70 clientes em queda e os 58 já perdidos antes de buscar mais volume. Reter quem já é seu custa menos que conquistar novo.",
-          meta: "Lista completa no Bloco B",
-        },
-        {
-          titulo: "Caixa completo",
-          descricao: "consolidar todos os bancos e separar o que é operação do que é movimento pessoal dos sócios.",
-          meta: "R$ 73 mil/mês circulam fora do banco analisado",
-        },
+      veredito: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
+      kpis: [
+        { label: "Faturamento Q1-2026", valor: "R$ 0,94M", contexto: "+11,7% vs Q1-2025" },
+        { label: "Clientes ativos", valor: "376", contexto: "−15 vs 2024" },
+        { label: "Concentração Top 1", valor: "9,6%", contexto: "SUPRICORP · 69 dias prazo" },
+        { label: "Base em queda", valor: "70", contexto: "−R$ 285k em risco" },
+        { label: "Caixa visível", valor: "27%", contexto: "R$ 73k/mês fora do radar" },
       ],
-      callout: "Crescer, a Gregorutt já sabe. O próximo passo é ganhar controle sobre cliente, caixa e previsibilidade.",
+      alertas: [
+        { nivel: "critico", texto: "SUPRICORP virou dependência crítica: 9,6% da receita, paga em 69 dias, puxou 56% do crescimento de Q1." },
+        { nivel: "atencao", texto: "Saldo líquido de clientes é negativo: 70 em queda + 58 perdidos superam os 43 em alta." },
+        { nivel: "controle", texto: "Caixa incompleto: R$ 73 mil/mês circulam fora do banco analisado." },
+      ],
+      leitura: {
+        principal: "O faturamento cresceu 21% em 2025, mas a base de clientes encolheu e a concentração aumentou. O crescimento veio de poucos motores, especialmente SUPRICORP, que sozinha puxou 37% do avanço do ano.",
+        oQueFuncionou: "Aquisição funciona: 79 clientes novos em 2025. O canal de entrada está saudável. A margem bruta declarada se manteve acima de 50%.",
+        oQuePreocupa: "A retenção é o problema: mais clientes em queda (70) do que em alta (43). A margem real de caixa está ~10% abaixo da declarada. O caixa visível representa apenas 27% do fluxo real.",
+        oQueFazerAgora: "Consolidar a visão de caixa, proteger SUPRICORP com contrato, e atacar os 70 em queda antes de buscar volume novo.",
+      },
+      acoes: [
+        { titulo: "Reunião SUPRICORP", descricao: "Entender pipeline 2026 e renegociar prazo de 69 para 45 dias." },
+        { titulo: "Plano de retenção", descricao: "Listar os 70 em queda e atribuir a vendedor para diagnóstico em 30 dias." },
+        { titulo: "Consolidação de caixa", descricao: "Integrar todos os bancos e separar movimento pessoal dos sócios." },
+      ],
     },
 
     // -----------------------------------------------------------------
