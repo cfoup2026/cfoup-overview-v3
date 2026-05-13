@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
+import Link from "next/link"
+import { Plug } from "lucide-react"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
-import {
-  type AnaliseContabilData,
-  dadosCliente,
-} from "@/lib/clientes/empresa-001"
+import type { AnaliseContabilData, FontesImportadas } from "@/lib/clientes/empresa-001"
+import { dadosClienteVazio } from "@/lib/clientes/empresa-vazia"
 import { conteudoSintese } from "@/lib/conteudos/analise-contabil"
 import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
@@ -24,18 +24,38 @@ const TABS: TabConfig[] = [
 ]
 
 // ---------------------------------------------------------------------
+// Regras mínimas de fonte por aba
+// ---------------------------------------------------------------------
+function canRenderSintese(f: FontesImportadas) {
+  return f.dre && f.balanco
+}
+function canRenderDRE(f: FontesImportadas) {
+  return f.dre
+}
+function canRenderBalanco(f: FontesImportadas) {
+  return f.balanco
+}
+function canRenderIndicadores(f: FontesImportadas) {
+  return f.dre && f.balanco
+}
+function canRenderAoContador(f: FontesImportadas) {
+  return f.dre || f.balanco
+}
+
+// ---------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------
 export default function AnaliseContabilPage() {
-  const data: AnaliseContabilData = dadosCliente
+  const data: AnaliseContabilData = dadosClienteVazio
   const [activeTab, setActiveTab] = useState("sintese")
+  const f = data.fontesImportadas
 
   return (
     <AnalysisShell
       empresa={{ nome: data.empresa.nome }}
       eyebrow="CFOUP · ANÁLISE CONTÁBIL"
       chips={[
-        { label: "PERÍODO ANALISADO", value: data.periodos.join(" · ") },
+        { label: "PERÍODO ANALISADO", value: data.periodos.length > 0 ? data.periodos.join(" · ") : "—" },
         { label: "REGIME TRIBUTÁRIO", value: data.empresa.regime },
         { label: "FONTES RECEBIDAS", value: data.fontesRecebidas },
         { label: "STATUS DA ANÁLISE", value: data.statusAnalise },
@@ -46,12 +66,66 @@ export default function AnaliseContabilPage() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-      {activeTab === "sintese" && <SinteseExecutiva data={data.sintese} />}
-      {activeTab === "dre" && <DRETab data={data.dre} />}
-      {activeTab === "balanco" && <BPTab dados={data.balanco} />}
-      {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
-      {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
+      {activeTab === "sintese" && (
+        canRenderSintese(f) ? (
+          <SinteseExecutiva data={data.sintese} />
+        ) : (
+          <EmptyTabState message="Conecte os demonstrativos contábeis para iniciar a análise." />
+        )
+      )}
+      {activeTab === "dre" && (
+        canRenderDRE(f) ? (
+          <DRETab data={data.dre} />
+        ) : (
+          <EmptyTabState message="Importe a DRE para gerar esta análise." />
+        )
+      )}
+      {activeTab === "balanco" && (
+        canRenderBalanco(f) ? (
+          <BPTab dados={data.balanco} />
+        ) : (
+          <EmptyTabState message="Importe o Balanço Patrimonial para gerar esta análise." />
+        )
+      )}
+      {activeTab === "indicadores" && (
+        canRenderIndicadores(f) ? (
+          <IndicadoresTab dados={data.indicadores} />
+        ) : (
+          <EmptyTabState message="Importe DRE e Balanço Patrimonial para gerar os indicadores." />
+        )
+      )}
+      {activeTab === "perguntas-contador" && (
+        canRenderAoContador(f) ? (
+          <AoContadorTab dados={data.aoContador} />
+        ) : (
+          <EmptyTabState message="Conecte ao menos um demonstrativo contábil para abrir a pauta de alinhamento." />
+        )
+      )}
     </AnalysisShell>
+  )
+}
+
+// ---------------------------------------------------------------------
+// Empty State — padrão visual consistente com EmptyLiquidezBlock
+// ---------------------------------------------------------------------
+function EmptyTabState({ message }: { message: string }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-6 md:p-8">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Análise indisponível
+      </p>
+      <p className="mt-3 max-w-xl text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+        {message}
+      </p>
+      <Link
+        href="/conexoes"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-semibold transition hover:border-[var(--brand-blue)]/40"
+        style={{ color: "var(--brand-navy)" }}
+      >
+        <Plug className="h-3.5 w-3.5" strokeWidth={2.2} />
+        Importar demonstrativos
+      </Link>
+    </section>
   )
 }
 

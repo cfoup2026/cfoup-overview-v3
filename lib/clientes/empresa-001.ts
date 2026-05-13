@@ -106,12 +106,21 @@ export type AoContadorDadosCliente = {
   grupos: GrupoAoContador[]
 }
 
+export type FontesImportadas = {
+  dre: boolean
+  balanco: boolean
+  razao: boolean
+  balancete: boolean
+  diarioGeral: boolean
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
   emitidoEm: string
   fontesRecebidas: string
   statusAnalise: "Completa" | "Parcial" | "Aguardando arquivos"
+  fontesImportadas: FontesImportadas
   sintese: {
     intro: string
     fatos: { numero: string; titulo: string; corpo: string; chatCfoup: string }[]
@@ -138,6 +147,13 @@ export const dadosCliente: AnaliseContabilData = {
   emitidoEm: "21/04/2026",
   fontesRecebidas: "DRE, Balanço Patrimonial",
   statusAnalise: "Completa",
+  fontesImportadas: {
+    dre: true,
+    balanco: true,
+    razao: false,
+    balancete: false,
+    diarioGeral: false,
+  },
 
   sintese: {
     intro:
