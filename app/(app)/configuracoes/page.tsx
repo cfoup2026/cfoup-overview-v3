@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, type ChangeEvent } from "react"
+import { useState, useRef, type ChangeEvent } from "react"
 import { Upload, Plus } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import {
@@ -8,6 +8,7 @@ import {
   type ConfiguracoesField,
   type ConfiguracoesToggle,
   type ConfiguracoesUserProfile,
+  type ConfiguracoesUser,
 } from "@/lib/hooks/use-configuracoes-data"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
 
@@ -15,6 +16,36 @@ export default function ConfiguracoesPage() {
   const user = useCurrentUser()
   const data = useConfiguracoesData({ name: user.name, email: user.email })
   const cnpjFileInputRef = useRef<HTMLInputElement>(null)
+
+  const [empresaForm, setEmpresaForm] = useState({
+    cnpj: data.empresa.fields.cnpj.value ?? "",
+    razaoSocial: data.empresa.fields.razaoSocial.value ?? "",
+    setor: data.empresa.fields.setor.value ?? "",
+    regime: data.empresa.fields.regime.value ?? "",
+    apelido: data.empresa.fields.apelido.value ?? "",
+    moeda: data.empresa.fields.moeda.value ?? "",
+    inicioFiscal: data.empresa.fields.inicioFiscal.value ?? "",
+    contato: data.empresa.fields.contatoResponsavel.value ?? "",
+    email: data.empresa.fields.emailResponsavel.value ?? "",
+    telefone: data.empresa.fields.telefone.value ?? "",
+  })
+
+  function updateEmpresa<K extends keyof typeof empresaForm>(k: K, v: string) {
+    setEmpresaForm((s) => ({ ...s, [k]: v }))
+  }
+
+  const [users, setUsers] = useState<ConfiguracoesUser[]>(data.equipe.users)
+
+  function addUser() {
+    setUsers((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), nome: "", email: "", perfil: "operacional" },
+    ])
+  }
+
+  function updateUser(id: string, patch: Partial<Omit<ConfiguracoesUser, "id">>) {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
+  }
 
   function handleCnpjFileSelected(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -87,23 +118,17 @@ export default function ConfiguracoesPage() {
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Field field={data.empresa.fields.cnpj} emptyLabel={data.emptyFieldLabel} />
+              <Field field={data.empresa.fields.cnpj} value={empresaForm.cnpj} onChange={(v) => updateEmpresa("cnpj", v)} emptyLabel={data.emptyFieldLabel} />
             </div>
-            <Field field={data.empresa.fields.razaoSocial} emptyLabel={data.emptyFieldLabel} />
-            <Field field={data.empresa.fields.setor} emptyLabel={data.emptyFieldLabel} />
-            <Field field={data.empresa.fields.regime} emptyLabel={data.emptyFieldLabel} />
-            <Field field={data.empresa.fields.apelido} emptyLabel={data.emptyFieldLabel} />
-            <Field field={data.empresa.fields.moeda} emptyLabel={data.emptyFieldLabel} />
-            <Field field={data.empresa.fields.inicioFiscal} emptyLabel={data.emptyFieldLabel} />
-            <Field
-              field={data.empresa.fields.contatoResponsavel}
-              emptyLabel={data.emptyFieldLabel}
-            />
-            <Field
-              field={data.empresa.fields.emailResponsavel}
-              emptyLabel={data.emptyFieldLabel}
-            />
-            <Field field={data.empresa.fields.telefone} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.razaoSocial} value={empresaForm.razaoSocial} onChange={(v) => updateEmpresa("razaoSocial", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.setor} value={empresaForm.setor} onChange={(v) => updateEmpresa("setor", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.regime} value={empresaForm.regime} onChange={(v) => updateEmpresa("regime", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.apelido} value={empresaForm.apelido} onChange={(v) => updateEmpresa("apelido", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.moeda} value={empresaForm.moeda} onChange={(v) => updateEmpresa("moeda", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.inicioFiscal} value={empresaForm.inicioFiscal} onChange={(v) => updateEmpresa("inicioFiscal", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.contatoResponsavel} value={empresaForm.contato} onChange={(v) => updateEmpresa("contato", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.emailResponsavel} value={empresaForm.email} onChange={(v) => updateEmpresa("email", v)} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.telefone} value={empresaForm.telefone} onChange={(v) => updateEmpresa("telefone", v)} emptyLabel={data.emptyFieldLabel} />
           </div>
         </section>
 
@@ -114,27 +139,48 @@ export default function ConfiguracoesPage() {
           <p className="mt-1 text-sm text-muted-foreground">{data.equipe.description}</p>
 
           <div className="mt-6 space-y-2">
-            {data.equipe.users.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
-              >
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: "var(--brand-navy)" }}>
-                    {user.nome}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{user.email}</p>
+            {users.map((u) => {
+              const styles = PROFILE_BADGE_STYLES[u.perfil]
+              return (
+                <div
+                  key={u.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-4 py-3"
+                >
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <input
+                      type="text"
+                      value={u.nome}
+                      onChange={(e) => updateUser(u.id, { nome: e.target.value })}
+                      placeholder="Nome do usuário"
+                      className="bg-transparent text-sm font-semibold text-[var(--brand-navy)] placeholder:font-medium placeholder:text-muted-foreground focus:outline-none"
+                    />
+                    <input
+                      type="email"
+                      value={u.email}
+                      onChange={(e) => updateUser(u.id, { email: e.target.value })}
+                      placeholder="email@empresa.com"
+                      className="bg-transparent text-xs text-muted-foreground focus:outline-none"
+                    />
+                  </div>
+                  <select
+                    value={u.perfil}
+                    onChange={(e) => updateUser(u.id, { perfil: e.target.value as ConfiguracoesUserProfile })}
+                    className="cursor-pointer appearance-none rounded-full px-2.5 py-1 text-[11px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/30"
+                    style={{ background: styles.bg, color: styles.color }}
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="operacional">Operacional</option>
+                    <option value="contador">Contador</option>
+                    <option value="leitura">Leitura</option>
+                  </select>
                 </div>
-                <ProfileBadge
-                  perfil={user.perfil}
-                  label={data.equipe.profileLabels[user.perfil]}
-                />
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <button
             type="button"
+            onClick={addUser}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition hover:border-[var(--brand-blue)]/40 hover:text-foreground"
           >
             <Plus className="h-4 w-4" strokeWidth={1.8} />
@@ -153,20 +199,17 @@ const PROFILE_BADGE_STYLES: Record<ConfiguracoesUserProfile, { bg: string; color
   leitura: { bg: "var(--muted)", color: "var(--slate-600)" },
 }
 
-function ProfileBadge({ perfil, label }: { perfil: ConfiguracoesUserProfile; label: string }) {
-  const styles = PROFILE_BADGE_STYLES[perfil]
-  return (
-    <span
-      className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold"
-      style={{ background: styles.bg, color: styles.color }}
-    >
-      {label}
-    </span>
-  )
-}
-
-function Field({ field, emptyLabel }: { field: ConfiguracoesField; emptyLabel: string }) {
-  const isEmpty = !field.value
+function Field({
+  field,
+  value,
+  onChange,
+  emptyLabel,
+}: {
+  field: ConfiguracoesField
+  value: string
+  onChange: (v: string) => void
+  emptyLabel: string
+}) {
   return (
     <div>
       <label className="flex items-center text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -180,14 +223,13 @@ function Field({ field, emptyLabel }: { field: ConfiguracoesField; emptyLabel: s
           </span>
         )}
       </label>
-      <div
-        className={`mt-1.5 rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm ${
-          isEmpty ? "font-medium text-muted-foreground" : "font-semibold"
-        }`}
-        style={isEmpty ? undefined : { color: "var(--brand-navy)" }}
-      >
-        {isEmpty ? field.placeholder ?? emptyLabel : field.value}
-      </div>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={field.placeholder ?? emptyLabel}
+        className="mt-1.5 w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-[var(--brand-navy)] placeholder:font-medium placeholder:text-muted-foreground transition focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)]/30"
+      />
       {field.hint && <p className="mt-1.5 text-xs text-muted-foreground">{field.hint}</p>}
     </div>
   )
