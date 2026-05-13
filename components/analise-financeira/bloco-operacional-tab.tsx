@@ -40,7 +40,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         {/* Verdict */}
         <div
           className="mb-3 flex items-baseline gap-4 rounded-r-lg border-l-4 px-6 py-4"
-          style={{ background: "var(--muted)", borderLeftColor: "var(--brand-blue)" }}
+          style={{ background: "#F0F4FA", borderLeftColor: "var(--brand-blue)" }}
         >
           <span
             className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em]"
@@ -186,7 +186,8 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 {alerta.titulo}
               </div>
               <div
-                className="text-[13px] leading-relaxed text-muted-foreground"
+                className="text-[13px] leading-relaxed"
+                style={{ color: "var(--brand-ink-muted)" }}
                 dangerouslySetInnerHTML={{ __html: alerta.texto }}
               />
             </div>
@@ -243,7 +244,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
               Bloco {letra}
             </span>
             <span
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[16px] leading-none transition-transform ${glossOpen ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-muted text-[color:var(--brand-blue)]"}`}
+              className={`flex h-6 w-6 items-center justify-center rounded-full text-[16px] leading-none transition-transform ${glossOpen ? "rotate-45 bg-[color:var(--brand-cyan)] text-white" : "bg-[color:var(--brand-line-soft)] text-[color:var(--brand-blue)]"}`}
             >
               +
             </span>
@@ -258,7 +259,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                   >
                     {item.termo}
                   </dt>
-                  <dd className="m-0 text-[13px] leading-relaxed text-muted-foreground">
+                  <dd className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
                     {item.definicao}
                   </dd>
                 </div>
