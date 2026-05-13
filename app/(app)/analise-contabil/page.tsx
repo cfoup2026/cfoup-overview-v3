@@ -11,7 +11,6 @@ import { DRETab } from "@/components/dre-tab"
 import { BPTab } from "@/components/bp-tab"
 import { IndicadoresTab } from "@/components/indicadores-tab"
 import { AoContadorTab } from "@/components/ao-contador-tab"
-import { GlossarioTab } from "@/components/glossario-tab"
 import { ConclusaoTab } from "@/components/conclusao-tab"
 
 // ---------------------------------------------------------------------
@@ -23,8 +22,7 @@ const TABS: TabConfig[] = [
   { id: "balanco", numeral: "03", label: "Balanço" },
   { id: "indicadores", numeral: "04", label: "Indicadores" },
   { id: "perguntas-contador", numeral: "05", label: "Ao Contador" },
-  { id: "glossario", numeral: "06", label: "Glossário" },
-  { id: "conclusao", numeral: "07", label: "Conclusão" },
+  { id: "conclusao", numeral: "06", label: "Conclusão" },
 ]
 
 // ---------------------------------------------------------------------
@@ -55,7 +53,6 @@ export default function AnaliseContabilPage() {
       {activeTab === "balanco" && <BPTab dados={data.balanco} />}
       {activeTab === "indicadores" && <IndicadoresTab dados={data.indicadores} />}
       {activeTab === "perguntas-contador" && <AoContadorTab dados={data.aoContador} />}
-      {activeTab === "glossario" && <GlossarioTab />}
       {activeTab === "conclusao" && <ConclusaoTab dados={data.conclusao} />}
     </AnalysisShell>
   )
