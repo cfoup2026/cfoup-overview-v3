@@ -788,16 +788,16 @@ export const dadosCliente: AnaliseContabilData = {
     sintese: {
       veredito: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
       kpis: [
-        { label: "Faturamento Q1-2026", valor: "R$ 0,94M", contexto: "+11,7% vs Q1-2025" },
-        { label: "Clientes ativos", valor: "376", contexto: "−15 vs 2024" },
-        { label: "Concentração Top 1", valor: "9,6%", contexto: "SUPRICORP · 69 dias prazo" },
-        { label: "Base em queda", valor: "70", contexto: "−R$ 285k em risco" },
-        { label: "Caixa visível", valor: "27%", contexto: "R$ 73k/mês fora do radar" },
+        { label: "Faturamento Q1-2026", valor: "R$ 0,94M", contexto: "+11,7% vs Q1-2025", href: "/analise-financeira?tab=faturamento" },
+        { label: "Clientes ativos", valor: "376", contexto: "−15 vs 2024", href: "/analise-financeira?tab=clientes" },
+        { label: "Concentração Top 1", valor: "9,6%", contexto: "SUPRICORP · 69 dias prazo", href: "/analise-financeira?tab=clientes" },
+        { label: "Base em queda", valor: "70", contexto: "−R$ 285k em risco", href: "/analise-financeira?tab=clientes" },
+        { label: "Caixa visível", valor: "27%", contexto: "R$ 73k/mês fora do radar", href: "/analise-financeira?tab=caixa" },
       ],
       alertas: [
-        { nivel: "critico", texto: "SUPRICORP virou dependência crítica: 9,6% da receita, paga em 69 dias, puxou 56% do crescimento de Q1." },
-        { nivel: "atencao", texto: "Saldo líquido de clientes é negativo: 70 em queda + 58 perdidos superam os 43 em alta." },
-        { nivel: "controle", texto: "Caixa incompleto: R$ 73 mil/mês circulam fora do banco analisado." },
+        { nivel: "critico", texto: "SUPRICORP virou dependência crítica: 9,6% da receita, paga em 69 dias, puxou 56% do crescimento de Q1.", href: "/analise-financeira?tab=clientes" },
+        { nivel: "atencao", texto: "Saldo líquido de clientes é negativo: 70 em queda + 58 perdidos superam os 43 em alta.", href: "/analise-financeira?tab=clientes" },
+        { nivel: "controle", texto: "Caixa incompleto: R$ 73 mil/mês circulam fora do banco analisado.", href: "/analise-financeira?tab=caixa" },
       ],
       leitura: {
         principal: "O faturamento cresceu 21% em 2025, mas a base de clientes encolheu e a concentração aumentou. O crescimento veio de poucos motores, especialmente SUPRICORP, que sozinha puxou 37% do avanço do ano.",
@@ -806,9 +806,9 @@ export const dadosCliente: AnaliseContabilData = {
         oQueFazerAgora: "Consolidar a visão de caixa, proteger SUPRICORP com contrato, e atacar os 70 em queda antes de buscar volume novo.",
       },
       acoes: [
-        { titulo: "Reunião SUPRICORP", descricao: "Entender pipeline 2026 e renegociar prazo de 69 para 45 dias." },
-        { titulo: "Plano de retenção", descricao: "Listar os 70 em queda e atribuir a vendedor para diagnóstico em 30 dias." },
-        { titulo: "Consolidação de caixa", descricao: "Integrar todos os bancos e separar movimento pessoal dos sócios." },
+        { titulo: "Reunião SUPRICORP", descricao: "Entender pipeline 2026 e renegociar prazo de 69 para 45 dias.", href: "/analise-financeira?tab=clientes" },
+        { titulo: "Plano de retenção", descricao: "Listar os 70 em queda e atribuir a vendedor para diagnóstico em 30 dias.", href: "/analise-financeira?tab=clientes" },
+        { titulo: "Consolidação de caixa", descricao: "Integrar todos os bancos e separar movimento pessoal dos sócios.", href: "/analise-financeira?tab=caixa" },
       ],
     },
 

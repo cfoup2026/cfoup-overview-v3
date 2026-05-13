@@ -38,11 +38,13 @@ export type KpiSintese = {
   label: string
   valor: string
   contexto?: string
+  href?: string
 }
 
 export type AlertaSintese = {
   nivel: "critico" | "atencao" | "controle"
   texto: string
+  href?: string
 }
 
 export type LeituraExecutiva = {
@@ -55,6 +57,7 @@ export type LeituraExecutiva = {
 export type AcaoSintese = {
   titulo: string
   descricao: string
+  href?: string
 }
 
 export type SinteseFinanceiraData = {
