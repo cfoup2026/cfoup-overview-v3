@@ -95,6 +95,7 @@ export default function ConexoesPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Implantação"
         title="Conexões"
         description="Conecte as fontes de dados que alimentam o CFOup"
       />
@@ -152,7 +153,7 @@ function SourceCard({ source }: { source: Source }) {
 
   return (
     <article
-      className={`flex flex-col rounded-2xl border border-border bg-card p-6 transition ${
+      className={`flex flex-col rounded-2xl border border-border bg-card p-5 md:p-6 transition ${
         isAvailable ? "hover:border-[var(--brand-blue)]/40 hover:shadow-sm" : "opacity-60"
       }`}
       aria-disabled={!isAvailable}
@@ -296,9 +297,9 @@ const STATUS_VISUALS: Record<
     icon: RefreshCcw,
   },
   warning: {
-    dot: "#eab308",
-    badgeBg: "rgba(234,179,8,0.14)",
-    badgeColor: "#92610b",
+    dot: "var(--brand-warning)",
+    badgeBg: "rgba(224,139,0,0.12)",
+    badgeColor: "var(--brand-warning)",
     icon: AlertTriangle,
   },
   error: {

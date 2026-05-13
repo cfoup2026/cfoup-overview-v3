@@ -89,7 +89,7 @@ export default function ConfiguracoesPage() {
 
         <div className="space-y-6">
           {activeSection === "empresa" && (
-            <section className="rounded-2xl border border-border bg-card p-7 md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
               <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
                 {data.empresa.title}
               </h2>
@@ -115,7 +115,7 @@ export default function ConfiguracoesPage() {
           )}
 
           {activeSection === "metas" && (
-            <section className="rounded-2xl border border-border bg-card p-7 md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
               <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
                 {data.metas.title}
               </h2>
@@ -131,7 +131,7 @@ export default function ConfiguracoesPage() {
           )}
 
           {activeSection === "alertas" && (
-            <section className="rounded-2xl border border-border bg-card p-7 md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
               <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
                 {data.alertas.title}
               </h2>
@@ -146,7 +146,7 @@ export default function ConfiguracoesPage() {
           )}
 
           {activeSection === "relatorios" && (
-            <section className="rounded-2xl border border-border bg-card p-7 md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
               <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
                 {data.relatorios.title}
               </h2>
@@ -173,7 +173,7 @@ export default function ConfiguracoesPage() {
           )}
 
           {activeSection === "seguranca" && (
-            <section className="rounded-2xl border border-border bg-card p-7 md:p-8">
+            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
               <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
                 {data.seguranca.title}
               </h2>

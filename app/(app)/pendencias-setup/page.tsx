@@ -12,12 +12,16 @@ import type {
   GroupedException,
   SourceTransaction,
 } from "cfoup-core"
+import { PageHeader } from "@/components/page-header"
 
 /**
- * /pendencias-setup
+ * /pendencias-setup → Itens em Aberto
  *
  * Tela de "Implantação" — limpeza inicial dos dados ingeridos pelos parsers.
  * Acontece UMA vez, antes do dono entrar na Mesa de Decisão.
+ *
+ * A rota permanece /pendencias-setup; o label visível foi atualizado para
+ * "Itens em Aberto" (sidebar e PageHeader).
  *
  * Status de integração:
  *   - Cards 1, 2, 3 (em aberto e a confirmar): DEMO visual com arrays placeholder.
@@ -30,18 +34,6 @@ import type {
  *     core já é a real.
  *   - Card 5 ("Possíveis duplicidades"): estado vazio honesto.
  */
-
-// =====================================================================
-// Tokens locais — espelham o brief, sem depender de variáveis de tema
-// =====================================================================
-const NAVY = "#071D3B"
-const BLUE = "#1567C8"
-const CYAN = "#38B8E8"
-const GREEN = "#36BA58"
-const RED = "#E04437"
-const BG = "#F7F9FC"
-const BORDER = "#E5E9F0"
-const MUTED = "#6B7280"
 
 // =====================================================================
 // Tipos
@@ -113,82 +105,59 @@ export default function PendenciasSetupPage() {
   const setupConcluivel = totalPendenciasDemo === 0
 
   return (
-    // Pintamos o fundo #F7F9FC neutralizando o padding do AppShell
-    // para que a faixa cubra a viewport inteira.
-    <div
-      className="-mx-8 -my-3 min-h-[calc(100vh-3rem)] px-8 py-10 md:-mx-10 md:px-10 lg:-mx-12 lg:-my-4 lg:px-12 lg:py-12"
-      style={{ background: BG, color: NAVY }}
-    >
-      <div className="mx-auto w-full max-w-[1140px]">
-        {/* ============================================================ */}
-        {/* HEADER                                                        */}
-        {/* ============================================================ */}
-        <header className="mb-8">
-          <p className="text-[13px] font-medium" style={{ color: MUTED }}>
-            Implantação <span className="mx-1.5 opacity-60">/</span> Pendências de Setup
-          </p>
-          <h1
-            className="mt-2 text-[28px] font-bold leading-tight tracking-tight"
-            style={{ color: NAVY }}
-          >
-            Pendências de Setup
-          </h1>
-          <p className="mt-2 text-[15px] leading-relaxed" style={{ color: MUTED }}>
-            Limpeza inicial dos dados antes de você começar a usar o CFOup. Acontece uma vez.
-          </p>
+    <>
+      <PageHeader
+        eyebrow="Implantação"
+        title="Itens em Aberto"
+        description="Limpeza inicial dos dados antes de você começar a usar o CFOup. Acontece uma vez."
+      />
 
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-[14px]" style={{ color: MUTED }}>
-            <p>
-              <span className="font-semibold" style={{ color: NAVY }}>247</span> pendências em{" "}
-              <span className="font-semibold" style={{ color: NAVY }}>18.491</span> registros analisados
-            </p>
-            <DemoBadge />
-          </div>
-        </header>
-
-        {/* ============================================================ */}
-        {/* CARDS                                                         */}
-        {/* ============================================================ */}
-        <div className="flex flex-col gap-4">
-          <CardAntigosEmAberto />
-          <CardVencimentosAConfirmar />
-          <CardLancamentosSemClassificacao />
-          <CardEstadoVazio
-            title="Possíveis duplicidades"
-            subtitle="Detecção de lançamentos repetidos no mesmo período"
-            placeholderText="Aguardando regra de detecção de duplicatas. Disponível em breve."
-          />
-        </div>
-
-        {/* ============================================================ */}
-        {/* FOOTER                                                        */}
-        {/* ============================================================ */}
-        <footer className="mt-10 flex flex-col items-start gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
-          style={{ borderColor: BORDER }}
-        >
-          <button
-            type="button"
-            disabled={!setupConcluivel}
-            className="inline-flex items-center justify-center rounded-md px-8 py-3 text-[14px] font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
-            style={{ background: NAVY }}
-            title={
-              setupConcluivel
-                ? "Concluir setup"
-                : "Resolva as pendências dos cards antes de concluir"
-            }
-          >
-            Concluir setup
-          </button>
-          <a
-            href="#"
-            className="text-[14px] hover:underline"
-            style={{ color: MUTED }}
-          >
-            Adiar para depois
-          </a>
-        </footer>
+      <div className="mb-6 flex flex-wrap items-center gap-3 text-[13px] text-muted-foreground">
+        <p>
+          <span className="font-semibold text-[var(--brand-navy)]">247</span> pendências em{" "}
+          <span className="font-semibold text-[var(--brand-navy)]">18.491</span> registros analisados
+        </p>
+        <DemoBadge />
       </div>
-    </div>
+
+      {/* ============================================================ */}
+      {/* CARDS                                                         */}
+      {/* ============================================================ */}
+      <div className="flex flex-col gap-4">
+        <CardAntigosEmAberto />
+        <CardVencimentosAConfirmar />
+        <CardLancamentosSemClassificacao />
+        <CardEstadoVazio
+          title="Possíveis duplicidades"
+          subtitle="Detecção de lançamentos repetidos no mesmo período"
+          placeholderText="Aguardando regra de detecção de duplicatas. Disponível em breve."
+        />
+      </div>
+
+      {/* ============================================================ */}
+      {/* FOOTER                                                        */}
+      {/* ============================================================ */}
+      <footer className="mt-10 flex flex-col items-start gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          disabled={!setupConcluivel}
+          className="inline-flex items-center justify-center rounded-md bg-[var(--brand-navy)] px-8 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)] disabled:cursor-not-allowed disabled:opacity-50"
+          title={
+            setupConcluivel
+              ? "Concluir setup"
+              : "Resolva as pendências dos cards antes de concluir"
+          }
+        >
+          Concluir setup
+        </button>
+        <a
+          href="#"
+          className="text-sm text-muted-foreground transition hover:text-foreground hover:underline"
+        >
+          Adiar para depois
+        </a>
+      </footer>
+    </>
   )
 }
 
@@ -198,10 +167,7 @@ export default function PendenciasSetupPage() {
 
 function DemoBadge() {
   return (
-    <span
-      className="inline-flex items-center rounded-[4px] px-2 py-0.5 text-[11px] font-semibold tracking-wide"
-      style={{ background: "#F0F2F5", color: MUTED }}
-    >
+    <span className="inline-flex items-center rounded-[4px] bg-muted px-2 py-0.5 text-[11px] font-semibold tracking-wide text-muted-foreground">
       DEMO
     </span>
   )
@@ -209,10 +175,7 @@ function DemoBadge() {
 
 function CardShell({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      className="rounded-lg bg-white"
-      style={{ border: `1px solid ${BORDER}` }}
-    >
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
       {children}
     </section>
   )
@@ -220,10 +183,7 @@ function CardShell({ children }: { children: React.ReactNode }) {
 
 function DemoStrip() {
   return (
-    <div
-      className="rounded-t-lg px-3 py-1.5 text-[11px] italic"
-      style={{ background: "#FAFBFC", color: MUTED, borderBottom: `1px solid ${BORDER}` }}
-    >
+    <div className="border-b border-border bg-muted/40 px-3 py-1.5 text-[11px] italic text-muted-foreground">
       Dados demonstrativos para validação visual
     </div>
   )
@@ -241,18 +201,13 @@ function CardHeader({
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h2 className="text-[18px] font-semibold leading-tight" style={{ color: NAVY }}>
+        <h2 className="text-base font-bold leading-tight text-[var(--brand-navy)]">
           {title}
         </h2>
-        <p className="mt-1 text-[14px]" style={{ color: MUTED }}>
-          {subtitle}
-        </p>
+        <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
       </div>
       {countLabel && (
-        <span
-          className="inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[12px] font-medium"
-          style={{ background: "#F0F2F5", color: MUTED }}
-        >
+        <span className="inline-flex shrink-0 items-center rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
           {countLabel}
         </span>
       )}
@@ -272,7 +227,7 @@ function CardAntigosEmAberto() {
   return (
     <CardShell>
       <DemoStrip />
-      <div className="p-6">
+      <div className="p-5 md:p-6">
         <CardHeader
           title="Itens antigos em aberto"
           subtitle="Vencidos há mais de 90 dias e ainda em aberto"
@@ -280,7 +235,7 @@ function CardAntigosEmAberto() {
         />
 
         {/* Tabs internas */}
-        <div className="mt-5 flex items-center gap-6 border-b" style={{ borderColor: BORDER }}>
+        <div className="mt-5 flex items-center gap-6 border-b border-border">
           <TabButton active={tab === "receber"} onClick={() => setTab("receber")}>
             A receber (89)
           </TabButton>
@@ -291,9 +246,9 @@ function CardAntigosEmAberto() {
 
         {/* Tabela */}
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-[14px]">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr style={{ color: MUTED }}>
+              <tr className="text-muted-foreground">
                 <Th>Vencimento</Th>
                 <Th>Contraparte</Th>
                 <Th align="right">Valor</Th>
@@ -303,27 +258,28 @@ function CardAntigosEmAberto() {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.id} style={{ borderTop: `1px solid ${BORDER}` }}>
+                <tr key={row.id} className="border-t border-border">
                   <Td>{row.vencimento}</Td>
-                  <Td className="font-medium" style={{ color: NAVY }}>
-                    {row.contraparte}
-                  </Td>
-                  <Td align="right" className="font-semibold tabular-nums" style={{ color: NAVY }}>
+                  <Td className="font-medium text-[var(--brand-navy)]">{row.contraparte}</Td>
+                  <Td align="right" className="font-semibold tabular-nums text-[var(--brand-navy)]">
                     {brl.format(row.valor)}
                   </Td>
                   <Td
                     align="right"
-                    className="font-semibold tabular-nums"
-                    style={{ color: row.diasAtraso > 90 ? RED : NAVY }}
+                    className={`font-semibold tabular-nums ${
+                      row.diasAtraso > 90
+                        ? "text-[var(--brand-error-soft)]"
+                        : "text-[var(--brand-navy)]"
+                    }`}
                   >
                     {row.diasAtraso}
                   </Td>
                   <Td align="right">
                     <RowActions
                       actions={[
-                        { label: "Pago", color: GREEN },
-                        { label: "Baixa", color: MUTED },
-                        { label: "Manter", color: MUTED, ghost: true },
+                        { label: "Pago", color: "var(--brand-green)" },
+                        { label: "Baixa", color: "var(--muted-foreground)" },
+                        { label: "Manter", color: "var(--muted-foreground)", ghost: true },
                       ]}
                     />
                   </Td>
@@ -334,9 +290,9 @@ function CardAntigosEmAberto() {
         </div>
 
         {/* Footer da tabela */}
-        <div className="mt-3 flex items-center justify-between text-[13px]" style={{ color: MUTED }}>
+        <div className="mt-3 flex items-center justify-between text-[12px] text-muted-foreground">
           <span>Mostrando 5 de {tab === "receber" ? "89" : "49"}</span>
-          <a href="#" className="font-medium hover:underline" style={{ color: CYAN }}>
+          <a href="#" className="font-medium text-[var(--brand-blue)] hover:underline">
             Ver todos
           </a>
         </div>
@@ -353,7 +309,7 @@ function CardVencimentosAConfirmar() {
   return (
     <CardShell>
       <DemoStrip />
-      <div className="p-6">
+      <div className="p-5 md:p-6">
         <CardHeader
           title="Vencimentos a confirmar"
           subtitle="Notas A VISTA — vencimento foi inferido a partir da data de emissão"
@@ -361,9 +317,9 @@ function CardVencimentosAConfirmar() {
         />
 
         <div className="mt-5 overflow-x-auto">
-          <table className="w-full text-[14px]">
+          <table className="w-full text-[13px]">
             <thead>
-              <tr style={{ color: MUTED }}>
+              <tr className="text-muted-foreground">
                 <Th>Data emissão</Th>
                 <Th>Contraparte</Th>
                 <Th align="right">Valor</Th>
@@ -373,22 +329,19 @@ function CardVencimentosAConfirmar() {
             </thead>
             <tbody>
               {ISSUES_DEMO.map((row) => (
-                <tr key={row.id} style={{ borderTop: `1px solid ${BORDER}` }}>
+                <tr key={row.id} className="border-t border-border">
                   <Td>{row.emissao}</Td>
-                  <Td className="font-medium" style={{ color: NAVY }}>
-                    {row.contraparte}
-                  </Td>
-                  <Td align="right" className="font-semibold tabular-nums" style={{ color: NAVY }}>
+                  <Td className="font-medium text-[var(--brand-navy)]">{row.contraparte}</Td>
+                  <Td align="right" className="font-semibold tabular-nums text-[var(--brand-navy)]">
                     {brl.format(row.valor)}
                   </Td>
-                  <Td align="right" className="tabular-nums" style={{ color: NAVY }}>
+                  <Td align="right" className="tabular-nums text-[var(--brand-navy)]">
                     <span className="inline-flex items-center justify-end gap-1.5">
                       {row.vencimentoInferido}
                       <span
                         title="Inferido pela ausência de prazo no documento"
                         aria-label="Inferido pela ausência de prazo no documento"
-                        className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full"
-                        style={{ color: BLUE }}
+                        className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full text-[var(--brand-blue)]"
                       >
                         <Info className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </span>
@@ -397,9 +350,9 @@ function CardVencimentosAConfirmar() {
                   <Td align="right">
                     <RowActions
                       actions={[
-                        { label: "Confirmar", color: GREEN },
-                        { label: "Editar", color: MUTED },
-                        { label: "Manter A VISTA", color: MUTED, ghost: true },
+                        { label: "Confirmar", color: "var(--brand-green)" },
+                        { label: "Editar", color: "var(--muted-foreground)" },
+                        { label: "Manter A VISTA", color: "var(--muted-foreground)", ghost: true },
                       ]}
                     />
                   </Td>
@@ -409,9 +362,9 @@ function CardVencimentosAConfirmar() {
           </table>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-[13px]" style={{ color: MUTED }}>
+        <div className="mt-3 flex items-center justify-between text-[12px] text-muted-foreground">
           <span>Mostrando 5 de 109</span>
-          <a href="#" className="font-medium hover:underline" style={{ color: CYAN }}>
+          <a href="#" className="font-medium text-[var(--brand-blue)] hover:underline">
             Ver todos
           </a>
         </div>
@@ -434,11 +387,11 @@ function CardEstadoVazio({
 }) {
   return (
     <CardShell>
-      <div className="p-6">
+      <div className="p-5 md:p-6">
         <CardHeader title={title} subtitle={subtitle} />
         <div className="mt-6 flex flex-col items-center justify-center gap-3 py-10">
-          <Lock className="h-6 w-6" strokeWidth={1.5} style={{ color: MUTED }} />
-          <p className="max-w-md text-center text-[14px] italic" style={{ color: MUTED }}>
+          <Lock className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
+          <p className="max-w-md text-center text-[13px] italic text-muted-foreground">
             {placeholderText}
           </p>
         </div>
@@ -463,17 +416,15 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className="relative -mb-px py-2.5 text-[14px] font-medium transition"
-      style={{
-        color: active ? NAVY : MUTED,
-      }}
+      className={`relative -mb-px py-2.5 text-[13px] font-medium transition ${
+        active ? "text-[var(--brand-navy)]" : "text-muted-foreground"
+      }`}
     >
       {children}
       {active && (
         <span
           aria-hidden
-          className="absolute inset-x-0 -bottom-px h-0.5 rounded-full"
-          style={{ background: CYAN }}
+          className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-[var(--brand-cyan)]"
         />
       )}
     </button>
@@ -489,8 +440,8 @@ function Th({
 }) {
   return (
     <th
-      className="px-3 pb-3 text-[12px] font-medium uppercase tracking-wider"
-      style={{ textAlign: align, color: MUTED }}
+      className="px-3 pb-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+      style={{ textAlign: align }}
     >
       {children}
     </th>
@@ -509,10 +460,7 @@ function Td({
   style?: React.CSSProperties
 }) {
   return (
-    <td
-      className={`px-3 py-3 text-[14px] ${className}`}
-      style={{ textAlign: align, ...style }}
-    >
+    <td className={`px-3 py-3 text-[13px] ${className}`} style={{ textAlign: align, ...style }}>
       {children}
     </td>
   )
@@ -527,7 +475,7 @@ function RowActions({ actions }: { actions: Action[] }) {
         <button
           key={action.label}
           type="button"
-          className={`rounded px-2 py-1 text-[13px] font-medium transition hover:bg-[#F0F2F5] ${
+          className={`rounded px-2 py-1 text-[12px] font-medium transition hover:bg-muted ${
             idx > 0 ? "ml-0.5" : ""
           }`}
           style={{
@@ -809,7 +757,7 @@ function CardLancamentosSemClassificacao() {
   return (
     <CardShell>
       <DemoStrip />
-      <div className="p-6">
+      <div className="p-5 md:p-6">
         <CardHeader
           title="Lançamentos sem classificação"
           subtitle="Motor cfoup-core · 12 categorias financeiras padrão · agrupado por motivo"
@@ -840,7 +788,7 @@ function CardLancamentosSemClassificacao() {
         </div>
 
         {/* Lista de grupos */}
-        <ul className="mt-5 divide-y" style={{ borderColor: BORDER }}>
+        <ul className="mt-5 divide-y divide-border">
           {groups.map((g) => (
             <GroupRow
               key={g.id}
@@ -853,10 +801,7 @@ function CardLancamentosSemClassificacao() {
           ))}
         </ul>
 
-        <p
-          className="mt-4 text-[12px] italic"
-          style={{ color: MUTED }}
-        >
+        <p className="mt-4 text-[11px] italic text-muted-foreground">
           Mock derivado do diagnóstico do cliente piloto. Ações locais sem
           persistência nesta versão.
         </p>
@@ -875,18 +820,15 @@ function SetupStat({
   hint?: string
 }) {
   return (
-    <div
-      className="rounded-md p-3"
-      style={{ background: "#FAFBFC", border: `1px solid ${BORDER}` }}
-    >
-      <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: MUTED }}>
+    <div className="rounded-md border border-border bg-muted/40 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 text-[18px] font-semibold tabular-nums" style={{ color: NAVY }}>
+      <p className="mt-1 text-[1.25rem] font-extrabold tabular-nums text-[var(--brand-navy)]">
         {value}
       </p>
       {hint !== undefined && (
-        <p className="mt-0.5 text-[11px] tabular-nums" style={{ color: MUTED }}>
+        <p className="mt-0.5 text-[11px] tabular-nums text-muted-foreground">
           {hint}
         </p>
       )}
@@ -922,25 +864,25 @@ function GroupRow({
     <li className="py-3 first:pt-0">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
         <div className="min-w-0">
-          <p className="text-[14px] font-semibold" style={{ color: NAVY }}>
+          <p className="text-[13px] font-semibold text-[var(--brand-navy)]">
             {counterparty}
           </p>
-          <p className="mt-0.5 text-[12px] tabular-nums" style={{ color: MUTED }}>
-            <span className="font-medium" style={{ color: NAVY }}>
+          <p className="mt-0.5 text-[11px] tabular-nums text-muted-foreground">
+            <span className="font-medium text-[var(--brand-navy)]">
               {intFmt.format(group.count)}
             </span>{" "}
             transações
             <span className="mx-1.5 opacity-60">·</span>
             {valorNaoInformado ? (
-              <span style={{ color: MUTED }}>valor não informado</span>
+              <span>valor não informado</span>
             ) : (
-              <span style={{ color: MUTED }}>total {brl.format(group.totalAmount)}</span>
+              <span>total {brl.format(group.totalAmount)}</span>
             )}
             {suggestion !== undefined && (
               <>
                 <span className="mx-1.5 opacity-60">·</span>
                 sugestão:{" "}
-                <span className="font-medium" style={{ color: NAVY }}>
+                <span className="font-medium text-[var(--brand-navy)]">
                   {suggestion}
                 </span>
               </>
@@ -950,31 +892,31 @@ function GroupRow({
         <div className="flex shrink-0 flex-wrap items-center gap-1">
           <GroupActionButton
             label={GROUP_ACTION_LABEL.confirmar}
-            color={GREEN}
+            color="var(--brand-green)"
             active={action === "confirmar"}
             onClick={() => onAction("confirmar")}
           />
           <GroupActionButton
             label={GROUP_ACTION_LABEL.trocar}
-            color={BLUE}
+            color="var(--brand-blue)"
             active={action === "trocar"}
             onClick={() => onAction("trocar")}
           />
           <GroupActionButton
             label={GROUP_ACTION_LABEL.aplicar}
-            color={CYAN}
+            color="var(--brand-cyan)"
             active={action === "aplicar"}
             onClick={() => onAction("aplicar")}
           />
           <GroupActionButton
             label={GROUP_ACTION_LABEL.ignorar}
-            color={RED}
+            color="var(--brand-error-soft)"
             active={action === "ignorar"}
             onClick={() => onAction("ignorar")}
           />
           <GroupActionButton
             label={GROUP_ACTION_LABEL.manter}
-            color={MUTED}
+            color="var(--muted-foreground)"
             active={action === "manter"}
             ghost
             onClick={() => onAction("manter")}
@@ -982,7 +924,7 @@ function GroupRow({
         </div>
       </div>
       {action !== undefined && (
-        <p className="mt-1.5 text-[11px] italic" style={{ color: MUTED }}>
+        <p className="mt-1.5 text-[11px] italic text-muted-foreground">
           {GROUP_ACTION_LABEL[action]} — ação visual local, ainda sem
           persistência (contrato com cfoup-core não definido).
         </p>
@@ -1009,7 +951,7 @@ function GroupActionButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className="rounded px-2 py-1 text-[12px] font-medium transition hover:bg-[#F0F2F5]"
+      className="rounded px-2 py-1 text-[12px] font-medium transition hover:bg-muted"
       style={{
         color: active ? "#FFFFFF" : color,
         background: active ? color : ghost ? "transparent" : undefined,
