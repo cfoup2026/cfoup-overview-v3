@@ -64,17 +64,6 @@ export function DRETab({ data }: { data: DREData }) {
 
   return (
     <section>
-      {/* H2 + lede */}
-      <h2
-        className="mb-2 text-lg md:text-[1.3rem] font-extrabold leading-tight tracking-tight"
-        style={{ color: "var(--brand-navy)" }}
-      >
-        Demonstração do Resultado
-      </h2>
-      <p className="mb-6 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {data.intro}
-      </p>
-
       {/* Subtabs — matches HTML .subtabs */}
       <div className="mb-6 flex w-fit gap-1 rounded-xl bg-muted p-1">
         {(["vertical", "horizontal", "comentarios"] as View[]).map((v) => {
@@ -117,12 +106,7 @@ export function DRETab({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewVertical({ data }: { data: DREData }) {
   return (
-    <div>
-      {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {renderBold(data.legendaAV)}
-      </p>
-
+    <div className="max-w-4xl">
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
@@ -224,12 +208,7 @@ function ViewVertical({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewHorizontal({ data }: { data: DREData }) {
   return (
-    <div>
-      {/* Legenda */}
-      <p className="mb-2 max-w-[1180px] text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-        {renderBold(data.legendaAH)}
-      </p>
-
+    <div className="max-w-5xl">
       {/* Tabela */}
       <div className="overflow-hidden rounded-xl bg-card shadow-sm">
         <table className="w-full border-collapse text-[13px]">
@@ -295,7 +274,7 @@ function ViewHorizontal({ data }: { data: DREData }) {
 // ---------------------------------------------------------------------
 function ViewComentarios({ data }: { data: DREData }) {
   return (
-    <div className="rounded-xl border border-border bg-card py-2">
+    <div className="max-w-4xl rounded-xl border border-border bg-card py-2">
       {data.comentarios.map((c, idx) => {
         const labelColor = NOTE_LABEL_COLOR[c.status] || "var(--brand-blue)"
         const isLast = idx === data.comentarios.length - 1
