@@ -32,6 +32,15 @@ export type ConfiguracoesSectionId =
   | "relatorios"
   | "seguranca"
 
+export type ConfiguracoesUserProfile = "admin" | "financeiro" | "contador" | "leitura"
+
+export type ConfiguracoesUser = {
+  id: string
+  nome: string
+  email: string
+  perfil: ConfiguracoesUserProfile
+}
+
 export type ConfiguracoesField = {
   label: string
   value: string | null
@@ -124,6 +133,14 @@ export type ConfiguracoesData = {
       ultimoAcesso: ConfiguracoesField
     }
     toggles: Array<ConfiguracoesToggle>
+  }
+
+  equipe: {
+    title: string
+    description: string
+    users: Array<ConfiguracoesUser>
+    addLabel: string
+    profileLabels: Record<ConfiguracoesUserProfile, string>
   }
 }
 
@@ -331,6 +348,21 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
           on: false,
         },
       ],
+    },
+
+    equipe: {
+      title: "Equipe com acesso ao CFOup",
+      description: "Cadastre quem vai usar o sistema na empresa. Você pode adicionar mais pessoas a qualquer momento.",
+      users: [
+        { id: "owner", nome: contatoNome ?? "—", email: contatoEmail ?? "—", perfil: "admin" },
+      ],
+      addLabel: "Adicionar usuário",
+      profileLabels: {
+        admin: "Admin",
+        financeiro: "Financeiro",
+        contador: "Contador",
+        leitura: "Leitura",
+      },
     },
   }
 }

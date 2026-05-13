@@ -1,41 +1,25 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
-import { Bell, Building2, Shield, Gauge, Mail, Upload } from "lucide-react"
+import { Upload, Plus } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import {
   useConfiguracoesData,
-  type ConfiguracoesSectionId,
   type ConfiguracoesField,
   type ConfiguracoesToggle,
+  type ConfiguracoesUserProfile,
 } from "@/lib/hooks/use-configuracoes-data"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
-
-const SECTION_ICON: Record<
-  ConfiguracoesSectionId,
-  React.ComponentType<{ className?: string; strokeWidth?: number }>
-> = {
-  empresa: Building2,
-  metas: Gauge,
-  alertas: Bell,
-  relatorios: Mail,
-  seguranca: Shield,
-}
 
 export default function ConfiguracoesPage() {
   const user = useCurrentUser()
   const data = useConfiguracoesData({ name: user.name, email: user.email })
-  const [activeSection, setActiveSection] = useState<ConfiguracoesSectionId>("empresa")
-
-  const disabled = !data.hasConnections
 
   return (
     <>
       <PageHeader
         eyebrow={data.header.eyebrow}
         title={data.header.title}
-        description={data.header.description}
       />
 
       {!data.hasConnections && (
@@ -74,165 +58,90 @@ export default function ConfiguracoesPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <nav aria-label="Seções" className="rounded-2xl border border-border bg-card p-3 h-fit">
-          {data.sections.map((section) => (
-            <SectionLink
-              key={section.id}
-              icon={SECTION_ICON[section.id]}
-              label={section.label}
-              active={activeSection === section.id}
-              onClick={() => setActiveSection(section.id)}
+      <div className="space-y-6">
+        <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+          <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
+            {data.empresa.title}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{data.empresa.description}</p>
+
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <Field field={data.empresa.fields.cnpj} emptyLabel={data.emptyFieldLabel} />
+            </div>
+            <Field field={data.empresa.fields.razaoSocial} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.setor} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.regime} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.apelido} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.moeda} emptyLabel={data.emptyFieldLabel} />
+            <Field field={data.empresa.fields.inicioFiscal} emptyLabel={data.emptyFieldLabel} />
+            <Field
+              field={data.empresa.fields.contatoResponsavel}
+              emptyLabel={data.emptyFieldLabel}
             />
-          ))}
-        </nav>
+            <Field
+              field={data.empresa.fields.emailResponsavel}
+              emptyLabel={data.emptyFieldLabel}
+            />
+            <Field field={data.empresa.fields.telefone} emptyLabel={data.emptyFieldLabel} />
+          </div>
+        </section>
 
-        <div className="space-y-6">
-          {activeSection === "empresa" && (
-            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
-                {data.empresa.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{data.empresa.description}</p>
+        <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
+          <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
+            {data.equipe.title}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{data.equipe.description}</p>
 
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <Field field={data.empresa.fields.cnpj} emptyLabel={data.emptyFieldLabel} />
+          <div className="mt-6 space-y-2">
+            {data.equipe.users.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: "var(--brand-navy)" }}>
+                    {user.nome}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{user.email}</p>
                 </div>
-                <Field field={data.empresa.fields.razaoSocial} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.empresa.fields.setor} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.empresa.fields.regime} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.empresa.fields.apelido} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.empresa.fields.moeda} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.empresa.fields.inicioFiscal} emptyLabel={data.emptyFieldLabel} />
-                <Field
-                  field={data.empresa.fields.contatoResponsavel}
-                  emptyLabel={data.emptyFieldLabel}
-                />
-                <Field
-                  field={data.empresa.fields.emailResponsavel}
-                  emptyLabel={data.emptyFieldLabel}
-                />
-                <Field field={data.empresa.fields.telefone} emptyLabel={data.emptyFieldLabel} />
-              </div>
-            </section>
-          )}
-
-          {activeSection === "metas" && (
-            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
-                {data.metas.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{data.metas.description}</p>
-
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <Field field={data.metas.fields.margemLiquida} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.metas.fields.runway} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.metas.fields.concentracao} emptyLabel={data.emptyFieldLabel} />
-                <Field field={data.metas.fields.pmr} emptyLabel={data.emptyFieldLabel} />
-              </div>
-            </section>
-          )}
-
-          {activeSection === "alertas" && (
-            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
-                {data.alertas.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{data.alertas.description}</p>
-
-              <div className="mt-6 space-y-3">
-                {data.alertas.toggles.map((toggle) => (
-                  <Toggle key={toggle.id} toggle={toggle} disabled={disabled} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {activeSection === "relatorios" && (
-            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
-                {data.relatorios.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{data.relatorios.description}</p>
-
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <Field
-                  field={data.relatorios.fields.destinatarios}
-                  emptyLabel={data.emptyFieldLabel}
-                />
-                <Field
-                  field={data.relatorios.fields.frequencia}
-                  emptyLabel={data.emptyFieldLabel}
-                />
-                <Field field={data.relatorios.fields.formato} emptyLabel={data.emptyFieldLabel} />
-              </div>
-
-              <div className="mt-6 space-y-3">
-                {data.relatorios.toggles.map((toggle) => (
-                  <Toggle key={toggle.id} toggle={toggle} disabled={disabled} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {activeSection === "seguranca" && (
-            <section className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
-                {data.seguranca.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{data.seguranca.description}</p>
-
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <Field
-                  field={data.seguranca.fields.autenticacao}
-                  emptyLabel={data.emptyFieldLabel}
-                />
-                <Field field={data.seguranca.fields.sessao} emptyLabel={data.emptyFieldLabel} />
-                <Field
-                  field={data.seguranca.fields.ultimoAcesso}
-                  emptyLabel={data.emptyFieldLabel}
+                <ProfileBadge
+                  perfil={user.perfil}
+                  label={data.equipe.profileLabels[user.perfil]}
                 />
               </div>
+            ))}
+          </div>
 
-              <div className="mt-6 space-y-3">
-                {data.seguranca.toggles.map((toggle) => (
-                  <Toggle key={toggle.id} toggle={toggle} disabled={disabled} />
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+          <button
+            type="button"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition hover:border-[var(--brand-blue)]/40 hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.8} />
+            {data.equipe.addLabel}
+          </button>
+        </section>
       </div>
     </>
   )
 }
 
-function SectionLink({
-  icon: Icon,
-  label,
-  active = false,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
-  label: string
-  active?: boolean
-  onClick?: () => void
-}) {
+const PROFILE_BADGE_STYLES: Record<ConfiguracoesUserProfile, { bg: string; color: string }> = {
+  admin: { bg: "rgba(21,103,200,0.10)", color: "var(--brand-blue)" },
+  financeiro: { bg: "rgba(56,184,232,0.12)", color: "var(--brand-navy)" },
+  contador: { bg: "var(--muted)", color: "var(--brand-navy)" },
+  leitura: { bg: "var(--muted)", color: "var(--slate-600)" },
+}
+
+function ProfileBadge({ perfil, label }: { perfil: ConfiguracoesUserProfile; label: string }) {
+  const styles = PROFILE_BADGE_STYLES[perfil]
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-current={active ? "page" : undefined}
-      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-        active
-          ? "bg-muted font-bold text-[var(--brand-navy)]"
-          : "font-medium text-[var(--slate-700)] hover:bg-muted/60"
-      }`}
+    <span
+      className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold"
+      style={{ background: styles.bg, color: styles.color }}
     >
-      <Icon className="h-4 w-4" strokeWidth={1.8} />
       {label}
-    </button>
+    </span>
   )
 }
 
