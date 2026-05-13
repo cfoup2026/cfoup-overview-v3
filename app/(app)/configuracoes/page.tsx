@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { useRef, type ChangeEvent } from "react"
 import { Upload, Plus } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
 import {
@@ -14,6 +14,14 @@ import { useCurrentUser } from "@/lib/hooks/use-current-user"
 export default function ConfiguracoesPage() {
   const user = useCurrentUser()
   const data = useConfiguracoesData({ name: user.name, email: user.email })
+  const cnpjFileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleCnpjFileSelected(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // TODO: parser real do cartão CNPJ (preencher empresa.fields automaticamente)
+    console.log("Cartão CNPJ recebido:", file.name)
+  }
 
   return (
     <>
@@ -48,13 +56,23 @@ export default function ConfiguracoesPage() {
               </p>
             </div>
           </div>
-          <Link
-            href={data.banner.ctaHref}
+          <button
+            type="button"
+            onClick={() => cnpjFileInputRef.current?.click()}
             className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--brand-navy)] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[var(--brand-blue)]"
           >
             <Upload className="h-3.5 w-3.5" strokeWidth={2.2} />
             {data.banner.ctaLabel}
-          </Link>
+          </button>
+          <input
+            ref={cnpjFileInputRef}
+            type="file"
+            accept="application/pdf,.pdf"
+            onChange={handleCnpjFileSelected}
+            className="hidden"
+            aria-hidden
+            tabIndex={-1}
+          />
         </div>
       )}
 
@@ -63,7 +81,9 @@ export default function ConfiguracoesPage() {
           <h2 className="text-lg font-bold" style={{ color: "var(--brand-navy)" }}>
             {data.empresa.title}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{data.empresa.description}</p>
+          {data.empresa.description && (
+            <p className="mt-1 text-sm text-muted-foreground">{data.empresa.description}</p>
+          )}
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">

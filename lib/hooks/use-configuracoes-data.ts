@@ -184,7 +184,7 @@ export function useConfiguracoesData(user?: UserHint): ConfiguracoesData {
 
     empresa: {
       title: "Perfil da empresa",
-      description: "Identificação fiscal e operacional da empresa. Digite o CNPJ ou importe o cartão para preencher razão social, setor e regime automaticamente. O resto você ajusta aqui.",
+      description: "",
       fields: {
         cnpj: { label: "CNPJ", value: null, placeholder: "Digite o CNPJ ou importe o cartão", source: "manual" },
         razaoSocial: { label: "Razão social", value: null, placeholder: "Será buscado via CNPJ", source: "auto" },
