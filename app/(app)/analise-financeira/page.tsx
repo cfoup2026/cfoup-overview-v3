@@ -88,7 +88,7 @@ function AnaliseFinanceiraContent() {
       {activeTab === "fornecedores" && <FornecedoresTab dados={dados.fornecedores} />}
       {activeTab === "caixa" && <CaixaTab dados={dados.caixa} />}
       {activeTab === "ciclo" && <CicloTab dados={dados.ciclo} />}
-      {activeTab === "checklist" && <ChecklistMensalTab />}
+      {activeTab === "checklist" && <ChecklistMensalTab dados={dados.checklistMensal} />}
     </AnalysisShell>
   )
 }

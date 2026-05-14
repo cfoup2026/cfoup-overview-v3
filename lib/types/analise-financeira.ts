@@ -161,6 +161,26 @@ export type BlocoOperacional = {
 }
 
 // ---------------------------------------------------------------------
+// Checklist Mensal
+// ---------------------------------------------------------------------
+export type ChecklistStatus = "concluido" | "atencao" | "pendente"
+
+export type ChecklistItem = {
+  titulo: string
+  contexto?: string
+  status: ChecklistStatus
+}
+
+export type ChecklistGrupo = {
+  titulo: string
+  itens: ChecklistItem[]
+}
+
+export type ChecklistMensalData = {
+  grupos: ChecklistGrupo[]
+}
+
+// ---------------------------------------------------------------------
 // Hero
 // ---------------------------------------------------------------------
 export type HeroFinanceiro = {
@@ -184,4 +204,5 @@ export type AnaliseFinanceiraDados = {
   fornecedores: BlocoOperacional
   caixa: BlocoOperacional
   ciclo: BlocoOperacional
+  checklistMensal: ChecklistMensalData
 }

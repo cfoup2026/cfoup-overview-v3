@@ -1339,5 +1339,57 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "Fornecedor financia", definicao: "= quando o prazo de pagamento é maior que o de recebimento, o fornecedor está 'emprestando' dinheiro pra você operar." },
       ],
     },
+
+    // -----------------------------------------------------------------
+    // CHECKLIST MENSAL
+    // -----------------------------------------------------------------
+    checklistMensal: {
+      grupos: [
+        {
+          titulo: "Caixa e Liquidez",
+          itens: [
+            { titulo: "Conferir saldo bancário e liquidez atual", contexto: "Meta runway acima de 90 dias", status: "concluido" as const },
+            { titulo: "Reconciliar todas as contas bancárias do mês", contexto: "5 bancos sincronizados", status: "concluido" as const },
+            { titulo: "Identificar outra conta com movimento operacional", contexto: "R$ 73k/mês fora do banco principal", status: "atencao" as const },
+            { titulo: "Atualizar fluxo de caixa 13 semanas", contexto: "Última atualização há 9 dias", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Clientes e Concentração",
+          itens: [
+            { titulo: "Revisar clientes em queda contínua", contexto: "70 clientes valem R$ 285k em 2025", status: "atencao" as const },
+            { titulo: "Cobrar recebíveis vencidos >45 dias", contexto: "Maior pendência: R$ 41k", status: "atencao" as const },
+            { titulo: "Ligar nos 10 maiores clientes perdidos em 2025", contexto: "Receita 2024 perdida: R$ 233k", status: "pendente" as const },
+            { titulo: "Mapear top 5 clientes do mês", contexto: "Top 5 = 24% da receita", status: "concluido" as const },
+          ],
+        },
+        {
+          titulo: "Margem e Custos",
+          itens: [
+            { titulo: "Verificar gap margem NF vs caixa", contexto: "Hoje em ~10% · atualizar custo dos top 10 SKUs", status: "atencao" as const },
+            { titulo: "Conferir crescimento de Diárias vs Folha CLT", contexto: "Diárias +45%, Folha −4%", status: "atencao" as const },
+            { titulo: "Conferir top 5 fornecedores do mês", contexto: "Top 2 embalagens = 17% do pago", status: "concluido" as const },
+            { titulo: "Negociar volume com fornecedores principais", contexto: "Categoria +40% vs receita +21%", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Ciclo Financeiro",
+          itens: [
+            { titulo: "Calcular DSO e PMP do mês", contexto: "DSO 24d · PMP 31d · folga 7 dias", status: "concluido" as const },
+            { titulo: "Verificar se PMP caiu abaixo de 28 dias", contexto: "Volatilidade no ano: 21-49 dias", status: "atencao" as const },
+            { titulo: "Revisar política de prazo padrão por cliente", contexto: "Regra: 30 dias · aprovação direta acima de 45", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Auditoria e Dados",
+          itens: [
+            { titulo: "Validar itens sem classificação", contexto: "27 lançamentos categorizados ontem", status: "concluido" as const },
+            { titulo: "Limpar títulos >120 dias no ERP", contexto: "R$ 53k em pendências de lançamento", status: "atencao" as const },
+            { titulo: "Reconciliar duplicidades em CR e CP", contexto: "4 duplicidades resolvidas no mês", status: "concluido" as const },
+            { titulo: "Decidir sobre cliente crônico", contexto: "13 títulos em atraso · paga em 121 dias", status: "atencao" as const },
+          ],
+        },
+      ],
+    },
   },
 }
