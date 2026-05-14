@@ -272,7 +272,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 <Link
                   key={idx}
                   href={kpi.href}
-                  className="block rounded-lg border border-border bg-muted/30 p-3 transition-colors hover:border-[var(--brand-blue)]/40 hover:bg-muted/50"
+                  className="block cursor-pointer rounded-lg border border-border bg-muted/30 p-3 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:bg-muted/50 hover:shadow-sm"
                 >
                   {content}
                 </Link>
@@ -280,7 +280,10 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
             }
 
             return (
-              <div key={idx} className="rounded-lg border border-border bg-muted/30 p-3">
+              <div
+                key={idx}
+                className="cursor-default rounded-lg border border-border bg-muted/30 p-3 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-border/80 hover:bg-muted/40 hover:shadow-sm"
+              >
                 {content}
               </div>
             )
