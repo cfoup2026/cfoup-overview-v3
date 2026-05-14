@@ -203,9 +203,21 @@ export type HeroFinanceiro = {
 }
 
 // ---------------------------------------------------------------------
+// Fontes de dados importadas (controla empty states)
+// ---------------------------------------------------------------------
+export type FontesImportadas = {
+  cr: boolean      // Contas a Receber
+  cp: boolean      // Contas a Pagar
+  vendas: boolean  // Notas Fiscais de venda
+  banco: boolean   // Extratos bancários
+  estoque: boolean // Controle de estoque
+}
+
+// ---------------------------------------------------------------------
 // Dados completos da Análise Financeira
 // ---------------------------------------------------------------------
 export type AnaliseFinanceiraDados = {
+  fontesImportadas: FontesImportadas
   hero: HeroFinanceiro
   sintese: SinteseFinanceiraData
   faturamento: BlocoOperacional

@@ -777,6 +777,13 @@ export const dadosCliente: AnaliseContabilData = {
   // DADOS FINANCEIROS — Análise Financeira
   // =====================================================================
   dadosFinanceiros: {
+    fontesImportadas: {
+      cr: true,
+      cp: true,
+      vendas: true,
+      banco: true,
+      estoque: true,
+    },
     hero: {
       subTitulo: "Operação · Vendas · Recebíveis · Caixa · Ciclo",
       descricao: "Análise operacional do negócio em 2023, 2024 e 2025 cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",

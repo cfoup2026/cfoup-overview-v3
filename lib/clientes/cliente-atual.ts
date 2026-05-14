@@ -1,7 +1,13 @@
 /**
  * Cliente atual ativo na sessão.
  *
- * Hoje: re-exporta estaticamente empresa-001.
- * V1: será um lookup por sessão/contexto.
+ * Default: empresa-vazia (sem dados importados).
+ * empresa-001 é fixture interna para demos/testes via import direto.
  */
-export { dadosCliente as clienteAtual } from "./empresa-001"
+import { dadosClienteVazio, dadosFinanceirosVazios } from "./empresa-vazia"
+
+export const clienteAtual = {
+  empresa: dadosClienteVazio.empresa,
+  dadosContabeis: dadosClienteVazio,
+  dadosFinanceiros: dadosFinanceirosVazios,
+}
