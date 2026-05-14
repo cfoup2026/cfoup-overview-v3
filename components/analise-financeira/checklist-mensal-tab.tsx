@@ -25,7 +25,17 @@ function StatusIcon({ status }: { status: ChecklistStatus }) {
         className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold"
         style={{ backgroundColor: "var(--brand-warning)", color: "white" }}
       >
-        !
+        ⚠
+      </span>
+    )
+  }
+  if (status === "aguardando") {
+    return (
+      <span
+        className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed text-[11px]"
+        style={{ borderColor: "var(--brand-blue)", color: "var(--brand-blue)" }}
+      >
+        ◌
       </span>
     )
   }
@@ -55,15 +65,29 @@ export function ChecklistMensalTab({ dados }: Props) {
   const toggleStatus = (key: string) => {
     setStatusMap((prev) => {
       const current = prev[key]
-      // Ciclo: pendente → concluido → atencao → pendente
-      const next: ChecklistStatus =
-        current === "pendente" ? "concluido" : current === "concluido" ? "atencao" : "pendente"
+      // Ciclo: pendente → concluido → atencao → aguardando → pendente
+      const cycle: ChecklistStatus[] = ["pendente", "concluido", "atencao", "aguardando"]
+      const currentIdx = cycle.indexOf(current)
+      const next = cycle[(currentIdx + 1) % cycle.length]
       return { ...prev, [key]: next }
     })
   }
 
   return (
     <section className="space-y-6">
+      {/* Microlegenda */}
+      <div className="flex justify-end">
+        <p className="text-[11px] text-muted-foreground">
+          <span style={{ color: "var(--brand-green)" }}>✔</span> Concluído
+          <span className="mx-1.5">·</span>
+          <span style={{ color: "var(--brand-warning)" }}>⚠</span> Atenção
+          <span className="mx-1.5">·</span>
+          <span style={{ color: "var(--muted-foreground)" }}>○</span> Não iniciado
+          <span className="mx-1.5">·</span>
+          <span style={{ color: "var(--brand-blue)" }}>◌</span> Aguardando validação
+        </p>
+      </div>
+
       {dados.grupos.map((grupo, gIdx) => (
         <div
           key={gIdx}

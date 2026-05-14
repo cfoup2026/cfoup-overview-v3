@@ -163,7 +163,7 @@ export type BlocoOperacional = {
 // ---------------------------------------------------------------------
 // Checklist Mensal
 // ---------------------------------------------------------------------
-export type ChecklistStatus = "concluido" | "atencao" | "pendente"
+export type ChecklistStatus = "concluido" | "atencao" | "pendente" | "aguardando"
 
 export type ChecklistItem = {
   titulo: string
