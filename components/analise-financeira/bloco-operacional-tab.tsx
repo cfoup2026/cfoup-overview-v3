@@ -63,7 +63,7 @@ function TabelaMovimentoMensal({
             return (
               <tr
                 key={idx}
-                className={`border-b border-border/50 ${m.isMelhor ? "bg-green-50" : m.isPior ? "bg-red-50" : ""}`}
+                className={`border-b border-border/50 transition-colors hover:bg-muted/30 ${m.isMelhor ? "bg-green-50" : m.isPior ? "bg-red-50" : ""}`}
               >
                 <td className="py-2 pl-3 font-medium" style={{ color: "var(--brand-navy)" }}>
                   {m.mes}
@@ -214,10 +214,10 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
   return (
     <section>
-      {/* LEITURA ÚNICA */}
+      {/* LEITURA */}
       <div className="rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
         <p
-          className="max-w-3xl text-[13px] leading-relaxed"
+          className="text-[13px] leading-relaxed"
           style={{ color: "var(--brand-ink-muted)" }}
           dangerouslySetInnerHTML={{ __html: dados.leitura }}
         />
@@ -342,7 +342,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 <button
                   type="button"
                   onClick={() => toggleEvidence(idx)}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
+                  className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40"
                   style={{ background: evidenceOpen[idx] ? "var(--muted)" : "white" }}
                 >
                   <span
@@ -513,10 +513,10 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         </div>
       )}
 
-      {/* AÇÕES PRIORIZADAS — BLOCO FORTE */}
+      {/* AÇÕES PRIORIZADAS */}
       <div className="mt-4 rounded-2xl border-2 border-border bg-muted/20 p-5 md:p-6">
         <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Ações priorizadas · Bloco {letra}
+          Ações priorizadas
         </p>
         <div className="space-y-2">
           {dados.acoes.map((acao, idx) => {
@@ -555,7 +555,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         <button
           type="button"
           onClick={() => setGlossOpen(!glossOpen)}
-          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-5 py-3 text-left transition-all hover:bg-muted/30"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border bg-white px-5 py-3 text-left transition-all hover:bg-muted/40"
         >
           <span
             className="text-[12px] transition-transform"
@@ -566,7 +566,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
             Glossário
           </span>
-          <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>Bloco {letra} · {titulo}</span>
+          <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{titulo}</span>
         </button>
         {glossOpen && (
           <div className="mt-[-1px] rounded-b-2xl border border-t-0 border-border bg-white px-5 py-3">
