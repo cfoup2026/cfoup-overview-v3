@@ -300,8 +300,12 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           {dados.alertas.map((alerta, idx) => {
             const config = NIVEL_CONFIG[alerta.nivel] || { label: alerta.nivel, color: "var(--brand-blue)" }
 
+            const cardClasses = alerta.href
+              ? "flex h-full cursor-pointer flex-col rounded-lg border border-border bg-white p-4 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:shadow-sm"
+              : "flex h-full cursor-default flex-col rounded-lg border border-border bg-white p-4 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-border/80 hover:shadow-sm"
+
             const content = (
-              <div className="flex h-full flex-col rounded-lg border border-border p-4">
+              <div className={cardClasses}>
                 <p
                   className="mb-2 text-[10px] font-semibold uppercase tracking-wide"
                   style={{ color: config.color }}
@@ -321,11 +325,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
             if (alerta.href) {
               return (
-                <Link
-                  key={idx}
-                  href={alerta.href}
-                  className="block transition-colors hover:opacity-80"
-                >
+                <Link key={idx} href={alerta.href} className="block">
                   {content}
                 </Link>
               )
