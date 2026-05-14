@@ -21,7 +21,7 @@ export default function SinteseTab({ dados }: Props) {
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Veredito
         </p>
-        <p className="max-w-3xl text-[15px] md:text-[16px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
+        <p className="text-[15px] md:text-[16px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
           {dados.veredito}
         </p>
       </div>
@@ -34,24 +34,27 @@ export default function SinteseTab({ dados }: Props) {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {dados.kpis.map((kpi, idx) => {
             const content = (
-              <>
+              <div className="flex flex-col items-center justify-center text-center">
                 <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
                 <p className="mt-1 text-xl font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>{kpi.valor}</p>
                 {kpi.contexto && (
-                  <p className="mt-1 text-[11px] text-muted-foreground">{kpi.contexto}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">{kpi.contexto}</p>
                 )}
-              </>
+              </div>
             )
             return kpi.href ? (
               <Link
                 key={idx}
                 href={kpi.href}
-                className="block rounded-lg border border-border bg-muted/30 p-3 transition-colors hover:border-[var(--brand-blue)]/40 hover:bg-muted/50"
+                className="flex cursor-pointer items-center justify-center rounded-lg border border-border bg-muted/30 px-3 py-2.5 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-[var(--brand-blue)]/40 hover:bg-muted/50 hover:shadow-sm"
               >
                 {content}
               </Link>
             ) : (
-              <div key={idx} className="rounded-lg border border-border bg-muted/30 p-3">
+              <div
+                key={idx}
+                className="flex cursor-default items-center justify-center rounded-lg border border-border bg-muted/30 px-3 py-2.5 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-border/80 hover:bg-muted/40 hover:shadow-sm"
+              >
                 {content}
               </div>
             )
