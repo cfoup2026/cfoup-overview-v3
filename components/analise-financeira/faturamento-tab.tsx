@@ -8,12 +8,5 @@ type Props = {
 }
 
 export function FaturamentoTab({ dados }: Props) {
-  return (
-    <BlocoOperacionalTab
-      letra="A"
-      titulo="Faturamento"
-      src="9.903 notas fiscais · 2023 a Abril/2026"
-      dados={dados}
-    />
-  )
+  return <BlocoOperacionalTab dados={dados} />
 }

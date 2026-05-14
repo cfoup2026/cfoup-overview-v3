@@ -147,9 +147,19 @@ export type SinteseFinanceiraData = {
 }
 
 // ---------------------------------------------------------------------
+// Tab Meta (letra, titulo, src para cada bloco operacional)
+// ---------------------------------------------------------------------
+export type TabMeta = {
+  letra: string   // "A" | "B" | "C" | "D" | "E" | "F"
+  titulo: string  // "Faturamento" | "Clientes" | etc.
+  src: string     // descrição de fonte/cobertura da aba
+}
+
+// ---------------------------------------------------------------------
 // Bloco genérico (Faturamento, Clientes, Auditoria, Fornecedores, Caixa, Ciclo)
 // ---------------------------------------------------------------------
 export type BlocoOperacional = {
+  tabMeta: TabMeta
   veredito: string
   leitura: string
   kpis: KPI[]

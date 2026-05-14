@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import type { ChecklistMensalData, ChecklistStatus } from "@/lib/types/analise-financeira"
+import { CHECKLIST_STATUS_CONFIG, CHECKLIST_STATUS_CYCLE } from "@/lib/analise-financeira/constants/checklist"
 
 type Props = {
   dados: ChecklistMensalData
@@ -9,23 +10,15 @@ type Props = {
 
 // Status icon e cor
 function StatusIcon({ status }: { status: ChecklistStatus }) {
-  if (status === "concluido") {
+  const config = CHECKLIST_STATUS_CONFIG[status]
+  
+  if (status === "concluido" || status === "atencao") {
     return (
       <span
         className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold"
-        style={{ backgroundColor: "var(--brand-green)", color: "white" }}
+        style={{ backgroundColor: config.color, color: "white" }}
       >
-        ✓
-      </span>
-    )
-  }
-  if (status === "atencao") {
-    return (
-      <span
-        className="flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold"
-        style={{ backgroundColor: "var(--brand-warning)", color: "white" }}
-      >
-        ⚠
+        {status === "concluido" ? "✓" : "⚠"}
       </span>
     )
   }
@@ -33,9 +26,9 @@ function StatusIcon({ status }: { status: ChecklistStatus }) {
     return (
       <span
         className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-dashed text-[11px]"
-        style={{ borderColor: "var(--brand-blue)", color: "var(--brand-blue)" }}
+        style={{ borderColor: config.color, color: config.color }}
       >
-        ◌
+        {config.symbol}
       </span>
     )
   }
@@ -43,9 +36,9 @@ function StatusIcon({ status }: { status: ChecklistStatus }) {
   return (
     <span
       className="flex h-5 w-5 items-center justify-center rounded-full border-2 text-[10px]"
-      style={{ borderColor: "var(--muted-foreground)", color: "var(--muted-foreground)" }}
+      style={{ borderColor: config.color, color: config.color }}
     >
-      ○
+      {config.symbol}
     </span>
   )
 }
@@ -65,10 +58,8 @@ export function ChecklistMensalTab({ dados }: Props) {
   const toggleStatus = (key: string) => {
     setStatusMap((prev) => {
       const current = prev[key]
-      // Ciclo: pendente → concluido → atencao → aguardando → pendente
-      const cycle: ChecklistStatus[] = ["pendente", "concluido", "atencao", "aguardando"]
-      const currentIdx = cycle.indexOf(current)
-      const next = cycle[(currentIdx + 1) % cycle.length]
+      const currentIdx = CHECKLIST_STATUS_CYCLE.indexOf(current)
+      const next = CHECKLIST_STATUS_CYCLE[(currentIdx + 1) % CHECKLIST_STATUS_CYCLE.length]
       return { ...prev, [key]: next }
     })
   }
@@ -78,13 +69,13 @@ export function ChecklistMensalTab({ dados }: Props) {
       {/* Microlegenda */}
       <div className="flex justify-end">
         <p className="text-[11px] text-muted-foreground">
-          <span style={{ color: "var(--brand-green)" }}>✔</span> Concluído
+          <span style={{ color: CHECKLIST_STATUS_CONFIG.concluido.color }}>{CHECKLIST_STATUS_CONFIG.concluido.symbol}</span> {CHECKLIST_STATUS_CONFIG.concluido.label}
           <span className="mx-1.5">·</span>
-          <span style={{ color: "var(--brand-warning)" }}>⚠</span> Atenção
+          <span style={{ color: CHECKLIST_STATUS_CONFIG.atencao.color }}>{CHECKLIST_STATUS_CONFIG.atencao.symbol}</span> {CHECKLIST_STATUS_CONFIG.atencao.label}
           <span className="mx-1.5">·</span>
-          <span style={{ color: "var(--muted-foreground)" }}>○</span> Não iniciado
+          <span style={{ color: CHECKLIST_STATUS_CONFIG.pendente.color }}>{CHECKLIST_STATUS_CONFIG.pendente.symbol}</span> {CHECKLIST_STATUS_CONFIG.pendente.label}
           <span className="mx-1.5">·</span>
-          <span style={{ color: "var(--brand-blue)" }}>◌</span> Aguardando validação
+          <span style={{ color: CHECKLIST_STATUS_CONFIG.aguardando.color }}>{CHECKLIST_STATUS_CONFIG.aguardando.symbol}</span> {CHECKLIST_STATUS_CONFIG.aguardando.label}
         </p>
       </div>
 

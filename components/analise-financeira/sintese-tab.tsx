@@ -2,15 +2,11 @@
 
 import Link from "next/link"
 import type { SinteseFinanceiraData } from "@/lib/types/analise-financeira"
+import { NIVEL_CONFIG } from "@/lib/analise-financeira/constants/niveis"
+import { EYEBROWS, LEITURA_EXECUTIVA_LABELS } from "@/lib/analise-financeira/constants/labels"
 
 type Props = {
   dados: SinteseFinanceiraData
-}
-
-const NIVEL_CONFIG: Record<string, { label: string; color: string }> = {
-  critico: { label: "Crítico", color: "var(--brand-red)" },
-  atencao: { label: "Atenção", color: "var(--brand-warning)" },
-  controle: { label: "Controle", color: "var(--brand-green)" },
 }
 
 export default function SinteseTab({ dados }: Props) {
@@ -19,7 +15,7 @@ export default function SinteseTab({ dados }: Props) {
       {/* VEREDITO — estático, sem interação */}
       <div className="rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Veredito
+          {EYEBROWS.veredito}
         </p>
         <p className="text-[15px] md:text-[16px] font-semibold leading-snug" style={{ color: "var(--brand-navy)" }}>
           {dados.veredito}
@@ -29,7 +25,7 @@ export default function SinteseTab({ dados }: Props) {
       {/* KPIs-CHAVE — clicáveis quando href presente */}
       <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          KPIs-chave
+          {EYEBROWS.kpisChave}
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {dados.kpis.map((kpi, idx) => {
@@ -65,7 +61,7 @@ export default function SinteseTab({ dados }: Props) {
       {/* ALERTAS OPERACIONAIS — clicáveis quando href presente */}
       <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Alertas operacionais
+          {EYEBROWS.alertasOperacionais}
         </p>
         <div className="divide-y divide-border">
           {dados.alertas.map((alerta, idx) => {
@@ -101,23 +97,23 @@ export default function SinteseTab({ dados }: Props) {
       {/* LEITURA EXECUTIVA — estática */}
       <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Leitura executiva
+          {EYEBROWS.leituraExecutiva}
         </p>
         <div className="grid gap-5 md:grid-cols-2">
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>A leitura principal</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>{LEITURA_EXECUTIVA_LABELS.principal}</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.principal}</p>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que funcionou</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>{LEITURA_EXECUTIVA_LABELS.oQueFuncionou}</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQueFuncionou}</p>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que preocupa</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>{LEITURA_EXECUTIVA_LABELS.oQuePreocupa}</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQuePreocupa}</p>
           </div>
           <div>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>O que fazer agora</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>{LEITURA_EXECUTIVA_LABELS.oQueFazerAgora}</p>
             <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>{dados.leitura.oQueFazerAgora}</p>
           </div>
         </div>
@@ -126,7 +122,7 @@ export default function SinteseTab({ dados }: Props) {
       {/* AÇÕES PRIORITÁRIAS — clicáveis quando href presente */}
       <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
         <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Ações prioritárias
+          {EYEBROWS.acoesPrioritarias}
         </p>
         <div className="divide-y divide-border">
           {dados.acoes.map((acao, idx) => {

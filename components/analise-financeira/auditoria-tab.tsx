@@ -8,12 +8,5 @@ type Props = {
 }
 
 export function AuditoriaTab({ dados }: Props) {
-  return (
-    <BlocoOperacionalTab
-      letra="C"
-      titulo="Auditoria de Contas a Receber e Contas a Pagar"
-      src="Posição em 20/04/2026"
-      dados={dados}
-    />
-  )
+  return <BlocoOperacionalTab dados={dados} />
 }

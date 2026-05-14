@@ -816,6 +816,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO A — FATURAMENTO
     // -----------------------------------------------------------------
     faturamento: {
+      tabMeta: { letra: "A", titulo: "Faturamento", src: "9.903 notas fiscais · 2023 a Abril/2026" },
       veredito: "Você cresceu, mas não ficou mais saudável — crescimento concentrado em poucos clientes.",
       leitura: "A empresa cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores. Sem a contribuição extraordinária do top 1, o crescimento teria ficado perto de <strong>13%, não 21%</strong>. O Q1-2026 segue positivo, mas em ritmo menor — confirmar se 2025 foi início de uma nova fase ou apenas um pico concentrado.",
       kpis: [
@@ -931,6 +932,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO B — CLIENTES
     // -----------------------------------------------------------------
     clientes: {
+      tabMeta: { letra: "B", titulo: "Clientes", src: "593 clientes únicos · 2023-2025 · jornada + concentração" },
       veredito: "Sua aquisição funciona; sua retenção não.",
       leitura: "Você tem uma base estável relevante e continua trazendo clientes novos. O problema está no meio da carteira: <strong>perdeu 58 clientes em 2025</strong> e outros <strong>70 já vêm caindo</strong> ano após ano. O gargalo comercial hoje não é captação; é retenção.",
       kpis: [
@@ -1063,6 +1065,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO C — AUDITORIA
     // -----------------------------------------------------------------
     auditoria: {
+      tabMeta: { letra: "C", titulo: "Auditoria de Contas a Receber e Contas a Pagar", src: "Posição em 20/04/2026" },
       veredito: "Sua posição está organizada — não aparece nenhum problema grave aqui.",
       leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência de lançamento no ERP do que dinheiro realmente perdido.",
       kpis: [
@@ -1187,6 +1190,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO D — FORNECEDORES
     // -----------------------------------------------------------------
     fornecedores: {
+      tabMeta: { letra: "D", titulo: "Fornecedores", src: "Pagamentos 2023-2025 · 432 fornecedores únicos" },
       veredito: "Seu custo está sob controle, mas dois pontos fugiram do ritmo: embalagens e diárias.",
       leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema — depende do motivo.",
       kpis: [
@@ -1258,6 +1262,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO E — CAIXA
     // -----------------------------------------------------------------
     caixa: {
+      tabMeta: { letra: "E", titulo: "Caixa Bancário", src: "13 meses · Mar/2025 a Mar/2026 · saldo validado por extrato físico" },
       veredito: "A conta bancária analisada não está acumulando reserva — e a leitura final ainda depende de consolidar os demais bancos.",
       leitura: "Mesmo com muito movimento, esta conta quase não acumulou saldo ao longo de <strong>13 meses</strong>. Isso mostra que ela funciona mais como <strong>passagem</strong> do que como <strong>formação de reserva</strong>. Para entender se isso vem da operação ou de saídas fora dela, ainda falta consolidar os demais bancos.",
       kpis: [
@@ -1316,6 +1321,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO F — CICLO
     // -----------------------------------------------------------------
     ciclo: {
+      tabMeta: { letra: "F", titulo: "Ciclo de Caixa", src: "Prazo médio de receber vs prazo médio de pagar · 2025" },
       veredito: "Ciclo bom, porém frágil — a folga é curta e pode sumir rápido.",
       leitura: "Hoje você <strong>recebe antes de pagar</strong>, e isso ajuda o caixa. Em média, o cliente paga em <strong>24 dias</strong> e você paga o fornecedor em <strong>31 dias</strong> — ou seja, o fornecedor financia <strong>7 dias</strong> da sua operação. O problema é que <strong>essa folga é curta e pode sumir rápido</strong>.",
       kpis: [

@@ -3,18 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import type { BlocoOperacional, MovimentoMes, SaidaRecorrente, ClienteTabela } from "@/lib/types/analise-financeira"
+import { NIVEL_CONFIG } from "@/lib/analise-financeira/constants/niveis"
+import { EYEBROWS, MOVIMENTO_LABELS } from "@/lib/analise-financeira/constants/labels"
+import { MARKER_COLORS } from "@/lib/analise-financeira/constants/markers"
 
 type Props = {
-  letra: string
-  titulo: string
-  src: string
   dados: BlocoOperacional
-}
-
-const NIVEL_CONFIG: Record<string, { label: string; color: string }> = {
-  critico: { label: "Crítico", color: "var(--brand-red)" },
-  atencao: { label: "Atenção", color: "var(--brand-warning)" },
-  controle: { label: "Controle", color: "var(--brand-green)" },
 }
 
 // Formata valor em R$ com k/M
@@ -69,12 +63,12 @@ function TabelaMovimentoMensal({
                   {m.mes}
                   {m.isMelhor && (
                     <span className="ml-2 text-[10px] font-semibold uppercase" style={{ color: "var(--brand-green)" }}>
-                      Melhor
+                      {MOVIMENTO_LABELS.melhor}
                     </span>
                   )}
                   {m.isPior && (
                     <span className="ml-2 text-[10px] font-semibold uppercase" style={{ color: "var(--brand-red)" }}>
-                      Pior
+                      {MOVIMENTO_LABELS.pior}
                     </span>
                   )}
                 </td>
@@ -291,7 +285,8 @@ function TabelaClientes({
   )
 }
 
-export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
+export function BlocoOperacionalTab({ dados }: Props) {
+  const { tabMeta } = dados
   const [glossOpen, setGlossOpen] = useState(false)
   const [evidenceOpen, setEvidenceOpen] = useState<Record<number, boolean>>({})
 
@@ -308,13 +303,13 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           style={{ color: "var(--brand-ink-muted)" }}
           dangerouslySetInnerHTML={{ __html: dados.leitura }}
         />
-        <p className="mt-3 text-[11px] text-muted-foreground">{src}</p>
+        <p className="mt-3 text-[11px] text-muted-foreground">{tabMeta.src}</p>
       </div>
 
       {/* KPIs */}
       <div className="mt-4 rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
         <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          KPIs-chave
+          {EYEBROWS.kpisChave}
         </p>
         <div
           className="grid gap-3"
@@ -385,7 +380,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       {/* ALERTAS — GRID RESPONSIVO (2 cols se 2 alertas, 3 cols se 3+) */}
       <div className="mt-4 rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
         <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Alertas operacionais
+          {EYEBROWS.alertasOperacionais}
         </p>
         <div className={`grid gap-4 ${dados.alertas.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {dados.alertas.map((alerta, idx) => {
@@ -619,12 +614,6 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                     {block.tipo === "grid-4-paineis" && block.paineis && (
                       <div className="grid gap-4 md:grid-cols-2">
                         {block.paineis.map((painel, pIdx) => {
-                          const markerColors: Record<string, string> = {
-                            fato: "var(--brand-ink-muted)",
-                            leitura: "var(--brand-blue)",
-                            hipotese: "var(--brand-warning)",
-                            trajetoria: "var(--brand-navy)",
-                          }
                           return (
                             <div key={pIdx} className="rounded-lg border border-border overflow-hidden">
                               <div className="border-b border-border bg-muted/30 px-4 py-2">
@@ -643,7 +632,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                                     {painel.notaMarker && (
                                       <span
                                         className="mr-2 text-[9px] font-semibold uppercase tracking-wide"
-                                        style={{ color: markerColors[painel.notaMarker] || "var(--brand-ink-muted)" }}
+                                        style={{ color: MARKER_COLORS[painel.notaMarker] || "var(--brand-ink-muted)" }}
                                       >
                                         {painel.notaMarker.charAt(0).toUpperCase() + painel.notaMarker.slice(1)}
                                       </span>
@@ -705,7 +694,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       {/* AÇÕES PRIORIZADAS */}
       <div className="mt-4 rounded-2xl border-2 border-border bg-muted/20 p-5 md:p-6">
         <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Ações priorizadas
+          {EYEBROWS.acoesPriorizadas}
         </p>
         <div className="space-y-2">
           {dados.acoes.map((acao, idx) => {
@@ -752,9 +741,9 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
           >
             ▶
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-            Glossário
-          </span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+              {EYEBROWS.glossario}
+            </span>
           <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{titulo}</span>
         </button>
         {glossOpen && (
