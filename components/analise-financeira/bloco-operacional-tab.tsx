@@ -585,6 +585,36 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                       </div>
                     )}
 
+                    {/* Tipo: Dois painéis 2-3 (esquerdo mais estreito) */}
+                    {block.tipo === "dois-paineis-2-3" && block.painelEsquerdo && block.painelDireito && (
+                      <div className="grid gap-4 md:grid-cols-5">
+                        <div className="rounded-lg border border-border md:col-span-2">
+                          <div className="border-b border-border bg-muted/30 px-4 py-2">
+                            <h4 className="text-[12px] font-semibold" style={{ color: "var(--brand-navy)" }}>
+                              {block.painelEsquerdo.titulo}
+                            </h4>
+                          </div>
+                          <div
+                            className="p-4 text-[12px] leading-relaxed"
+                            style={{ color: "var(--brand-ink-muted)" }}
+                            dangerouslySetInnerHTML={{ __html: block.painelEsquerdo.conteudo }}
+                          />
+                        </div>
+                        <div className="rounded-lg border border-border md:col-span-3">
+                          <div className="border-b border-border bg-muted/30 px-4 py-2">
+                            <h4 className="text-[12px] font-semibold" style={{ color: "var(--brand-navy)" }}>
+                              {block.painelDireito.titulo}
+                            </h4>
+                          </div>
+                          <div
+                            className="p-4 text-[12px] leading-relaxed"
+                            style={{ color: "var(--brand-ink-muted)" }}
+                            dangerouslySetInnerHTML={{ __html: block.painelDireito.conteudo }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     {/* Tipo: Grid 4 painéis (2x2) */}
                     {block.tipo === "grid-4-paineis" && block.paineis && (
                       <div className="grid gap-4 md:grid-cols-2">

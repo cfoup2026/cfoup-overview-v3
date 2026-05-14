@@ -1093,18 +1093,57 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO D — FORNECEDORES
     // -----------------------------------------------------------------
     fornecedores: {
-      veredito: "Operação mais enxuta, mas embalagens e diárias cresceram acima do esperado.",
-      leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema.",
+      veredito: "Seu custo está sob controle, mas dois pontos fugiram do ritmo: embalagens e diárias.",
+      leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema — depende do motivo.",
       kpis: [
-        { label: "Total pago a fornecedores 2025", valor: "R$ 3,21<span class='unit'>M</span>", delta: "contra faturamento R$ 3,70M", deltaType: "flat" },
-        { label: "Custo da mercadoria (caixa)", valor: "R$ 1,66<span class='unit'>M</span>", delta: "Insumos + Embalagens = 52%", deltaType: "flat" },
-        { label: "Pago / Faturamento", valor: "86,9<span class='unit'>%</span>", delta: "vs ~95% em 2023 — melhorou 8 p.p.", deltaType: "up" },
-        { label: "Top fornecedor", valor: "ACF", delta: "R$ 322k · 10% do total", deltaType: "flat" },
+        { label: "Total pago a fornecedores 2025", valor: "R$ 3,21<span class='unit'>M</span>", delta: "contra faturamento R$ 3,70M", deltaType: "flat" as const },
+        { label: "Custo da mercadoria (caixa)", valor: "R$ 1,66<span class='unit'>M</span>", delta: "52% do total · Insumos + Embalagens", deltaType: "flat" as const },
+        { label: "Pago / Faturamento", valor: "86,9<span class='unit'>%</span>", delta: "melhorou 8 p.p. vs 2023 (~95%)", deltaType: "up" as const },
+        { label: "Top fornecedor", valor: "ACF Embalagens", delta: "R$ 322k · 10% do total", deltaType: "flat" as const },
       ],
       alertas: [
-        { nivel: "atencao", titulo: "Diárias subiram 45% em 2025", texto: "R$ 143k → R$ 221k. Folha caiu 4%. <b>Está trocando CLT por terceirizado.</b> Pode estar criando passivo trabalhista." },
-        { nivel: "atencao", titulo: "Embalagens +40% (vs receita +21%)", texto: "Custo de embalagem cresceu 2× a receita. Confirmar se foi <b>estoque antecipado</b> (saudável) ou <b>consumo real maior</b> (problema)." },
-        { nivel: "controle", titulo: "Eficiência operacional melhorou", texto: "Custo total / faturamento caiu de 95% (2023) para 87% (2025). <b>8 p.p. de melhora em 2 anos.</b>" },
+        { nivel: "atencao" as const, titulo: "Diárias +45% em 2025", texto: "R$ 143k → R$ 221k. Folha caiu 4%. <b>Está trocando CLT por terceirizado.</b> Pode estar criando passivo trabalhista." },
+        { nivel: "atencao" as const, titulo: "Embalagens +40% (vs receita +21%)", texto: "Custo de embalagem cresceu 2× a receita. Confirmar se foi <b>estoque antecipado</b> (saudável) ou <b>consumo real maior</b> (problema)." },
+        { nivel: "controle" as const, titulo: "Eficiência operacional melhorou", texto: "Custo total / faturamento caiu de 95% (2023) para 87% (2025). <b>8 p.p. de melhora em 2 anos.</b>" },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver fornecedores e categorias de gasto",
+          tipo: "dois-paineis-2-3" as const,
+          painelEsquerdo: {
+            titulo: "D.1 · Top 5 fornecedores 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Fornecedor</th><th style="text-align:right; padding:6px 0;">Pago</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. ACF Embalagens</td><td style="text-align:right;">R$ 322k</td><td style="text-align:right;">10,0%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. NOVAPLASTICS</td><td style="text-align:right;">R$ 228k</td><td style="text-align:right;">7,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. AVANZI</td><td style="text-align:right;">R$ 195k</td><td style="text-align:right;">6,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CHEM SUPPLY</td><td style="text-align:right;">R$ 168k</td><td style="text-align:right;">5,2%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. TRANSLOG</td><td style="text-align:right;">R$ 142k</td><td style="text-align:right;">4,4%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 5 combinados</td><td style="text-align:right; font-weight:bold;">R$ 1,06M</td><td style="text-align:right; font-weight:bold;">32,8%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Concentração saudável: nenhum fornecedor passa de 10%. Top 5 = ~1/3 do total.</p>`,
+          },
+          painelDireito: {
+            titulo: "D.2 · Categorias de gasto 2023 → 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Categoria</th><th style="text-align:right; padding:6px 0;">2023</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ 23→25</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Insumos</td><td style="text-align:right;">R$ 785k</td><td style="text-align:right;">R$ 821k</td><td style="text-align:right;">R$ 836k</td><td style="text-align:right; color:var(--brand-green);">+6%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">Embalagens</td><td style="text-align:right;">R$ 589k</td><td style="text-align:right;">R$ 712k</td><td style="text-align:right;">R$ 828k</td><td style="text-align:right; color:var(--brand-red);">+40%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Energia / Utilidades</td><td style="text-align:right;">R$ 245k</td><td style="text-align:right;">R$ 268k</td><td style="text-align:right;">R$ 289k</td><td style="text-align:right; color:var(--brand-ink-muted);">+18%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Frete / Logística</td><td style="text-align:right;">R$ 198k</td><td style="text-align:right;">R$ 215k</td><td style="text-align:right;">R$ 234k</td><td style="text-align:right; color:var(--brand-ink-muted);">+18%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Folha terceirizada</td><td style="text-align:right;">R$ 312k</td><td style="text-align:right;">R$ 298k</td><td style="text-align:right;">R$ 301k</td><td style="text-align:right; color:var(--brand-green);">−4%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">Diárias / Autônomos</td><td style="text-align:right;">R$ 143k</td><td style="text-align:right;">R$ 178k</td><td style="text-align:right;">R$ 221k</td><td style="text-align:right; color:var(--brand-red);">+45%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Manutenção / Equip.</td><td style="text-align:right;">R$ 156k</td><td style="text-align:right;">R$ 142k</td><td style="text-align:right;">R$ 168k</td><td style="text-align:right; color:var(--brand-ink-muted);">+8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Outros</td><td style="text-align:right;">R$ 178k</td><td style="text-align:right;">R$ 195k</td><td style="text-align:right;">R$ 332k</td><td style="text-align:right; color:var(--brand-warning);">+86%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 2,61M</td><td style="text-align:right; font-weight:bold;">R$ 2,83M</td><td style="text-align:right; font-weight:bold;">R$ 3,21M</td><td style="text-align:right; font-weight:bold; color:var(--brand-ink-muted);">+23%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Embalagens e Diárias puxaram o custo acima da receita (+21%). Insumos ficaram controlados.</p>`,
+          },
+        },
       ],
       acoes: [
         { texto: "<b>Negociar volume com ACF + NOVAPLASTICS</b> (juntas 17% do que você paga).", meta: "Embalagens +40%" },
@@ -1115,6 +1154,8 @@ export const dadosCliente: AnaliseContabilData = {
       glossario: [
         { termo: "CMV (Custo da Mercadoria Vendida)", definicao: "= quanto você gasta com matéria-prima, insumos e embalagem pra produzir o que vende." },
         { termo: "CMV de caixa", definicao: "= CMV calculado pelo que realmente saiu do banco (diferente do CMV da nota fiscal)." },
+        { termo: "SKU", definicao: "= cada produto no seu cadastro. Cada item tem seu código único." },
+        { termo: "Hedge de estoque", definicao: "= comprar mais estoque agora pra se proteger de aumento de preço depois." },
         { termo: "Passivo trabalhista", definicao: "= risco de ter que pagar direitos de trabalhador depois, mesmo sem CLT, se a justiça reconhecer vínculo." },
       ],
     },

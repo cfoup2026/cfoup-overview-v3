@@ -75,7 +75,7 @@ export type PainelGrid = {
 // Tipo para Evidence Block colapsável (suporta HTML ou dados estruturados)
 export type EvidenceBlock = {
   titulo: string
-  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis" | "tabela-clientes" | "grid-4-paineis"
+  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis" | "dois-paineis-2-3" | "tabela-clientes" | "grid-4-paineis"
   // Para tipo "html"
   conteudo?: string
   // Para tipo "movimento-mensal"
