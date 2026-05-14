@@ -817,23 +817,105 @@ export const dadosCliente: AnaliseContabilData = {
     // -----------------------------------------------------------------
     faturamento: {
       veredito: "Você cresceu, mas não ficou mais saudável — crescimento concentrado em poucos clientes.",
-      leitura: "A Gregorutt cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores, especialmente a <strong>SUPRICORP</strong>. Isso sugere que a empresa não expandiu a base — <strong>ela passou a faturar mais em cima de menos relações comerciais</strong>. Sem a contribuição extraordinária da SUPRICORP, o crescimento do ano teria ficado perto de <strong>13%, não 21%</strong>.",
+      leitura: "A empresa cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores. Sem a contribuição extraordinária do top 1, o crescimento teria ficado perto de <strong>13%, não 21%</strong>. O Q1-2026 segue positivo, mas em ritmo menor — confirmar se 2025 foi início de uma nova fase ou apenas um pico concentrado.",
       kpis: [
-        { label: "Q1-2026 (mais recente)", valor: "R$ 0,94<span class='unit'>M</span>", delta: "↑ +11,7% vs Q1-2025 · ritmo abaixo de 2025", deltaType: "warn", highlight: true },
-        { label: "Faturamento 2025", valor: "R$ 3,70<span class='unit'>M</span>", delta: "↑ +21,0% contra 2024", deltaType: "up" },
-        { label: "Margem Bruta declarada", valor: "51,9<span class='unit'>%</span>", delta: "→ −0,8 p.p. · margem real ~48%", deltaType: "flat" },
-        { label: "Receita média por cliente", valor: "R$ 9.838", delta: "↑ +25,8% — atenção: base menor", deltaType: "warn" },
-        { label: "Clientes ativos no ano", valor: "376", delta: "↓ −15 contra 2024 · base encolhendo", deltaType: "down" },
+        { label: "Q1-2026 (mais recente)", valor: "R$ 0,94<span class='unit'>M</span>", delta: "+11,7% vs Q1-2025 · ritmo abaixo de 2025", deltaType: "warn" as const, highlight: true },
+        { label: "Faturamento 2025", valor: "R$ 3,70<span class='unit'>M</span>", delta: "+21,0% contra 2024", deltaType: "up" as const },
+        { label: "Margem Bruta declarada", valor: "51,9<span class='unit'>%</span>", delta: "−0,8 p.p. · margem real ~48%", deltaType: "flat" as const },
+        { label: "Receita média por cliente", valor: "R$ 9.838", delta: "+25,8% — atenção: base menor", deltaType: "warn" as const },
+        { label: "Clientes ativos no ano", valor: "376", delta: "−15 contra 2024 · base encolhendo", deltaType: "down" as const },
       ],
       alertas: [
-        { nivel: "critico", titulo: "SUPRICORP virou cliente crítico", texto: "Saiu de R$ 16k em 2023 para <b>R$ 354k em 2025</b> (9,6% da sua receita). Sozinha puxou 37% do seu crescimento e <b>paga em 69 dias</b>. Sem segundo lugar próximo." },
-        { nivel: "atencao", titulo: "Margem não acompanhou crescimento", texto: "Receita +21%, margem bruta declarada caiu 0,8 p.p. <b>Margem real de caixa ~48%</b> (cadastro de custo do produto está defasado em ~10%)." },
+        { nivel: "critico" as const, titulo: "SUPRICORP virou cliente crítico", texto: "Saiu de R$ 16k em 2023 para <b>R$ 354k em 2025</b> (9,6% da sua receita). Sozinha puxou 37% do seu crescimento e <b>paga em 69 dias</b>. Sem segundo lugar próximo." },
+        { nivel: "atencao" as const, titulo: "Margem não acompanhou crescimento", texto: "Receita +21%, margem bruta declarada caiu 0,8 p.p. <b>Margem real de caixa ~48%</b> (cadastro de custo do produto está defasado em ~10%)." },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver os números detalhados",
+          tipo: "grid-4-paineis" as const,
+          paineis: [
+            {
+              id: "A.1",
+              titulo: "Indicadores anuais",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;"></th><th style="text-align:right; padding:6px 0;">2023</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ 24→25</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Faturamento</td><td style="text-align:right;">R$ 2,52M</td><td style="text-align:right;">R$ 3,06M</td><td style="text-align:right; font-weight:bold;">R$ 3,70M</td><td style="text-align:right; color:var(--brand-green);">+21,0%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">CMV declarado</td><td style="text-align:right;">R$ 1,19M</td><td style="text-align:right;">R$ 1,45M</td><td style="text-align:right;">R$ 1,78M</td><td style="text-align:right; color:var(--brand-red);">+22,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Margem Bruta</td><td style="text-align:right;">52,8%</td><td style="text-align:right;">52,7%</td><td style="text-align:right;">51,9%</td><td style="text-align:right; color:var(--brand-warning);">−0,8 p.p.</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">NFs emitidas</td><td style="text-align:right;">4.521</td><td style="text-align:right;">4.389</td><td style="text-align:right;">4.187</td><td style="text-align:right; color:var(--brand-red);">−4,6%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Clientes únicos</td><td style="text-align:right;">402</td><td style="text-align:right;">391</td><td style="text-align:right;">376</td><td style="text-align:right; color:var(--brand-red);">−15</td></tr>
+                  <tr><td style="padding:6px 0;">Receita média/cliente</td><td style="text-align:right;">R$ 6.269</td><td style="text-align:right;">R$ 7.820</td><td style="text-align:right; font-weight:bold;">R$ 9.838</td><td style="text-align:right; color:var(--brand-green);">+25,8%</td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "Receita cresce, base encolhe. O crescimento veio de faturar mais em cima de menos clientes.",
+              notaMarker: "fato" as const,
+            },
+            {
+              id: "A.2",
+              titulo: "Sazonalidade (índice 100)",
+              conteudo: `<div style="display:flex; gap:4px; align-items:end; height:60px; margin-bottom:12px;">
+                <div style="flex:1; background:var(--brand-green); height:100%; border-radius:2px;" title="Mar: 119"></div>
+                <div style="flex:1; background:var(--brand-warning); height:70%; border-radius:2px;" title="Abr: 85"></div>
+                <div style="flex:1; background:var(--brand-blue); height:80%; border-radius:2px;" title="Mai: 95"></div>
+                <div style="flex:1; background:var(--brand-blue); height:85%; border-radius:2px;" title="Jun: 98"></div>
+                <div style="flex:1; background:var(--brand-warning); height:65%; border-radius:2px;" title="Jul: 78"></div>
+                <div style="flex:1; background:var(--brand-green); height:95%; border-radius:2px;" title="Ago: 112"></div>
+                <div style="flex:1; background:var(--brand-green); height:100%; border-radius:2px;" title="Set: 118"></div>
+                <div style="flex:1; background:var(--brand-blue); height:82%; border-radius:2px;" title="Out: 96"></div>
+                <div style="flex:1; background:var(--brand-green); height:95%; border-radius:2px;" title="Nov: 115"></div>
+                <div style="flex:1; background:var(--brand-warning); height:60%; border-radius:2px;" title="Dez: 72"></div>
+                <div style="flex:1; background:var(--brand-warning); height:55%; border-radius:2px;" title="Jan: 68"></div>
+                <div style="flex:1; background:var(--brand-warning); height:70%; border-radius:2px;" title="Fev: 84"></div>
+              </div>
+              <table style="width:100%; font-size:11px;">
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:4px 0; color:var(--brand-green); font-weight:600;">Picos</td><td style="text-align:right;">Mar, Set, Nov</td><td style="text-align:right;">115-119</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:4px 0; color:var(--brand-warning); font-weight:600;">Vales</td><td style="text-align:right;">Dez, Jan, Fev</td><td style="text-align:right;">68-84</td></tr>
+                <tr><td style="padding:4px 0;">Q4/total</td><td style="text-align:right;">23,5%</td><td style="text-align:right; color:var(--brand-ink-muted);">levemente abaixo de 25%</td></tr>
+              </table>`,
+              notaRodape: "Padrão sazonal típico de distribuição. Q1 é vale natural — comparar YoY, não MoM.",
+              notaMarker: "leitura" as const,
+            },
+            {
+              id: "A.3",
+              titulo: "Crescimento Q1",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;"></th><th style="text-align:right; padding:6px 0;">Q1-2024</th><th style="text-align:right; padding:6px 0;">Q1-2025</th><th style="text-align:right; padding:6px 0;">Q1-2026</th><th style="text-align:right; padding:6px 0;">Δ YoY</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Faturamento</td><td style="text-align:right;">R$ 712k</td><td style="text-align:right;">R$ 841k</td><td style="text-align:right; font-weight:bold;">R$ 940k</td><td style="text-align:right; color:var(--brand-green);">+11,7%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Crescimento YoY</td><td style="text-align:right; color:var(--brand-ink-muted);">—</td><td style="text-align:right; color:var(--brand-green);">+18,1%</td><td style="text-align:right; color:var(--brand-warning);">+11,7%</td><td style="text-align:right;"></td></tr>
+                  <tr><td style="padding:6px 0;">vs ano cheio</td><td style="text-align:right; color:var(--brand-ink-muted);">23,3%</td><td style="text-align:right; color:var(--brand-ink-muted);">22,7%</td><td style="text-align:right; color:var(--brand-ink-muted);">25,4%*</td><td style="text-align:right;"></td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "*Se Q1-2026 representar 25% do ano, projeção anual = R$ 3,76M (estável vs 2025). Se ritmo desacelerar, pode fechar abaixo.",
+              notaMarker: "hipotese" as const,
+            },
+            {
+              id: "A.4",
+              titulo: "Quem puxou o crescimento 2025",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Cliente</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ</th><th style="text-align:right; padding:6px 0;">% do Δ</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">1. SUPRICORP</td><td style="text-align:right;">R$ 215k</td><td style="text-align:right;">R$ 354k</td><td style="text-align:right; color:var(--brand-green);">+R$ 139k</td><td style="text-align:right; font-weight:600; color:var(--brand-warning);">21,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_U</td><td style="text-align:right;">R$ 78k</td><td style="text-align:right;">R$ 112k</td><td style="text-align:right; color:var(--brand-green);">+R$ 34k</td><td style="text-align:right;">5,3%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_V</td><td style="text-align:right;">R$ 65k</td><td style="text-align:right;">R$ 89k</td><td style="text-align:right; color:var(--brand-green);">+R$ 24k</td><td style="text-align:right;">3,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_W</td><td style="text-align:right;">R$ 54k</td><td style="text-align:right;">R$ 72k</td><td style="text-align:right; color:var(--brand-green);">+R$ 18k</td><td style="text-align:right;">2,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_X</td><td style="text-align:right;">R$ 48k</td><td style="text-align:right;">R$ 63k</td><td style="text-align:right; color:var(--brand-green);">+R$ 15k</td><td style="text-align:right;">2,3%</td></tr>
+                  <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 5 combinado</td><td style="text-align:right;"></td><td style="text-align:right;"></td><td style="text-align:right; font-weight:bold; color:var(--brand-green);">+R$ 230k</td><td style="text-align:right; font-weight:bold;">36,0%</td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "SUPRICORP sozinha = 21,8% do crescimento total. Top 5 = 36%. Crescimento concentrado em poucos motores.",
+              notaMarker: "trajetoria" as const,
+            },
+          ],
+        },
       ],
       acoes: [
         { texto: "<b>Reunião com SUPRICORP em 2 semanas</b> — entender pipeline 2026 e renegociar prazo de pagamento (hoje 69 dias).", meta: "Risco: 9,6% da receita" },
         { texto: "<b>Reconciliar custo dos top 10 SKUs</b> com o preço real pago aos fornecedores (ACF, NOVAPLASTICS, AVANZI).", meta: "Gap ~10% entre NF e caixa" },
         { texto: "<b>Plano comercial Q2: meta de 20 clientes novos</b> para compensar os 15 que sumiram.", meta: "Receita esperada: R$ 16-30k/mês" },
         { texto: "<b>Cross-sell nos 145 estáveis de cauda longa</b> — se metade dobrar para R$ 5k, são <b>+R$ 180k/ano</b>.", meta: "Mais barato que aquisição" },
+        { texto: "<b>Monitorar Q2-2026</b> — se crescimento YoY cair abaixo de 10%, acionar plano de expansão de base.", meta: "Indicador de alerta precoce" },
       ],
       glossario: [
         { termo: "NF", definicao: "= Nota Fiscal." },
@@ -841,6 +923,7 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "YoY (ano contra ano)", definicao: "= compara o mesmo período de anos diferentes (ex: Q1-2026 vs Q1-2025)." },
         { termo: "SKU", definicao: "= cada produto no seu cadastro. Cada item tem seu código único." },
         { termo: "Margem Bruta declarada", definicao: "= margem calculada pelo custo que está cadastrado na nota fiscal. Pode estar desatualizada vs realidade." },
+        { termo: "CMV", definicao: "= Custo da Mercadoria Vendida. O que você pagou pelo produto que vendeu." },
       ],
     },
 

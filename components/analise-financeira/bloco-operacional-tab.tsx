@@ -369,7 +369,11 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
             return (
               <div
                 key={idx}
-                className="cursor-default rounded-lg border border-border bg-muted/30 p-3 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-border/80 hover:bg-muted/40 hover:shadow-sm"
+                className={`cursor-default rounded-lg border p-3 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-sm ${
+                  kpi.highlight
+                    ? "border-[var(--brand-blue)]/30 bg-[var(--brand-blue)]/5 hover:border-[var(--brand-blue)]/50"
+                    : "border-border bg-muted/30 hover:border-border/80 hover:bg-muted/40"
+                }`}
               >
                 {content}
               </div>
@@ -378,12 +382,12 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
         </div>
       </div>
 
-      {/* ALERTAS — GRID 3 COLUNAS */}
+      {/* ALERTAS — GRID RESPONSIVO (2 cols se 2 alertas, 3 cols se 3+) */}
       <div className="mt-4 rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
         <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Alertas operacionais
         </p>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className={`grid gap-4 ${dados.alertas.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {dados.alertas.map((alerta, idx) => {
             const config = NIVEL_CONFIG[alerta.nivel] || { label: alerta.nivel, color: "var(--brand-blue)" }
 
@@ -578,6 +582,49 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                             dangerouslySetInnerHTML={{ __html: block.painelDireito.conteudo }}
                           />
                         </div>
+                      </div>
+                    )}
+
+                    {/* Tipo: Grid 4 painéis (2x2) */}
+                    {block.tipo === "grid-4-paineis" && block.paineis && (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {block.paineis.map((painel, pIdx) => {
+                          const markerColors: Record<string, string> = {
+                            fato: "var(--brand-ink-muted)",
+                            leitura: "var(--brand-blue)",
+                            hipotese: "var(--brand-warning)",
+                            trajetoria: "var(--brand-navy)",
+                          }
+                          return (
+                            <div key={pIdx} className="rounded-lg border border-border overflow-hidden">
+                              <div className="border-b border-border bg-muted/30 px-4 py-2">
+                                <h4 className="text-[12px] font-semibold" style={{ color: "var(--brand-navy)" }}>
+                                  {painel.id} · {painel.titulo}
+                                </h4>
+                              </div>
+                              <div className="p-4">
+                                <div
+                                  className="text-[12px] leading-relaxed"
+                                  style={{ color: "var(--brand-ink-muted)" }}
+                                  dangerouslySetInnerHTML={{ __html: painel.conteudo }}
+                                />
+                                {painel.notaRodape && (
+                                  <p className="mt-3 text-[11px] italic text-muted-foreground">
+                                    {painel.notaMarker && (
+                                      <span
+                                        className="mr-2 text-[9px] font-semibold uppercase tracking-wide"
+                                        style={{ color: markerColors[painel.notaMarker] || "var(--brand-ink-muted)" }}
+                                      >
+                                        {painel.notaMarker.charAt(0).toUpperCase() + painel.notaMarker.slice(1)}
+                                      </span>
+                                    )}
+                                    {painel.notaRodape}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </div>

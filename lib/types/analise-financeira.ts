@@ -63,10 +63,19 @@ export type ClienteTabela = {
   obs?: string
 }
 
+// Tipo para painel dentro de grid-4-paineis
+export type PainelGrid = {
+  id: string // ex: "A.1", "A.2"
+  titulo: string
+  conteudo: string // HTML da tabela/conteudo interno
+  notaRodape?: string
+  notaMarker?: "fato" | "leitura" | "hipotese" | "trajetoria" // marker opcional antes da nota
+}
+
 // Tipo para Evidence Block colapsável (suporta HTML ou dados estruturados)
 export type EvidenceBlock = {
   titulo: string
-  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis" | "tabela-clientes"
+  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis" | "tabela-clientes" | "grid-4-paineis"
   // Para tipo "html"
   conteudo?: string
   // Para tipo "movimento-mensal"
@@ -87,6 +96,8 @@ export type EvidenceBlock = {
   subtotalLabel?: string
   subtotalValor?: number
   colunas?: string[] // ex: ["Cliente", "2024", "2025", "Δ"]
+  // Para tipo "grid-4-paineis"
+  paineis?: PainelGrid[]
 }
 
 // Tipo para CTA executivo
