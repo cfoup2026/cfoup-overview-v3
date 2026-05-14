@@ -1,7 +1,4 @@
 /**
- * Cliente atual ativo na sessão.
- *
- * Hoje: re-exporta estaticamente empresa-001.
- * V1: será um lookup por sessão/contexto.
+ * Cliente atual — re-exporta empresa-001 para uso em todo o app
  */
 export { dadosCliente as clienteAtual } from "./empresa-001"

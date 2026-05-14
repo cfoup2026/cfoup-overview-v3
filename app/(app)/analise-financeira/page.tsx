@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
+import { dadosClienteVazio, dadosFinanceirosVazios } from "@/lib/clientes/empresa-vazia"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import SinteseTab from "@/components/analise-financeira/sintese-tab"
 import { FaturamentoTab } from "@/components/analise-financeira/faturamento-tab"
@@ -12,6 +12,8 @@ import { FornecedoresTab } from "@/components/analise-financeira/fornecedores-ta
 import { CaixaTab } from "@/components/analise-financeira/caixa-tab"
 import { CicloTab } from "@/components/analise-financeira/ciclo-tab"
 import { ChecklistMensalTab } from "@/components/analise-financeira/checklist-mensal-tab"
+import { EmptyState } from "@/components/analise-financeira/empty-state"
+import { verificarFontesFaltando, abaTemDadosSuficientes } from "@/lib/analise-financeira/constants/fontes-por-aba"
 
 const TABS: TabConfig[] = [
   { id: "sintese", numeral: "01", label: "Síntese" },
@@ -62,12 +64,28 @@ function AnaliseFinanceiraContent() {
     const resolved = resolveTabFromParam(abaParam)
     setActiveTab(resolved)
   }, [abaParam])
-  const dados = clienteAtual.dadosFinanceiros
+  const dados = dadosFinanceirosVazios
   const hero = dados.hero
+  const fontes = dados.fontesImportadas
+
+  // Helper para renderizar aba ou empty state
+  const renderTabContent = (tabId: string, content: React.ReactNode) => {
+    if (!abaTemDadosSuficientes(tabId, fontes)) {
+      const faltando = verificarFontesFaltando(tabId, fontes)
+      return (
+        <EmptyState
+          titulo="Aguardando dados"
+          descricao="Para gerar esta análise, precisamos que você importe os arquivos necessários."
+          fontesFaltando={faltando}
+        />
+      )
+    }
+    return content
+  }
 
   return (
     <AnalysisShell
-      empresa={{ nome: clienteAtual.empresa?.nome ?? "—" }}
+      empresa={{ nome: dadosClienteVazio.empresa?.nome ?? "—" }}
       eyebrow="CFOup · Análise Financeira"
       subtitulo={hero.subTitulo}
       descricao={hero.descricao}
@@ -81,14 +99,14 @@ function AnaliseFinanceiraContent() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
-      {activeTab === "sintese" && <SinteseTab dados={dados.sintese} />}
-      {activeTab === "faturamento" && <FaturamentoTab dados={dados.faturamento} />}
-      {activeTab === "clientes" && <ClientesTab dados={dados.clientes} />}
-      {activeTab === "auditoria" && <AuditoriaTab dados={dados.auditoria} />}
-      {activeTab === "fornecedores" && <FornecedoresTab dados={dados.fornecedores} />}
-      {activeTab === "caixa" && <CaixaTab dados={dados.caixa} />}
-      {activeTab === "ciclo" && <CicloTab dados={dados.ciclo} />}
-      {activeTab === "checklist" && <ChecklistMensalTab />}
+      {activeTab === "sintese" && renderTabContent("sintese", <SinteseTab dados={dados.sintese} />)}
+      {activeTab === "faturamento" && renderTabContent("faturamento", <FaturamentoTab dados={dados.faturamento} />)}
+      {activeTab === "clientes" && renderTabContent("clientes", <ClientesTab dados={dados.clientes} />)}
+      {activeTab === "auditoria" && renderTabContent("auditoria", <AuditoriaTab dados={dados.auditoria} />)}
+      {activeTab === "fornecedores" && renderTabContent("fornecedores", <FornecedoresTab dados={dados.fornecedores} />)}
+      {activeTab === "caixa" && renderTabContent("caixa", <CaixaTab dados={dados.caixa} />)}
+      {activeTab === "ciclo" && renderTabContent("ciclo", <CicloTab dados={dados.ciclo} />)}
+      {activeTab === "checklist" && renderTabContent("checklist", <ChecklistMensalTab dados={dados.checklistMensal} />)}
     </AnalysisShell>
   )
 }

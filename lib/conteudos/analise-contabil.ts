@@ -48,11 +48,46 @@ export const conteudoSintese: SinteseConteudoUniversal = {
 // ---------------------------------------------------------------------
 // DRE — conteúdo universal
 // ---------------------------------------------------------------------
+export type ExecutiveCardsConteudo = {
+  leitura: { titulo: string; texto: string }
+  acoes: { titulo: string; itens: string[] }
+}
+
 export type DREConteudoUniversal = {
+  executiveCardsAV: ExecutiveCardsConteudo
+  executiveCardsAH: ExecutiveCardsConteudo
   glossario: { termo: string; definicao: string }[]
 }
 
 export const conteudoDRE: DREConteudoUniversal = {
+  executiveCardsAV: {
+    leitura: {
+      titulo: "Leitura da análise",
+      texto: "Margem líquida avançou 16 pontos entre 2023 e 2025 (28,4% → 44,4%). O CPV caiu de 38,9% para 24,4% da receita líquida no período — principal ganho de margem. Despesas com pessoal reduziram de 20,7% para 17,3%. Despesas gerais subiram de 10,9% para 13,7%.",
+    },
+    acoes: {
+      titulo: "Pontos de ação — DRE",
+      itens: [
+        "CPV caiu 14,5 pontos (38,9% → 24,4%) — verificar se houve mudança de critério contábil ou ganho real de eficiência.",
+        "Despesas gerais subiram 2,8 pontos (10,9% → 13,7%) — mapear composição para entender origem do aumento.",
+        "Lucro bruto saltou de 61,1% para 75,6% da receita líquida — estrutura de custos está mais leve.",
+      ],
+    },
+  },
+  executiveCardsAH: {
+    leitura: {
+      titulo: "Leitura da análise",
+      texto: "Receita líquida cresceu +30,8% entre 2023 e 2025. Lucro líquido cresceu +104,7% no mesmo período (R$ 474.849 → R$ 971.923). CPV caiu -18,0% em valor absoluto, mesmo com receita subindo. Despesas gerais cresceram +64,2%, acima da receita.",
+    },
+    acoes: {
+      titulo: "Pontos de ação — DRE",
+      itens: [
+        "CPV caiu -18,0% enquanto receita cresceu +30,8% — validar se houve mudança de critério ou terceirização.",
+        "Despesas gerais cresceram +64,2% no período, acima da receita (+30,8%) — investigar composição.",
+        "Lucro bruto cresceu +62,0% vs lucro líquido +104,7% — ganho de alavancagem operacional confirmado.",
+      ],
+    },
+  },
   glossario: [
     {
       termo: "Receita Bruta",
@@ -134,6 +169,8 @@ export type BPConteudoUniversal = {
   intro: string
   legendaAV: string
   legendaAH: string
+  executiveCardsAV: ExecutiveCardsConteudo
+  executiveCardsAH: ExecutiveCardsConteudo
   glossario: { termo: string; definicao: string }[]
 }
 
@@ -146,6 +183,35 @@ export const conteudoBP: BPConteudoUniversal = {
 
   legendaAH:
     "As colunas Δ mostram quanto cada linha cresceu ou caiu de um ano para o outro. Verde é favorável; vermelho é desfavorável; cinza é neutro.",
+
+  executiveCardsAV: {
+    leitura: {
+      titulo: "Leitura da análise",
+      texto: "Saldo em banco representa 93,5% do ativo total em 2025 — subiu de 89,4% em 2023. Patrimônio líquido é 94,5% do passivo + PL, indicando que a empresa opera quase inteiramente com capital próprio. Passivo circulante (dívidas de curto prazo) caiu de 9,0% para 5,5% do total.",
+    },
+    acoes: {
+      titulo: "Pontos de ação — Balanço",
+      itens: [
+        "Saldo em banco de 93,5% do ativo é atípico — verificar se está rendendo ou parado em conta corrente.",
+        "Estoque caiu de 7,7% para 3,8% do ativo — confirmar se produção sob demanda ou problema de abastecimento.",
+        "Ativo não-circulante de apenas 2,7% do ativo — mapear se há máquinas/imóveis fora do balanço.",
+      ],
+    },
+  },
+  executiveCardsAH: {
+    leitura: {
+      titulo: "Leitura da análise",
+      texto: "Ativo total cresceu +104,2% entre 2023 e 2025 (R$ 760 mil → R$ 1,55 milhão). Saldo em banco cresceu +113,7% no período — praticamente todo o crescimento do ativo foi para caixa. Patrimônio líquido cresceu +111,9%, acompanhando o caixa. Lucros acumulados cresceram +113,9%.",
+    },
+    acoes: {
+      titulo: "Pontos de ação — Balanço",
+      itens: [
+        "Saldo em banco +113,7% vs ativo +104,2% — todo lucro gerado está indo para o caixa, não para investimento.",
+        "Máquinas e instalações +86,6% no período (R$ 22 mil → R$ 41 mil) — investimento baixo para o porte.",
+        "Impostos a recolher +80,4% — crescendo no ritmo do faturamento, sem acúmulo irregular.",
+      ],
+    },
+  },
 
   glossario: [
     {

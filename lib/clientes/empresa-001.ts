@@ -106,10 +106,21 @@ export type AoContadorDadosCliente = {
   grupos: GrupoAoContador[]
 }
 
+export type FontesImportadas = {
+  dre: boolean
+  balanco: boolean
+  razao: boolean
+  balancete: boolean
+  diarioGeral: boolean
+}
+
 export type AnaliseContabilData = {
   empresa: { nome: string; nomeCurto: string; cnpj: string; regime: string }
   periodos: string[]
   emitidoEm: string
+  fontesRecebidas: string
+  statusAnalise: "Completa" | "Parcial" | "Aguardando arquivos"
+  fontesImportadas: FontesImportadas
   sintese: {
     intro: string
     fatos: { numero: string; titulo: string; corpo: string; chatCfoup: string }[]
@@ -127,13 +138,22 @@ export type AnaliseContabilData = {
 // ---------------------------------------------------------------------
 export const dadosCliente: AnaliseContabilData = {
   empresa: {
-    nome: "Gregorutt Indústria e Comércio Ltda",
-    nomeCurto: "Gregorutt",
-    cnpj: "05.218.914/0001-47",
+    nome: "Empresa Demonstração Ltda",
+    nomeCurto: "Empresa Demo",
+    cnpj: "00.000.000/0001-00",
     regime: "Simples Nacional",
   },
   periodos: ["2023", "2024", "2025"],
   emitidoEm: "21/04/2026",
+  fontesRecebidas: "DRE, Balanço Patrimonial",
+  statusAnalise: "Completa",
+  fontesImportadas: {
+    dre: true,
+    balanco: true,
+    razao: false,
+    balancete: false,
+    diarioGeral: false,
+  },
 
   sintese: {
     intro:
@@ -600,7 +620,7 @@ export const dadosCliente: AnaliseContabilData = {
       { id: "bp-2", titulo: "Estoque", corpo: "Entre R$ 44 mil e R$ 59 mil nos três anos — pouco, para uma indústria que vende R$ 2,5 milhões por ano. Quer dizer que a empresa **produz sob pedido**: compra matéria-prima, fabrica e entrega rápido. Não fica com produto parado.", status: "info" },
       { id: "bp-3", titulo: "Máquinas e equipamentos", corpo: "R$ 41,5 mil em 2025. Pouco, para uma indústria desse tamanho. Duas possibilidades: (1) a empresa usa galpão e máquinas que não são dela (alugado, ou dos sócios em nome pessoal), ou (2) as máquinas estão registradas pelo valor original, sem atualização. Também não aparece depreciação no balanço.", status: "atencao" },
       { id: "bp-4", titulo: "A pagar para fornecedores", corpo: "Oscilou entre os anos: R$ 40 mil, R$ 6 mil, R$ 39 mil. Isso é normal — depende de uma fatura grande ter sido paga em 30/12 ou em 02/01. Nada relevante.", status: "info" },
-      { id: "bp-5", titulo: "Impostos a recolher", corpo: "Subiu 80% em três anos, no mesmo ritmo das vendas. Em 2025, metade é Simples Nacional e metade é ICMS-ST (imposto que a Gregorutt paga antecipado no lugar do cliente dela).", status: "info" },
+      { id: "bp-5", titulo: "Impostos a recolher", corpo: "Subiu 80% em três anos, no mesmo ritmo das vendas. Em 2025, metade é Simples Nacional e metade é ICMS-ST (imposto que a empresa paga antecipado no lugar do cliente dela).", status: "info" },
       { id: "bp-6", titulo: "R$ 5 mil de capital, R$ 1,45 milhão de lucro guardado", corpo: "Quando os sócios abriram a empresa, colocaram **R$ 5 mil**. Hoje o lucro acumulado é **R$ 1,45 milhão**. Só nos últimos três anos, a empresa deu R$ 1,98 milhão de lucro — e não tem registro de distribuição formal aos sócios. Ou os sócios retiraram via pró-labore (que está dentro da folha), ou deixaram tudo dentro da empresa.", status: "atencao" },
       { id: "bp-7", titulo: "Sem dívida nenhuma", corpo: "A empresa não tem empréstimo, não tem financiamento, não tem leasing. Todo o crescimento foi feito com dinheiro próprio. Sem risco financeiro, mas também sem uso de banco para crescer mais rápido.", status: "positivo" },
       { id: "bp-8", titulo: "Saldo do banco e patrimônio crescem juntos", corpo: "Em três anos, o saldo em banco cresceu 113,7%. O patrimônio dos sócios cresceu 111,9%. A diferença é quase zero. Na prática: **todo lucro que a empresa dá vai para o banco**. Não vira máquina nova, não vira distribuição para os sócios, não vira estoque.", status: "info" },
@@ -757,58 +777,153 @@ export const dadosCliente: AnaliseContabilData = {
   // DADOS FINANCEIROS — Análise Financeira
   // =====================================================================
   dadosFinanceiros: {
+    fontesImportadas: {
+      cr: true,
+      cp: true,
+      vendas: true,
+      banco: true,
+      estoque: true,
+    },
     hero: {
       subTitulo: "Operação · Vendas · Recebíveis · Caixa · Ciclo",
       descricao: "Análise operacional do negócio em 2023, 2024 e 2025 cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",
       exercicios: "2023 · 2024 · 2025 · Q1-2026",
       cobertura: "9.903 NFs · 6.880 títulos · 6.364 lançamentos",
-      fonte: "SIFWIN/FKN + extratos bancários",
+      fonte: "ERP + extratos bancários",
       dataBase: "20/04/2026",
     },
     sintese: {
-      tese: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
-      decisoes: [
-        {
-          titulo: "SUPRICORP",
-          descricao: "reduzir dependência e melhorar prazo de recebimento.",
-          meta: "9,6% da receita · paga em 69 dias · puxou 56% do crescimento de Q1-2026",
-        },
-        {
-          titulo: "Base ativa",
-          descricao: "atacar os 70 clientes em queda e os 58 já perdidos antes de buscar mais volume. Reter quem já é seu custa menos que conquistar novo.",
-          meta: "Lista completa no Bloco B",
-        },
-        {
-          titulo: "Caixa completo",
-          descricao: "consolidar todos os bancos e separar o que é operação do que é movimento pessoal dos sócios.",
-          meta: "R$ 73 mil/mês circulam fora do banco analisado",
-        },
+      veredito: "Você cresceu, mas ficou mais dependente — e ainda não transformou esse crescimento em caixa e previsibilidade.",
+      kpis: [
+        { label: "Faturamento Q1-2026", valor: "R$ 0,94M", contexto: "+11,7% vs Q1-2025", href: "/analise-financeira?tab=faturamento" },
+        { label: "Clientes ativos", valor: "376", contexto: "−15 vs 2024", href: "/analise-financeira?tab=clientes" },
+        { label: "Concentração Top 1", valor: "9,6%", contexto: "SUPRICORP · 69 dias prazo", href: "/analise-financeira?tab=clientes" },
+        { label: "Base em queda", valor: "70", contexto: "−R$ 285k em risco", href: "/analise-financeira?tab=clientes" },
+        { label: "Caixa visível", valor: "27%", contexto: "R$ 73k/mês fora do radar", href: "/analise-financeira?tab=caixa" },
       ],
-      callout: "Crescer, a Gregorutt já sabe. O próximo passo é ganhar controle sobre cliente, caixa e previsibilidade.",
+      alertas: [
+        { nivel: "critico", texto: "SUPRICORP virou dependência crítica: 9,6% da receita, paga em 69 dias, puxou 56% do crescimento de Q1.", href: "/analise-financeira?tab=clientes" },
+        { nivel: "atencao", texto: "Saldo líquido de clientes é negativo: 70 em queda + 58 perdidos superam os 43 em alta.", href: "/analise-financeira?tab=clientes" },
+        { nivel: "controle", texto: "Caixa incompleto: R$ 73 mil/mês circulam fora do banco analisado.", href: "/analise-financeira?tab=caixa" },
+      ],
+      leitura: {
+        principal: "O faturamento cresceu 21% em 2025, mas a base de clientes encolheu e a concentração aumentou. O crescimento veio de poucos motores, especialmente SUPRICORP, que sozinha puxou 37% do avanço do ano.",
+        oQueFuncionou: "Aquisição funciona: 79 clientes novos em 2025. O canal de entrada está saudável. A margem bruta declarada se manteve acima de 50%.",
+        oQuePreocupa: "A retenção é o problema: mais clientes em queda (70) do que em alta (43). A margem real de caixa está ~10% abaixo da declarada. O caixa visível representa apenas 27% do fluxo real.",
+        oQueFazerAgora: "Consolidar a visão de caixa, proteger SUPRICORP com contrato, e atacar os 70 em queda antes de buscar volume novo.",
+      },
+      acoes: [
+        { titulo: "Reunião SUPRICORP", descricao: "Entender pipeline 2026 e renegociar prazo de 69 para 45 dias.", href: "/analise-financeira?tab=clientes" },
+        { titulo: "Plano de retenção", descricao: "Listar os 70 em queda e atribuir a vendedor para diagnóstico em 30 dias.", href: "/analise-financeira?tab=clientes" },
+        { titulo: "Consolidação de caixa", descricao: "Integrar todos os bancos e separar movimento pessoal dos sócios.", href: "/analise-financeira?tab=caixa" },
+      ],
     },
 
     // -----------------------------------------------------------------
     // BLOCO A — FATURAMENTO
     // -----------------------------------------------------------------
     faturamento: {
+      tabMeta: { letra: "A", titulo: "Faturamento", src: "9.903 notas fiscais · 2023 a Abril/2026" },
       veredito: "Você cresceu, mas não ficou mais saudável — crescimento concentrado em poucos clientes.",
-      leitura: "A Gregorutt cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores, especialmente a <strong>SUPRICORP</strong>. Isso sugere que a empresa não expandiu a base — <strong>ela passou a faturar mais em cima de menos relações comerciais</strong>. Sem a contribuição extraordinária da SUPRICORP, o crescimento do ano teria ficado perto de <strong>13%, não 21%</strong>.",
+      leitura: "A empresa cresceu forte em 2025, mas o crescimento <strong>mudou de natureza</strong>: veio com menos clientes, menos notas e maior concentração em poucos motores. Sem a contribuição extraordinária do top 1, o crescimento teria ficado perto de <strong>13%, não 21%</strong>. O Q1-2026 segue positivo, mas em ritmo menor — confirmar se 2025 foi início de uma nova fase ou apenas um pico concentrado.",
       kpis: [
-        { label: "Q1-2026 (mais recente)", valor: "R$ 0,94<span class='unit'>M</span>", delta: "↑ +11,7% vs Q1-2025 · ritmo abaixo de 2025", deltaType: "warn", highlight: true },
-        { label: "Faturamento 2025", valor: "R$ 3,70<span class='unit'>M</span>", delta: "↑ +21,0% contra 2024", deltaType: "up" },
-        { label: "Margem Bruta declarada", valor: "51,9<span class='unit'>%</span>", delta: "→ −0,8 p.p. · margem real ~48%", deltaType: "flat" },
-        { label: "Receita média por cliente", valor: "R$ 9.838", delta: "↑ +25,8% — atenção: base menor", deltaType: "warn" },
-        { label: "Clientes ativos no ano", valor: "376", delta: "↓ −15 contra 2024 · base encolhendo", deltaType: "down" },
+        { label: "Q1-2026 (mais recente)", valor: "R$ 0,94<span class='unit'>M</span>", delta: "+11,7% vs Q1-2025 · ritmo abaixo de 2025", deltaType: "warn" as const, highlight: true },
+        { label: "Faturamento 2025", valor: "R$ 3,70<span class='unit'>M</span>", delta: "+21,0% contra 2024", deltaType: "up" as const },
+        { label: "Margem Bruta declarada", valor: "51,9<span class='unit'>%</span>", delta: "−0,8 p.p. · margem real ~48%", deltaType: "flat" as const },
+        { label: "Receita média por cliente", valor: "R$ 9.838", delta: "+25,8% — atenção: base menor", deltaType: "warn" as const },
+        { label: "Clientes ativos no ano", valor: "376", delta: "−15 contra 2024 · base encolhendo", deltaType: "down" as const },
       ],
       alertas: [
-        { nivel: "critico", titulo: "SUPRICORP virou cliente crítico", texto: "Saiu de R$ 16k em 2023 para <b>R$ 354k em 2025</b> (9,6% da sua receita). Sozinha puxou 37% do seu crescimento e <b>paga em 69 dias</b>. Sem segundo lugar próximo." },
-        { nivel: "atencao", titulo: "Margem não acompanhou crescimento", texto: "Receita +21%, margem bruta declarada caiu 0,8 p.p. <b>Margem real de caixa ~48%</b> (cadastro de custo do produto está defasado em ~10%)." },
+        { nivel: "critico" as const, titulo: "SUPRICORP virou cliente crítico", texto: "Saiu de R$ 16k em 2023 para <b>R$ 354k em 2025</b> (9,6% da sua receita). Sozinha puxou 37% do seu crescimento e <b>paga em 69 dias</b>. Sem segundo lugar próximo." },
+        { nivel: "atencao" as const, titulo: "Margem não acompanhou crescimento", texto: "Receita +21%, margem bruta declarada caiu 0,8 p.p. <b>Margem real de caixa ~48%</b> (cadastro de custo do produto está defasado em ~10%)." },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver os números detalhados",
+          tipo: "grid-4-paineis" as const,
+          paineis: [
+            {
+              id: "A.1",
+              titulo: "Indicadores anuais",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;"></th><th style="text-align:right; padding:6px 0;">2023</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ 24→25</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Faturamento</td><td style="text-align:right;">R$ 2,52M</td><td style="text-align:right;">R$ 3,06M</td><td style="text-align:right; font-weight:bold;">R$ 3,70M</td><td style="text-align:right; color:var(--brand-green);">+21,0%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">CMV declarado</td><td style="text-align:right;">R$ 1,19M</td><td style="text-align:right;">R$ 1,45M</td><td style="text-align:right;">R$ 1,78M</td><td style="text-align:right; color:var(--brand-red);">+22,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Margem Bruta</td><td style="text-align:right;">52,8%</td><td style="text-align:right;">52,7%</td><td style="text-align:right;">51,9%</td><td style="text-align:right; color:var(--brand-warning);">−0,8 p.p.</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">NFs emitidas</td><td style="text-align:right;">4.521</td><td style="text-align:right;">4.389</td><td style="text-align:right;">4.187</td><td style="text-align:right; color:var(--brand-red);">−4,6%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Clientes únicos</td><td style="text-align:right;">402</td><td style="text-align:right;">391</td><td style="text-align:right;">376</td><td style="text-align:right; color:var(--brand-red);">−15</td></tr>
+                  <tr><td style="padding:6px 0;">Receita média/cliente</td><td style="text-align:right;">R$ 6.269</td><td style="text-align:right;">R$ 7.820</td><td style="text-align:right; font-weight:bold;">R$ 9.838</td><td style="text-align:right; color:var(--brand-green);">+25,8%</td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "Receita cresce, base encolhe. O crescimento veio de faturar mais em cima de menos clientes.",
+              notaMarker: "fato" as const,
+            },
+            {
+              id: "A.2",
+              titulo: "Sazonalidade (índice 100)",
+              conteudo: `<div style="display:flex; gap:4px; align-items:end; height:60px; margin-bottom:12px;">
+                <div style="flex:1; background:var(--brand-green); height:100%; border-radius:2px;" title="Mar: 119"></div>
+                <div style="flex:1; background:var(--brand-warning); height:70%; border-radius:2px;" title="Abr: 85"></div>
+                <div style="flex:1; background:var(--brand-blue); height:80%; border-radius:2px;" title="Mai: 95"></div>
+                <div style="flex:1; background:var(--brand-blue); height:85%; border-radius:2px;" title="Jun: 98"></div>
+                <div style="flex:1; background:var(--brand-warning); height:65%; border-radius:2px;" title="Jul: 78"></div>
+                <div style="flex:1; background:var(--brand-green); height:95%; border-radius:2px;" title="Ago: 112"></div>
+                <div style="flex:1; background:var(--brand-green); height:100%; border-radius:2px;" title="Set: 118"></div>
+                <div style="flex:1; background:var(--brand-blue); height:82%; border-radius:2px;" title="Out: 96"></div>
+                <div style="flex:1; background:var(--brand-green); height:95%; border-radius:2px;" title="Nov: 115"></div>
+                <div style="flex:1; background:var(--brand-warning); height:60%; border-radius:2px;" title="Dez: 72"></div>
+                <div style="flex:1; background:var(--brand-warning); height:55%; border-radius:2px;" title="Jan: 68"></div>
+                <div style="flex:1; background:var(--brand-warning); height:70%; border-radius:2px;" title="Fev: 84"></div>
+              </div>
+              <table style="width:100%; font-size:11px;">
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:4px 0; color:var(--brand-green); font-weight:600;">Picos</td><td style="text-align:right;">Mar, Set, Nov</td><td style="text-align:right;">115-119</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:4px 0; color:var(--brand-warning); font-weight:600;">Vales</td><td style="text-align:right;">Dez, Jan, Fev</td><td style="text-align:right;">68-84</td></tr>
+                <tr><td style="padding:4px 0;">Q4/total</td><td style="text-align:right;">23,5%</td><td style="text-align:right; color:var(--brand-ink-muted);">levemente abaixo de 25%</td></tr>
+              </table>`,
+              notaRodape: "Padrão sazonal típico de distribuição. Q1 é vale natural — comparar YoY, não MoM.",
+              notaMarker: "leitura" as const,
+            },
+            {
+              id: "A.3",
+              titulo: "Crescimento Q1",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;"></th><th style="text-align:right; padding:6px 0;">Q1-2024</th><th style="text-align:right; padding:6px 0;">Q1-2025</th><th style="text-align:right; padding:6px 0;">Q1-2026</th><th style="text-align:right; padding:6px 0;">Δ YoY</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Faturamento</td><td style="text-align:right;">R$ 712k</td><td style="text-align:right;">R$ 841k</td><td style="text-align:right; font-weight:bold;">R$ 940k</td><td style="text-align:right; color:var(--brand-green);">+11,7%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Crescimento YoY</td><td style="text-align:right; color:var(--brand-ink-muted);">—</td><td style="text-align:right; color:var(--brand-green);">+18,1%</td><td style="text-align:right; color:var(--brand-warning);">+11,7%</td><td style="text-align:right;"></td></tr>
+                  <tr><td style="padding:6px 0;">vs ano cheio</td><td style="text-align:right; color:var(--brand-ink-muted);">23,3%</td><td style="text-align:right; color:var(--brand-ink-muted);">22,7%</td><td style="text-align:right; color:var(--brand-ink-muted);">25,4%*</td><td style="text-align:right;"></td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "*Se Q1-2026 representar 25% do ano, projeção anual = R$ 3,76M (estável vs 2025). Se ritmo desacelerar, pode fechar abaixo.",
+              notaMarker: "hipotese" as const,
+            },
+            {
+              id: "A.4",
+              titulo: "Quem puxou o crescimento 2025",
+              conteudo: `<table style="width:100%; font-size:12px;">
+                <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Cliente</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ</th><th style="text-align:right; padding:6px 0;">% do Δ</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">1. SUPRICORP</td><td style="text-align:right;">R$ 215k</td><td style="text-align:right;">R$ 354k</td><td style="text-align:right; color:var(--brand-green);">+R$ 139k</td><td style="text-align:right; font-weight:600; color:var(--brand-warning);">21,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_U</td><td style="text-align:right;">R$ 78k</td><td style="text-align:right;">R$ 112k</td><td style="text-align:right; color:var(--brand-green);">+R$ 34k</td><td style="text-align:right;">5,3%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_V</td><td style="text-align:right;">R$ 65k</td><td style="text-align:right;">R$ 89k</td><td style="text-align:right; color:var(--brand-green);">+R$ 24k</td><td style="text-align:right;">3,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_W</td><td style="text-align:right;">R$ 54k</td><td style="text-align:right;">R$ 72k</td><td style="text-align:right; color:var(--brand-green);">+R$ 18k</td><td style="text-align:right;">2,8%</td></tr>
+                  <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_X</td><td style="text-align:right;">R$ 48k</td><td style="text-align:right;">R$ 63k</td><td style="text-align:right; color:var(--brand-green);">+R$ 15k</td><td style="text-align:right;">2,3%</td></tr>
+                  <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 5 combinado</td><td style="text-align:right;"></td><td style="text-align:right;"></td><td style="text-align:right; font-weight:bold; color:var(--brand-green);">+R$ 230k</td><td style="text-align:right; font-weight:bold;">36,0%</td></tr>
+                </tbody>
+              </table>`,
+              notaRodape: "SUPRICORP sozinha = 21,8% do crescimento total. Top 5 = 36%. Crescimento concentrado em poucos motores.",
+              notaMarker: "trajetoria" as const,
+            },
+          ],
+        },
       ],
       acoes: [
         { texto: "<b>Reunião com SUPRICORP em 2 semanas</b> — entender pipeline 2026 e renegociar prazo de pagamento (hoje 69 dias).", meta: "Risco: 9,6% da receita" },
         { texto: "<b>Reconciliar custo dos top 10 SKUs</b> com o preço real pago aos fornecedores (ACF, NOVAPLASTICS, AVANZI).", meta: "Gap ~10% entre NF e caixa" },
         { texto: "<b>Plano comercial Q2: meta de 20 clientes novos</b> para compensar os 15 que sumiram.", meta: "Receita esperada: R$ 16-30k/mês" },
         { texto: "<b>Cross-sell nos 145 estáveis de cauda longa</b> — se metade dobrar para R$ 5k, são <b>+R$ 180k/ano</b>.", meta: "Mais barato que aquisição" },
+        { texto: "<b>Monitorar Q2-2026</b> — se crescimento YoY cair abaixo de 10%, acionar plano de expansão de base.", meta: "Indicador de alerta precoce" },
       ],
       glossario: [
         { termo: "NF", definicao: "= Nota Fiscal." },
@@ -816,6 +931,7 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "YoY (ano contra ano)", definicao: "= compara o mesmo período de anos diferentes (ex: Q1-2026 vs Q1-2025)." },
         { termo: "SKU", definicao: "= cada produto no seu cadastro. Cada item tem seu código único." },
         { termo: "Margem Bruta declarada", definicao: "= margem calculada pelo custo que está cadastrado na nota fiscal. Pode estar desatualizada vs realidade." },
+        { termo: "CMV", definicao: "= Custo da Mercadoria Vendida. O que você pagou pelo produto que vendeu." },
       ],
     },
 
@@ -823,25 +939,124 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO B — CLIENTES
     // -----------------------------------------------------------------
     clientes: {
-      veredito: "Você está perdendo mais clientes do que ganhando — e concentrando receita em menos motores.",
-      leitura: "A base tem <strong>593 clientes únicos em 3 anos</strong>, mas só <strong>223 são estáveis</strong> (compraram nos 3 anos). Os <strong>70 em queda</strong> e <strong>58 perdidos</strong> superam os <strong>43 em alta</strong>. Enquanto a receita total subiu, o saldo líquido de clientes é <strong>negativo</strong>: você está concentrando mais, não expandindo.",
+      tabMeta: { letra: "B", titulo: "Clientes", src: "593 clientes únicos · 2023-2025 · jornada + concentração" },
+      veredito: "Sua aquisição funciona; sua retenção não.",
+      leitura: "Você tem uma base estável relevante e continua trazendo clientes novos. O problema está no meio da carteira: <strong>perdeu 58 clientes em 2025</strong> e outros <strong>70 já vêm caindo</strong> ano após ano. O gargalo comercial hoje não é captação; é retenção.",
       kpis: [
-        { label: "Universo de 3 anos", valor: "593", delta: "clientes únicos 2023-2025", deltaType: "flat" },
-        { label: "Estáveis (3 anos)", valor: "223", delta: "37,6% da base · o coração", deltaType: "flat" },
-        { label: "Em alta contínua", valor: "43", delta: "+R$ 540k de ganho em 2025", deltaType: "up" },
-        { label: "Em queda contínua", valor: "70", delta: "−R$ 285k em risco", deltaType: "down" },
-        { label: "Perdidos em 2025", valor: "58", delta: "−R$ 233k de receita 2024", deltaType: "down" },
+        { label: "Universo 3 anos", valor: "593", delta: "clientes únicos 2023-2025", deltaType: "flat" as const },
+        { label: "Estáveis", valor: "223", delta: "37,6% da base · compraram nos 3 anos", deltaType: "flat" as const },
+        { label: "Em queda contínua", valor: "70", delta: "−R$ 285k em risco · caindo a cada ano", deltaType: "down" as const },
+        { label: "Perdidos em 2025", valor: "58", delta: "−R$ 233k de receita perdida", deltaType: "down" as const },
+        { label: "Conquistados 2025", valor: "79", delta: "Canal de aquisição saudável", deltaType: "up" as const },
       ],
       alertas: [
-        { nivel: "critico", titulo: "Saldo líquido negativo", texto: "Crescendo (43) menos caindo (70) = <b>−27 clientes em deterioração</b>. Esse é o dado mais importante da aba." },
-        { nivel: "atencao", titulo: "Top 1 = 9,6% da receita", texto: "SUPRICORP sozinha vale quase 10% do faturamento. Se sair, abre um buraco de <b>R$ 354k/ano</b>." },
-        { nivel: "controle", titulo: "Aquisição funcionando", texto: "79 clientes novos em 2025. O canal de aquisição está saudável — o problema é a retenção." },
+        { nivel: "critico" as const, titulo: "Saldo líquido negativo", texto: "43 em alta menos 70 em queda = <b>−27 clientes em deterioração</b>. Esse é o dado mais importante da aba." },
+        { nivel: "atencao" as const, titulo: "Top 1 = 9,6% da receita", texto: "SUPRICORP sozinha vale quase 10% do faturamento. Se sair, abre buraco de <b>R$ 354k/ano</b>." },
+        { nivel: "controle" as const, titulo: "Aquisição funcionando", texto: "79 clientes novos em 2025. O canal de entrada está saudável — o problema é a retenção." },
+      ],
+      ctas: [
+        {
+          eyebrow: "Ação executiva",
+          texto: "Exporte a lista completa de clientes perdidos (58), em queda (70) e em alta (43) para trabalhar com seu time comercial. Os dados estão prontos para ação.",
+          ctaLabel: "⬇ Baixar planilha Excel",
+          isExport: true,
+        },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Top 10 clientes perdidos em 2025",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "CLIENTE_A", valor2024: 45000, valor2025: 0, delta: -45000 },
+            { nome: "CLIENTE_B", valor2024: 38000, valor2025: 0, delta: -38000 },
+            { nome: "CLIENTE_C", valor2024: 32000, valor2025: 0, delta: -32000 },
+            { nome: "CLIENTE_D", valor2024: 28000, valor2025: 0, delta: -28000 },
+            { nome: "CLIENTE_E", valor2024: 24000, valor2025: 0, delta: -24000 },
+            { nome: "CLIENTE_F", valor2024: 19000, valor2025: 0, delta: -19000 },
+            { nome: "CLIENTE_G", valor2024: 15000, valor2025: 0, delta: -15000 },
+            { nome: "CLIENTE_H", valor2024: 12000, valor2025: 0, delta: -12000 },
+            { nome: "CLIENTE_I", valor2024: 11000, valor2025: 0, delta: -11000 },
+            { nome: "CLIENTE_J", valor2024: 9000, valor2025: 0, delta: -9000 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: -233000,
+          notaRodape: "58 clientes perdidos em 2025. Critério: compraram em 2023 e 2024, não compraram em 2025.",
+        },
+        {
+          titulo: "Top 10 clientes em queda contínua",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "CLIENTE_K", valor2024: 52000, valor2025: 35000, delta: -17000, deltaPercent: -33 },
+            { nome: "CLIENTE_L", valor2024: 48000, valor2025: 32000, delta: -16000, deltaPercent: -33 },
+            { nome: "CLIENTE_M", valor2024: 41000, valor2025: 28000, delta: -13000, deltaPercent: -32 },
+            { nome: "CLIENTE_N", valor2024: 38000, valor2025: 26000, delta: -12000, deltaPercent: -32 },
+            { nome: "CLIENTE_O", valor2024: 35000, valor2025: 24000, delta: -11000, deltaPercent: -31 },
+            { nome: "CLIENTE_P", valor2024: 32000, valor2025: 23000, delta: -9000, deltaPercent: -28 },
+            { nome: "CLIENTE_Q", valor2024: 29000, valor2025: 21000, delta: -8000, deltaPercent: -28 },
+            { nome: "CLIENTE_R", valor2024: 26000, valor2025: 19000, delta: -7000, deltaPercent: -27 },
+            { nome: "CLIENTE_S", valor2024: 24000, valor2025: 18000, delta: -6000, deltaPercent: -25 },
+            { nome: "CLIENTE_T", valor2024: 22000, valor2025: 17000, delta: -5000, deltaPercent: -23 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: -104000,
+          notaRodape: "70 clientes em queda contínua. Critério: compraram nos 3 anos, mas caindo ano a ano.",
+        },
+        {
+          titulo: "Top 10 clientes em alta contínua",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "SUPRICORP", valor2024: 215000, valor2025: 354000, delta: 139000, deltaPercent: 65, obs: "Top 1" },
+            { nome: "CLIENTE_U", valor2024: 78000, valor2025: 112000, delta: 34000, deltaPercent: 44 },
+            { nome: "CLIENTE_V", valor2024: 65000, valor2025: 89000, delta: 24000, deltaPercent: 37 },
+            { nome: "CLIENTE_W", valor2024: 54000, valor2025: 72000, delta: 18000, deltaPercent: 33 },
+            { nome: "CLIENTE_X", valor2024: 48000, valor2025: 63000, delta: 15000, deltaPercent: 31 },
+            { nome: "CLIENTE_Y", valor2024: 42000, valor2025: 54000, delta: 12000, deltaPercent: 29 },
+            { nome: "CLIENTE_Z", valor2024: 38000, valor2025: 48000, delta: 10000, deltaPercent: 26 },
+            { nome: "CLIENTE_AA", valor2024: 35000, valor2025: 44000, delta: 9000, deltaPercent: 26 },
+            { nome: "CLIENTE_AB", valor2024: 32000, valor2025: 40000, delta: 8000, deltaPercent: 25 },
+            { nome: "CLIENTE_AC", valor2024: 29000, valor2025: 36000, delta: 7000, deltaPercent: 24 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: 276000,
+          notaRodape: "43 clientes em alta contínua. Critério: compraram nos 3 anos, crescendo ano a ano.",
+        },
+        {
+          titulo: "Ver categorias de jornada e top clientes",
+          tipo: "dois-paineis" as const,
+          painelEsquerdo: {
+            titulo: "B.1 · Jornada das 593 categorias",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Estáveis (3 anos)</td><td style="text-align:right;">223</td><td style="text-align:right; color:var(--brand-ink-muted);">37,6%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Em alta contínua</td><td style="text-align:right;">43</td><td style="text-align:right; color:var(--brand-green);">+R$ 540k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Em queda contínua</td><td style="text-align:right;">70</td><td style="text-align:right; color:var(--brand-red);">−R$ 285k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Perdidos em 2025</td><td style="text-align:right;">58</td><td style="text-align:right; color:var(--brand-red);">−R$ 233k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Conquistados 2025</td><td style="text-align:right;">79</td><td style="text-align:right; color:var(--brand-green);">Novos</td></tr>
+              <tr><td style="padding:6px 0;">Outros (esporádicos)</td><td style="text-align:right;">120</td><td style="text-align:right; color:var(--brand-ink-muted);">Cauda longa</td></tr>
+            </table>`,
+          },
+          painelDireito: {
+            titulo: "B.2 · Top 5 clientes 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. SUPRICORP</td><td style="text-align:right;">R$ 354k</td><td style="text-align:right; color:var(--brand-warning);">9,6%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_U</td><td style="text-align:right;">R$ 112k</td><td style="text-align:right;">3,0%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_V</td><td style="text-align:right;">R$ 89k</td><td style="text-align:right;">2,4%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_W</td><td style="text-align:right;">R$ 72k</td><td style="text-align:right;">1,9%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_X</td><td style="text-align:right;">R$ 63k</td><td style="text-align:right;">1,7%</td></tr>
+              <tr><td style="padding:6px 0; font-weight:600;">Top 5 total</td><td style="text-align:right; font-weight:600;">R$ 690k</td><td style="text-align:right; font-weight:600; color:var(--brand-warning);">18,6%</td></tr>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Concentração moderada: Top 5 = 18,6%. Risco está no Top 1 (SUPRICORP = 9,6%).</p>`,
+          },
+        },
       ],
       acoes: [
-        { texto: "<b>Listar os 70 clientes em queda</b> e atribuir a vendedor para diagnóstico em 30 dias.", meta: "~R$ 400k/ano em risco" },
+        { texto: "<b>Listar os 70 clientes em queda</b> e atribuir a vendedor para diagnóstico em 30 dias.", meta: "~R$ 285k/ano em risco" },
         { texto: "<b>Programa \"Save\"</b>: ligar nos 58 que sumiram em 2025.", meta: "Receita 2024: R$ 233k" },
         { texto: "<b>Plano de proteção SUPRICORP</b>: contrato de fornecimento com prazo definido.", meta: "Risco: R$ 354k/ano" },
         { texto: "<b>Análise dos 79 novos de 2025</b>: como entraram? Replicar canal.", meta: "Aquisição funciona" },
+        { texto: "<b>Separar \"cauda longa\" dos estratégicos</b>: focar retenção onde há margem.", meta: "120 clientes esporádicos" },
       ],
       glossario: [
         { termo: "Universo de 3 anos", definicao: "= total de clientes diferentes que compraram em 2023, 2024 ou 2025 (sem contar duplicados)." },
@@ -849,6 +1064,7 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "Cliente em queda contínua", definicao: "= cliente que compra nos 3 anos, mas a receita anual está caindo ano a ano." },
         { termo: "Cliente perdido em 2025", definicao: "= cliente que comprou em 2023 e 2024 mas não comprou nada em 2025." },
         { termo: "Cauda longa", definicao: "= parte grande da base de clientes que, individualmente, compra pouco." },
+        { termo: "Concentração", definicao: "= quanto da sua receita depende de poucos clientes. Acima de 15% num só cliente é risco alto." },
       ],
     },
 
@@ -856,29 +1072,124 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO C — AUDITORIA
     // -----------------------------------------------------------------
     auditoria: {
+      tabMeta: { letra: "C", titulo: "Auditoria de Contas a Receber e Contas a Pagar", src: "Posição em 20/04/2026" },
       veredito: "Sua posição está organizada — não aparece nenhum problema grave aqui.",
-      leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência do ERP do que dinheiro realmente perdido.",
+      leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência de lançamento no ERP do que dinheiro realmente perdido.",
       kpis: [
-        { label: "A receber em aberto", valor: "R$ 533<span class='unit'>k</span>", delta: "49% ainda no prazo", deltaType: "flat" },
-        { label: "A pagar em aberto", valor: "R$ 258<span class='unit'>k</span>", delta: "80% ainda no prazo", deltaType: "flat" },
-        { label: "Saldo (Receber − Pagar)", valor: "+R$ 276<span class='unit'>k</span>", delta: "Posição positiva", deltaType: "up" },
-        { label: "Sujeira contábil (>120 dias)", valor: "R$ 53<span class='unit'>k</span>", delta: "Limpar com contador · não é dívida real", deltaType: "warn" },
+        { label: "A receber em aberto", valor: "R$ 533<span class='unit'>k</span>", delta: "49% ainda no prazo", deltaType: "flat" as const },
+        { label: "A pagar em aberto", valor: "R$ 258<span class='unit'>k</span>", delta: "80% ainda no prazo", deltaType: "flat" as const },
+        { label: "Saldo (Receber − Pagar)", valor: "+R$ 276<span class='unit'>k</span>", delta: "Posição positiva", deltaType: "up" as const },
+        { label: "Sujeira contábil (>120 dias)", valor: "R$ 53<span class='unit'>k</span>", delta: "Limpar com ERP · não é dívida real", deltaType: "warn" as const },
       ],
       alertas: [
-        { nivel: "controle", titulo: "Carteira organizada", texto: "A maior parte dos títulos ainda está no prazo. Dos que atrasaram, só <b>6-7%</b> estão em atraso longo (mais de 120 dias)." },
-        { nivel: "controle", titulo: "Saldo a seu favor", texto: "Você tem <b>R$ 276k a mais para receber do que para pagar</b>. Não está devendo fornecedor." },
-        { nivel: "atencao", titulo: "SILAVA Lavanderia · cliente crônico", texto: "R$ 17k em atraso em <b>13 títulos</b>, alguns com mais de 8 meses. <b>Decidir se vale continuar atendendo.</b>" },
+        { nivel: "controle" as const, titulo: "Carteira organizada", texto: "A maior parte dos títulos ainda está no prazo. Dos que atrasaram, só <b>6-7%</b> estão em atraso longo (mais de 120 dias)." },
+        { nivel: "controle" as const, titulo: "Saldo a seu favor", texto: "Você tem <b>R$ 276k a mais para receber do que para pagar</b>. Não está devendo fornecedor." },
+        { nivel: "atencao" as const, titulo: "SILAVA Lavanderia · cliente crônico", texto: "R$ 17k em atraso em <b>13 títulos</b>, alguns com mais de 8 meses. <b>Decidir se vale continuar atendendo.</b>" },
+      ],
+      ctas: [
+        {
+          eyebrow: "Ação executiva",
+          texto: "R$ 117 mil a receber em atraso >30 dias (19 clientes) e R$ 18 mil a pagar em atraso (10 fornecedores). Listas prontas para cobrança e pente fino.",
+          ctaLabel: "⬇ Baixar lista de atrasos",
+          isExport: true,
+        },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver detalhamento por faixa de atraso",
+          tipo: "dois-paineis" as const,
+          painelEsquerdo: {
+            titulo: "C.1 · Contas a Receber por faixa de atraso",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Faixa</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-green); font-weight:600;">Ainda no prazo</td><td style="text-align:right;">R$ 263k</td><td style="text-align:right;">49,3%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">0-30 dias</td><td style="text-align:right;">R$ 153k</td><td style="text-align:right;">28,7%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">31-60 dias</td><td style="text-align:right;">R$ 42k</td><td style="text-align:right;">7,9%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">61-90 dias</td><td style="text-align:right;">R$ 28k</td><td style="text-align:right;">5,3%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red);">91-120 dias</td><td style="text-align:right;">R$ 18k</td><td style="text-align:right;">3,4%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red); font-weight:600;">>120 dias</td><td style="text-align:right;">R$ 29k</td><td style="text-align:right;">5,4%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 533k</td><td style="text-align:right; font-weight:bold;">100%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">22% em atraso >30 dias (R$ 117k em 19 clientes). Maior parte ainda controlada.</p>`,
+          },
+          painelDireito: {
+            titulo: "C.2 · Contas a Pagar por faixa de atraso",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Faixa</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-green); font-weight:600;">Ainda no prazo</td><td style="text-align:right;">R$ 206k</td><td style="text-align:right;">79,8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">0-30 dias</td><td style="text-align:right;">R$ 34k</td><td style="text-align:right;">13,2%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">31-60 dias</td><td style="text-align:right;">R$ 8k</td><td style="text-align:right;">3,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">61-90 dias</td><td style="text-align:right;">R$ 4k</td><td style="text-align:right;">1,6%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red);">91-120 dias</td><td style="text-align:right;">R$ 2k</td><td style="text-align:right;">0,8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red); font-weight:600;">>120 dias</td><td style="text-align:right;">R$ 4k</td><td style="text-align:right;">1,5%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 258k</td><td style="text-align:right; font-weight:bold;">100%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">7% em atraso >30 dias (R$ 18k em 10 fornecedores). Posição muito saudável.</p>`,
+          },
+        },
+        {
+          titulo: "Ver top 15 clientes com títulos vencidos há mais de 30 dias",
+          tipo: "html" as const,
+          conteudo: `<table style="width:100%; font-size:12px;">
+            <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Cliente</th><th style="text-align:right; padding:6px 0;">Nº títulos</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">Pior atraso</th></tr></thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">1. SILAVA Lavanderia</td><td style="text-align:right;">13</td><td style="text-align:right;">R$ 17.200</td><td style="text-align:right; color:var(--brand-red);">248 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_AA</td><td style="text-align:right;">5</td><td style="text-align:right;">R$ 12.800</td><td style="text-align:right; color:var(--brand-warning);">95 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_AB</td><td style="text-align:right;">4</td><td style="text-align:right;">R$ 11.500</td><td style="text-align:right; color:var(--brand-warning);">78 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_AC</td><td style="text-align:right;">3</td><td style="text-align:right;">R$ 9.800</td><td style="text-align:right; color:var(--brand-warning);">65 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_AD</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 8.400</td><td style="text-align:right;">52 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">6. CLIENTE_AE</td><td style="text-align:right;">3</td><td style="text-align:right;">R$ 7.900</td><td style="text-align:right;">48 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">7. CLIENTE_AF</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 7.200</td><td style="text-align:right;">45 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">8. CLIENTE_AG</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 6.800</td><td style="text-align:right;">42 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">9. CLIENTE_AH</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 6.200</td><td style="text-align:right;">38 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">10. CLIENTE_AI</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 5.800</td><td style="text-align:right;">36 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">11. CLIENTE_AJ</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 5.400</td><td style="text-align:right;">35 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">12. CLIENTE_AK</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.900</td><td style="text-align:right;">34 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">13. CLIENTE_AL</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.500</td><td style="text-align:right;">33 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">14. CLIENTE_AM</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.200</td><td style="text-align:right;">32 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">15. CLIENTE_AN</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 3.900</td><td style="text-align:right;">31 dias</td></tr>
+              <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 15 (dos 19)</td><td style="text-align:right; font-weight:bold;">42</td><td style="text-align:right; font-weight:bold;">R$ 116.500</td><td style="text-align:right;"></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">SILAVA concentra 15% do valor em atraso com 13 títulos. Demais são atrasos pontuais e recuperáveis.</p>`,
+        },
+        {
+          titulo: "Ver fornecedores com títulos em atraso há mais de 30 dias",
+          tipo: "html" as const,
+          conteudo: `<table style="width:100%; font-size:12px;">
+            <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Fornecedor</th><th style="text-align:right; padding:6px 0;">Nº títulos</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">Pior atraso</th></tr></thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. FORNEC_A</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 4.200</td><td style="text-align:right;">68 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. FORNEC_B</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 3.100</td><td style="text-align:right;">52 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. FORNEC_C</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 2.800</td><td style="text-align:right;">48 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. FORNEC_D</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 2.400</td><td style="text-align:right;">45 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. FORNEC_E</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.800</td><td style="text-align:right;">42 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">6. FORNEC_F</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.400</td><td style="text-align:right;">38 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">7. FORNEC_G</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.100</td><td style="text-align:right;">35 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">8. FORNEC_H</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 800</td><td style="text-align:right;">33 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">9. FORNEC_I</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 600</td><td style="text-align:right;">32 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">10. FORNEC_J</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 500</td><td style="text-align:right;">31 dias</td></tr>
+              <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL (10 fornecedores)</td><td style="text-align:right; font-weight:bold;">12</td><td style="text-align:right; font-weight:bold;">R$ 18.700</td><td style="text-align:right;"></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Valores baixos e pulverizados. Provável pendência de lançamento, não inadimplência real.</p>`,
+        },
       ],
       acoes: [
         { texto: "<b>Baixar títulos >120 dias</b> com o contador — a maioria é sujeira, não dívida real.", meta: "R$ 53k para limpar" },
         { texto: "<b>Decisão sobre SILAVA</b>: cobrar, renegociar ou cortar.", meta: "R$ 17k em 13 títulos" },
         { texto: "<b>Cobrança ativa nos R$ 117k</b> em atraso >30 dias (19 clientes).", meta: "Lista pronta para ação" },
+        { texto: "<b>Pente fino nos R$ 18k</b> a pagar em atraso — confirmar se são pendências reais.", meta: "10 fornecedores" },
       ],
       glossario: [
-        { termo: "Contas a Receber (CR)", definicao: "= dinheiro que os clientes ainda vão te pagar por vendas já feitas." },
-        { termo: "Contas a Pagar (CP)", definicao: "= dinheiro que você ainda vai pagar a fornecedores por compras já feitas." },
-        { termo: "Sujeira contábil", definicao: "= títulos que aparecem no sistema mas já foram pagos/recebidos, ou que são tão antigos que não serão cobrados." },
-        { termo: "Atraso >120 dias", definicao: "= título vencido há mais de 4 meses. Geralmente indica problema real ou erro de registro." },
+        { termo: "CR (Contas a Receber)", definicao: "= dinheiro que os clientes ainda vão te pagar por vendas já feitas." },
+        { termo: "CP (Contas a Pagar)", definicao: "= dinheiro que você ainda vai pagar a fornecedores por compras já feitas." },
+        { termo: "Aging (faixa de atraso)", definicao: "= agrupamento de títulos por quantos dias estão vencidos (0-30, 31-60, etc.)." },
+        { termo: "ERP de gestão", definicao: "= sistema operacional da empresa onde se lançam vendas, compras e pagamentos. Distinto do sistema contábil." },
       ],
     },
 
@@ -886,18 +1197,58 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO D — FORNECEDORES
     // -----------------------------------------------------------------
     fornecedores: {
-      veredito: "Operação mais enxuta, mas embalagens e diárias cresceram acima do esperado.",
-      leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema.",
+      tabMeta: { letra: "D", titulo: "Fornecedores", src: "Pagamentos 2023-2025 · 432 fornecedores únicos" },
+      veredito: "Seu custo está sob controle, mas dois pontos fugiram do ritmo: embalagens e diárias.",
+      leitura: "No geral, a operação ficou mais enxuta e sem dependência perigosa de um fornecedor só. O problema é que <strong>embalagens cresceram bem acima da receita</strong> e <strong>diárias dispararam enquanto a folha caiu</strong>, o que sugere troca de estrutura fixa por terceirização. Isso pode ser ganho de flexibilidade ou começo de problema — depende do motivo.",
       kpis: [
-        { label: "Total pago a fornecedores 2025", valor: "R$ 3,21<span class='unit'>M</span>", delta: "contra faturamento R$ 3,70M", deltaType: "flat" },
-        { label: "Custo da mercadoria (caixa)", valor: "R$ 1,66<span class='unit'>M</span>", delta: "Insumos + Embalagens = 52%", deltaType: "flat" },
-        { label: "Pago / Faturamento", valor: "86,9<span class='unit'>%</span>", delta: "vs ~95% em 2023 — melhorou 8 p.p.", deltaType: "up" },
-        { label: "Top fornecedor", valor: "ACF", delta: "R$ 322k · 10% do total", deltaType: "flat" },
+        { label: "Total pago a fornecedores 2025", valor: "R$ 3,21<span class='unit'>M</span>", delta: "contra faturamento R$ 3,70M", deltaType: "flat" as const },
+        { label: "Custo da mercadoria (caixa)", valor: "R$ 1,66<span class='unit'>M</span>", delta: "52% do total · Insumos + Embalagens", deltaType: "flat" as const },
+        { label: "Pago / Faturamento", valor: "86,9<span class='unit'>%</span>", delta: "melhorou 8 p.p. vs 2023 (~95%)", deltaType: "up" as const },
+        { label: "Top fornecedor", valor: "ACF Embalagens", delta: "R$ 322k · 10% do total", deltaType: "flat" as const },
       ],
       alertas: [
-        { nivel: "atencao", titulo: "Diárias subiram 45% em 2025", texto: "R$ 143k → R$ 221k. Folha caiu 4%. <b>Está trocando CLT por terceirizado.</b> Pode estar criando passivo trabalhista." },
-        { nivel: "atencao", titulo: "Embalagens +40% (vs receita +21%)", texto: "Custo de embalagem cresceu 2× a receita. Confirmar se foi <b>estoque antecipado</b> (saudável) ou <b>consumo real maior</b> (problema)." },
-        { nivel: "controle", titulo: "Eficiência operacional melhorou", texto: "Custo total / faturamento caiu de 95% (2023) para 87% (2025). <b>8 p.p. de melhora em 2 anos.</b>" },
+        { nivel: "atencao" as const, titulo: "Diárias +45% em 2025", texto: "R$ 143k → R$ 221k. Folha caiu 4%. <b>Está trocando CLT por terceirizado.</b> Pode estar criando passivo trabalhista." },
+        { nivel: "atencao" as const, titulo: "Embalagens +40% (vs receita +21%)", texto: "Custo de embalagem cresceu 2× a receita. Confirmar se foi <b>estoque antecipado</b> (saudável) ou <b>consumo real maior</b> (problema)." },
+        { nivel: "controle" as const, titulo: "Eficiência operacional melhorou", texto: "Custo total / faturamento caiu de 95% (2023) para 87% (2025). <b>8 p.p. de melhora em 2 anos.</b>" },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver fornecedores e categorias de gasto",
+          tipo: "dois-paineis-2-3" as const,
+          painelEsquerdo: {
+            titulo: "D.1 · Top 5 fornecedores 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Fornecedor</th><th style="text-align:right; padding:6px 0;">Pago</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. ACF Embalagens</td><td style="text-align:right;">R$ 322k</td><td style="text-align:right;">10,0%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. NOVAPLASTICS</td><td style="text-align:right;">R$ 228k</td><td style="text-align:right;">7,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. AVANZI</td><td style="text-align:right;">R$ 195k</td><td style="text-align:right;">6,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CHEM SUPPLY</td><td style="text-align:right;">R$ 168k</td><td style="text-align:right;">5,2%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. TRANSLOG</td><td style="text-align:right;">R$ 142k</td><td style="text-align:right;">4,4%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 5 combinados</td><td style="text-align:right; font-weight:bold;">R$ 1,06M</td><td style="text-align:right; font-weight:bold;">32,8%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Concentração saudável: nenhum fornecedor passa de 10%. Top 5 = ~1/3 do total.</p>`,
+          },
+          painelDireito: {
+            titulo: "D.2 · Categorias de gasto 2023 → 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Categoria</th><th style="text-align:right; padding:6px 0;">2023</th><th style="text-align:right; padding:6px 0;">2024</th><th style="text-align:right; padding:6px 0;">2025</th><th style="text-align:right; padding:6px 0;">Δ 23→25</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Insumos</td><td style="text-align:right;">R$ 785k</td><td style="text-align:right;">R$ 821k</td><td style="text-align:right;">R$ 836k</td><td style="text-align:right; color:var(--brand-green);">+6%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">Embalagens</td><td style="text-align:right;">R$ 589k</td><td style="text-align:right;">R$ 712k</td><td style="text-align:right;">R$ 828k</td><td style="text-align:right; color:var(--brand-red);">+40%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Energia / Utilidades</td><td style="text-align:right;">R$ 245k</td><td style="text-align:right;">R$ 268k</td><td style="text-align:right;">R$ 289k</td><td style="text-align:right; color:var(--brand-ink-muted);">+18%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Frete / Logística</td><td style="text-align:right;">R$ 198k</td><td style="text-align:right;">R$ 215k</td><td style="text-align:right;">R$ 234k</td><td style="text-align:right; color:var(--brand-ink-muted);">+18%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Folha terceirizada</td><td style="text-align:right;">R$ 312k</td><td style="text-align:right;">R$ 298k</td><td style="text-align:right;">R$ 301k</td><td style="text-align:right; color:var(--brand-green);">−4%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">Diárias / Autônomos</td><td style="text-align:right;">R$ 143k</td><td style="text-align:right;">R$ 178k</td><td style="text-align:right;">R$ 221k</td><td style="text-align:right; color:var(--brand-red);">+45%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Manutenção / Equip.</td><td style="text-align:right;">R$ 156k</td><td style="text-align:right;">R$ 142k</td><td style="text-align:right;">R$ 168k</td><td style="text-align:right; color:var(--brand-ink-muted);">+8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Outros</td><td style="text-align:right;">R$ 178k</td><td style="text-align:right;">R$ 195k</td><td style="text-align:right;">R$ 332k</td><td style="text-align:right; color:var(--brand-warning);">+86%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 2,61M</td><td style="text-align:right; font-weight:bold;">R$ 2,83M</td><td style="text-align:right; font-weight:bold;">R$ 3,21M</td><td style="text-align:right; font-weight:bold; color:var(--brand-ink-muted);">+23%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Embalagens e Diárias puxaram o custo acima da receita (+21%). Insumos ficaram controlados.</p>`,
+          },
+        },
       ],
       acoes: [
         { texto: "<b>Negociar volume com ACF + NOVAPLASTICS</b> (juntas 17% do que você paga).", meta: "Embalagens +40%" },
@@ -908,6 +1259,8 @@ export const dadosCliente: AnaliseContabilData = {
       glossario: [
         { termo: "CMV (Custo da Mercadoria Vendida)", definicao: "= quanto você gasta com matéria-prima, insumos e embalagem pra produzir o que vende." },
         { termo: "CMV de caixa", definicao: "= CMV calculado pelo que realmente saiu do banco (diferente do CMV da nota fiscal)." },
+        { termo: "SKU", definicao: "= cada produto no seu cadastro. Cada item tem seu código único." },
+        { termo: "Hedge de estoque", definicao: "= comprar mais estoque agora pra se proteger de aumento de preço depois." },
         { termo: "Passivo trabalhista", definicao: "= risco de ter que pagar direitos de trabalhador depois, mesmo sem CLT, se a justiça reconhecer vínculo." },
       ],
     },
@@ -916,18 +1269,19 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO E — CAIXA
     // -----------------------------------------------------------------
     caixa: {
+      tabMeta: { letra: "E", titulo: "Caixa Bancário", src: "13 meses · Mar/2025 a Mar/2026 · saldo validado por extrato físico" },
       veredito: "A conta bancária analisada não está acumulando reserva — e a leitura final ainda depende de consolidar os demais bancos.",
       leitura: "Mesmo com muito movimento, esta conta quase não acumulou saldo ao longo de <strong>13 meses</strong>. Isso mostra que ela funciona mais como <strong>passagem</strong> do que como <strong>formação de reserva</strong>. Para entender se isso vem da operação ou de saídas fora dela, ainda falta consolidar os demais bancos.",
       kpis: [
-        { label: "Saldo inicial (05/03/2025)", valor: "R$ 20<span class='unit'>k</span>", delta: "validado por extrato físico", deltaType: "flat" },
-        { label: "Saldo atual (~31/03/2026)", valor: "R$ 34<span class='unit'>k</span>", delta: "+R$ 14k em 13 meses", deltaType: "flat" },
-        { label: "Meses positivos / negativos", valor: "6 / 7", delta: "Mais meses queimando que gerando", deltaType: "warn" },
-        { label: "Pior mês", valor: "−R$ 32<span class='unit'>k</span>", delta: "Novembro/2025", deltaType: "down" },
+        { label: "Saldo inicial (05/03/2025)", valor: "R$ 20<span class='unit'>k</span>", delta: "validado por extrato físico", deltaType: "flat" as const },
+        { label: "Saldo atual (~31/03/2026)", valor: "R$ 34<span class='unit'>k</span>", delta: "+R$ 14k em 13 meses", deltaType: "flat" as const },
+        { label: "Meses positivos / negativos", valor: "6 / 7", delta: "Mais meses queimando que gerando", deltaType: "warn" as const },
+        { label: "Pior mês", valor: "−R$ 32<span class='unit'>k</span>", delta: "Novembro/2025", deltaType: "down" as const },
       ],
       alertas: [
-        { nivel: "critico", titulo: "R$ 734k circulando fora do banco", texto: "O banco captou menos do que o sistema registra. <b>R$ 73k/mês</b> de fluxo invisível. <b>Confirmar com contador qual outra conta está ativa.</b>" },
-        { nivel: "atencao", titulo: "Sem reserva de caixa", texto: "+R$ 14k em 13 meses = <b>operação no empate</b>. Caixa atual cobre só 4 dias de saída." },
-        { nivel: "atencao", titulo: "Mais meses negativos que positivos", texto: "7 meses negativos contra 6 positivos. <b>Pior mês foi Nov/25 (R$ −32k)</b> — evento específico daquele mês." },
+        { nivel: "critico" as const, titulo: "R$ 734k circulando fora do banco", texto: "O banco captou menos do que o sistema registra. <b>R$ 73k/mês</b> de fluxo invisível. <b>Confirmar com contador qual outra conta está ativa.</b>" },
+        { nivel: "atencao" as const, titulo: "Sem reserva de caixa", texto: "+R$ 14k em 13 meses = <b>operação no empate</b>. Caixa atual cobre só 4 dias de saída." },
+        { nivel: "atencao" as const, titulo: "Mais meses negativos que positivos", texto: "7 meses negativos contra 6 positivos. <b>Pior mês foi Nov/25 (R$ −32k)</b> — evento específico daquele mês." },
       ],
       acoes: [
         { texto: "<b>Identificar a outra conta bancária</b> com o contador — verificar se é outra PJ ou conta pessoal.", meta: "R$ 73k/mês fora" },
@@ -935,11 +1289,38 @@ export const dadosCliente: AnaliseContabilData = {
         { texto: "<b>Implementar fluxo de caixa de 13 semanas</b>, atualizado toda sexta.", meta: "Modelo existe" },
         { texto: "<b>Definir caixa mínimo operacional</b>: 1 mês de saída = R$ 254k.", meta: "Hoje R$ 34k = ~4 dias" },
       ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver movimento mês a mês (13 meses)",
+          tipo: "movimento-mensal" as const,
+          movimentos: [
+            { mes: "Mar/25", entradas: 89000, saidas: 82000, saldo: 7000 },
+            { mes: "Abr/25", entradas: 76000, saidas: 91000, saldo: -15000 },
+            { mes: "Mai/25", entradas: 95000, saidas: 88000, saldo: 7000 },
+            { mes: "Jun/25", entradas: 82000, saidas: 79000, saldo: 3000 },
+            { mes: "Jul/25", entradas: 78000, saidas: 85000, saldo: -7000 },
+            { mes: "Ago/25", entradas: 91000, saidas: 84000, saldo: 7000 },
+            { mes: "Set/25", entradas: 103000, saidas: 92000, saldo: 11000, isMelhor: true },
+            { mes: "Out/25", entradas: 88000, saidas: 95000, saldo: -7000 },
+            { mes: "Nov/25", entradas: 54000, saidas: 86000, saldo: -32000, isPior: true },
+            { mes: "Dez/25", entradas: 72000, saidas: 78000, saldo: -6000 },
+            { mes: "Jan/26", entradas: 98000, saidas: 89000, saldo: 9000 },
+            { mes: "Fev/26", entradas: 85000, saidas: 81000, saldo: 4000 },
+            { mes: "Mar/26", entradas: 112000, saidas: 79000, saldo: 33000 },
+          ],
+          totalEntradas: 1123000,
+          totalSaidas: 1109000,
+          mediaEntradas: 86385,
+          mediaSaidas: 85308,
+          notaRodape: "Fonte: extrato bancário validado. Valores arredondados para facilitar leitura.",
+        },
+      ],
       glossario: [
         { termo: "Fluxo de caixa", definicao: "= entrada e saída de dinheiro do banco ao longo do tempo." },
         { termo: "Reserva de caixa", definicao: "= dinheiro guardado na conta pra cobrir imprevistos ou meses mais fracos." },
         { termo: "Runway", definicao: "= quanto tempo seu caixa aguenta se a receita zerar hoje." },
         { termo: "Caixa mínimo operacional", definicao: "= valor de segurança que a conta não deveria ficar abaixo (recomendação: 1 mês de saída)." },
+        { termo: "Consolidar caixa", definicao: "= juntar todas as contas bancárias numa visão só, pra ver o dinheiro real que entra e sai da empresa." },
       ],
     },
 
@@ -947,6 +1328,7 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO F — CICLO
     // -----------------------------------------------------------------
     ciclo: {
+      tabMeta: { letra: "F", titulo: "Ciclo de Caixa", src: "Prazo médio de receber vs prazo médio de pagar · 2025" },
       veredito: "Ciclo bom, porém frágil — a folga é curta e pode sumir rápido.",
       leitura: "Hoje você <strong>recebe antes de pagar</strong>, e isso ajuda o caixa. Em média, o cliente paga em <strong>24 dias</strong> e você paga o fornecedor em <strong>31 dias</strong> — ou seja, o fornecedor financia <strong>7 dias</strong> da sua operação. O problema é que <strong>essa folga é curta e pode sumir rápido</strong>.",
       kpis: [
@@ -968,6 +1350,58 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "PMP (Prazo Médio de Pagamento)", definicao: "= quantos dias, em média, você demora pra pagar o fornecedor depois que ele emite a nota." },
         { termo: "Ciclo de caixa", definicao: "= diferença entre PMR e PMP. Se positivo, você paga antes de receber (ruim). Se negativo, recebe antes de pagar (bom)." },
         { termo: "Fornecedor financia", definicao: "= quando o prazo de pagamento é maior que o de recebimento, o fornecedor está 'emprestando' dinheiro pra você operar." },
+      ],
+    },
+
+    // -----------------------------------------------------------------
+    // CHECKLIST MENSAL
+    // -----------------------------------------------------------------
+    checklistMensal: {
+      grupos: [
+        {
+          titulo: "Caixa e Liquidez",
+          itens: [
+            { titulo: "Conferir saldo bancário e liquidez atual", contexto: "Meta runway acima de 90 dias", status: "concluido" as const },
+            { titulo: "Reconciliar todas as contas bancárias do mês", contexto: "5 bancos sincronizados", status: "concluido" as const },
+            { titulo: "Identificar outra conta com movimento operacional", contexto: "R$ 73k/mês fora do banco principal", status: "atencao" as const },
+            { titulo: "Atualizar fluxo de caixa 13 semanas", contexto: "Última atualização há 9 dias", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Clientes e Concentração",
+          itens: [
+            { titulo: "Revisar clientes em queda contínua", contexto: "70 clientes valem R$ 285k em 2025", status: "atencao" as const },
+            { titulo: "Cobrar recebíveis vencidos >45 dias", contexto: "Maior pendência: R$ 41k", status: "atencao" as const },
+            { titulo: "Ligar nos 10 maiores clientes perdidos em 2025", contexto: "Receita 2024 perdida: R$ 233k", status: "pendente" as const },
+            { titulo: "Mapear top 5 clientes do mês", contexto: "Top 5 = 24% da receita", status: "concluido" as const },
+          ],
+        },
+        {
+          titulo: "Margem e Custos",
+          itens: [
+            { titulo: "Verificar gap margem NF vs caixa", contexto: "Hoje em ~10% · atualizar custo dos top 10 SKUs", status: "atencao" as const },
+            { titulo: "Conferir crescimento de Diárias vs Folha CLT", contexto: "Diárias +45%, Folha −4%", status: "atencao" as const },
+            { titulo: "Conferir top 5 fornecedores do mês", contexto: "Top 2 embalagens = 17% do pago", status: "concluido" as const },
+            { titulo: "Negociar volume com fornecedores principais", contexto: "Categoria +40% vs receita +21%", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Ciclo Financeiro",
+          itens: [
+            { titulo: "Calcular DSO e PMP do mês", contexto: "DSO 24d · PMP 31d · folga 7 dias", status: "concluido" as const },
+            { titulo: "Verificar se PMP caiu abaixo de 28 dias", contexto: "Volatilidade no ano: 21-49 dias", status: "atencao" as const },
+            { titulo: "Revisar política de prazo padrão por cliente", contexto: "Regra: 30 dias · aprovação direta acima de 45", status: "pendente" as const },
+          ],
+        },
+        {
+          titulo: "Auditoria e Dados",
+          itens: [
+            { titulo: "Validar itens sem classificação", contexto: "27 lançamentos categorizados ontem", status: "concluido" as const },
+            { titulo: "Limpar títulos >120 dias no ERP", contexto: "R$ 53k em pendências de lançamento", status: "atencao" as const },
+            { titulo: "Reconciliar duplicidades em CR e CP", contexto: "4 duplicidades resolvidas no mês", status: "concluido" as const },
+            { titulo: "Decidir sobre cliente crônico", contexto: "13 títulos em atraso · paga em 121 dias", status: "atencao" as const },
+          ],
+        },
       ],
     },
   },

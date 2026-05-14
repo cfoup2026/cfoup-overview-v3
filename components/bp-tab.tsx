@@ -49,10 +49,9 @@ const NOTE_LABEL_COLOR = {
 }
 
 // ---------------------------------------------------------------------
-// Executive Cards AV — análise proporcional (peso sobre ativo/passivo total)
-// Números extraídos da tabela linhasAV em empresa-001.ts
+// Executive Cards — componente reutilizável para leitura + ações
 // ---------------------------------------------------------------------
-function ExecutiveCardsAV() {
+function ExecutiveCards({ content }: { content: typeof conteudoBP.executiveCardsAV }) {
   return (
     <div className="mt-6 space-y-4">
       {/* Card: Leitura da análise */}
@@ -61,10 +60,10 @@ function ExecutiveCardsAV() {
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
-          Leitura da análise
+          {content.leitura.titulo}
         </p>
         <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-          Saldo em banco representa 93,5% do ativo total em 2025 — subiu de 89,4% em 2023. Patrimônio líquido é 94,5% do passivo + PL, indicando que a empresa opera quase inteiramente com capital próprio. Passivo circulante (dívidas de curto prazo) caiu de 9,0% para 5,5% do total.
+          {content.leitura.texto}
         </p>
       </div>
 
@@ -74,68 +73,15 @@ function ExecutiveCardsAV() {
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
           style={{ color: "var(--brand-blue)" }}
         >
-          Pontos de ação — Balanço
+          {content.acoes.titulo}
         </p>
         <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Saldo em banco de 93,5% do ativo é atípico — verificar se está rendendo ou parado em conta corrente.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Estoque caiu de 7,7% para 3,8% do ativo — confirmar se produção sob demanda ou problema de abastecimento.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Ativo não-circulante de apenas 2,7% do ativo — mapear se há máquinas/imóveis fora do balanço.
-          </li>
-        </ul>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------
-// Executive Cards AH — análise temporal (evolução entre períodos)
-// Números extraídos da tabela linhasAH em empresa-001.ts
-// ---------------------------------------------------------------------
-function ExecutiveCardsAH() {
-  return (
-    <div className="mt-6 space-y-4">
-      {/* Card: Leitura da análise */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <p
-          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Leitura da análise
-        </p>
-        <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-          Ativo total cresceu +104,2% entre 2023 e 2025 (R$ 760 mil → R$ 1,55 milhão). Saldo em banco cresceu +113,7% no período — praticamente todo o crescimento do ativo foi para caixa. Patrimônio líquido cresceu +111,9%, acompanhando o caixa. Lucros acumulados cresceram +113,9%.
-        </p>
-      </div>
-
-      {/* Card: Pontos de ação */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <p
-          className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
-          style={{ color: "var(--brand-blue)" }}
-        >
-          Pontos de ação — Balanço
-        </p>
-        <ul className="space-y-2">
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Saldo em banco +113,7% vs ativo +104,2% — todo lucro gerado está indo para o caixa, não para investimento.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Máquinas e instalações +86,6% no período (R$ 22 mil → R$ 41 mil) — investimento baixo para o porte.
-          </li>
-          <li className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
-            Impostos a recolher +80,4% — crescendo no ritmo do faturamento, sem acúmulo irregular.
-          </li>
+          {content.acoes.itens.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-2 text-[13px] leading-relaxed" style={{ color: "var(--brand-ink-muted)" }}>
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--brand-blue)" }} />
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
     </div>
@@ -174,14 +120,14 @@ export function BPTab({ dados }: { dados: BPDadosCliente }) {
       {view === "vertical" && (
         <>
           <ViewVertical dados={dados} />
-          <ExecutiveCardsAV />
+          <ExecutiveCards content={conteudoBP.executiveCardsAV} />
           <GlossarioInline glossario={conteudoBP.glossario} label="Balanço Patrimonial" />
         </>
       )}
       {view === "horizontal" && (
         <>
           <ViewHorizontal dados={dados} />
-          <ExecutiveCardsAH />
+          <ExecutiveCards content={conteudoBP.executiveCardsAH} />
           <GlossarioInline glossario={conteudoBP.glossario} label="Balanço Patrimonial" />
         </>
       )}
