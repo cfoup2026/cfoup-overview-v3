@@ -12,7 +12,7 @@ export function FaturamentoTab({ dados }: Props) {
     <BlocoOperacionalTab
       letra="A"
       titulo="Faturamento"
-      src="9.903 notas fiscais · 2023 a Abril/2026 · LR Dias excluído"
+      src="9.903 notas fiscais · 2023 a Abril/2026"
       dados={dados}
     />
   )

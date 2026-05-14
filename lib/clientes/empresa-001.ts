@@ -138,9 +138,9 @@ export type AnaliseContabilData = {
 // ---------------------------------------------------------------------
 export const dadosCliente: AnaliseContabilData = {
   empresa: {
-    nome: "Gregorutt Indústria e Comércio Ltda",
-    nomeCurto: "Gregorutt",
-    cnpj: "05.218.914/0001-47",
+    nome: "Empresa Demonstração Ltda",
+    nomeCurto: "Empresa Demo",
+    cnpj: "00.000.000/0001-00",
     regime: "Simples Nacional",
   },
   periodos: ["2023", "2024", "2025"],
@@ -620,7 +620,7 @@ export const dadosCliente: AnaliseContabilData = {
       { id: "bp-2", titulo: "Estoque", corpo: "Entre R$ 44 mil e R$ 59 mil nos três anos — pouco, para uma indústria que vende R$ 2,5 milhões por ano. Quer dizer que a empresa **produz sob pedido**: compra matéria-prima, fabrica e entrega rápido. Não fica com produto parado.", status: "info" },
       { id: "bp-3", titulo: "Máquinas e equipamentos", corpo: "R$ 41,5 mil em 2025. Pouco, para uma indústria desse tamanho. Duas possibilidades: (1) a empresa usa galpão e máquinas que não são dela (alugado, ou dos sócios em nome pessoal), ou (2) as máquinas estão registradas pelo valor original, sem atualização. Também não aparece depreciação no balanço.", status: "atencao" },
       { id: "bp-4", titulo: "A pagar para fornecedores", corpo: "Oscilou entre os anos: R$ 40 mil, R$ 6 mil, R$ 39 mil. Isso é normal — depende de uma fatura grande ter sido paga em 30/12 ou em 02/01. Nada relevante.", status: "info" },
-      { id: "bp-5", titulo: "Impostos a recolher", corpo: "Subiu 80% em três anos, no mesmo ritmo das vendas. Em 2025, metade é Simples Nacional e metade é ICMS-ST (imposto que a Gregorutt paga antecipado no lugar do cliente dela).", status: "info" },
+      { id: "bp-5", titulo: "Impostos a recolher", corpo: "Subiu 80% em três anos, no mesmo ritmo das vendas. Em 2025, metade é Simples Nacional e metade é ICMS-ST (imposto que a empresa paga antecipado no lugar do cliente dela).", status: "info" },
       { id: "bp-6", titulo: "R$ 5 mil de capital, R$ 1,45 milhão de lucro guardado", corpo: "Quando os sócios abriram a empresa, colocaram **R$ 5 mil**. Hoje o lucro acumulado é **R$ 1,45 milhão**. Só nos últimos três anos, a empresa deu R$ 1,98 milhão de lucro — e não tem registro de distribuição formal aos sócios. Ou os sócios retiraram via pró-labore (que está dentro da folha), ou deixaram tudo dentro da empresa.", status: "atencao" },
       { id: "bp-7", titulo: "Sem dívida nenhuma", corpo: "A empresa não tem empréstimo, não tem financiamento, não tem leasing. Todo o crescimento foi feito com dinheiro próprio. Sem risco financeiro, mas também sem uso de banco para crescer mais rápido.", status: "positivo" },
       { id: "bp-8", titulo: "Saldo do banco e patrimônio crescem juntos", corpo: "Em três anos, o saldo em banco cresceu 113,7%. O patrimônio dos sócios cresceu 111,9%. A diferença é quase zero. Na prática: **todo lucro que a empresa dá vai para o banco**. Não vira máquina nova, não vira distribuição para os sócios, não vira estoque.", status: "info" },
@@ -782,7 +782,7 @@ export const dadosCliente: AnaliseContabilData = {
       descricao: "Análise operacional do negócio em 2023, 2024 e 2025 cruzando vendas (NFs), contas a pagar, contas a receber e caixa bancário — com leitura, fatos e ações priorizadas.",
       exercicios: "2023 · 2024 · 2025 · Q1-2026",
       cobertura: "9.903 NFs · 6.880 títulos · 6.364 lançamentos",
-      fonte: "SIFWIN/FKN + extratos bancários",
+      fonte: "ERP + extratos bancários",
       dataBase: "20/04/2026",
     },
     sintese: {
