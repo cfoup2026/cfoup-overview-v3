@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
+import { dadosClienteVazio, dadosFinanceirosVazios } from "@/lib/clientes/empresa-vazia"
 import { AnalysisShell, type TabConfig } from "@/components/analysis-shell"
 import SinteseTab from "@/components/analise-financeira/sintese-tab"
 import { FaturamentoTab } from "@/components/analise-financeira/faturamento-tab"
@@ -64,7 +64,7 @@ function AnaliseFinanceiraContent() {
     const resolved = resolveTabFromParam(abaParam)
     setActiveTab(resolved)
   }, [abaParam])
-  const dados = clienteAtual.dadosFinanceiros
+  const dados = dadosFinanceirosVazios
   const hero = dados.hero
   const fontes = dados.fontesImportadas
 
@@ -85,7 +85,7 @@ function AnaliseFinanceiraContent() {
 
   return (
     <AnalysisShell
-      empresa={{ nome: clienteAtual.empresa?.nome ?? "—" }}
+      empresa={{ nome: dadosClienteVazio.empresa?.nome ?? "—" }}
       eyebrow="CFOup · Análise Financeira"
       subtitulo={hero.subTitulo}
       descricao={hero.descricao}
