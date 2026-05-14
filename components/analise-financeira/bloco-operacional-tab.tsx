@@ -214,23 +214,14 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
   return (
     <section>
-      {/* VEREDITO (incorpora leitura) */}
+      {/* LEITURA ÚNICA */}
       <div className="rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          Veredito · Bloco {letra}
-        </p>
         <p
-          className="max-w-3xl text-[15px] font-semibold leading-snug"
-          style={{ color: "var(--brand-navy)" }}
-        >
-          {dados.veredito}
-        </p>
-        <p
-          className="mt-3 text-[13px] leading-relaxed"
+          className="max-w-3xl text-[13px] leading-relaxed"
           style={{ color: "var(--brand-ink-muted)" }}
           dangerouslySetInnerHTML={{ __html: dados.leitura }}
         />
-        <p className="mt-2 text-[11px] text-muted-foreground">{src}</p>
+        <p className="mt-3 text-[11px] text-muted-foreground">{src}</p>
       </div>
 
       {/* KPIs */}
@@ -360,13 +351,9 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                   >
                     ▶
                   </span>
-                  <span
-                    className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-                    style={{ color: "var(--brand-blue)" }}
-                  >
-                    Dados
+                  <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>
+                    {block.tipo === "movimento-mensal" ? "Ver movimento mês a mês" : block.titulo}
                   </span>
-                  <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{block.titulo}</span>
                 </button>
                 {evidenceOpen[idx] && (
                   <div className="border-t border-border bg-white p-4">
@@ -379,16 +366,83 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                       />
                     )}
 
-                    {/* Tipo: Movimento mensal */}
+                    {/* Tipo: Movimento mensal — 2 painéis lado a lado */}
                     {block.tipo === "movimento-mensal" && block.movimentos && (
-                      <TabelaMovimentoMensal
-                        movimentos={block.movimentos}
-                        totalEntradas={block.totalEntradas}
-                        totalSaidas={block.totalSaidas}
-                        mediaEntradas={block.mediaEntradas}
-                        mediaSaidas={block.mediaSaidas}
-                        notaRodape={block.notaRodape}
-                      />
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {/* PANEL E.1 — Movimento total */}
+                        <div className="rounded-lg border border-border overflow-hidden">
+                          <div className="border-b border-border bg-muted/30 px-4 py-2">
+                            <h4 className="text-[12px] font-semibold" style={{ color: "var(--brand-navy)" }}>
+                              E.1 · Movimento total
+                            </h4>
+                          </div>
+                          <div className="p-4">
+                            <table className="w-full text-[12px]">
+                              <tbody>
+                                <tr className="border-b border-border/50">
+                                  <td className="py-2 font-medium text-muted-foreground">Total entradas</td>
+                                  <td className="py-2 text-right font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+                                    {block.totalEntradas ? fmtVal(block.totalEntradas) : "—"}
+                                  </td>
+                                </tr>
+                                <tr className="border-b border-border/50">
+                                  <td className="py-2 font-medium text-muted-foreground">Total saídas</td>
+                                  <td className="py-2 text-right font-bold tabular-nums" style={{ color: "var(--brand-navy)" }}>
+                                    {block.totalSaidas ? fmtVal(block.totalSaidas) : "—"}
+                                  </td>
+                                </tr>
+                                <tr className="border-b border-border/50">
+                                  <td className="py-2 font-medium text-muted-foreground">Saldo líquido</td>
+                                  <td
+                                    className="py-2 text-right font-bold tabular-nums"
+                                    style={{
+                                      color: (block.totalEntradas || 0) - (block.totalSaidas || 0) >= 0
+                                        ? "var(--brand-green)"
+                                        : "var(--brand-red)",
+                                    }}
+                                  >
+                                    {(block.totalEntradas || 0) - (block.totalSaidas || 0) >= 0 ? "+" : ""}
+                                    {fmtVal((block.totalEntradas || 0) - (block.totalSaidas || 0))}
+                                  </td>
+                                </tr>
+                                <tr className="border-b border-border/50">
+                                  <td className="py-2 font-medium text-muted-foreground">Média entrada/mês</td>
+                                  <td className="py-2 text-right tabular-nums text-muted-foreground">
+                                    {block.mediaEntradas ? fmtVal(block.mediaEntradas) : "—"}
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td className="py-2 font-medium text-muted-foreground">Média saída/mês</td>
+                                  <td className="py-2 text-right tabular-nums text-muted-foreground">
+                                    {block.mediaSaidas ? fmtVal(block.mediaSaidas) : "—"}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            {block.notaRodape && (
+                              <p className="mt-3 text-[10px] italic text-muted-foreground">{block.notaRodape}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* PANEL E.2 — Resultado mês a mês */}
+                        <div className="rounded-lg border border-border overflow-hidden">
+                          <div className="border-b border-border bg-muted/30 px-4 py-2">
+                            <h4 className="text-[12px] font-semibold" style={{ color: "var(--brand-navy)" }}>
+                              E.2 · Resultado mês a mês
+                            </h4>
+                          </div>
+                          <div className="p-4">
+                            <TabelaMovimentoMensal
+                              movimentos={block.movimentos}
+                              totalEntradas={block.totalEntradas}
+                              totalSaidas={block.totalSaidas}
+                              mediaEntradas={block.mediaEntradas}
+                              mediaSaidas={block.mediaSaidas}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     {/* Tipo: Saídas recorrentes */}
