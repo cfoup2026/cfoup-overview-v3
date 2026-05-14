@@ -1064,28 +1064,122 @@ export const dadosCliente: AnaliseContabilData = {
     // -----------------------------------------------------------------
     auditoria: {
       veredito: "Sua posição está organizada — não aparece nenhum problema grave aqui.",
-      leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência do ERP do que dinheiro realmente perdido.",
+      leitura: "Você tem <strong>R$ 533 mil a receber</strong> e <strong>R$ 258 mil a pagar</strong>, então o saldo está a seu favor. A maior parte ainda está no prazo, o que mostra controle. O único ponto para limpar são <strong>R$ 53 mil com mais de 120 dias</strong>, que parecem mais pendência de lançamento no ERP do que dinheiro realmente perdido.",
       kpis: [
-        { label: "A receber em aberto", valor: "R$ 533<span class='unit'>k</span>", delta: "49% ainda no prazo", deltaType: "flat" },
-        { label: "A pagar em aberto", valor: "R$ 258<span class='unit'>k</span>", delta: "80% ainda no prazo", deltaType: "flat" },
-        { label: "Saldo (Receber − Pagar)", valor: "+R$ 276<span class='unit'>k</span>", delta: "Posição positiva", deltaType: "up" },
-        { label: "Sujeira contábil (>120 dias)", valor: "R$ 53<span class='unit'>k</span>", delta: "Limpar com contador · não é dívida real", deltaType: "warn" },
+        { label: "A receber em aberto", valor: "R$ 533<span class='unit'>k</span>", delta: "49% ainda no prazo", deltaType: "flat" as const },
+        { label: "A pagar em aberto", valor: "R$ 258<span class='unit'>k</span>", delta: "80% ainda no prazo", deltaType: "flat" as const },
+        { label: "Saldo (Receber − Pagar)", valor: "+R$ 276<span class='unit'>k</span>", delta: "Posição positiva", deltaType: "up" as const },
+        { label: "Sujeira contábil (>120 dias)", valor: "R$ 53<span class='unit'>k</span>", delta: "Limpar com ERP · não é dívida real", deltaType: "warn" as const },
       ],
       alertas: [
-        { nivel: "controle", titulo: "Carteira organizada", texto: "A maior parte dos títulos ainda está no prazo. Dos que atrasaram, só <b>6-7%</b> estão em atraso longo (mais de 120 dias)." },
-        { nivel: "controle", titulo: "Saldo a seu favor", texto: "Você tem <b>R$ 276k a mais para receber do que para pagar</b>. Não está devendo fornecedor." },
-        { nivel: "atencao", titulo: "SILAVA Lavanderia · cliente crônico", texto: "R$ 17k em atraso em <b>13 títulos</b>, alguns com mais de 8 meses. <b>Decidir se vale continuar atendendo.</b>" },
+        { nivel: "controle" as const, titulo: "Carteira organizada", texto: "A maior parte dos títulos ainda está no prazo. Dos que atrasaram, só <b>6-7%</b> estão em atraso longo (mais de 120 dias)." },
+        { nivel: "controle" as const, titulo: "Saldo a seu favor", texto: "Você tem <b>R$ 276k a mais para receber do que para pagar</b>. Não está devendo fornecedor." },
+        { nivel: "atencao" as const, titulo: "SILAVA Lavanderia · cliente crônico", texto: "R$ 17k em atraso em <b>13 títulos</b>, alguns com mais de 8 meses. <b>Decidir se vale continuar atendendo.</b>" },
+      ],
+      ctas: [
+        {
+          eyebrow: "Ação executiva",
+          texto: "R$ 117 mil a receber em atraso >30 dias (19 clientes) e R$ 18 mil a pagar em atraso (10 fornecedores). Listas prontas para cobrança e pente fino.",
+          ctaLabel: "⬇ Baixar lista de atrasos",
+          isExport: true,
+        },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Ver detalhamento por faixa de atraso",
+          tipo: "dois-paineis" as const,
+          painelEsquerdo: {
+            titulo: "C.1 · Contas a Receber por faixa de atraso",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Faixa</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-green); font-weight:600;">Ainda no prazo</td><td style="text-align:right;">R$ 263k</td><td style="text-align:right;">49,3%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">0-30 dias</td><td style="text-align:right;">R$ 153k</td><td style="text-align:right;">28,7%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">31-60 dias</td><td style="text-align:right;">R$ 42k</td><td style="text-align:right;">7,9%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">61-90 dias</td><td style="text-align:right;">R$ 28k</td><td style="text-align:right;">5,3%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red);">91-120 dias</td><td style="text-align:right;">R$ 18k</td><td style="text-align:right;">3,4%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red); font-weight:600;">>120 dias</td><td style="text-align:right;">R$ 29k</td><td style="text-align:right;">5,4%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 533k</td><td style="text-align:right; font-weight:bold;">100%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">22% em atraso >30 dias (R$ 117k em 19 clientes). Maior parte ainda controlada.</p>`,
+          },
+          painelDireito: {
+            titulo: "C.2 · Contas a Pagar por faixa de atraso",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Faixa</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">%</th></tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-green); font-weight:600;">Ainda no prazo</td><td style="text-align:right;">R$ 206k</td><td style="text-align:right;">79,8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">0-30 dias</td><td style="text-align:right;">R$ 34k</td><td style="text-align:right;">13,2%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">31-60 dias</td><td style="text-align:right;">R$ 8k</td><td style="text-align:right;">3,1%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-warning);">61-90 dias</td><td style="text-align:right;">R$ 4k</td><td style="text-align:right;">1,6%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red);">91-120 dias</td><td style="text-align:right;">R$ 2k</td><td style="text-align:right;">0,8%</td></tr>
+                <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; color:var(--brand-red); font-weight:600;">>120 dias</td><td style="text-align:right;">R$ 4k</td><td style="text-align:right;">1,5%</td></tr>
+                <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL</td><td style="text-align:right; font-weight:bold;">R$ 258k</td><td style="text-align:right; font-weight:bold;">100%</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">7% em atraso >30 dias (R$ 18k em 10 fornecedores). Posição muito saudável.</p>`,
+          },
+        },
+        {
+          titulo: "Ver top 15 clientes com títulos vencidos há mais de 30 dias",
+          tipo: "html" as const,
+          conteudo: `<table style="width:100%; font-size:12px;">
+            <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Cliente</th><th style="text-align:right; padding:6px 0;">Nº títulos</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">Pior atraso</th></tr></thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600; color:var(--brand-warning);">1. SILAVA Lavanderia</td><td style="text-align:right;">13</td><td style="text-align:right;">R$ 17.200</td><td style="text-align:right; color:var(--brand-red);">248 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_AA</td><td style="text-align:right;">5</td><td style="text-align:right;">R$ 12.800</td><td style="text-align:right; color:var(--brand-warning);">95 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_AB</td><td style="text-align:right;">4</td><td style="text-align:right;">R$ 11.500</td><td style="text-align:right; color:var(--brand-warning);">78 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_AC</td><td style="text-align:right;">3</td><td style="text-align:right;">R$ 9.800</td><td style="text-align:right; color:var(--brand-warning);">65 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_AD</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 8.400</td><td style="text-align:right;">52 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">6. CLIENTE_AE</td><td style="text-align:right;">3</td><td style="text-align:right;">R$ 7.900</td><td style="text-align:right;">48 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">7. CLIENTE_AF</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 7.200</td><td style="text-align:right;">45 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">8. CLIENTE_AG</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 6.800</td><td style="text-align:right;">42 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">9. CLIENTE_AH</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 6.200</td><td style="text-align:right;">38 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">10. CLIENTE_AI</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 5.800</td><td style="text-align:right;">36 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">11. CLIENTE_AJ</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 5.400</td><td style="text-align:right;">35 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">12. CLIENTE_AK</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.900</td><td style="text-align:right;">34 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">13. CLIENTE_AL</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.500</td><td style="text-align:right;">33 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">14. CLIENTE_AM</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 4.200</td><td style="text-align:right;">32 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">15. CLIENTE_AN</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 3.900</td><td style="text-align:right;">31 dias</td></tr>
+              <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">Top 15 (dos 19)</td><td style="text-align:right; font-weight:bold;">42</td><td style="text-align:right; font-weight:bold;">R$ 116.500</td><td style="text-align:right;"></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">SILAVA concentra 15% do valor em atraso com 13 títulos. Demais são atrasos pontuais e recuperáveis.</p>`,
+        },
+        {
+          titulo: "Ver fornecedores com títulos em atraso há mais de 30 dias",
+          tipo: "html" as const,
+          conteudo: `<table style="width:100%; font-size:12px;">
+            <thead><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left; padding:6px 0;">Fornecedor</th><th style="text-align:right; padding:6px 0;">Nº títulos</th><th style="text-align:right; padding:6px 0;">Valor</th><th style="text-align:right; padding:6px 0;">Pior atraso</th></tr></thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. FORNEC_A</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 4.200</td><td style="text-align:right;">68 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. FORNEC_B</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 3.100</td><td style="text-align:right;">52 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. FORNEC_C</td><td style="text-align:right;">2</td><td style="text-align:right;">R$ 2.800</td><td style="text-align:right;">48 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. FORNEC_D</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 2.400</td><td style="text-align:right;">45 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. FORNEC_E</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.800</td><td style="text-align:right;">42 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">6. FORNEC_F</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.400</td><td style="text-align:right;">38 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">7. FORNEC_G</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 1.100</td><td style="text-align:right;">35 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">8. FORNEC_H</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 800</td><td style="text-align:right;">33 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">9. FORNEC_I</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 600</td><td style="text-align:right;">32 dias</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">10. FORNEC_J</td><td style="text-align:right;">1</td><td style="text-align:right;">R$ 500</td><td style="text-align:right;">31 dias</td></tr>
+              <tr style="border-top:2px solid var(--border); background:var(--muted);"><td style="padding:6px 0; font-weight:bold;">TOTAL (10 fornecedores)</td><td style="text-align:right; font-weight:bold;">12</td><td style="text-align:right; font-weight:bold;">R$ 18.700</td><td style="text-align:right;"></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Valores baixos e pulverizados. Provável pendência de lançamento, não inadimplência real.</p>`,
+        },
       ],
       acoes: [
         { texto: "<b>Baixar títulos >120 dias</b> com o contador — a maioria é sujeira, não dívida real.", meta: "R$ 53k para limpar" },
         { texto: "<b>Decisão sobre SILAVA</b>: cobrar, renegociar ou cortar.", meta: "R$ 17k em 13 títulos" },
         { texto: "<b>Cobrança ativa nos R$ 117k</b> em atraso >30 dias (19 clientes).", meta: "Lista pronta para ação" },
+        { texto: "<b>Pente fino nos R$ 18k</b> a pagar em atraso — confirmar se são pendências reais.", meta: "10 fornecedores" },
       ],
       glossario: [
-        { termo: "Contas a Receber (CR)", definicao: "= dinheiro que os clientes ainda vão te pagar por vendas já feitas." },
-        { termo: "Contas a Pagar (CP)", definicao: "= dinheiro que você ainda vai pagar a fornecedores por compras já feitas." },
-        { termo: "Sujeira contábil", definicao: "= títulos que aparecem no sistema mas já foram pagos/recebidos, ou que são tão antigos que não serão cobrados." },
-        { termo: "Atraso >120 dias", definicao: "= título vencido há mais de 4 meses. Geralmente indica problema real ou erro de registro." },
+        { termo: "CR (Contas a Receber)", definicao: "= dinheiro que os clientes ainda vão te pagar por vendas já feitas." },
+        { termo: "CP (Contas a Pagar)", definicao: "= dinheiro que você ainda vai pagar a fornecedores por compras já feitas." },
+        { termo: "Aging (faixa de atraso)", definicao: "= agrupamento de títulos por quantos dias estão vencidos (0-30, 31-60, etc.)." },
+        { termo: "ERP de gestão", definicao: "= sistema operacional da empresa onde se lançam vendas, compras e pagamentos. Distinto do sistema contábil." },
       ],
     },
 
