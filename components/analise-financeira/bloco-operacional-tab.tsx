@@ -214,35 +214,28 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
   return (
     <section>
-      {/* VEREDITO */}
-      <div className="rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
+      {/* VEREDITO (incorpora leitura) */}
+      <div className="rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Veredito · Bloco {letra}
         </p>
         <p
-          className="max-w-3xl text-[15px] md:text-[16px] font-semibold leading-snug"
+          className="max-w-3xl text-[15px] font-semibold leading-snug"
           style={{ color: "var(--brand-navy)" }}
         >
           {dados.veredito}
         </p>
-        <p className="mt-2 text-[11px] text-muted-foreground">{src}</p>
-      </div>
-
-      {/* LEITURA */}
-      <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-          A leitura
-        </p>
         <p
-          className="text-[13px] leading-relaxed"
+          className="mt-3 text-[13px] leading-relaxed"
           style={{ color: "var(--brand-ink-muted)" }}
           dangerouslySetInnerHTML={{ __html: dados.leitura }}
         />
+        <p className="mt-2 text-[11px] text-muted-foreground">{src}</p>
       </div>
 
       {/* KPIs */}
-      <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
-        <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+      <div className="mt-4 rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
+        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           KPIs-chave
         </p>
         <div
@@ -267,7 +260,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                     : undefined
 
             const content = (
-              <>
+              <div className="text-center">
                 <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{kpi.label}</p>
                 <p
                   className="mt-1 text-xl font-bold tabular-nums"
@@ -280,7 +273,7 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                 >
                   {kpi.delta}
                 </p>
-              </>
+              </div>
             )
 
             if (kpi.href) {
@@ -305,8 +298,8 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       </div>
 
       {/* ALERTAS — GRID 3 COLUNAS */}
-      <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
-        <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+      <div className="mt-4 rounded-2xl border border-border p-5 md:p-6" style={{ background: "white" }}>
+        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Alertas operacionais
         </p>
         <div className="grid gap-4 md:grid-cols-3">
@@ -351,27 +344,29 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
       {/* EVIDENCE BLOCKS (opcional) */}
       {dados.evidenceBlocks && dados.evidenceBlocks.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-border p-6 md:p-8" style={{ background: "white" }}>
-          <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-            Detalhamento
-          </p>
-          <div className="space-y-3">
+        <div className="mt-4" style={{ background: "white" }}>
+          <div className="space-y-2">
             {dados.evidenceBlocks.map((block, idx) => (
               <div key={idx} className="rounded-lg border border-border overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleEvidence(idx)}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left text-[13px] font-semibold transition-colors hover:bg-muted/30"
-                  style={{ color: "var(--brand-navy)", background: evidenceOpen[idx] ? "var(--muted)" : "white" }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
+                  style={{ background: evidenceOpen[idx] ? "var(--muted)" : "white" }}
                 >
-                  <span>{block.titulo}</span>
                   <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[14px] leading-none transition-transform ${
-                      evidenceOpen[idx] ? "rotate-45 bg-[var(--brand-blue)] text-white" : "bg-muted text-muted-foreground"
-                    }`}
+                    className="text-[12px] transition-transform"
+                    style={{ color: "var(--brand-blue)", transform: evidenceOpen[idx] ? "rotate(90deg)" : "rotate(0deg)" }}
                   >
-                    +
+                    ▶
                   </span>
+                  <span
+                    className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                    style={{ color: "var(--brand-blue)" }}
+                  >
+                    Dados
+                  </span>
+                  <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{block.titulo}</span>
                 </button>
                 {evidenceOpen[idx] && (
                   <div className="border-t border-border bg-white p-4">
@@ -465,28 +460,26 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       )}
 
       {/* AÇÕES PRIORIZADAS — BLOCO FORTE */}
-      <div className="mt-6 rounded-2xl border-2 border-border bg-muted/20 p-6 md:p-8">
-        <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+      <div className="mt-4 rounded-2xl border-2 border-border bg-muted/20 p-5 md:p-6">
+        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
           Ações priorizadas · Bloco {letra}
         </p>
-        <div className="space-y-4">
+        <div className="space-y-2">
           {dados.acoes.map((acao, idx) => {
             const content = (
-              <div className="flex gap-4 rounded-xl border border-border bg-white p-4 transition-colors hover:border-[var(--brand-blue)]/40">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-white px-3 py-2.5 transition-colors hover:border-[var(--brand-blue)]/40">
                 <span
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[14px] font-bold"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[12px] font-bold"
                   style={{ backgroundColor: "var(--brand-blue)", color: "white" }}
                 >
                   {String(idx + 1).padStart(2, "0")}
                 </span>
-                <div className="flex-1">
-                  <p
-                    className="text-[13px] leading-relaxed"
-                    style={{ color: "var(--brand-navy)" }}
-                    dangerouslySetInnerHTML={{ __html: acao.texto }}
-                  />
-                  <p className="mt-1 text-[11px] italic text-muted-foreground">{acao.meta}</p>
-                </div>
+                <p className="flex-1 text-[13px] leading-snug" style={{ color: "var(--brand-navy)" }}>
+                  <span dangerouslySetInnerHTML={{ __html: acao.texto }} />
+                  {acao.meta && (
+                    <span className="ml-2 text-[11px] italic text-muted-foreground">· {acao.meta}</span>
+                  )}
+                </p>
               </div>
             )
 
@@ -504,31 +497,27 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
       </div>
 
       {/* GLOSSÁRIO */}
-      <div className="mt-6">
+      <div className="mt-4">
         <button
           type="button"
           onClick={() => setGlossOpen(!glossOpen)}
-          className="flex w-full items-center justify-between rounded-2xl border border-border bg-white px-6 py-4 text-left text-[13px] font-semibold transition-all hover:bg-muted/30"
-          style={{ color: "var(--brand-navy)" }}
+          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-5 py-3 text-left transition-all hover:bg-muted/30"
         >
-          <span>
-            <span className="mr-3 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
-              Glossário
-            </span>
-            Bloco {letra} · {titulo}
-          </span>
           <span
-            className={`flex h-5 w-5 items-center justify-center rounded-full text-[14px] leading-none transition-transform ${
-              glossOpen ? "rotate-45 bg-[var(--brand-blue)] text-white" : "bg-muted text-muted-foreground"
-            }`}
+            className="text-[12px] transition-transform"
+            style={{ color: "var(--brand-blue)", transform: glossOpen ? "rotate(90deg)" : "rotate(0deg)" }}
           >
-            +
+            ▶
           </span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
+            Glossário
+          </span>
+          <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>Bloco {letra} · {titulo}</span>
         </button>
         {glossOpen && (
-          <div className="mt-[-1px] rounded-b-2xl border border-t-0 border-border bg-white px-6 py-4">
+          <div className="mt-[-1px] rounded-b-2xl border border-t-0 border-border bg-white px-5 py-3">
             {dados.glossario.map((item, idx) => (
-              <div key={idx} className="border-b border-border py-3 last:border-b-0">
+              <div key={idx} className="border-b border-border py-2 last:border-b-0">
                 <dt className="text-[13px] font-semibold" style={{ color: "var(--brand-navy)" }}>
                   {item.termo}
                 </dt>
