@@ -848,25 +848,123 @@ export const dadosCliente: AnaliseContabilData = {
     // BLOCO B — CLIENTES
     // -----------------------------------------------------------------
     clientes: {
-      veredito: "Você está perdendo mais clientes do que ganhando — e concentrando receita em menos motores.",
-      leitura: "A base tem <strong>593 clientes únicos em 3 anos</strong>, mas só <strong>223 são estáveis</strong> (compraram nos 3 anos). Os <strong>70 em queda</strong> e <strong>58 perdidos</strong> superam os <strong>43 em alta</strong>. Enquanto a receita total subiu, o saldo líquido de clientes é <strong>negativo</strong>: você está concentrando mais, não expandindo.",
+      veredito: "Sua aquisição funciona; sua retenção não.",
+      leitura: "Você tem uma base estável relevante e continua trazendo clientes novos. O problema está no meio da carteira: <strong>perdeu 58 clientes em 2025</strong> e outros <strong>70 já vêm caindo</strong> ano após ano. O gargalo comercial hoje não é captação; é retenção.",
       kpis: [
-        { label: "Universo de 3 anos", valor: "593", delta: "clientes únicos 2023-2025", deltaType: "flat" },
-        { label: "Estáveis (3 anos)", valor: "223", delta: "37,6% da base · o coração", deltaType: "flat" },
-        { label: "Em alta contínua", valor: "43", delta: "+R$ 540k de ganho em 2025", deltaType: "up" },
-        { label: "Em queda contínua", valor: "70", delta: "−R$ 285k em risco", deltaType: "down" },
-        { label: "Perdidos em 2025", valor: "58", delta: "−R$ 233k de receita 2024", deltaType: "down" },
+        { label: "Universo 3 anos", valor: "593", delta: "clientes únicos 2023-2025", deltaType: "flat" as const },
+        { label: "Estáveis", valor: "223", delta: "37,6% da base · compraram nos 3 anos", deltaType: "flat" as const },
+        { label: "Em queda contínua", valor: "70", delta: "−R$ 285k em risco · caindo a cada ano", deltaType: "down" as const },
+        { label: "Perdidos em 2025", valor: "58", delta: "−R$ 233k de receita perdida", deltaType: "down" as const },
+        { label: "Conquistados 2025", valor: "79", delta: "Canal de aquisição saudável", deltaType: "up" as const },
       ],
       alertas: [
-        { nivel: "critico", titulo: "Saldo líquido negativo", texto: "Crescendo (43) menos caindo (70) = <b>−27 clientes em deterioração</b>. Esse é o dado mais importante da aba." },
-        { nivel: "atencao", titulo: "Top 1 = 9,6% da receita", texto: "SUPRICORP sozinha vale quase 10% do faturamento. Se sair, abre um buraco de <b>R$ 354k/ano</b>." },
-        { nivel: "controle", titulo: "Aquisição funcionando", texto: "79 clientes novos em 2025. O canal de aquisição está saudável — o problema é a retenção." },
+        { nivel: "critico" as const, titulo: "Saldo líquido negativo", texto: "43 em alta menos 70 em queda = <b>−27 clientes em deterioração</b>. Esse é o dado mais importante da aba." },
+        { nivel: "atencao" as const, titulo: "Top 1 = 9,6% da receita", texto: "SUPRICORP sozinha vale quase 10% do faturamento. Se sair, abre buraco de <b>R$ 354k/ano</b>." },
+        { nivel: "controle" as const, titulo: "Aquisição funcionando", texto: "79 clientes novos em 2025. O canal de entrada está saudável — o problema é a retenção." },
+      ],
+      ctas: [
+        {
+          eyebrow: "Ação executiva",
+          texto: "Exporte a lista completa de clientes perdidos (58), em queda (70) e em alta (43) para trabalhar com seu time comercial. Os dados estão prontos para ação.",
+          ctaLabel: "⬇ Baixar planilha Excel",
+          isExport: true,
+        },
+      ],
+      evidenceBlocks: [
+        {
+          titulo: "Top 10 clientes perdidos em 2025",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "CLIENTE_A", valor2024: 45000, valor2025: 0, delta: -45000 },
+            { nome: "CLIENTE_B", valor2024: 38000, valor2025: 0, delta: -38000 },
+            { nome: "CLIENTE_C", valor2024: 32000, valor2025: 0, delta: -32000 },
+            { nome: "CLIENTE_D", valor2024: 28000, valor2025: 0, delta: -28000 },
+            { nome: "CLIENTE_E", valor2024: 24000, valor2025: 0, delta: -24000 },
+            { nome: "CLIENTE_F", valor2024: 19000, valor2025: 0, delta: -19000 },
+            { nome: "CLIENTE_G", valor2024: 15000, valor2025: 0, delta: -15000 },
+            { nome: "CLIENTE_H", valor2024: 12000, valor2025: 0, delta: -12000 },
+            { nome: "CLIENTE_I", valor2024: 11000, valor2025: 0, delta: -11000 },
+            { nome: "CLIENTE_J", valor2024: 9000, valor2025: 0, delta: -9000 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: -233000,
+          notaRodape: "58 clientes perdidos em 2025. Critério: compraram em 2023 e 2024, não compraram em 2025.",
+        },
+        {
+          titulo: "Top 10 clientes em queda contínua",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "CLIENTE_K", valor2024: 52000, valor2025: 35000, delta: -17000, deltaPercent: -33 },
+            { nome: "CLIENTE_L", valor2024: 48000, valor2025: 32000, delta: -16000, deltaPercent: -33 },
+            { nome: "CLIENTE_M", valor2024: 41000, valor2025: 28000, delta: -13000, deltaPercent: -32 },
+            { nome: "CLIENTE_N", valor2024: 38000, valor2025: 26000, delta: -12000, deltaPercent: -32 },
+            { nome: "CLIENTE_O", valor2024: 35000, valor2025: 24000, delta: -11000, deltaPercent: -31 },
+            { nome: "CLIENTE_P", valor2024: 32000, valor2025: 23000, delta: -9000, deltaPercent: -28 },
+            { nome: "CLIENTE_Q", valor2024: 29000, valor2025: 21000, delta: -8000, deltaPercent: -28 },
+            { nome: "CLIENTE_R", valor2024: 26000, valor2025: 19000, delta: -7000, deltaPercent: -27 },
+            { nome: "CLIENTE_S", valor2024: 24000, valor2025: 18000, delta: -6000, deltaPercent: -25 },
+            { nome: "CLIENTE_T", valor2024: 22000, valor2025: 17000, delta: -5000, deltaPercent: -23 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: -104000,
+          notaRodape: "70 clientes em queda contínua. Critério: compraram nos 3 anos, mas caindo ano a ano.",
+        },
+        {
+          titulo: "Top 10 clientes em alta contínua",
+          tipo: "tabela-clientes" as const,
+          colunas: ["Cliente", "2024", "2025", "Δ"],
+          clientes: [
+            { nome: "SUPRICORP", valor2024: 215000, valor2025: 354000, delta: 139000, deltaPercent: 65, obs: "Top 1" },
+            { nome: "CLIENTE_U", valor2024: 78000, valor2025: 112000, delta: 34000, deltaPercent: 44 },
+            { nome: "CLIENTE_V", valor2024: 65000, valor2025: 89000, delta: 24000, deltaPercent: 37 },
+            { nome: "CLIENTE_W", valor2024: 54000, valor2025: 72000, delta: 18000, deltaPercent: 33 },
+            { nome: "CLIENTE_X", valor2024: 48000, valor2025: 63000, delta: 15000, deltaPercent: 31 },
+            { nome: "CLIENTE_Y", valor2024: 42000, valor2025: 54000, delta: 12000, deltaPercent: 29 },
+            { nome: "CLIENTE_Z", valor2024: 38000, valor2025: 48000, delta: 10000, deltaPercent: 26 },
+            { nome: "CLIENTE_AA", valor2024: 35000, valor2025: 44000, delta: 9000, deltaPercent: 26 },
+            { nome: "CLIENTE_AB", valor2024: 32000, valor2025: 40000, delta: 8000, deltaPercent: 25 },
+            { nome: "CLIENTE_AC", valor2024: 29000, valor2025: 36000, delta: 7000, deltaPercent: 24 },
+          ],
+          subtotalLabel: "Subtotal Top 10",
+          subtotalValor: 276000,
+          notaRodape: "43 clientes em alta contínua. Critério: compraram nos 3 anos, crescendo ano a ano.",
+        },
+        {
+          titulo: "Ver categorias de jornada e top clientes",
+          tipo: "dois-paineis" as const,
+          painelEsquerdo: {
+            titulo: "B.1 · Jornada das 593 categorias",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">Estáveis (3 anos)</td><td style="text-align:right;">223</td><td style="text-align:right; color:var(--brand-ink-muted);">37,6%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Em alta contínua</td><td style="text-align:right;">43</td><td style="text-align:right; color:var(--brand-green);">+R$ 540k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Em queda contínua</td><td style="text-align:right;">70</td><td style="text-align:right; color:var(--brand-red);">−R$ 285k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Perdidos em 2025</td><td style="text-align:right;">58</td><td style="text-align:right; color:var(--brand-red);">−R$ 233k</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">Conquistados 2025</td><td style="text-align:right;">79</td><td style="text-align:right; color:var(--brand-green);">Novos</td></tr>
+              <tr><td style="padding:6px 0;">Outros (esporádicos)</td><td style="text-align:right;">120</td><td style="text-align:right; color:var(--brand-ink-muted);">Cauda longa</td></tr>
+            </table>`,
+          },
+          painelDireito: {
+            titulo: "B.2 · Top 5 clientes 2025",
+            conteudo: `<table style="width:100%; font-size:12px;">
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0; font-weight:600;">1. SUPRICORP</td><td style="text-align:right;">R$ 354k</td><td style="text-align:right; color:var(--brand-warning);">9,6%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">2. CLIENTE_U</td><td style="text-align:right;">R$ 112k</td><td style="text-align:right;">3,0%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">3. CLIENTE_V</td><td style="text-align:right;">R$ 89k</td><td style="text-align:right;">2,4%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">4. CLIENTE_W</td><td style="text-align:right;">R$ 72k</td><td style="text-align:right;">1,9%</td></tr>
+              <tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 0;">5. CLIENTE_X</td><td style="text-align:right;">R$ 63k</td><td style="text-align:right;">1,7%</td></tr>
+              <tr><td style="padding:6px 0; font-weight:600;">Top 5 total</td><td style="text-align:right; font-weight:600;">R$ 690k</td><td style="text-align:right; font-weight:600; color:var(--brand-warning);">18,6%</td></tr>
+            </table>
+            <p style="margin-top:12px; font-size:11px; color:var(--brand-ink-muted);">Concentração moderada: Top 5 = 18,6%. Risco está no Top 1 (SUPRICORP = 9,6%).</p>`,
+          },
+        },
       ],
       acoes: [
-        { texto: "<b>Listar os 70 clientes em queda</b> e atribuir a vendedor para diagnóstico em 30 dias.", meta: "~R$ 400k/ano em risco" },
+        { texto: "<b>Listar os 70 clientes em queda</b> e atribuir a vendedor para diagnóstico em 30 dias.", meta: "~R$ 285k/ano em risco" },
         { texto: "<b>Programa \"Save\"</b>: ligar nos 58 que sumiram em 2025.", meta: "Receita 2024: R$ 233k" },
         { texto: "<b>Plano de proteção SUPRICORP</b>: contrato de fornecimento com prazo definido.", meta: "Risco: R$ 354k/ano" },
         { texto: "<b>Análise dos 79 novos de 2025</b>: como entraram? Replicar canal.", meta: "Aquisição funciona" },
+        { texto: "<b>Separar \"cauda longa\" dos estratégicos</b>: focar retenção onde há margem.", meta: "120 clientes esporádicos" },
       ],
       glossario: [
         { termo: "Universo de 3 anos", definicao: "= total de clientes diferentes que compraram em 2023, 2024 ou 2025 (sem contar duplicados)." },
@@ -874,6 +972,7 @@ export const dadosCliente: AnaliseContabilData = {
         { termo: "Cliente em queda contínua", definicao: "= cliente que compra nos 3 anos, mas a receita anual está caindo ano a ano." },
         { termo: "Cliente perdido em 2025", definicao: "= cliente que comprou em 2023 e 2024 mas não comprou nada em 2025." },
         { termo: "Cauda longa", definicao: "= parte grande da base de clientes que, individualmente, compra pouco." },
+        { termo: "Concentração", definicao: "= quanto da sua receita depende de poucos clientes. Acima de 15% num só cliente é risco alto." },
       ],
     },
 

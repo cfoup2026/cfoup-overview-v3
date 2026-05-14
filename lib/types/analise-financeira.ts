@@ -53,10 +53,20 @@ export type SaidaRecorrente = {
   acao?: string
 }
 
+// Tipo para linha de tabela de clientes (perdidos/queda/alta)
+export type ClienteTabela = {
+  nome: string
+  valor2024?: number
+  valor2025?: number
+  delta?: number
+  deltaPercent?: number
+  obs?: string
+}
+
 // Tipo para Evidence Block colapsável (suporta HTML ou dados estruturados)
 export type EvidenceBlock = {
   titulo: string
-  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis"
+  tipo: "html" | "movimento-mensal" | "saidas-recorrentes" | "dois-paineis" | "tabela-clientes"
   // Para tipo "html"
   conteudo?: string
   // Para tipo "movimento-mensal"
@@ -72,6 +82,11 @@ export type EvidenceBlock = {
   // Para tipo "dois-paineis" (grid 2 colunas)
   painelEsquerdo?: { titulo: string; conteudo: string }
   painelDireito?: { titulo: string; conteudo: string }
+  // Para tipo "tabela-clientes"
+  clientes?: ClienteTabela[]
+  subtotalLabel?: string
+  subtotalValor?: number
+  colunas?: string[] // ex: ["Cliente", "2024", "2025", "Δ"]
 }
 
 // Tipo para CTA executivo
@@ -79,7 +94,8 @@ export type CTA = {
   eyebrow: string
   texto: string
   ctaLabel: string
-  href: string
+  href?: string
+  isExport?: boolean // true = botão de export (não navegação)
 }
 
 // ---------------------------------------------------------------------

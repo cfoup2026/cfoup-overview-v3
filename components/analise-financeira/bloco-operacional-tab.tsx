@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import type { BlocoOperacional, MovimentoMes, SaidaRecorrente } from "@/lib/types/analise-financeira"
+import type { BlocoOperacional, MovimentoMes, SaidaRecorrente, ClienteTabela } from "@/lib/types/analise-financeira"
 
 type Props = {
   letra: string
@@ -200,6 +200,93 @@ function TabelaSaidasRecorrentes({
           </tfoot>
         )}
       </table>
+    </div>
+  )
+}
+
+// Componente para tabela de clientes (perdidos/queda/alta)
+function TabelaClientes({
+  clientes,
+  colunas,
+  subtotalLabel,
+  subtotalValor,
+  notaRodape,
+}: {
+  clientes: ClienteTabela[]
+  colunas?: string[]
+  subtotalLabel?: string
+  subtotalValor?: number
+  notaRodape?: string
+}) {
+  const cols = colunas || ["Cliente", "2024", "2025", "Δ"]
+  const showDelta = cols.includes("Δ") || cols.includes("Delta")
+
+  return (
+    <div>
+      <table className="w-full text-[12px]">
+        <thead>
+          <tr className="border-b border-border bg-muted/30">
+            {cols.map((col, i) => (
+              <th
+                key={i}
+                className={`py-2 font-semibold text-muted-foreground ${i === 0 ? "pl-3 text-left" : "pr-3 text-right"}`}
+              >
+                {col}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {clientes.map((c, idx) => {
+            const deltaColor = (c.delta || 0) >= 0 ? "var(--brand-green)" : "var(--brand-red)"
+            return (
+              <tr key={idx} className="border-b border-border/50 transition-colors hover:bg-muted/30">
+                <td className="py-2 pl-3 font-medium" style={{ color: "var(--brand-navy)" }}>
+                  {c.nome}
+                  {c.obs && <span className="ml-2 text-[10px] text-muted-foreground">{c.obs}</span>}
+                </td>
+                {c.valor2024 !== undefined && (
+                  <td className="py-2 pr-3 text-right tabular-nums" style={{ color: "var(--brand-ink-muted)" }}>
+                    {fmtVal(c.valor2024)}
+                  </td>
+                )}
+                {c.valor2025 !== undefined && (
+                  <td className="py-2 pr-3 text-right tabular-nums" style={{ color: "var(--brand-ink-muted)" }}>
+                    {fmtVal(c.valor2025)}
+                  </td>
+                )}
+                {showDelta && c.delta !== undefined && (
+                  <td className="py-2 pr-3 text-right font-semibold tabular-nums" style={{ color: deltaColor }}>
+                    {c.delta >= 0 ? "+" : ""}{fmtVal(c.delta)}
+                    {c.deltaPercent !== undefined && (
+                      <span className="ml-1 text-[10px]">({c.deltaPercent >= 0 ? "+" : ""}{c.deltaPercent}%)</span>
+                    )}
+                  </td>
+                )}
+              </tr>
+            )
+          })}
+        </tbody>
+        {subtotalValor !== undefined && (
+          <tfoot>
+            <tr className="border-t-2 border-border bg-muted/50">
+              <td className="py-2 pl-3 font-bold" style={{ color: "var(--brand-navy)" }}>
+                {subtotalLabel || "Subtotal"}
+              </td>
+              <td colSpan={cols.length - 2} />
+              <td
+                className="py-2 pr-3 text-right font-bold tabular-nums"
+                style={{ color: subtotalValor >= 0 ? "var(--brand-green)" : "var(--brand-red)" }}
+              >
+                {subtotalValor >= 0 ? "+" : ""}{fmtVal(subtotalValor)}
+              </td>
+            </tr>
+          </tfoot>
+        )}
+      </table>
+      {notaRodape && (
+        <p className="mt-3 text-[11px] italic text-muted-foreground">{notaRodape}</p>
+      )}
     </div>
   )
 }
@@ -453,6 +540,17 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
                       <TabelaSaidasRecorrentes saidas={block.saidas} totalSaidas={block.totalSaidas2} />
                     )}
 
+                    {/* Tipo: Tabela de clientes */}
+                    {block.tipo === "tabela-clientes" && block.clientes && (
+                      <TabelaClientes
+                        clientes={block.clientes}
+                        colunas={block.colunas}
+                        subtotalLabel={block.subtotalLabel}
+                        subtotalValor={block.subtotalValor}
+                        notaRodape={block.notaRodape}
+                      />
+                    )}
+
                     {/* Tipo: Dois painéis lado a lado */}
                     {block.tipo === "dois-paineis" && block.painelEsquerdo && block.painelDireito && (
                       <div className="grid gap-4 md:grid-cols-2">
@@ -492,11 +590,11 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
 
       {/* CTAs (opcional) */}
       {dados.ctas && dados.ctas.length > 0 && (
-        <div className="mt-6 space-y-3">
+        <div className="mt-4 space-y-3">
           {dados.ctas.map((cta, idx) => (
             <div
               key={idx}
-              className="rounded-2xl border-2 border-[var(--brand-blue)]/20 bg-[var(--brand-blue)]/5 p-6 md:p-8"
+              className="rounded-2xl border-2 border-[var(--brand-blue)]/20 bg-[var(--brand-blue)]/5 p-5 md:p-6"
             >
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
                 {cta.eyebrow}
@@ -504,13 +602,24 @@ export function BlocoOperacionalTab({ letra, titulo, src, dados }: Props) {
               <p className="text-[13px] leading-relaxed" style={{ color: "var(--brand-navy)" }}>
                 {cta.texto}
               </p>
-              <Link
-                href={cta.href}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition hover:opacity-90"
-                style={{ backgroundColor: "var(--brand-blue)" }}
-              >
-                {cta.ctaLabel}
-              </Link>
+              {cta.isExport ? (
+                <button
+                  type="button"
+                  onClick={() => alert("Export em desenvolvimento — dados serão exportados para Excel")}
+                  className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition hover:opacity-90"
+                  style={{ backgroundColor: "var(--brand-blue)" }}
+                >
+                  {cta.ctaLabel}
+                </button>
+              ) : cta.href ? (
+                <Link
+                  href={cta.href}
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition hover:opacity-90"
+                  style={{ backgroundColor: "var(--brand-blue)" }}
+                >
+                  {cta.ctaLabel}
+                </Link>
+              ) : null}
             </div>
           ))}
         </div>
