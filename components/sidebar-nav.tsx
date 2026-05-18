@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useTransition } from "react"
 import {
   LayoutDashboard,
   MessageSquareText,
@@ -18,7 +19,8 @@ import {
 import { cn } from "@/lib/utils"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { useCurrentUser } from "@/lib/hooks/use-current-user"
-import { clienteAtual } from "@/lib/clientes/cliente-atual"
+import { useActiveCompany } from "@/lib/hooks/use-active-company"
+import { signOutAction } from "@/lib/auth/actions"
 
 export const navSections = [
   {
@@ -55,16 +57,30 @@ type SidebarNavProps = {
 
 export function SidebarNav({ onNavigate }: SidebarNavProps) {
   const pathname = usePathname()
-  const router = useRouter()
+  const _router = useRouter()
   const user = useCurrentUser()
+  const company = useActiveCompany()
+  const [pending, startTransition] = useTransition()
 
   function handleLogout() {
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("cfoup.currentUser")
-    }
     onNavigate?.()
-    router.push("/entrar")
+    // Server action faz signOut + redirect /entrar. Não precisa router.push aqui.
+    startTransition(() => {
+      signOutAction()
+    })
   }
+
+  // Label de regime humanizado para o badge da empresa
+  const regimeLabel =
+    company.regime === "simples_nacional"
+      ? "Simples Nacional"
+      : company.regime === "lucro_presumido"
+        ? "Lucro Presumido"
+        : company.regime === "lucro_real"
+          ? "Lucro Real"
+          : company.regime === "mei"
+            ? "MEI"
+            : "Regime —"
 
   return (
     <nav
@@ -82,8 +98,10 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Empresa
           </p>
-          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">{clienteAtual.empresa.nomeCurto}</p>
-          <p className="text-xs text-muted-foreground">Indústria e Comércio</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--brand-navy)]">
+            {company.loading ? "Carregando..." : company.empty ? "Sem empresa" : company.shortName}
+          </p>
+          <p className="text-xs text-muted-foreground">{regimeLabel}</p>
         </div>
       </div>
 
@@ -155,10 +173,11 @@ export function SidebarNav({ onNavigate }: SidebarNavProps) {
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:border-[var(--brand-navy)] hover:text-[var(--brand-navy)]"
+            disabled={pending}
+            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:border-[var(--brand-navy)] hover:text-[var(--brand-navy)] disabled:opacity-60"
           >
             <LogOut className="h-3.5 w-3.5" />
-            Sair
+            {pending ? "Saindo..." : "Sair"}
           </button>
         </div>
       </div>

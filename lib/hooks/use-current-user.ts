@@ -1,35 +1,42 @@
 /**
- * useCurrentUser — identidade do usuário logado.
+ * useCurrentUser — identidade do usuário logado via Supabase Auth.
  *
- * HOJE: lê do localStorage (o que a tela /entrar gravou).
- * AMANHÃ: lerá do Supabase Auth (session.user).
+ * HOJE (CP#03): lê de supabase.auth.getUser() + public.users (perfil).
+ * ANTES (mock): lia de localStorage gravado pela tela /entrar.
  *
  * Único ponto de verdade para "quem está usando o app agora".
  * Usado pela saudação da Visão Geral, pelo rodapé da sidebar,
  * e por qualquer outro lugar que precise do nome/email.
+ *
+ * Renderiza GUEST até o primeiro fetch terminar — components que precisam
+ * de loading state podem ver `loading: true`. Reage a onAuthStateChange.
  */
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 export type CurrentUser = {
+  id: string
   name: string
   email: string
   initial: string
   role: string
+  loading: boolean
 }
 
 const GUEST: CurrentUser = {
+  id: "",
   name: "Convidado",
   email: "",
   initial: "—",
   role: "Visitante",
+  loading: true,
 }
 
 function deriveName(email: string): string {
   if (!email) return GUEST.name
-  // pega a parte antes do @ e transforma "ronaldo.santos" em "Ronaldo"
   const local = email.split("@")[0] || ""
   const first = local.split(/[._-]/)[0] || local
   if (!first) return GUEST.name
@@ -37,27 +44,53 @@ function deriveName(email: string): string {
 }
 
 export function useCurrentUser(): CurrentUser {
+  const supabase = useMemo(() => createClient(), [])
   const [user, setUser] = useState<CurrentUser>(GUEST)
 
   useEffect(() => {
-    if (typeof window === "undefined") return
-    try {
-      const raw = window.localStorage.getItem("cfoup.currentUser")
-      if (!raw) return
-      const parsed = JSON.parse(raw) as { email?: string; name?: string; role?: string }
-      const email = parsed.email?.trim() ?? ""
-      const name = (parsed.name?.trim() || deriveName(email)).trim()
-      if (!email && !name) return
+    let cancelled = false
+
+    async function load(authUserId: string | null, authEmail: string | null) {
+      if (!authUserId) {
+        if (!cancelled) setUser({ ...GUEST, loading: false })
+        return
+      }
+
+      const { data: profile } = await supabase
+        .from("users")
+        .select("id, email, full_name")
+        .eq("id", authUserId)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      const email = profile?.email ?? authEmail ?? ""
+      const name = profile?.full_name?.trim() || deriveName(email)
       setUser({
-        name: name || GUEST.name,
+        id: authUserId,
         email,
+        name: name || GUEST.name,
         initial: (name || email || "—").charAt(0).toUpperCase(),
-        role: parsed.role?.trim() || "Admin",
+        // role real (admin/operacional/contador/leitura) vive em companies_users
+        // e depende da empresa ativa — useActiveCompany devolve.
+        role: "Membro",
+        loading: false,
       })
-    } catch {
-      // ignora — mantém guest
     }
-  }, [])
+
+    supabase.auth.getUser().then(({ data }) => {
+      load(data.user?.id ?? null, data.user?.email ?? null)
+    })
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      load(session?.user?.id ?? null, session?.user?.email ?? null)
+    })
+
+    return () => {
+      cancelled = true
+      sub.subscription.unsubscribe()
+    }
+  }, [supabase])
 
   return user
 }

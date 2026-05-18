@@ -1,26 +1,57 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useActionState, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { CfoupLogo } from "@/components/cfoup-logo"
 import { cn } from "@/lib/utils"
+import {
+  signInAction,
+  signUpAction,
+  resetPasswordAction,
+  type AuthState,
+} from "@/lib/auth/actions"
 
 type Mode = "entrar" | "criar" | "recuperar"
 
-function deriveName(email: string): string {
-  const local = email.split("@")[0] || ""
-  const first = local.split(/[._-]/)[0] || local
-  if (!first) return "Usuário"
-  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase()
+// Next 16 exige que useSearchParams esteja dentro de Suspense em pages
+// estaticamente prerrenderáveis. Isolamos o uso num subcomponente e
+// envolvemos no Suspense aqui.
+export default function EntrarPage() {
+  return (
+    <Suspense fallback={<EntrarFallback />}>
+      <EntrarForm />
+    </Suspense>
+  )
 }
 
-export default function EntrarPage() {
-  const router = useRouter()
+function EntrarFallback() {
+  return (
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col items-center justify-center px-5 py-8">
+        <CfoupLogo size={144} />
+      </div>
+    </main>
+  )
+}
+
+function EntrarForm() {
+  const searchParams = useSearchParams()
+  const next = searchParams.get("next") ?? "/visao-geral"
   const [mode, setMode] = useState<Mode>("entrar")
-  const [email, setEmail] = useState("")
-  const [name, setName] = useState("")
-  const [sent, setSent] = useState(false)
+
+  const [signInState, signInDispatch, signInPending] = useActionState<
+    AuthState | undefined,
+    FormData
+  >(signInAction, undefined)
+  const [signUpState, signUpDispatch, signUpPending] = useActionState<
+    AuthState | undefined,
+    FormData
+  >(signUpAction, undefined)
+  const [resetState, resetDispatch, resetPending] = useActionState<
+    AuthState | undefined,
+    FormData
+  >(resetPasswordAction, undefined)
 
   const copy = {
     entrar: {
@@ -40,26 +71,12 @@ export default function EntrarPage() {
     },
   }[mode]
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (mode === "recuperar") {
-      setSent(true)
-      return
-    }
-    // Grava identidade do usuário logado (MVP — até plugar Supabase Auth).
-    try {
-      const trimmedEmail = email.trim()
-      const trimmedName = name.trim()
-      const finalName = (mode === "criar" && trimmedName) ? trimmedName : deriveName(trimmedEmail)
-      window.localStorage.setItem(
-        "cfoup.currentUser",
-        JSON.stringify({ email: trimmedEmail, name: finalName, role: "Admin" }),
-      )
-    } catch {
-      // segue mesmo se localStorage falhar
-    }
-    router.push("/visao-geral")
-  }
+  const currentState =
+    mode === "entrar" ? signInState : mode === "criar" ? signUpState : resetState
+  const currentPending =
+    mode === "entrar" ? signInPending : mode === "criar" ? signUpPending : resetPending
+  const currentAction =
+    mode === "entrar" ? signInDispatch : mode === "criar" ? signUpDispatch : resetDispatch
 
   return (
     <main className="min-h-screen bg-background">
@@ -77,14 +94,15 @@ export default function EntrarPage() {
               <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
             </header>
 
-            <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-3" action={currentAction}>
+              {/* next param do middleware */}
+              {mode === "entrar" && <input type="hidden" name="next" value={next} />}
+
               {mode === "criar" && (
                 <Field label="Nome">
                   <input
                     type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    name="full_name"
                     placeholder="Como devemos te chamar?"
                     className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
                   />
@@ -94,9 +112,8 @@ export default function EntrarPage() {
               <Field label="E-mail">
                 <input
                   type="email"
+                  name="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="voce@empresa.com"
                   autoComplete="email"
                   className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
@@ -110,10 +127,7 @@ export default function EntrarPage() {
                     mode === "entrar" ? (
                       <button
                         type="button"
-                        onClick={() => {
-                          setSent(false)
-                          setMode("recuperar")
-                        }}
+                        onClick={() => setMode("recuperar")}
                         className="text-xs font-medium text-[var(--brand-blue)] hover:underline"
                       >
                         Esqueci minha senha
@@ -123,8 +137,10 @@ export default function EntrarPage() {
                 >
                   <input
                     type="password"
+                    name="password"
                     required
-                    placeholder={mode === "criar" ? "Crie uma senha" : "Sua senha"}
+                    minLength={mode === "criar" ? 8 : undefined}
+                    placeholder={mode === "criar" ? "Crie uma senha (mín. 8 caracteres)" : "Sua senha"}
                     autoComplete={mode === "criar" ? "new-password" : "current-password"}
                     className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
                   />
@@ -133,12 +149,22 @@ export default function EntrarPage() {
 
               <button
                 type="submit"
-                className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)]"
+                disabled={currentPending}
+                className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)] disabled:opacity-60"
               >
-                {copy.primary}
+                {currentPending ? "Aguarde..." : copy.primary}
               </button>
 
-              {mode === "recuperar" && sent && (
+              {currentState && !currentState.ok && currentState.error && (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-[var(--brand-red)]/40 bg-[var(--brand-red)]/5 px-3 py-2 text-xs text-[var(--brand-red)]"
+                >
+                  {currentState.error}
+                </p>
+              )}
+
+              {mode === "recuperar" && resetState?.ok && (
                 <p
                   role="status"
                   className="rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
