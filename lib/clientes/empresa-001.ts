@@ -1,3 +1,5 @@
+import type { AnaliseFinanceiraDados } from "@/lib/types/analise-financeira"
+
 // ---------------------------------------------------------------------
 // Tipos
 // ---------------------------------------------------------------------
@@ -6,6 +8,8 @@ export type DRELinhaAV = {
   label: string
   isSubtotal?: boolean
   isLucroLiquido?: boolean
+  /** Linha de detalhamento dentro de um subtotal — receberá indentação extra (pl-10). */
+  isIndent?: boolean
   valores: { ano: string; rs: number | null; av: number | null }[]
 }
 
@@ -131,6 +135,12 @@ export type AnaliseContabilData = {
   balanco: BPDadosCliente
   indicadores: IndicadoresDadosCliente
   aoContador: AoContadorDadosCliente
+  /**
+   * Dados da Análise Financeira (V1, PR #19). Opcional — convive na mesma
+   * fixture do cliente; consumers da Análise Contábil não precisam ler.
+   * Refatoração futura pode extrair para const separada (como empresa-vazia).
+   */
+  dadosFinanceiros?: AnaliseFinanceiraDados
 }
 
 // ---------------------------------------------------------------------

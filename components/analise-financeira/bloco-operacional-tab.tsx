@@ -744,7 +744,7 @@ export function BlocoOperacionalTab({ dados }: Props) {
             <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand-blue)" }}>
               {EYEBROWS.glossario}
             </span>
-          <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{titulo}</span>
+          <span className="text-[13px]" style={{ color: "var(--brand-navy)" }}>{tabMeta.titulo}</span>
         </button>
         {glossOpen && (
           <div className="mt-[-1px] rounded-b-2xl border border-t-0 border-border bg-white px-5 py-3">

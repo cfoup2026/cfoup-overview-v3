@@ -5,9 +5,16 @@ type PageHeaderProps = {
   title: ReactNode
   description?: string
   actions?: ReactNode
+  /**
+   * Alias para `actions`. Aceito para compatibilidade com pages que passam o
+   * conteúdo de actions entre as tags `<PageHeader>...</PageHeader>`.
+   * Se ambos forem fornecidos, `actions` vence.
+   */
+  children?: ReactNode
 }
 
-export function PageHeader({ eyebrow, title, description, actions }: PageHeaderProps) {
+export function PageHeader({ eyebrow, title, description, actions, children }: PageHeaderProps) {
+  const actionsSlot = actions ?? children
   return (
     <header className="mb-10 flex items-start justify-between gap-6">
       <div className="min-w-0 flex-1">
@@ -26,7 +33,7 @@ export function PageHeader({ eyebrow, title, description, actions }: PageHeaderP
           <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      {actionsSlot && <div className="flex shrink-0 flex-wrap items-center gap-2">{actionsSlot}</div>}
     </header>
   )
 }
