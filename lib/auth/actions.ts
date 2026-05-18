@@ -9,6 +9,7 @@
 // =============================================================
 "use server"
 
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
@@ -19,6 +20,13 @@ export type AuthState = {
 }
 
 const EMPTY_OK: AuthState = { ok: true }
+
+// Cookie marker que sinaliza ao middleware "este usuário acabou de fazer
+// signup e está em fluxo de onboarding legítimo". Sem este cookie, um
+// usuário autenticado sem company é tratado como sessão zumbi e mandado
+// para /entrar com signOut. Expira em 30 min.
+const SIGNUP_PENDING_COOKIE = "cfoup_signup_pending"
+const SIGNUP_PENDING_MAX_AGE_S = 30 * 60
 
 // ----- signIn -------------------------------------------------
 export async function signInAction(
@@ -74,7 +82,20 @@ export async function signUpAction(
   }
 
   // Confirm email está DESLIGADO no projeto (dívida técnica do CP#03).
-  // Logo, o signUp já cria a sessão. Middleware redireciona para /onboarding.
+  // Logo, o signUp já cria a sessão.
+  //
+  // Marca o fluxo como "signup pending" para que o middleware distinga
+  // este redirect para /onboarding de uma sessão zumbi reaproveitada.
+  // O cookie é limpo no createCompanyAction quando a empresa é criada.
+  const cookieStore = await cookies()
+  cookieStore.set(SIGNUP_PENDING_COOKIE, "1", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: SIGNUP_PENDING_MAX_AGE_S,
+  })
+
   revalidatePath("/", "layout")
   redirect("/onboarding")
 }
@@ -83,6 +104,10 @@ export async function signUpAction(
 export async function signOutAction(): Promise<AuthState> {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  // Garante limpar o cookie de signup pending também, caso o usuário
+  // tenha logout no meio do onboarding.
+  const cookieStore = await cookies()
+  cookieStore.delete(SIGNUP_PENDING_COOKIE)
   revalidatePath("/", "layout")
   redirect("/entrar")
 }

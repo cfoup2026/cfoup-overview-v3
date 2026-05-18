@@ -4,14 +4,16 @@
 // Roda em TODA requisição (exceto assets/Next internals via matcher).
 // Funções:
 //   1. Refresh de sessão Supabase via updateSession (cookies)
-//   2. Route protection:
-//      - não autenticado em rota /(app)/* ou /onboarding → redirect /entrar
-//      - autenticado em /entrar → redirect /visao-geral (ou /onboarding se sem empresa)
-//      - autenticado sem empresa em /(app)/* → redirect /onboarding
-//      - autenticado com empresa em /onboarding → redirect /visao-geral
+//   2. Route protection com 4 estados de mundo:
+//      a. !user em rota privada → /entrar
+//      b. user + sem company + COM marker signup pending → /onboarding (legítimo)
+//      c. user + sem company + SEM marker → signOut + /entrar?reason=session_expired
+//         (sessão zumbi: signup anterior abandonado ou company deletada)
+//      d. user + com company em /entrar ou /onboarding → /visao-geral
 //
+// "Marker signup pending" = cookie httpOnly `cfoup_signup_pending` posto
+// pelo signUpAction e limpo por createCompanyAction/signOutAction.
 // "Tem empresa" = existe linha em public.companies_users com user_id=auth.uid().
-// Check feito 1x por request via supabase.from('companies_users').
 // =============================================================
 import { NextResponse, type NextRequest } from "next/server"
 import { updateSession } from "@/lib/supabase/middleware"
@@ -20,8 +22,7 @@ import { updateSession } from "@/lib/supabase/middleware"
 const PUBLIC_PATHS = new Set(["/entrar"])
 const AUTH_CALLBACK_PREFIX = "/auth/" // future-proof para magic link / oauth
 
-// Rotas que o usuário autenticado pode acessar mesmo sem empresa
-const ALLOWED_WITHOUT_COMPANY = new Set(["/onboarding"])
+const SIGNUP_PENDING_COOKIE = "cfoup_signup_pending"
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -29,8 +30,9 @@ export async function middleware(request: NextRequest) {
 
   const isPublic = PUBLIC_PATHS.has(pathname) || pathname.startsWith(AUTH_CALLBACK_PREFIX)
   const isOnboarding = pathname === "/onboarding"
+  const signupPending = request.cookies.get(SIGNUP_PENDING_COOKIE)?.value === "1"
 
-  // --- Não autenticado em rota privada → /entrar -----------
+  // --- (a) Não autenticado em rota privada → /entrar ----------
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = "/entrar"
@@ -38,9 +40,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // --- Autenticado: checar se tem empresa ------------------
+  // --- Autenticado: checar se tem empresa --------------------
   if (user) {
-    // Busca rápida e barata: existe alguma membership?
     const { data: memberships, error } = await supabase
       .from("companies_users")
       .select("company_id")
@@ -49,25 +50,40 @@ export async function middleware(request: NextRequest) {
 
     const hasCompany = !error && (memberships?.length ?? 0) > 0
 
-    // Logado sem empresa, fora de /onboarding → /onboarding
-    if (!hasCompany && !isOnboarding && !isPublic) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/onboarding"
-      return NextResponse.redirect(url)
-    }
-
-    // Logado com empresa, em /entrar → /visao-geral
-    if (hasCompany && pathname === "/entrar") {
-      const url = request.nextUrl.clone()
-      url.pathname = "/visao-geral"
-      return NextResponse.redirect(url)
-    }
-
-    // Logado com empresa, em /onboarding → /visao-geral
-    if (hasCompany && isOnboarding) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/visao-geral"
-      return NextResponse.redirect(url)
+    if (!hasCompany) {
+      if (signupPending) {
+        // (b) Signup novo e legítimo, em fluxo de onboarding.
+        // Se já está em /onboarding (ou em rota pública), deixa passar.
+        // Senão, manda para /onboarding.
+        if (!isOnboarding && !isPublic) {
+          const url = request.nextUrl.clone()
+          url.pathname = "/onboarding"
+          return NextResponse.redirect(url)
+        }
+        // Em /entrar com signup pending: deixa passar (caso raro de back/forward).
+      } else {
+        // (c) Sessão zumbi: autenticado mas sem company e sem marker.
+        // Cenários típicos: signup anterior abandonado, company deletada,
+        // ou cookie antigo de outra sessão de teste.
+        // Forçamos signOut e mandamos para /entrar com aviso.
+        if (!isPublic) {
+          await supabase.auth.signOut()
+          const url = request.nextUrl.clone()
+          url.pathname = "/entrar"
+          url.searchParams.set("reason", "session_expired")
+          return NextResponse.redirect(url)
+        }
+        // Em /entrar sem company e sem marker: deixa passar normalmente
+        // (login vai criar nova sessão; se o user ainda não tem company
+        // após login, o redirect (b)/(c) será reavaliado).
+      }
+    } else {
+      // (d) Autenticado e com company.
+      if (pathname === "/entrar" || isOnboarding) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/visao-geral"
+        return NextResponse.redirect(url)
+      }
     }
   }
 

@@ -10,10 +10,13 @@
 // =============================================================
 "use server"
 
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { TablesInsert } from "@/lib/database.types"
+
+const SIGNUP_PENDING_COOKIE = "cfoup_signup_pending"
 
 export type OnboardingState = {
   ok: boolean
@@ -88,6 +91,11 @@ export async function createCompanyAction(
       error: "Empresa criada mas vínculo de admin falhou. Avise o suporte.",
     }
   }
+
+  // Onboarding completado: limpar o marker para que próximas visitas
+  // sigam o fluxo normal (com company → /visao-geral).
+  const cookieStore = await cookies()
+  cookieStore.delete(SIGNUP_PENDING_COOKIE)
 
   revalidatePath("/", "layout")
   // Redirect para /configuracoes (cadastro completo) — não para /visao-geral.

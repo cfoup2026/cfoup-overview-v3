@@ -38,6 +38,7 @@ function EntrarFallback() {
 function EntrarForm() {
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/visao-geral"
+  const reason = searchParams.get("reason")
   const [mode, setMode] = useState<Mode>("entrar")
 
   const [signInState, signInDispatch, signInPending] = useActionState<
@@ -93,6 +94,15 @@ function EntrarForm() {
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
             </header>
+
+            {reason === "session_expired" && mode === "entrar" && (
+              <p
+                role="status"
+                className="mb-4 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs text-muted-foreground"
+              >
+                Sua sessão anterior foi encerrada. Faça login novamente para continuar.
+              </p>
+            )}
 
             <form className="flex flex-col gap-3" action={currentAction}>
               {/* next param do middleware */}
