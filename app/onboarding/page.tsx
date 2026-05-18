@@ -8,12 +8,11 @@ import {
   type OnboardingState,
 } from "@/lib/auth/onboarding-action"
 
-const REGIMES = [
-  { value: "simples_nacional", label: "Simples Nacional" },
-  { value: "lucro_presumido", label: "Lucro Presumido" },
-  { value: "lucro_real", label: "Lucro Real" },
-  { value: "mei", label: "MEI" },
-]
+// Onboarding é GATE TÉCNICO MÍNIMO pós-signup.
+// - Cria company + companies_users com primeiro user = admin (RLS).
+// - Pede apenas o estritamente necessário: nome + CNPJ.
+// - Redireciona para /configuracoes, que é a tela oficial de cadastro completo.
+// - Não duplicar regime, perfil completo, importar CNPJ ou dados operacionais aqui.
 
 export default function OnboardingPage() {
   const [state, dispatch, pending] = useActionState<OnboardingState | undefined, FormData>(
@@ -23,7 +22,7 @@ export default function OnboardingPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col px-5 py-8">
+      <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col px-5 py-8">
         <div className="flex flex-1 flex-col items-center justify-center py-6">
           <div className="mb-8 inline-flex">
             <CfoupLogo size={120} />
@@ -32,13 +31,14 @@ export default function OnboardingPage() {
           <div className="w-full">
             <header className="mb-6 text-center">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--brand-blue)]">
-                Primeiro passo
+                Primeiro acesso
               </p>
               <h1 className="text-balance font-serif text-2xl font-semibold tracking-tight text-foreground">
-                Cadastre sua empresa
+                Crie a empresa para acessar o CFOup
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Você será o administrador. Pode adicionar outros usuários depois em Configurações.
+                Só o mínimo agora. O cadastro completo — regime, setor, contato,
+                cartão CNPJ — fica em <span className="font-medium text-foreground">Configurações</span> assim que você entrar.
               </p>
             </header>
 
@@ -49,15 +49,6 @@ export default function OnboardingPage() {
                   name="name"
                   required
                   placeholder="Razão social ou nome fantasia"
-                  className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
-                />
-              </Field>
-
-              <Field label="Nome curto (opcional)">
-                <input
-                  type="text"
-                  name="short_name"
-                  placeholder="Como aparece na sidebar"
                   className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
                 />
               </Field>
@@ -74,26 +65,12 @@ export default function OnboardingPage() {
                 />
               </Field>
 
-              <Field label="Regime tributário">
-                <select
-                  name="regime"
-                  defaultValue="simples_nacional"
-                  className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-[var(--brand-blue)] focus:ring-2 focus:ring-[var(--brand-blue)]/20"
-                >
-                  {REGIMES.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
               <button
                 type="submit"
                 disabled={pending}
                 className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-[var(--brand-navy)] px-4 text-sm font-semibold text-white transition hover:bg-[var(--brand-blue)] disabled:opacity-60"
               >
-                {pending ? "Cadastrando..." : "Cadastrar empresa e continuar"}
+                {pending ? "Criando..." : "Criar empresa e continuar"}
               </button>
 
               {state && !state.ok && state.error && (

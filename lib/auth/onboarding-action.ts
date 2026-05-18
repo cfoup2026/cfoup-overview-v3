@@ -20,20 +20,19 @@ export type OnboardingState = {
   error?: string
 }
 
-const REGIMES = new Set(["simples_nacional", "lucro_presumido", "lucro_real", "mei"])
+// Onboarding é GATE TÉCNICO MÍNIMO: só name + CNPJ.
+// Regime, short_name, setor e demais campos vivem em /configuracoes
+// (a tela oficial de cadastro completo da empresa).
 
 export async function createCompanyAction(
   _prev: OnboardingState | undefined,
   formData: FormData,
 ): Promise<OnboardingState> {
   const name = String(formData.get("name") ?? "").trim()
-  const shortName = String(formData.get("short_name") ?? "").trim() || null
   const cnpjRaw = String(formData.get("cnpj") ?? "").replace(/\D/g, "")
-  const regime = String(formData.get("regime") ?? "").trim()
 
   if (!name) return { ok: false, error: "Informe o nome da empresa." }
   if (cnpjRaw.length !== 14) return { ok: false, error: "CNPJ inválido (14 dígitos)." }
-  if (regime && !REGIMES.has(regime)) return { ok: false, error: "Regime inválido." }
 
   const supabase = await createClient()
   const {
@@ -48,11 +47,12 @@ export async function createCompanyAction(
   const cnpj = `${cnpjRaw.slice(0, 2)}.${cnpjRaw.slice(2, 5)}.${cnpjRaw.slice(5, 8)}/${cnpjRaw.slice(8, 12)}-${cnpjRaw.slice(12, 14)}`
 
   // 1. INSERT companies — policy companies_insert_authenticated permite com created_by = auth.uid()
+  // short_name e regime ficam null; usuário preenche em /configuracoes.
   const companyInsert: TablesInsert<"companies"> = {
     name,
-    short_name: shortName,
+    short_name: null,
     cnpj,
-    regime: regime || null,
+    regime: null,
     created_by: user.id,
   }
   const { data: company, error: companyError } = await supabase
@@ -90,5 +90,8 @@ export async function createCompanyAction(
   }
 
   revalidatePath("/", "layout")
-  redirect("/visao-geral")
+  // Redirect para /configuracoes (cadastro completo) — não para /visao-geral.
+  // Mapa §discipline: não duplicar UX entre /onboarding (gate técnico) e
+  // /configuracoes (perfil oficial da empresa).
+  redirect("/configuracoes")
 }
