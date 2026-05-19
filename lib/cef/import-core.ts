@@ -369,11 +369,10 @@ async function processFile(
 
     if (parsed.ok.length === 0) {
       // Erro de CONTEÚDO: o arquivo não casa o layout de extrato CEF.
-      // A mensagem nunca menciona nome/extensão do arquivo.
-      const detalhe = parsed.errors[0]?.reason
-      const reason = detalhe
-        ? `o conteúdo do arquivo não foi reconhecido como um extrato CEF (${detalhe})`
-        : "o conteúdo do arquivo não foi reconhecido como um extrato CEF"
+      // Hoje só CEF é suportado; outros formatos virão. A mensagem
+      // nunca menciona nome/extensão do arquivo.
+      const reason =
+        "Por enquanto só extratos CEF (Caixa Econômica Federal). Outros tipos de arquivo virão."
       await failRun(ctx.supabase, runId, reason)
       return fail(reason)
     }
