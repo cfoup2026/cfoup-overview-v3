@@ -7,11 +7,15 @@
 //   - lib/cef/import-action.ts (server action — wrapper com auth/gate);
 //   - scripts/smoke-cef-import.mts (smoke isolado).
 //
-// Aceita lote misto .txt/.pdf: parseCEFTxt e parseCEFPdf do cfoup-core e
-// cefAdapter para gerar os eventos CF13. Por arquivo: import_runs
-// (idempotente por file_hash), bank_accounts auto-criada, transactions e
+// Aceita lote misto .txt/.pdf (a UI do Passo 3 usa single-file; o array
+// fica pronto para o lote real do CP#04c). Por arquivo: import_runs
+// (idempotente por file_hash), bank_accounts, transactions e
 // eventos_caixa via upsert. Saldo de abertura → bank_accounts; saldo
 // final e cobertura → retorno (sem persistência, decisão CP#04).
+//
+// Resolução de conta — o TXT traz o número da conta; o PDF não. A conta
+// de cada arquivo é resolvida por: bankAccountId informado / extraída do
+// arquivo / única conta CEF da empresa. Ver resolveContaArquivo.
 // =============================================================
 
 import { createHash } from "node:crypto"
@@ -59,6 +63,7 @@ try {
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024 // 15 MB por arquivo
 const MAX_FILES = 30
+const BANK_CEF = "CEF"
 
 type SupabaseServerClient = SupabaseClient<Database>
 
@@ -68,6 +73,8 @@ export type CefFileResult = {
   status: "imported" | "skipped" | "failed"
   rowsImported: number
   rowsSkipped: number
+  /** Avisos não-bloqueantes (ex.: conflito de conta TXT vs bankAccountId). */
+  warnings?: string[]
   error?: string
 }
 
@@ -106,11 +113,24 @@ type ProcessCtx = {
   companyId: string
   userId: string
   holder: string
+  /** UUID de bank_accounts informado no upload; sobrescreve a conta do arquivo. */
+  bankAccountId: string | undefined
   accounts: Map<string, AccountAccumulator>
+}
+
+type ContaResolvida = {
+  bankAccountId: string
+  accountNumber: string
 }
 
 function toISODate(d: Date): string {
   return d.toISOString().slice(0, 10)
+}
+
+/** Ordena .txt antes de .pdf — num lote misto o TXT registra a conta
+ *  e o PDF (sem conta no arquivo) a herda. */
+function fileRank(file: File): number {
+  return file.name.toLowerCase().endsWith(".pdf") ? 1 : 0
 }
 
 // ----- runCefImport -------------------------------------------
@@ -118,12 +138,17 @@ function toISODate(d: Date): string {
 /**
  * Ingere um lote de extratos CEF para a empresa indicada. O caller é
  * responsável por autenticar e autorizar (gate de admin) antes de chamar.
+ *
+ * `bankAccountId` (opcional): UUID de uma bank_accounts CEF da empresa.
+ * Quando informado, todos os arquivos do lote são associados a essa
+ * conta — e divergência vs. a conta extraída de um TXT vira warning.
  */
 export async function runCefImport(
   supabase: SupabaseServerClient,
   companyId: string,
   userId: string,
   files: File[],
+  bankAccountId?: string,
 ): Promise<ImportCefState> {
   if (files.length === 0) {
     return { ok: false, error: "Nenhum arquivo enviado." }
@@ -141,10 +166,18 @@ export async function runCefImport(
   const holder = company?.name ?? "Titular não informado"
 
   const accounts = new Map<string, AccountAccumulator>()
-  const ctx: ProcessCtx = { supabase, companyId, userId, holder, accounts }
+  const ctx: ProcessCtx = {
+    supabase,
+    companyId,
+    userId,
+    holder,
+    bankAccountId,
+    accounts,
+  }
 
+  const ordered = [...files].sort((a, b) => fileRank(a) - fileRank(b))
   const arquivos: CefFileResult[] = []
-  for (const file of files) {
+  for (const file of ordered) {
     arquivos.push(await processFile(file, ctx))
   }
 
@@ -210,12 +243,14 @@ async function processFile(
   const isPdf = lower.endsWith(".pdf")
   const isTxt = lower.endsWith(".txt")
   const source: "cef-txt" | "cef-pdf" = isPdf ? "cef-pdf" : "cef-txt"
+  const warnings: string[] = []
   const fail = (error: string): CefFileResult => ({
     fileName: file.name,
     source,
     status: "failed",
     rowsImported: 0,
     rowsSkipped: 0,
+    ...(warnings.length > 0 ? { warnings } : {}),
     error,
   })
 
@@ -300,47 +335,48 @@ async function processFile(
       id: `${shortHash}:${tx.id}`,
     }))
 
-    if (txs.some((t) => t.accountId === "")) {
-      const reason = "número da conta não identificado no extrato"
-      await failRun(ctx.supabase, runId, reason)
-      return fail(reason)
+    // Resolve a conta-alvo do arquivo (bankAccountId / extraída / única CEF).
+    const conta = await resolveContaArquivo(ctx, txs, warnings)
+    if (typeof conta === "string") {
+      await failRun(ctx.supabase, runId, conta)
+      return fail(conta)
     }
+
+    // Uniformiza accountId: o PDF vem vazio; o TXT pode ser sobrescrito
+    // por bankAccountId. Tudo passa a referir a conta resolvida.
+    const txsConta: Transaction[] = txs.map((t) => ({
+      ...t,
+      accountId: conta.accountNumber,
+    }))
+    const balancesConta: BalanceSnapshot[] = parsed.balances.map((b) => ({
+      ...b,
+      accountId: conta.accountNumber,
+    }))
 
     // valor 0 é rejeitado pelo CHECK de transactions e pelo cefAdapter.
-    const validTxs = txs.filter((t) => t.amount > 0)
-    const accountIds = [...new Set(validTxs.map((t) => t.accountId))]
-
-    // Resolve (ou cria) a bank_accounts de cada conta presente no arquivo.
-    const bankAccountIdByNumber = new Map<string, string>()
-    for (const accId of accountIds) {
-      bankAccountIdByNumber.set(
-        accId,
-        await resolveBankAccount(ctx.supabase, ctx.companyId, accId, ctx.holder),
-      )
-    }
+    const validTxs = txsConta.filter((t) => t.amount > 0)
 
     // transactions.
-    const txRows: TablesInsert<"transactions">[] = []
-    for (const tx of validTxs) {
-      const bankAccountId = bankAccountIdByNumber.get(tx.accountId)
-      if (bankAccountId === undefined) continue
-      txRows.push({
-        company_id: ctx.companyId,
-        bank_account_id: bankAccountId,
-        tx_date: toISODate(tx.date),
-        doc_number: tx.docNumber.trim() === "" ? null : tx.docNumber,
-        history: tx.history,
-        amount: tx.amount,
-        direction: tx.direction,
-        running_balance: tx.balance ?? null,
-        source,
-        source_ref: tx.id,
-        import_run_id: runId,
-      })
-    }
+    const txRows: TablesInsert<"transactions">[] = validTxs.map((tx) => ({
+      company_id: ctx.companyId,
+      bank_account_id: conta.bankAccountId,
+      tx_date: toISODate(tx.date),
+      doc_number: tx.docNumber.trim() === "" ? null : tx.docNumber,
+      history: tx.history,
+      amount: tx.amount,
+      direction: tx.direction,
+      running_balance: tx.balance ?? null,
+      source,
+      source_ref: tx.id,
+      import_run_id: runId,
+    }))
 
     let rowsImported = 0
     if (txRows.length > 0) {
+      // O UNIQUE de transactions é (company_id, source, source_ref) e
+      // inclui `source` — logo cef-txt e cef-pdf do mesmo período não
+      // conflitam entre si: importar o mesmo mês em TXT e em PDF duplica
+      // as movimentações. Dedup cross-formato fica para o CP#04c.
       const { data: inserted, error: txErr } = await ctx.supabase
         .from("transactions")
         .upsert(txRows, {
@@ -354,21 +390,19 @@ async function processFile(
       }
       rowsImported = inserted?.length ?? 0
     }
-    const rowsSkipped = txs.length - rowsImported
+    const rowsSkipped = txsConta.length - rowsImported
 
     // eventos_caixa via cefAdapter (cfoup-core).
     const adapterCtx: AdapterContext = {
       cliente_id: ctx.companyId,
       legal_entity_id: ctx.companyId,
       calendar: new BrazilCalendarPolicy(),
-    }
-    if (accountIds[0] !== undefined) {
-      adapterCtx.conta_bancaria_id = accountIds[0]
+      conta_bancaria_id: conta.accountNumber,
     }
     let eventos: EventoCaixa[]
     try {
       eventos = cefAdapter(
-        { ok: validTxs, balances: parsed.balances },
+        { ok: validTxs, balances: balancesConta },
         adapterCtx,
       ).eventos
     } catch (e) {
@@ -393,20 +427,18 @@ async function processFile(
       }
     }
 
-    // Acumula por conta para o relatório de saldo do lote.
-    for (const accId of accountIds) {
-      const bankAccountId = bankAccountIdByNumber.get(accId)
-      if (bankAccountId === undefined) continue
-      const acc = ensureAccount(ctx.accounts, accId, bankAccountId)
-      const daConta = validTxs.filter((t) => t.accountId === accId)
-      acc.movimentacoes += daConta.length
-      for (const t of daConta) {
-        acc.signedSum += t.direction === "credit" ? t.amount : -t.amount
-      }
-      const saldosConta = parsed.balances.filter((b) => b.accountId === accId)
-      acc.balances.push(...saldosConta)
-      if (isPdf && saldosConta.length > 0) acc.hasPdfBalances = true
+    // Acumula na conta para o relatório de saldo do lote.
+    const acc = ensureAccount(
+      ctx.accounts,
+      conta.accountNumber,
+      conta.bankAccountId,
+    )
+    acc.movimentacoes += validTxs.length
+    for (const t of validTxs) {
+      acc.signedSum += t.direction === "credit" ? t.amount : -t.amount
     }
+    acc.balances.push(...balancesConta)
+    if (isPdf && balancesConta.length > 0) acc.hasPdfBalances = true
 
     await ctx.supabase
       .from("import_runs")
@@ -424,6 +456,7 @@ async function processFile(
       status: "imported",
       rowsImported,
       rowsSkipped,
+      ...(warnings.length > 0 ? { warnings } : {}),
     }
   } catch (e) {
     const reason = e instanceof Error ? e.message : "erro inesperado na importação"
@@ -432,7 +465,65 @@ async function processFile(
   }
 }
 
-// ----- helpers ------------------------------------------------
+// ----- resolução de conta -------------------------------------
+
+/**
+ * Resolve a conta-alvo de um arquivo. Retorna `ContaResolvida` ou, em
+ * caso de erro, uma string com o motivo (para o caller falhar o arquivo).
+ *
+ * Ordem: bankAccountId informado > conta extraída do arquivo (TXT) >
+ * única conta CEF da empresa (PDF sem conta). Conflito entre a conta do
+ * TXT e o bankAccountId vira warning — o dado do extrato nunca é
+ * sobrescrito em silêncio.
+ */
+async function resolveContaArquivo(
+  ctx: ProcessCtx,
+  txs: readonly Transaction[],
+  warnings: string[],
+): Promise<ContaResolvida | string> {
+  const extraidas = [...new Set(txs.map((t) => t.accountId).filter((a) => a !== ""))]
+
+  if (ctx.bankAccountId !== undefined) {
+    const acc = await getCefBankAccount(ctx.supabase, ctx.companyId, ctx.bankAccountId)
+    if (acc === null) {
+      return "conta bancária informada não encontrada para esta empresa, ou não é CEF"
+    }
+    if (extraidas.length === 1 && extraidas[0] !== acc.accountNumber) {
+      warnings.push(
+        `TXT informa conta ${extraidas[0]}, mas bankAccountId aponta para conta ` +
+          `${acc.accountNumber} — usando bankAccountId`,
+      )
+    }
+    return acc
+  }
+
+  if (extraidas.length === 1) {
+    const accountNumber = extraidas[0] as string
+    const bankAccountId = await resolveBankAccount(
+      ctx.supabase,
+      ctx.companyId,
+      accountNumber,
+      ctx.holder,
+    )
+    return { bankAccountId, accountNumber }
+  }
+
+  if (extraidas.length === 0) {
+    const cefAccounts = await listCefBankAccounts(ctx.supabase, ctx.companyId)
+    if (cefAccounts.length === 1) {
+      return cefAccounts[0] as ContaResolvida
+    }
+    return cefAccounts.length === 0
+      ? "o arquivo não traz o número da conta e não há conta CEF cadastrada — " +
+          "importe um extrato TXT primeiro ou informe a conta no upload"
+      : "o arquivo não traz o número da conta e a empresa tem mais de uma conta " +
+          "CEF — informe qual conta no upload"
+  }
+
+  return "o arquivo contém transações de mais de uma conta — não suportado"
+}
+
+// ----- helpers de banco ---------------------------------------
 
 async function failRun(
   supabase: SupabaseServerClient,
@@ -449,10 +540,43 @@ async function failRun(
     .eq("id", runId)
 }
 
+/** Busca uma bank_accounts CEF da empresa pelo UUID. null se não existir
+ *  (ou se não for da empresa / não for CEF). */
+async function getCefBankAccount(
+  supabase: SupabaseServerClient,
+  companyId: string,
+  bankAccountId: string,
+): Promise<ContaResolvida | null> {
+  const { data } = await supabase
+    .from("bank_accounts")
+    .select("id, account_number, bank")
+    .eq("id", bankAccountId)
+    .eq("company_id", companyId)
+    .maybeSingle()
+  if (data === null || data.bank !== BANK_CEF) return null
+  return { bankAccountId: data.id, accountNumber: data.account_number }
+}
+
+/** Todas as contas CEF da empresa. */
+async function listCefBankAccounts(
+  supabase: SupabaseServerClient,
+  companyId: string,
+): Promise<ContaResolvida[]> {
+  const { data } = await supabase
+    .from("bank_accounts")
+    .select("id, account_number")
+    .eq("company_id", companyId)
+    .eq("bank", BANK_CEF)
+  return (data ?? []).map((r) => ({
+    bankAccountId: r.id,
+    accountNumber: r.account_number,
+  }))
+}
+
 /**
- * Resolve a bank_accounts da conta CEF — busca por (company, bank, número)
- * e cria se não existir. O extrato CEF não traz titular; usa-se o nome da
- * empresa como holder (placeholder editável depois).
+ * Resolve a bank_accounts CEF pelo número da conta — busca e cria se não
+ * existir. O extrato CEF não traz titular; usa-se o nome da empresa como
+ * holder (placeholder editável depois).
  */
 async function resolveBankAccount(
   supabase: SupabaseServerClient,
@@ -464,7 +588,7 @@ async function resolveBankAccount(
     .from("bank_accounts")
     .select("id")
     .eq("company_id", companyId)
-    .eq("bank", "CEF")
+    .eq("bank", BANK_CEF)
     .eq("account_number", accountNumber)
     .maybeSingle()
   if (existing) return existing.id
@@ -473,7 +597,7 @@ async function resolveBankAccount(
     .from("bank_accounts")
     .insert({
       company_id: companyId,
-      bank: "CEF",
+      bank: BANK_CEF,
       account_number: accountNumber,
       account_type: "checking",
       holder,

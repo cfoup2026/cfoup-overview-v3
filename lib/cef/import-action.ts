@@ -36,11 +36,18 @@ export async function importCefAction(
   const files = formData
     .getAll("files")
     .filter((f): f is File => f instanceof File)
+  // bankAccountId (opcional): UUID de uma bank_accounts escolhida no upload.
+  const bankAccountIdRaw = formData.get("bankAccountId")
+  const bankAccountId =
+    typeof bankAccountIdRaw === "string" && bankAccountIdRaw.trim() !== ""
+      ? bankAccountIdRaw.trim()
+      : undefined
   const result = await runCefImport(
     supabase,
     membership.companyId,
     user.id,
     files,
+    bankAccountId,
   )
   revalidatePath("/", "layout")
   return result
