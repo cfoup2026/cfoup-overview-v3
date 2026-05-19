@@ -50,6 +50,7 @@ export async function createCompanyAction(
   const cnpj = `${cnpjRaw.slice(0, 2)}.${cnpjRaw.slice(2, 5)}.${cnpjRaw.slice(5, 8)}/${cnpjRaw.slice(8, 12)}-${cnpjRaw.slice(12, 14)}`
 
   // 1. INSERT companies — policy companies_insert_authenticated permite com created_by = auth.uid()
+  // SELECT do RETURNING é permitido pela policy companies_select_creator (CP#03 fix12).
   // short_name e regime ficam null; usuário preenche em /configuracoes.
   const companyInsert: TablesInsert<"companies"> = {
     name,
