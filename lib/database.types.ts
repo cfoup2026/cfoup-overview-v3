@@ -1,27 +1,23 @@
 // =============================================================
 // CFOup · Tipos gerados do schema Supabase
 // =============================================================
-// Origem: gerado por supabase MCP em 18/mai/2026 após CP#02
+// Origem: gerado por supabase MCP em 18/mai/2026 após CP#03.5
 // Projeto: jqlxgniopqgzcumyktnx (AI CFO for Small Businesses)
 // Migrations aplicadas:
 //   - cp02_initial_product_schema
 //   - cp02_harden_security_definer_functions
+//   - cp03_grant_execute_rls_helpers
+//   - cp03_companies_select_creator_policy
+//   - cp03_5_companies_profile_extension  ← novo (CP#03.5)
 //
-// NÃO EDITAR À MÃO. Regenerar com:
-//   supabase gen types typescript --project-id jqlxgniopqgzcumyktnx > lib/database.types.ts
-// ou via Cowork: pedir ao Claude para gerar de novo via MCP.
+// NÃO EDITAR À MÃO. Regenerar via Supabase MCP quando o schema mudar.
 //
-// Tabelas do produto (7 — todas com RLS via is_company_member/company_role):
-//   - users, companies, companies_users
+// Tabelas do produto (7 — todas com RLS):
+//   - users, companies (20 colunas após CP#03.5), companies_users
 //   - bank_accounts, transactions, eventos_caixa, import_runs
 //
-// Tabelas dormindo (6 — do portal Gregorutt, isoladas, ignoradas pelo app):
+// Tabelas dormindo (6 — portal Gregorutt, isoladas):
 //   - priorities, posts, deliveries, decisions, links, folders
-//
-// Funções públicas declaradas no schema mas com EXECUTE revogado:
-//   - is_company_member(_company_id uuid) → boolean
-//   - company_role(_company_id uuid) → text
-// Chamadas via supabase.rpc() vão retornar permission denied — by design.
 // =============================================================
 
 export type Json =
@@ -33,6 +29,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
       bank_accounts: {
@@ -87,33 +88,69 @@ export type Database = {
       }
       companies: {
         Row: {
+          cartao_cnpj_file_name: string | null
+          cartao_cnpj_imported_at: string | null
+          cnae_principal_codigo: string | null
+          cnae_principal_descricao: string | null
           cnpj: string
+          contato_responsavel: string | null
           created_at: string
           created_by: string | null
+          data_abertura: string | null
+          data_situacao_cadastral: string | null
+          email: string | null
+          endereco_completo: string | null
           id: string
           name: string
+          porte: string | null
           regime: string | null
           short_name: string | null
+          situacao_cadastral: string | null
+          telefone: string | null
           updated_at: string
         }
         Insert: {
+          cartao_cnpj_file_name?: string | null
+          cartao_cnpj_imported_at?: string | null
+          cnae_principal_codigo?: string | null
+          cnae_principal_descricao?: string | null
           cnpj: string
+          contato_responsavel?: string | null
           created_at?: string
           created_by?: string | null
+          data_abertura?: string | null
+          data_situacao_cadastral?: string | null
+          email?: string | null
+          endereco_completo?: string | null
           id?: string
           name: string
+          porte?: string | null
           regime?: string | null
           short_name?: string | null
+          situacao_cadastral?: string | null
+          telefone?: string | null
           updated_at?: string
         }
         Update: {
+          cartao_cnpj_file_name?: string | null
+          cartao_cnpj_imported_at?: string | null
+          cnae_principal_codigo?: string | null
+          cnae_principal_descricao?: string | null
           cnpj?: string
+          contato_responsavel?: string | null
           created_at?: string
           created_by?: string | null
+          data_abertura?: string | null
+          data_situacao_cadastral?: string | null
+          email?: string | null
+          endereco_completo?: string | null
           id?: string
           name?: string
+          porte?: string | null
           regime?: string | null
           short_name?: string | null
+          situacao_cadastral?: string | null
+          telefone?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -673,23 +710,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database["public"]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -707,16 +746,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -732,16 +771,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -757,16 +796,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -774,16 +813,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

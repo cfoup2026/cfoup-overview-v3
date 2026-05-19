@@ -9,6 +9,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // pdfjs-dist NÃO entra em serverExternalPackages: pdfjs é ESM-only e
+  // Turbopack não consegue tratá-lo como external via require (gera warning
+  // "package can't be external"). Em vez disso, o parser CNPJ resolve o
+  // worker via path.join(process.cwd(), ...) — string literal não
+  // interceptada pelo bundler.
 }
 
 export default nextConfig
