@@ -1,4 +1,6 @@
-import { parseCef, type ParseCefResult } from "../parsers/cef-parser"
+import { parseCEFTxt, type Transaction } from "cfoup-core"
+
+import { bucketCefHistory } from "../adapters/cef/hist-buckets"
 import { reconcileCef } from "./reconcile-cef"
 import type {
   APRecord,
@@ -44,6 +46,41 @@ const ALL_BUCKETS: readonly BankHistBucket[] = [
   "OTHER",
 ] as const
 
+/** Campos que parser + adapter produzem; running balance e reconciliação
+ *  são preenchidos depois, dentro do pipeline. */
+type ParsedRec = Omit<
+  BankTransaction,
+  | "runningBalance"
+  | "reconciled"
+  | "reconciledTo"
+  | "reconciliationConfidence"
+  | "reconciliationCandidates"
+>
+
+const SALDO_HIST_CODES = new Set(["SALDO DIA", "SALDO ANT"])
+
+/**
+ * Converte a `Transaction` canônica do cfoup-core no registro bancário
+ * enriquecido que o reconciliador consome — `histBucket`, valor com sinal
+ * e direção C/D. O parsing CEF vive só no cfoup-core; aqui apenas
+ * re-derivamos os campos específicos de reconciliação.
+ */
+function toBankRecord(tx: Transaction): ParsedRec {
+  const direction: "C" | "D" = tx.direction === "credit" ? "C" : "D"
+  const rawValue = tx.amount // cfoup-core garante valor sempre positivo
+  return {
+    source: "cef",
+    account: tx.accountId,
+    postingDate: tx.date.toISOString().slice(0, 10),
+    bankRefNumber: tx.docNumber,
+    histCode: tx.history,
+    histBucket: bucketCefHistory(tx.history, direction),
+    rawValue,
+    direction,
+    amount: direction === "C" ? rawValue : -rawValue,
+  }
+}
+
 /**
  * Pipeline de ingestão CEF — Fase A.
  *
@@ -56,21 +93,23 @@ const ALL_BUCKETS: readonly BankHistBucket[] = [
 export async function ingestCef(
   input: IngestCefInput,
 ): Promise<BankIngestOutput> {
-  type ParsedRec = ParseCefResult["records"][number]
   const tagged: Array<{ rec: ParsedRec; fileIndex: number; idx: number }> = []
   const warnings: string[] = []
 
   for (let f = 0; f < input.files.length; f += 1) {
     const file = input.files[f]
     if (file === undefined) continue
-    const result = parseCef(file.content)
-    for (let i = 0; i < result.records.length; i += 1) {
-      const rec = result.records[i]
-      if (rec === undefined) continue
-      tagged.push({ rec, fileIndex: f, idx: i })
+    const result = parseCEFTxt(file.content)
+    let kept = 0
+    for (const tx of result.ok) {
+      // cfoup-core roteia "SALDO DIA" para `balances`; linhas "SALDO ANT"
+      // chegam em `ok` mas não são movimentação — descartadas aqui.
+      if (SALDO_HIST_CODES.has(tx.history.trim())) continue
+      tagged.push({ rec: toBankRecord(tx), fileIndex: f, idx: kept })
+      kept += 1
     }
-    for (const w of result.warnings) {
-      warnings.push(`[${file.name}] ${w}`)
+    for (const e of result.errors) {
+      warnings.push(`[${file.name}] linha ${e.line}: ${e.reason}`)
     }
   }
 
