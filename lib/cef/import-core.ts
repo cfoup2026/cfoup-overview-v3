@@ -103,9 +103,11 @@ type AccountAccumulator = {
   movimentacoes: number
   /** Σ do valor com sinal (credit +, debit −). */
   signedSum: number
+  /** Todos os snapshots de saldo agregados — usados para o fechamento. */
   balances: BalanceSnapshot[]
-  /** Saldo veio de ao menos um PDF — sem isso, a abertura é não-confiável. */
-  hasPdfBalances: boolean
+  /** Abertura derivada do(s) PDF(s) do lote; null se não há PDF. O TXT
+   *  só traz SALDO DIA (fim de dia) e não ancora a abertura do período. */
+  derivedOpening: { amount: number; date: Date } | null
 }
 
 type ProcessCtx = {
@@ -131,6 +133,34 @@ function toISODate(d: Date): string {
  *  e o PDF (sem conta no arquivo) a herda. */
 function fileRank(file: File): number {
   return file.name.toLowerCase().endsWith(".pdf") ? 1 : 0
+}
+
+/**
+ * Deriva o saldo de abertura de um extrato CEF a partir do parse. O PDF
+ * intercala cada transação com o saldo logo após ela — o primeiro saldo
+ * do documento é o estado PÓS-1ª-transação, não a abertura. Descontamos
+ * a 1ª transação assinada para chegar à abertura real.
+ *
+ * TODO [validação]: o ramo "1º saldo datado antes da 1ª transação"
+ * (extrato PDF com linha SALDO ANTERIOR explícita) não tem fixture de
+ * teste — o PDF do piloto Gregorutt não traz SALDO ANTERIOR. Revalidar
+ * quando aparecer um PDF nesse formato.
+ */
+function deriveOpening(
+  ok: readonly Transaction[],
+  balances: readonly BalanceSnapshot[],
+): { amount: number; date: Date } | null {
+  const firstTx = ok[0]
+  const firstBal = balances[0]
+  if (firstTx === undefined || firstBal === undefined) return null
+  if (firstBal.date.getTime() < firstTx.date.getTime()) {
+    // SALDO ANTERIOR explícito — o próprio saldo já é a abertura.
+    return { amount: firstBal.amount, date: firstBal.date }
+  }
+  // 1º saldo é pós-1ª-transação — desconta a transação assinada.
+  const signed =
+    firstTx.direction === "credit" ? firstTx.amount : -firstTx.amount
+  return { amount: firstBal.amount - signed, date: firstTx.date }
 }
 
 // ----- runCefImport -------------------------------------------
@@ -185,22 +215,22 @@ export async function runCefImport(
   // cobertura ficam só no retorno (decisão CP#04 — sem migration).
   const contas: CefAccountResult[] = []
   for (const [accountNumber, acc] of accounts) {
+    // closing = último saldo conhecido (maior data).
     const sorted = [...acc.balances].sort(
       (a, b) => a.date.getTime() - b.date.getTime(),
     )
-    const opening = sorted[0]
     const closing = sorted[sorted.length - 1]
-    const cobertura: "completa" | "insuficiente" = acc.hasPdfBalances
-      ? "completa"
-      : "insuficiente"
+    // opening = abertura derivada do PDF (descontada a 1ª transação).
+    // Sem PDF não há abertura confiável — o caixa não fecha.
+    const opening = acc.derivedOpening
 
     let driftOk: boolean | null = null
-    if (cobertura === "completa" && opening && closing && opening !== closing) {
+    if (opening !== null && closing !== undefined) {
       const esperado = closing.amount - opening.amount
       driftOk = Math.abs(acc.signedSum - esperado) < 0.01
     }
 
-    if (cobertura === "completa" && opening) {
+    if (opening !== null) {
       await supabase
         .from("bank_accounts")
         .update({
@@ -210,16 +240,19 @@ export async function runCefImport(
         .eq("id", acc.bankAccountId)
     }
 
-    const completa = cobertura === "completa"
     contas.push({
       accountNumber,
       movimentacoes: acc.movimentacoes,
-      openingBalance: completa && opening ? opening.amount : null,
-      openingBalanceDate: completa && opening ? toISODate(opening.date) : null,
-      closingBalance: completa && closing ? closing.amount : null,
-      closingBalanceDate: completa && closing ? toISODate(closing.date) : null,
+      openingBalance: opening !== null ? opening.amount : null,
+      openingBalanceDate: opening !== null ? toISODate(opening.date) : null,
+      closingBalance:
+        opening !== null && closing !== undefined ? closing.amount : null,
+      closingBalanceDate:
+        opening !== null && closing !== undefined
+          ? toISODate(closing.date)
+          : null,
       driftOk,
-      coberturaSaldo: cobertura,
+      coberturaSaldo: opening !== null ? "completa" : "insuficiente",
     })
   }
 
@@ -438,7 +471,18 @@ async function processFile(
       acc.signedSum += t.direction === "credit" ? t.amount : -t.amount
     }
     acc.balances.push(...balancesConta)
-    if (isPdf && balancesConta.length > 0) acc.hasPdfBalances = true
+    // A abertura confiável vem do PDF (saldos intercalados pós-transação);
+    // guarda a de menor data entre os PDFs do lote.
+    if (isPdf) {
+      const abertura = deriveOpening(txsConta, balancesConta)
+      if (
+        abertura !== null &&
+        (acc.derivedOpening === null ||
+          abertura.date.getTime() < acc.derivedOpening.date.getTime())
+      ) {
+        acc.derivedOpening = abertura
+      }
+    }
 
     await ctx.supabase
       .from("import_runs")
@@ -624,7 +668,7 @@ function ensureAccount(
       movimentacoes: 0,
       signedSum: 0,
       balances: [],
-      hasPdfBalances: false,
+      derivedOpening: null,
     }
     accounts.set(accountNumber, acc)
   }
