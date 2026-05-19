@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { CefImportPanel } from "@/components/cef-import-panel"
 
 type SourceStatus = "available" | "coming-soon"
 
@@ -119,6 +120,7 @@ export default function ConexoesPage() {
           Fontes disponíveis
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <CefImportPanel />
           {SOURCES.map((source) => (
             <SourceCard key={source.id} source={source} onAction={handleSourceAction} />
           ))}

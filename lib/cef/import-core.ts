@@ -7,8 +7,10 @@
 //   - lib/cef/import-action.ts (server action — wrapper com auth/gate);
 //   - scripts/smoke-cef-import.mts (smoke isolado).
 //
-// Aceita lote misto .txt/.pdf (a UI do Passo 3 usa single-file; o array
-// fica pronto para o lote real do CP#04c). Por arquivo: import_runs
+// Aceita lote misto TXT/PDF — o formato é detectado pelo CONTEÚDO do
+// arquivo (assinatura %PDF-), nunca pela extensão/nome. A UI usa
+// single-file; o array fica pronto para o lote real do CP#04c. Por
+// arquivo: import_runs
 // (idempotente por file_hash), bank_accounts, transactions e
 // eventos_caixa via upsert. Saldo de abertura → bank_accounts; saldo
 // final e cobertura → retorno (sem persistência, decisão CP#04).
@@ -129,10 +131,21 @@ function toISODate(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 
-/** Ordena .txt antes de .pdf — num lote misto o TXT registra a conta
- *  e o PDF (sem conta no arquivo) a herda. */
-function fileRank(file: File): number {
-  return file.name.toLowerCase().endsWith(".pdf") ? 1 : 0
+/**
+ * Detecta o formato pelo CONTEÚDO do arquivo: a assinatura "%PDF-" no
+ * início identifica um PDF; qualquer outro conteúdo é tratado como TXT.
+ * A extensão/nome do arquivo nunca participa — o nome é só metadata.
+ *
+ * TODO [CP futuro]: detectar tipos binários não suportados (PNG, JPEG,
+ * ZIP, DOC — via magic bytes) e devolver "arquivo binário não
+ * suportado" antes de cair no parser TXT. Hoje um PNG vira "conteúdo
+ * não reconhecido como extrato CEF", o que confunde o usuário.
+ */
+function hasPdfSignature(bytes: Uint8Array): boolean {
+  // "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
+  const sig = [0x25, 0x50, 0x44, 0x46, 0x2d]
+  if (bytes.length < sig.length) return false
+  return sig.every((b, i) => bytes[i] === b)
 }
 
 /**
@@ -205,9 +218,8 @@ export async function runCefImport(
     accounts,
   }
 
-  const ordered = [...files].sort((a, b) => fileRank(a) - fileRank(b))
   const arquivos: CefFileResult[] = []
-  for (const file of ordered) {
+  for (const file of files) {
     arquivos.push(await processFile(file, ctx))
   }
 
@@ -272,11 +284,11 @@ async function processFile(
   file: File,
   ctx: ProcessCtx,
 ): Promise<CefFileResult> {
-  const lower = file.name.toLowerCase()
-  const isPdf = lower.endsWith(".pdf")
-  const isTxt = lower.endsWith(".txt")
-  const source: "cef-txt" | "cef-pdf" = isPdf ? "cef-pdf" : "cef-txt"
   const warnings: string[] = []
+  // O formato é decidido pelo conteúdo (ver hasPdfSignature); até a
+  // leitura dos bytes, source é só um rótulo provisório para os erros
+  // de tamanho.
+  let source: "cef-txt" | "cef-pdf" = "cef-txt"
   const fail = (error: string): CefFileResult => ({
     fileName: file.name,
     source,
@@ -287,11 +299,12 @@ async function processFile(
     error,
   })
 
-  if (!isPdf && !isTxt) return fail("Extensão não suportada — use .txt ou .pdf.")
   if (file.size === 0) return fail("Arquivo vazio.")
   if (file.size > MAX_FILE_BYTES) return fail("Arquivo excede 15 MB.")
 
   const bytes = new Uint8Array(await file.arrayBuffer())
+  const isPdf = hasPdfSignature(bytes)
+  source = isPdf ? "cef-pdf" : "cef-txt"
   const fileHash = createHash("sha256").update(bytes).digest("hex")
 
   // Guard de idempotência: run bem-sucedido com o mesmo hash → não reimporta.
@@ -333,6 +346,8 @@ async function processFile(
       .insert({
         company_id: ctx.companyId,
         source,
+        // file_name é só metadata/auditoria — não participa de validação
+        // nem de roteamento de parser (o formato vem do conteúdo).
         file_name: file.name,
         file_hash: fileHash,
         file_size: file.size,
@@ -353,8 +368,12 @@ async function processFile(
       : parseCEFTxt(new TextDecoder().decode(bytes))
 
     if (parsed.ok.length === 0) {
-      const reason =
-        parsed.errors[0]?.reason ?? "nenhuma movimentação reconhecida no arquivo"
+      // Erro de CONTEÚDO: o arquivo não casa o layout de extrato CEF.
+      // A mensagem nunca menciona nome/extensão do arquivo.
+      const detalhe = parsed.errors[0]?.reason
+      const reason = detalhe
+        ? `o conteúdo do arquivo não foi reconhecido como um extrato CEF (${detalhe})`
+        : "o conteúdo do arquivo não foi reconhecido como um extrato CEF"
       await failRun(ctx.supabase, runId, reason)
       return fail(reason)
     }
