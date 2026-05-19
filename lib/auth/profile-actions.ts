@@ -19,6 +19,7 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { TablesUpdate } from "@/lib/database.types"
 import { extractCnpjCardFields, type CnpjCardFields } from "@/lib/cnpj-card/parser"
+import { resolveActiveCompany } from "@/lib/auth/active-company"
 
 const REGIMES_VALIDOS = new Set([
   "simples_nacional",
@@ -57,24 +58,6 @@ function readField(formData: FormData, key: string): string | null | undefined {
   if (typeof v !== "string") return undefined
   const trimmed = v.trim()
   return trimmed === "" ? null : trimmed
-}
-
-/**
- * Resolve a empresa ativa do user. Por ora: primeira empresa de companies_users
- * ordenada por created_at ASC (mesma regra que useActiveCompany do CP#03).
- * Quando company switcher entrar (V2), usar cookie httpOnly.
- */
-async function resolveActiveCompany(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
-  const { data, error } = await supabase
-    .from("companies_users")
-    .select("company_id, role")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
-  if (error || !data) return null
-  return { companyId: data.company_id, role: data.role }
 }
 
 // ----- updateCompanyProfileAction -----------------------------
