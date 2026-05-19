@@ -383,7 +383,10 @@ async function processFile(
     if (eventoRows.length > 0) {
       const { error: evErr } = await ctx.supabase
         .from("eventos_caixa")
-        .upsert(eventoRows, { onConflict: "id", ignoreDuplicates: true })
+        .upsert(eventoRows, {
+          onConflict: "company_id,origem,origem_ref",
+          ignoreDuplicates: true,
+        })
       if (evErr) {
         await failRun(ctx.supabase, runId, evErr.message)
         return fail(evErr.message)
@@ -511,7 +514,9 @@ function eventoToRow(
   userId: string,
 ): TablesInsert<"eventos_caixa"> {
   const row: TablesInsert<"eventos_caixa"> = {
-    id: ev.id,
+    // id é uuid autogerado pelo DB. O id determinístico do core (string
+    // "cef_..._..._...") não cabe em uuid; a idempotência vem do UNIQUE
+    // (company_id, origem, origem_ref).
     company_id: companyId,
     legal_entity_id: ev.legal_entity_id,
     status: ev.status,
