@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, type ChangeEvent } from "react"
+import { useState } from "react"
 import {
   Landmark,
   FileUp,
@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react"
 import { PageHeader } from "@/components/page-header"
+import { FileImportModal } from "@/components/file-import-modal"
 
 type SourceStatus = "available" | "coming-soon"
 
@@ -78,10 +79,9 @@ const ERPS = ["Omie", "ContaAzul", "Bling", "Tiny", "TOTVS", "SAP", "Sankhya"]
 
 export default function ConexoesPage() {
   const [activeConnections, setActiveConnections] = useState<ActiveConnection[]>([])
-  const [openModal, setOpenModal] = useState<"banks" | "enotas" | "erp" | null>(null)
+  const [openModal, setOpenModal] = useState<"banks" | "enotas" | "erp" | "upload" | null>(null)
   const [enotasToken, setEnotasToken] = useState("")
   const [selectedErp, setSelectedErp] = useState(ERPS[0])
-  const uploadInputRef = useRef<HTMLInputElement>(null)
 
   function addConnection(c: Omit<ActiveConnection, "id">) {
     setActiveConnections((prev) => [...prev, { id: crypto.randomUUID(), ...c }])
@@ -89,23 +89,12 @@ export default function ConexoesPage() {
   }
 
   function handleSourceAction(sourceId: string) {
-    if (sourceId === "upload") return uploadInputRef.current?.click()
+    if (sourceId === "upload") return setOpenModal("upload")
     if (sourceId === "open-finance") return setOpenModal("banks")
     if (sourceId === "enotas") return setOpenModal("enotas")
     if (sourceId === "erp") return setOpenModal("erp")
   }
 
-  function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    addConnection({
-      title: file.name,
-      subtitle: "Upload de arquivo",
-      status: "syncing",
-      message: "Importado · aguardando classificação",
-    })
-    e.target.value = ""
-  }
   return (
     <>
       <PageHeader
@@ -158,15 +147,9 @@ export default function ConexoesPage() {
         )}
       </section>
 
-      <input
-        ref={uploadInputRef}
-        type="file"
-        accept=".pdf,.csv,.xlsx,.xls,.ofx"
-        onChange={handleFileUpload}
-        className="hidden"
-        aria-hidden
-        tabIndex={-1}
-      />
+      {openModal === "upload" && (
+        <FileImportModal onClose={() => setOpenModal(null)} />
+      )}
 
       {openModal === "banks" && (
         <div
